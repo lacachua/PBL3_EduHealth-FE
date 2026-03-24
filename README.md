@@ -1,148 +1,111 @@
-# React + Vite
+# EduHealth FE
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend cho hệ thống quản lý sức khỏe học đường, xây dựng bằng React + Vite, hỗ trợ phân quyền theo vai trò và luồng xác thực đăng nhập.
 
-Currently, two official plugins are available:
+## Công nghệ sử dụng
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19
+- Vite 8
+- React Router DOM 7
+- Axios
+- Tailwind CSS v4
+- ESLint 9
 
-## React Compiler
+## Yêu cầu môi trường
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- npm 9+
 
-## Expanding the ESLint configuration
+## Cài đặt và chạy dự án
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Cài dependencies:
 
+```bash
+npm install
+```
 
-Tôi khuyên dùng cấu trúc này:
-frontend/
-├─ public/
-├─ src/
-│  ├─ app/
-│  │  ├─ router/
-│  │  │  ├─ index.jsx
-│  │  │  ├─ protectedRoutes.jsx
-│  │  │  └─ roleRoutes.jsx
-│  │  ├─ providers/
-│  │  │  ├─ AuthProvider.jsx
-│  │  │  └─ AppProvider.jsx
-│  │  ├─ store/
-│  │  ├─ guards/
-│  │  │  ├─ RequireAuth.jsx
-│  │  │  └─ RequireRole.jsx
-│  │  └─ config/
-│  │     ├─ env.js
-│  │     └─ permissions.js
-│  │
-│  ├─ assets/
-│  │  ├─ images/
-│  │  ├─ icons/
-│  │  └─ styles/
-│  │
-│  ├─ layouts/
-│  │  ├─ AuthLayout.jsx
-│  │  ├─ AdminLayout.jsx
-│  │  ├─ NurseLayout.jsx
-│  │  └─ ParentLayout.jsx
-│  │
-│  ├─ shared/
-│  │  ├─ components/
-│  │  │  ├─ common/
-│  │  │  ├─ form/
-│  │  │  ├─ table/
-│  │  │  ├─ modal/
-│  │  │  └─ status/
-│  │  ├─ hooks/
-│  │  ├─ utils/
-│  │  ├─ constants/
-│  │  ├─ services/
-│  │  │  ├─ httpClient.js
-│  │  │  ├─ tokenService.js
-│  │  │  └─ storageService.js
-│  │  └─ validators/
-│  │
-│  ├─ features/
-│  │  ├─ auth/
-│  │  │  ├─ pages/
-│  │  │  │  ├─ LoginPage.jsx
-│  │  │  │  ├─ ForgotPasswordPage.jsx
-│  │  │  │  ├─ VerifyOtpPage.jsx
-│  │  │  │  └─ ChangePasswordPage.jsx
-│  │  │  ├─ components/
-│  │  │  ├─ services/
-│  │  │  ├─ hooks/
-│  │  │  └─ schemas/
-│  │  │
-│  │  ├─ dashboard/
-│  │  │  ├─ admin/
-│  │  │  ├─ nurse/
-│  │  │  └─ parent/
-│  │  │
-│  │  ├─ users/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  ├─ services/
-│  │  │  ├─ hooks/
-│  │  │  └─ schemas/
-│  │  │
-│  │  ├─ catalogs/
-│  │  │  ├─ medicines/
-│  │  │  ├─ vaccines/
-│  │  │  ├─ diseases/
-│  │  │  └─ allergies/
-│  │  │
-│  │  ├─ students/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  ├─ services/
-│  │  │  ├─ hooks/
-│  │  │  └─ schemas/
-│  │  │
-│  │  ├─ health-records/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  ├─ inventory/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  ├─ examinations/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  ├─ vaccinations/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  ├─ reports/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  ├─ news/
-│  │  │  ├─ pages/
-│  │  │  ├─ components/
-│  │  │  └─ services/
-│  │  │
-│  │  └─ parent-portal/
-│  │     ├─ pages/
-│  │     ├─ components/
-│  │     └─ services/
-│  │
-│  ├─ pages/
-│  │  ├─ NotFoundPage.jsx
-│  │  ├─ ForbiddenPage.jsx
-│  │  └─ ServerErrorPage.jsx
-│  │
-│  ├─ App.jsx
-│  └─ main.jsx
-│
-├─ .env
-├─ package.json
-└─ vite.config.js
+2. Tạo file `.env` từ `.env.example`:
+
+```powershell
+copy .env.example .env
+```
+
+3. Chạy môi trường development:
+
+```bash
+npm run dev
+```
+
+4. Build production:
+
+```bash
+npm run build
+```
+
+5. Preview bản build:
+
+```bash
+npm run preview
+```
+
+## Biến môi trường
+
+Các biến được khai báo tại `src/app/config/env.js`:
+
+- `VITE_API_BASE_URL`: URL backend API
+- `VITE_APP_NAME`: tên ứng dụng
+- `VITE_ENABLE_MOCK_AUTH`: bật/tắt đăng nhập giả lập
+  - `true` hoặc bỏ trống: bật mock auth
+  - `false`: gọi API thật qua endpoint `/auth/login`
+
+## Tài khoản mock để test nhanh
+
+Khai báo tại `src/features/auth/constants/mockAuthAccounts.js`, xử lý ở `src/features/auth/services/authApi.js`.
+
+- Admin
+  - Email: `ntctuyen@gmail.com`
+  - Password: `Tuyen123@`
+  - Route: `/admin/dashboard`
+- Nurse
+  - Email: `ntctuyen01@gmail.com`
+  - Password: `Tuyen123@`
+  - Route: `/nurse/dashboard`
+- Parent
+  - Email: `ntctuyen02@gmail.com`
+  - Password: `Tuyen123@`
+  - Route: `/parent/dashboard`
+
+## Routing chính
+
+Định nghĩa ở `src/app/router/index.jsx`:
+
+- Public routes
+  - `/`
+  - `/login`
+  - `/forgot-password`
+  - `/verify-otp`
+  - `/change-password`
+- Protected routes
+  - `/admin/dashboard` (role `admin`)
+  - `/nurse/dashboard` (role `nurse`)
+  - `/parent/dashboard` (role `parent`)
+- Error routes
+  - `/403`
+  - `/500`
+  - `*`
+
+## Cấu trúc thư mục
+
+- `src/app`: router, guards, providers, config
+- `src/features`: module theo domain (`auth`, `dashboard`, `students`, `users`, ...)
+- `src/layouts`: layout theo vai trò
+- `src/pages`: trang public và trang lỗi
+- `src/shared`: component dùng chung, services, hooks, utils, validators
+- `src/assets`: styles, images, icons
+
+## Scripts
+
+- `npm run dev`: chạy local
+- `npm run build`: build production
+- `npm run preview`: preview build
+- `npm run lint`: kiểm tra ESLint
