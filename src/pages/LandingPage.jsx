@@ -1,26 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LandingTopNav from '../features/landing/components/LandingTopNav';
+import LandingFooter from '../features/landing/components/LandingFooter';
 
 const LandingPage = () => {
   return (
     <div className="bg-surface font-body text-on-surface">
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center w-full">
-          <div className="text-2xl font-bold tracking-tighter text-primary font-headline">
-            EduHealth
-          </div>
-          <div className="hidden md:flex space-x-8 items-center font-headline text-sm font-medium tracking-tight">
-            <a className="text-primary font-bold border-b-2 border-primary" href="#">Giải pháp</a>
-            <a className="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Tài nguyên</a>
-            <a className="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Về chúng tôi</a>
-            <a className="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Liên hệ</a>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link to="/login" className="px-5 py-2 text-sm font-semibold text-primary hover:opacity-80 transition-all">Đăng nhập</Link>
-            <button className="px-6 py-2.5 text-sm font-bold text-white signature-gradient rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all">Đăng ký</button>
-          </div>
-        </div>
-      </nav>
+      <LandingTopNav />
 
       <header className="relative pt-32 pb-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -188,21 +174,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <footer className="w-full py-12 border-t border-slate-100 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div>
-            <div className="text-lg font-bold text-primary font-headline mb-4">EduHealth</div>
-            <p className="font-body text-xs text-on-surface-variant mb-2">© 2024 EduHealth. Bản quyền thuộc về EduHealth.</p>
-            <p className="font-body text-xs text-on-surface-variant">Giải pháp quản lý sức khỏe học đường toàn diện tại Việt Nam.</p>
-          </div>
-          <div className="flex flex-wrap gap-6 md:justify-end">
-            <a className="font-body text-xs text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Chính sách bảo mật</a>
-            <a className="font-body text-xs text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Điều khoản sử dụng</a>
-            <a className="font-body text-xs text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Tuân thủ HIPAA</a>
-            <a className="font-body text-xs text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Hỗ trợ</a>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 };

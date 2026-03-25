@@ -30,7 +30,7 @@ const ForgotPasswordPage = () => {
 
         <div className="w-full max-w-md z-10">
           <div className="flex justify-center mb-8">
-            <AuthBrand icon="medical_services" iconClassName="text-4xl" textClassName="text-2xl font-extrabold" />
+            <AuthBrand />
           </div>
 
           <div className="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_32px_64px_-12px_rgba(25,28,30,0.04)] border border-outline-variant/20">

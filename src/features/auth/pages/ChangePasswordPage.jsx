@@ -19,7 +19,7 @@ const ChangePasswordPage = () => {
 
         <div className="w-full max-w-md z-10">
           <div className="flex justify-center mb-8">
-            <AuthBrand icon="health_and_safety" iconClassName="text-3xl" textClassName="text-2xl font-bold" />
+            <AuthBrand />
           </div>
 
           <div className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-12px_rgba(25,28,30,0.04)] p-8 md:p-10 border border-outline-variant/10">

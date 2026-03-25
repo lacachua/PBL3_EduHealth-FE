@@ -1,12 +1,15 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import BrandLogo from '../shared/components/common/BrandLogo';
 
 const AdminLayout = () => {
   return (
     <div className="min-h-screen bg-surface">
       {/* Sidebar & Header for Admin */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container shadow-lg">
-        <div className="p-6 text-2xl font-bold text-primary">EduHealth Admin</div>
+        <div className="p-4">
+          <BrandLogo textClassName="text-xl" suffix="Admin" className="w-full" />
+        </div>
         <nav className="mt-6 px-4 space-y-2">
           <div className="p-3 rounded-xl bg-primary/10 text-primary font-bold">Dashboard</div>
           <div className="p-3 rounded-xl hover:bg-surface-container-high transition-colors">Users</div>

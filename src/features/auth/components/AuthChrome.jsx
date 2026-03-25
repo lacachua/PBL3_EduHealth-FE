@@ -1,18 +1,11 @@
 import React from 'react';
+import BrandLogo from '../../../shared/components/common/BrandLogo';
 
 const footerLinks = ['Chính sách bảo mật', 'Điều khoản sử dụng', 'Tuân thủ HIPAA', 'Hỗ trợ'];
 
-export const AuthBrand = ({ icon, iconClassName = '', textClassName = '' }) => {
+export const AuthBrand = ({ iconClassName = 'text-[1.55rem]', textClassName = 'text-2xl', className = '' }) => {
   return (
-    <div className="flex items-center gap-2">
-      <span
-        className={`material-symbols-outlined text-primary ${iconClassName}`}
-        style={{ fontVariationSettings: "'FILL' 1" }}
-      >
-        {icon}
-      </span>
-      <span className={`font-headline tracking-tighter text-primary ${textClassName}`}>EduHealth</span>
-    </div>
+    <BrandLogo className={className} textClassName={textClassName} iconClassName={iconClassName} />
   );
 };
 
@@ -23,7 +16,7 @@ export const AuthTopNav = ({ variant = 'simple' }) => {
     return (
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center w-full">
-          <div className="text-2xl font-bold tracking-tighter text-green-700 font-headline">EduHealth</div>
+          <BrandLogo colorClassName="text-green-700" className="hover:text-green-600" />
           <div className="hidden md:flex gap-8 items-center">
             <a className="font-headline text-sm font-medium tracking-tight text-slate-600 hover:text-green-600 transition-colors duration-200" href="#">Giải pháp</a>
             <a className="font-headline text-sm font-medium tracking-tight text-slate-600 hover:text-green-600 transition-colors duration-200" href="#">Tài nguyên</a>
@@ -42,7 +35,7 @@ export const AuthTopNav = ({ variant = 'simple' }) => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm h-20 flex items-center">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center w-full">
-        <div className="text-2xl font-bold tracking-tighter text-green-700">EduHealth</div>
+        <BrandLogo colorClassName="text-green-700" className="hover:text-green-600" textClassName="text-2xl" />
         <div className="hidden md:flex gap-8 items-center">
           <span className="font-headline text-sm font-medium tracking-tight text-slate-600">Hệ thống Y tế Học đường</span>
         </div>

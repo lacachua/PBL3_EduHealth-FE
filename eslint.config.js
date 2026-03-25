@@ -24,6 +24,25 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'styled-components',
+              message: 'Use Tailwind className and shared style tokens instead of styled-components.',
+            },
+            {
+              name: '@emotion/react',
+              message: 'Use Tailwind className and shared style tokens instead of Emotion.',
+            },
+            {
+              name: '@emotion/styled',
+              message: 'Use Tailwind className and shared style tokens instead of Emotion.',
+            },
+          ],
+        },
+      ],
     },
   },
 ])
