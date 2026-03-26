@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearAuthStorage, getAccessToken } from "../services/tokenClient";
 
 const resolveBaseUrl = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -19,7 +20,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+  const token = getAccessToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -32,10 +33,7 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
-      sessionStorage.removeItem("user");
+      clearAuthStorage();
     }
 
     return Promise.reject(error);

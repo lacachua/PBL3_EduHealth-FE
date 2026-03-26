@@ -1,26 +1,16 @@
 import React, { createContext, useMemo, useState } from "react";
+import {
+  clearAuthStorage,
+  getAccessToken,
+  getStoredUser,
+  setAccessToken,
+  setStoredUser,
+} from "../../shared/services/tokenClient";
 
 const AuthContext = createContext(null);
 
-const parseStoredUser = (value) => {
-  if (!value) return null;
-
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
-};
-
-const getStoredToken = () =>
-  localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const localUser = parseStoredUser(localStorage.getItem("user"));
-    const sessionUser = parseStoredUser(sessionStorage.getItem("user"));
-    return localUser || sessionUser;
-  });
+  const [user, setUser] = useState(() => getStoredUser());
 
   const login = (payload) => {
     const normalizedUser = payload?.user ?? payload ?? null;
@@ -31,26 +21,14 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    if (remember) {
-      localStorage.setItem("user", JSON.stringify(normalizedUser));
-      localStorage.setItem("accessToken", token);
-      sessionStorage.removeItem("user");
-      sessionStorage.removeItem("accessToken");
-    } else {
-      sessionStorage.setItem("user", JSON.stringify(normalizedUser));
-      sessionStorage.setItem("accessToken", token);
-      localStorage.removeItem("user");
-      localStorage.removeItem("accessToken");
-    }
+    setStoredUser(normalizedUser, remember);
+    setAccessToken(token, remember);
 
     setUser(normalizedUser);
   };
 
   const logout = () => {
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("user");
+    clearAuthStorage();
     setUser(null);
   };
 
@@ -59,7 +37,7 @@ export const AuthProvider = ({ children }) => {
       user,
       login,
       logout,
-      isAuthenticated: Boolean(getStoredToken()),
+      isAuthenticated: Boolean(getAccessToken()),
     }),
     [user]
   );

@@ -1,16 +1,76 @@
-export const normalizeApiData = (response) => {
-  const payload = response?.data;
+const HTTP_ERROR_MESSAGES = {
+  400: "Yeu cau khong hop le.",
+  401: "Phien dang nhap da het han. Vui long dang nhap lai.",
+  403: "Ban khong co quyen thuc hien thao tac nay.",
+  404: "Khong tim thay du lieu yeu cau.",
+  409: "Du lieu dang xung dot. Vui long kiem tra lai.",
+  422: "Du lieu chua hop le. Vui long kiem tra lai thong tin.",
+  500: "He thong dang ban. Vui long thu lai sau.",
+};
 
-  if (payload && typeof payload === "object" && "data" in payload) {
-    return payload.data;
+const extractPayload = (responseOrPayload) => {
+  if (!responseOrPayload || typeof responseOrPayload !== "object") {
+    return null;
   }
 
-  return payload;
+  if ("data" in responseOrPayload) {
+    return responseOrPayload.data;
+  }
+
+  return responseOrPayload;
+};
+
+export const normalizeApiEnvelope = (responseOrPayload) => {
+  const payload = extractPayload(responseOrPayload);
+
+  if (!payload || typeof payload !== "object") {
+    return {
+      success: null,
+      message: "",
+      data: payload,
+      errors: null,
+      meta: null,
+    };
+  }
+
+  const hasEnvelopeKeys = ["success", "message", "data", "errors", "meta"].some(
+    (key) => key in payload
+  );
+
+  if (!hasEnvelopeKeys) {
+    return {
+      success: null,
+      message: "",
+      data: payload,
+      errors: null,
+      meta: null,
+    };
+  }
+
+  return {
+    success: payload.success ?? null,
+    message: payload.message || "",
+    data: "data" in payload ? payload.data : null,
+    errors: payload.errors || null,
+    meta: payload.meta || null,
+  };
+};
+
+export const normalizeApiData = (responseOrPayload) => {
+  const envelope = normalizeApiEnvelope(responseOrPayload);
+  return envelope.data;
 };
 
 export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu") => {
+  const status = error?.response?.status;
+  const envelope = normalizeApiEnvelope(error?.response);
+  const firstErrorMessage = Array.isArray(envelope.errors) ? envelope.errors[0]?.message : null;
+
   return (
+    envelope.message ||
+    firstErrorMessage ||
     error?.response?.data?.message ||
+    HTTP_ERROR_MESSAGES[status] ||
     error?.message ||
     fallback
   );
