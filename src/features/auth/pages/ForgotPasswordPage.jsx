@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthBrand, AuthFooter } from '../components/AuthChrome';
+import { useNavigate } from 'react-router-dom';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { requestPasswordOtp } from '../services/authApi';
+import AuthShell from '../components/AuthShell';
+import AuthCard from '../components/AuthCard';
+import AuthPageHeader from '../components/AuthPageHeader';
 import AuthTextField from '../components/AuthTextField';
+import AuthBackLink from '../components/AuthBackLink';
+import AuthSupportText from '../components/AuthSupportText';
 import { authCopy } from '../constants/authCopy';
 
 const FORGOT_COPY = authCopy.forgotPassword;
@@ -10,78 +16,77 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setValidationError('');
+    setSubmitError('');
+
+    const normalizedIdentifier = identifier.trim();
+
+    if (!normalizedIdentifier) {
+      setValidationError('Vui lòng nhập email hoặc tên đăng nhập.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      navigate('/verify-otp', { state: { identifier } });
+      await requestPasswordOtp({ identifier: normalizedIdentifier });
+      navigate('/verify-otp', { state: { identifier: normalizedIdentifier } });
+    } catch (error) {
+      setSubmitError(normalizeApiMessage(error, 'Không thể gửi mã OTP. Vui lòng thử lại.'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-background font-body text-on-surface min-h-screen flex flex-col">
-      <main className="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-secondary-fixed/10 rounded-full blur-3xl"></div>
+    <AuthShell contentClassName="max-w-[29rem]">
+      <AuthCard>
+        <AuthPageHeader
+          icon="key"
+          title={FORGOT_COPY.title}
+          description={FORGOT_COPY.description}
+        />
 
-        <div className="w-full max-w-md z-10">
-          <div className="flex justify-center mb-8">
-            <AuthBrand />
-          </div>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <AuthTextField
+            id="identifier"
+            label={FORGOT_COPY.identifierLabel}
+            icon="person"
+            name="identifier"
+            value={identifier}
+            onChange={(event) => {
+              setIdentifier(event.target.value);
+              if (validationError) setValidationError('');
+              if (submitError) setSubmitError('');
+            }}
+            placeholder="name@school.edu"
+            required
+          />
 
-          <div className="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_32px_64px_-12px_rgba(25,28,30,0.04)] border border-outline-variant/20">
-            <div className="text-center mb-8">
-              <h1 className="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-3">{FORGOT_COPY.title}</h1>
-              <p className="text-on-surface-variant text-sm leading-relaxed">{FORGOT_COPY.description}</p>
-            </div>
+          {validationError && <p className="text-sm text-error">{validationError}</p>}
+          {submitError && <p className="text-sm text-error">{submitError}</p>}
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <AuthTextField
-                id="identifier"
-                label={FORGOT_COPY.identifierLabel}
-                icon="person"
-                name="identifier"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
-                placeholder="example@eduhealth.vn"
-                required
-                inputClassName="rounded-lg focus:ring-primary/20"
-              />
+          <button
+            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? FORGOT_COPY.submitting : FORGOT_COPY.submit}
+            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </form>
 
-              <button className="w-full py-4 px-6 signature-gradient text-on-primary font-headline font-bold text-lg rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? FORGOT_COPY.submitting : FORGOT_COPY.submit}
-                <span className="material-symbols-outlined text-xl">arrow_forward</span>
-              </button>
-            </form>
-
-            <div className="mt-8 pt-8 border-t border-surface-container-high flex flex-col items-center gap-4">
-              <Link to="/login" className="text-sm font-medium text-primary hover:text-primary-container transition-colors flex items-center gap-2">
-                <span className="material-symbols-outlined text-lg">arrow_back</span>
-                {FORGOT_COPY.backToLogin}
-              </Link>
-              <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                <span>{FORGOT_COPY.supportPrompt}</span>
-                <a className="text-primary font-semibold hover:underline" href="#">{FORGOT_COPY.supportAction}</a>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 opacity-40 grayscale contrast-125 flex justify-center">
-            <img
-              alt="Decorative wellness illustration"
-              className="h-24 w-auto object-contain"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdS6b2TFVzIsPQm2ZGp-8m-vfIAeDljnEUd8xDHHQjRzIsLs4h5cdyYPCUDfotf718IZ856jcRpzr_BdMNbPLFOoWsuUMj-Dx3xrKN4R_4HXohzgGEH7uUnFj025BIOdCgrwqTz8bGRwX6_bA0cnVonxWnC7p6SLYTLixdlDVaprMgodyyFPx-NDUxx4zjJTfSaGXriVSEmrfOp1YcBOoE-xhkdx3PA4vFQQhHxglTVxOLL7IoPC2kaBcNcSZAVar_jlEi5GRnx0c"
-            />
-          </div>
+        <div className="mt-4 flex flex-col items-center gap-2.5 border-t border-outline-variant/20 pt-3.5">
+          <AuthBackLink to="/login">{FORGOT_COPY.backToLogin}</AuthBackLink>
+          <AuthSupportText prompt={FORGOT_COPY.supportPrompt} action={FORGOT_COPY.supportAction} />
         </div>
-      </main>
-
-      <AuthFooter variant="compact" />
-    </div>
+      </AuthCard>
+    </AuthShell>
   );
 };
 

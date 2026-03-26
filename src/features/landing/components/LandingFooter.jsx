@@ -54,13 +54,8 @@ const LandingFooter = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-outline-variant/20 py-5 text-sm leading-relaxed text-on-surface-variant md:flex-row md:items-center md:justify-between">
-          <p>© 2026 Hệ thống quản lý sức khỏe học đường - Trường Tiểu học Trần Cao Vân.</p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <a href="#lien-he" className="transition-colors hover:text-primary">Hỗ trợ phụ huynh</a>
-            <a href="#ban-tin-y-te" className="transition-colors hover:text-primary">Quy định thông báo</a>
-            <a href="#tinh-nang" className="transition-colors hover:text-primary">Hướng dẫn sử dụng</a>
-          </div>
+        <div className="border-t border-outline-variant/20 py-3 text-sm leading-relaxed text-on-surface-variant">
+          <p className="text-center">© 2026 Hệ thống quản lý sức khỏe học đường - Trường Tiểu học Trần Cao Vân.</p>
         </div>
       </div>
     </footer>

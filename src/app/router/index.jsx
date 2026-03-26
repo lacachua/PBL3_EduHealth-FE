@@ -2,7 +2,7 @@ import React from "react";
 import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 
 // Layouts
-import AuthLayout from "../../layouts/AuthLayout";
+import SiteLayout from "../../layouts/SiteLayout";
 import AdminLayout from "../../layouts/AdminLayout";
 
 // Guards
@@ -27,11 +27,9 @@ import ParentDashboard from "../../features/dashboard/parent/ParentDashboard";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
-
-      {/* Auth Routes */}
-      <Route element={<AuthLayout />}>
+      {/* Public + Auth Routes */}
+      <Route element={<SiteLayout />}>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-otp" element={<VerifyOtpPage />} />

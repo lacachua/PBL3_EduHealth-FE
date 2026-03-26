@@ -1,101 +1,153 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { AuthBrand, AuthFooter } from '../components/AuthChrome';
+import React, { useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { resetPassword } from '../services/authApi';
+import AuthShell from '../components/AuthShell';
+import AuthCard from '../components/AuthCard';
+import AuthPageHeader from '../components/AuthPageHeader';
 import AuthTextField from '../components/AuthTextField';
+import AuthBackLink from '../components/AuthBackLink';
+import AuthSupportText from '../components/AuthSupportText';
+import PasswordRules from '../components/PasswordRules';
 import { authCopy } from '../constants/authCopy';
 
 const CHANGE_COPY = authCopy.changePassword;
 
 const ChangePasswordPage = () => {
-  const handleSubmit = (event) => {
+  const location = useLocation();
+  const identifier = location.state?.identifier;
+  const otp = location.state?.otp;
+  const resetToken = location.state?.resetToken;
+  const [formData, setFormData] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [validationError, setValidationError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const passwordRulesCheck = useMemo(() => ({
+    minLength: formData.newPassword.length >= 8,
+    hasUppercase: /[A-Z]/.test(formData.newPassword),
+    hasNumber: /\d/.test(formData.newPassword),
+    hasSpecial: /[^A-Za-z0-9]/.test(formData.newPassword),
+  }), [formData.newPassword]);
+
+  const isPasswordValid = Object.values(passwordRulesCheck).every(Boolean);
+  const passwordRules = [
+    { label: CHANGE_COPY.rules[0], met: passwordRulesCheck.minLength },
+    { label: CHANGE_COPY.rules[1], met: passwordRulesCheck.hasUppercase },
+    { label: CHANGE_COPY.rules[2], met: passwordRulesCheck.hasNumber },
+    { label: CHANGE_COPY.rules[3], met: passwordRulesCheck.hasSpecial },
+  ];
+
+  const clearFeedback = () => {
+    if (validationError) setValidationError('');
+    if (submitError) setSubmitError('');
+    if (submitSuccess) setSubmitSuccess('');
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    clearFeedback();
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setValidationError('');
+    setSubmitError('');
+    setSubmitSuccess('');
+
+    if (!isPasswordValid) {
+      setValidationError(CHANGE_COPY.invalidPassword);
+      return;
+    }
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      setValidationError(CHANGE_COPY.mismatchedPassword);
+      return;
+    }
+
+    if (!identifier || (!otp && !resetToken)) {
+      setSubmitError('Phiên đặt lại mật khẩu không hợp lệ. Vui lòng thực hiện lại từ bước OTP.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await resetPassword({
+        identifier,
+        otp,
+        resetToken,
+        newPassword: formData.newPassword,
+      });
+      setSubmitSuccess('Cập nhật mật khẩu thành công. Bạn có thể đăng nhập lại.');
+      setFormData({ newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      setSubmitError(normalizeApiMessage(error, 'Không thể cập nhật mật khẩu. Vui lòng thử lại.'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="bg-background font-body text-on-surface min-h-screen flex flex-col">
-      <main className="flex-grow flex items-center justify-center px-4 py-12 relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-5%] w-[30%] h-[30%] bg-secondary-container/10 rounded-full blur-[100px]"></div>
+    <AuthShell contentClassName="max-w-[31rem]">
+      <AuthCard>
+        <AuthPageHeader
+          icon="lock_reset"
+          title={CHANGE_COPY.title}
+          description={CHANGE_COPY.description}
+        />
 
-        <div className="w-full max-w-md z-10">
-          <div className="flex justify-center mb-8">
-            <AuthBrand />
-          </div>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <AuthTextField
+            id="new-password"
+            label={CHANGE_COPY.newPasswordLabel}
+            icon="lock"
+            name="newPassword"
+            value={formData.newPassword}
+            onChange={handleChange}
+            type="password"
+            placeholder="••••••••"
+            enablePasswordToggle
+          />
 
-          <div className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-12px_rgba(25,28,30,0.04)] p-8 md:p-10 border border-outline-variant/10">
-            <div className="mb-8">
-              <h1 className="font-headline text-2xl font-extrabold text-on-surface tracking-tight mb-2 text-center">{CHANGE_COPY.title}</h1>
-              <p className="text-on-surface-variant text-sm text-center">{CHANGE_COPY.description}</p>
-            </div>
+          <PasswordRules rules={passwordRules} />
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <AuthTextField
-                  id="new-password"
-                  label={CHANGE_COPY.newPasswordLabel}
-                  icon="lock"
-                  name="newPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  enablePasswordToggle
-                  inputClassName="py-3.5 rounded-lg ring-1 ring-outline-variant/20 focus:bg-surface-container-lowest placeholder:text-outline/50"
-                  labelClassName="normal-case tracking-normal text-sm px-1 mb-2"
-                />
+          <AuthTextField
+            id="confirm-password"
+            label={CHANGE_COPY.confirmPasswordLabel}
+            icon="verified_user"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            type="password"
+            placeholder="••••••••"
+            enablePasswordToggle
+          />
 
-                <div className="grid grid-cols-2 gap-2 mt-3 px-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                    <span className="text-[11px] font-medium text-on-surface-variant">{CHANGE_COPY.rules[0]}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-outline">circle</span>
-                    <span className="text-[11px] font-medium text-on-surface-variant">{CHANGE_COPY.rules[1]}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-outline">circle</span>
-                    <span className="text-[11px] font-medium text-on-surface-variant">{CHANGE_COPY.rules[2]}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-outline">circle</span>
-                    <span className="text-[11px] font-medium text-on-surface-variant">{CHANGE_COPY.rules[3]}</span>
-                  </div>
-                </div>
-              </div>
+          {validationError && <p className="text-sm text-error">{validationError}</p>}
+          {submitError && <p className="text-sm text-error">{submitError}</p>}
+          {submitSuccess && <p className="text-sm text-primary">{submitSuccess}</p>}
 
-              <AuthTextField
-                id="confirm-password"
-                label={CHANGE_COPY.confirmPasswordLabel}
-                icon="verified_user"
-                name="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                enablePasswordToggle
-                inputClassName="py-3.5 rounded-lg ring-1 ring-outline-variant/20 focus:bg-surface-container-lowest placeholder:text-outline/50"
-                labelClassName="normal-case tracking-normal text-sm px-1 mb-2"
-              />
+          <button
+            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? CHANGE_COPY.submitting : CHANGE_COPY.submit}
+            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </form>
 
-              <button className="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-lg shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 mt-4" type="submit">
-                {CHANGE_COPY.submit}
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
-            </form>
-
-            <div className="mt-8 text-center">
-              <Link to="/login" className="text-sm font-medium text-primary hover:text-primary-container transition-colors inline-flex items-center gap-1">
-                <span className="material-symbols-outlined text-base">arrow_back</span>
-                {CHANGE_COPY.backToLogin}
-              </Link>
-            </div>
-          </div>
-
-          <p className="mt-8 text-center text-xs text-on-surface-variant leading-relaxed max-w-[280px] mx-auto">
-            {CHANGE_COPY.supportDescription} <span className="text-primary font-semibold">{CHANGE_COPY.supportAction}</span>.
-          </p>
+        <div className="mt-4 flex flex-col items-center gap-2.5 border-t border-outline-variant/20 pt-3.5">
+          <AuthBackLink to="/login">{CHANGE_COPY.backToLogin}</AuthBackLink>
+          <AuthSupportText prompt={CHANGE_COPY.supportPrompt} action={CHANGE_COPY.supportAction} />
         </div>
-      </main>
-
-      <AuthFooter variant="full" brandText="EduHealth" />
-    </div>
+      </AuthCard>
+    </AuthShell>
   );
 };
 

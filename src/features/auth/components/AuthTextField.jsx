@@ -14,6 +14,8 @@ const AuthTextField = ({
   labelClassName = '',
   inputClassName = '',
   wrapperClassName = '',
+  hint,
+  error,
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -28,8 +30,8 @@ const AuthTextField = ({
   );
 
   return (
-    <div className={wrapperClassName || 'space-y-2'}>
-      <label className={`block text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1 ${labelClassName}`} htmlFor={id}>
+    <div className={wrapperClassName || 'space-y-1.5'}>
+      <label className={`block pl-0.5 text-xs font-semibold tracking-wide text-on-surface-variant ${labelClassName}`} htmlFor={id}>
         {label}
       </label>
       <div className="relative group">
@@ -38,7 +40,7 @@ const AuthTextField = ({
         </div>
         <input
           id={id}
-          className={`w-full pl-11 ${rightPaddingClass} py-4 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all ${inputClassName}`}
+          className={`h-11 w-full rounded-xl border border-outline-variant/30 bg-surface pl-11 ${rightPaddingClass} text-sm text-on-surface placeholder:text-outline transition-all focus:border-primary/35 focus:ring-2 focus:ring-primary/15 ${inputClassName}`}
           name={name}
           value={value}
           onChange={onChange}
@@ -59,6 +61,11 @@ const AuthTextField = ({
           </button>
         )}
       </div>
+      {(error || hint) && (
+        <p className={`pl-0.5 text-xs ${error ? 'text-error' : 'text-on-surface-variant'}`}>
+          {error || hint}
+        </p>
+      )}
     </div>
   );
 };

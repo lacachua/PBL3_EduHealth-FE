@@ -1,6 +1,4 @@
 import React, { useCallback } from 'react';
-import LandingTopNav from '../features/landing/components/LandingTopNav';
-import LandingFooter from '../features/landing/components/LandingFooter';
 import LandingHeroSection from '../features/landing/components/LandingHeroSection';
 import LandingFeatureSection from '../features/landing/components/LandingFeatureSection';
 import LandingRoleSection from '../features/landing/components/LandingRoleSection';
@@ -14,19 +12,13 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="bg-surface font-body text-on-surface">
-      <LandingTopNav />
-
-      <main>
-        <LandingHeroSection onNewsClick={scrollToNewsSection} />
-        <LandingFeatureSection />
-        <LandingRoleSection />
-        <LandingNewsSection />
-        <LandingCtaSection onNewsClick={scrollToNewsSection} />
-      </main>
-
-      <LandingFooter />
-    </div>
+    <>
+      <LandingHeroSection onNewsClick={scrollToNewsSection} />
+      <LandingFeatureSection />
+      <LandingRoleSection />
+      <LandingNewsSection />
+      <LandingCtaSection onNewsClick={scrollToNewsSection} />
+    </>
   );
 };
 

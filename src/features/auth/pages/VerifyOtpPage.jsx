@@ -1,24 +1,46 @@
-import React, { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthFooter, AuthTopNav } from '../components/AuthChrome';
+import React, { useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { resendPasswordOtp, verifyPasswordOtp } from '../services/authApi';
+import AuthShell from '../components/AuthShell';
+import AuthCard from '../components/AuthCard';
+import AuthPageHeader from '../components/AuthPageHeader';
+import AuthBackLink from '../components/AuthBackLink';
+import AuthSupportText from '../components/AuthSupportText';
 import { authCopy } from '../constants/authCopy';
 
 const VERIFY_COPY = authCopy.verifyOtp;
+const OTP_LENGTH = 6;
+const INITIAL_OTP = Array.from({ length: OTP_LENGTH }, () => '');
 
 const VerifyOtpPage = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const inputRefs = useRef([]);
+  const location = useLocation();
   const navigate = useNavigate();
+  const [otp, setOtp] = useState(INITIAL_OTP);
+  const [validationError, setValidationError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [resendError, setResendError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const inputRefs = useRef([]);
+  const identifier = location.state?.identifier || '';
+  const normalizedIdentifier = identifier.trim();
+
+  const clearFeedback = () => {
+    if (validationError) setValidationError('');
+    if (submitError) setSubmitError('');
+    if (resendError) setResendError('');
+  };
 
   const handleChange = (element, index) => {
-    if (isNaN(element.value)) return false;
+    if (!/^\d?$/.test(element.value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = element.value;
     setOtp(newOtp);
+    clearFeedback();
 
-    // Focus next input
-    if (element.value !== '' && index < 5) {
+    if (element.value !== '' && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1].focus();
     }
   };
@@ -29,77 +51,117 @@ const VerifyOtpPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/change-password');
+    setValidationError('');
+    setSubmitError('');
+
+    if (!normalizedIdentifier) {
+      setSubmitError('Phiên xác thực không hợp lệ. Vui lòng quay lại bước khôi phục mật khẩu.');
+      return;
+    }
+
+    const otpCode = otp.join('');
+    if (otpCode.length !== OTP_LENGTH) {
+      setValidationError(VERIFY_COPY.invalidCode);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const verificationResult = await verifyPasswordOtp({ identifier: normalizedIdentifier, otp: otpCode });
+      const resetToken = verificationResult?.resetToken || verificationResult?.token || null;
+
+      navigate('/change-password', {
+        state: {
+          identifier: normalizedIdentifier,
+          otp: otpCode,
+          resetToken,
+        },
+      });
+    } catch (error) {
+      setSubmitError(normalizeApiMessage(error, 'Xác nhận OTP thất bại. Vui lòng thử lại.'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResendError('');
+
+    if (!normalizedIdentifier) {
+      setResendError('Không tìm thấy thông tin tài khoản để gửi lại OTP.');
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await resendPasswordOtp({ identifier: normalizedIdentifier });
+      setOtp(INITIAL_OTP);
+      inputRefs.current[0]?.focus();
+      clearFeedback();
+    } catch (error) {
+      setResendError(normalizeApiMessage(error, 'Gửi lại OTP thất bại. Vui lòng thử lại.'));
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen flex flex-col">
-      <AuthTopNav variant="simple" />
+    <AuthShell contentClassName="max-w-[30rem]">
+      <AuthCard>
+        <AuthPageHeader icon="shield_person" title={VERIFY_COPY.title} description={VERIFY_COPY.description} />
 
-      <main className="flex-grow flex items-center justify-center px-4 pt-24 pb-12 relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-5%] w-[30%] h-[30%] bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div className="w-full max-w-md z-10">
-          <div className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 shadow-[0_32px_64px_-12px_rgba(25,28,30,0.04)] border border-outline-variant/20">
-            <div className="flex flex-col items-center text-center mb-10">
-              <div className="w-16 h-16 bg-primary-container/10 rounded-2xl flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-primary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>shield_person</span>
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-on-surface mb-3 leading-tight">{VERIFY_COPY.title}</h1>
-              <p className="text-on-surface-variant text-sm max-w-[280px] leading-relaxed">{VERIFY_COPY.description}</p>
-            </div>
-
-            <form className="space-y-8" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-6 gap-2 md:gap-3">
-                {otp.map((data, index) => (
-                  <input
-                    key={index}
-                    className="w-full h-14 md:h-16 text-center text-2xl font-bold bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-primary transition-all duration-200 outline-none"
-                    maxLength="1"
-                    required
-                    type="text"
-                    value={data}
-                    onChange={(e) => handleChange(e.target, index)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    ref={(el) => (inputRefs.current[index] = el)}
-                  />
-                ))}
-              </div>
-
-              <div className="space-y-6">
-                <button className="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" type="submit">
-                  <span>{VERIFY_COPY.submit}</span>
-                  <span className="material-symbols-outlined text-xl">verified_user</span>
-                </button>
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-xs text-on-surface-variant font-medium">{VERIFY_COPY.resendPrompt}</span>
-                  <a className="text-sm text-primary font-bold hover:underline underline-offset-4 transition-all decoration-2" href="#">
-                    {VERIFY_COPY.resendAction}
-                  </a>
-                </div>
-              </div>
-            </form>
-
-            <div className="mt-12 pt-8 border-t border-outline-variant/10 flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-semibold">
-              <span className="material-symbols-outlined text-sm">lock</span>
-              {VERIFY_COPY.securityCaption}
-            </div>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-6 gap-2">
+            {otp.map((data, index) => (
+              <input
+                key={index}
+                className="h-12 w-full rounded-xl border border-outline-variant/30 bg-surface text-center text-xl font-bold text-on-surface outline-none transition-all focus:border-primary/35 focus:ring-2 focus:ring-primary/15"
+                maxLength="1"
+                required
+                type="tel"
+                inputMode="numeric"
+                value={data}
+                onChange={(e) => handleChange(e.target, index)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                ref={(el) => (inputRefs.current[index] = el)}
+              />
+            ))}
           </div>
 
-          <div className="mt-8 text-center">
-            <Link to="#" className="text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center gap-1">
-              <span className="material-symbols-outlined text-sm">help</span>
-              {VERIFY_COPY.supportAction}
-            </Link>
+          {validationError && <p className="text-sm text-error">{validationError}</p>}
+          {submitError && <p className="text-sm text-error">{submitError}</p>}
+          {resendError && <p className="text-sm text-error">{resendError}</p>}
+
+          <button
+            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            type="submit"
+            disabled={isSubmitting || !normalizedIdentifier}
+          >
+            {isSubmitting ? VERIFY_COPY.submitting : VERIFY_COPY.submit}
+            <span className="material-symbols-outlined text-lg">verified_user</span>
+          </button>
+
+          <div className="flex items-center justify-center gap-1.5 text-xs text-on-surface-variant">
+            <span>{VERIFY_COPY.resendPrompt}</span>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={isResending || !normalizedIdentifier}
+              className="font-semibold text-primary transition-colors hover:text-primary-container disabled:opacity-60"
+            >
+              {isResending ? 'Đang gửi...' : VERIFY_COPY.resendAction}
+            </button>
           </div>
+        </form>
+
+        <div className="mt-4 flex flex-col items-center gap-2.5 border-t border-outline-variant/20 pt-3.5">
+          <AuthBackLink to="/login">Quay lại đăng nhập</AuthBackLink>
+          <AuthSupportText prompt={VERIFY_COPY.supportPrompt} action={VERIFY_COPY.supportAction} />
         </div>
-      </main>
-
-      <AuthFooter variant="full" brandText="EduHealth" />
-    </div>
+      </AuthCard>
+    </AuthShell>
   );
 };
 
