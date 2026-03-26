@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { login as loginApi } from '../services/authApi';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { useAuth } from '../../../app/providers/useAuth';
-import { AuthFooter, AuthSecurityBadges, AuthTopNav } from '../components/AuthChrome';
+import AuthShell from '../components/AuthShell';
+import AuthCard from '../components/AuthCard';
+import AuthPageHeader from '../components/AuthPageHeader';
 import AuthTextField from '../components/AuthTextField';
+import AuthSupportText from '../components/AuthSupportText';
 import { authCopy } from '../constants/authCopy';
 
 const LOGIN_COPY = authCopy.login;
+const ROLE_PATHS = {
+  admin: '/admin/dashboard',
+  nurse: '/nurse/dashboard',
+  parent: '/parent/dashboard',
+};
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -19,10 +28,13 @@ const LoginPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (validationError) setValidationError('');
+    if (errorMessage) setErrorMessage('');
   };
 
   const handleRememberChange = (event) => {
@@ -31,15 +43,19 @@ const LoginPage = () => {
   };
 
   const resolveRolePath = (role) => {
-    if (role === 'admin') return '/admin/dashboard';
-    if (role === 'nurse') return '/nurse/dashboard';
-    if (role === 'parent') return '/parent/dashboard';
-    return '/';
+    return ROLE_PATHS[role] || '/';
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setValidationError('');
     setErrorMessage('');
+
+    if (!formData.identifier.trim() || !formData.password) {
+      setValidationError('Vui lòng nhập đầy đủ thông tin đăng nhập.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -60,95 +76,79 @@ const LoginPage = () => {
       const fromPath = location.state?.from?.pathname;
       navigate(fromPath || resolveRolePath(responseUser.role), { replace: true });
     } catch (error) {
-      const serverError = error?.response?.data?.message;
-      setErrorMessage(serverError || LOGIN_COPY.genericError);
+      setErrorMessage(normalizeApiMessage(error, LOGIN_COPY.genericError));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-surface font-body text-on-surface flex flex-col min-h-screen">
-      <AuthTopNav variant="full" />
+    <AuthShell contentClassName="max-w-[30rem]">
+      <AuthCard>
+        <AuthPageHeader
+          icon="health_and_safety"
+          title={LOGIN_COPY.title}
+          description={LOGIN_COPY.description}
+        />
 
-      <main className="flex-grow flex items-center justify-center pt-20 px-4 relative overflow-hidden bg-surface-container-low">
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-fixed rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary-container rounded-full blur-[150px]"></div>
-        </div>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <AuthTextField
+            id="identifier"
+            label={LOGIN_COPY.identifierLabel}
+            icon="person"
+            name="identifier"
+            value={formData.identifier}
+            onChange={handleInputChange}
+            placeholder="name@school.edu"
+            required
+          />
 
-        <div className="relative z-10 w-full max-w-md">
-          <div className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 soft-ambient-shadow border border-outline-variant/10">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-container/10 text-primary mb-6">
-                <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>health_and_safety</span>
-              </div>
-              <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface mb-2">{LOGIN_COPY.title}</h1>
-              <p className="text-on-surface-variant text-sm font-light">{LOGIN_COPY.description}</p>
-            </div>
+          <AuthTextField
+            id="password"
+            label={LOGIN_COPY.passwordLabel}
+            icon="lock"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            type="password"
+            placeholder="••••••••"
+            required
+            enablePasswordToggle
+          />
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <AuthTextField
-                id="identifier"
-                label={LOGIN_COPY.identifierLabel}
-                icon="person"
-                name="identifier"
-                value={formData.identifier}
-                onChange={handleInputChange}
-                placeholder="name@school.edu"
-                required
-                labelClassName="tracking-widest mb-2"
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <label className="flex cursor-pointer items-center gap-2 text-on-surface-variant transition-colors hover:text-on-surface">
+              <input
+                className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary/20"
+                type="checkbox"
+                checked={formData.remember}
+                onChange={handleRememberChange}
               />
-
-              <AuthTextField
-                id="password"
-                label={LOGIN_COPY.passwordLabel}
-                icon="lock"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                type="password"
-                placeholder="••••••••"
-                required
-                enablePasswordToggle
-                labelClassName="tracking-widest mb-2"
-              />
-
-              <div className="flex items-center justify-between">
-                <label className="flex items-center cursor-pointer group">
-                  <input
-                    className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20 bg-surface"
-                    type="checkbox"
-                    checked={formData.remember}
-                    onChange={handleRememberChange}
-                  />
-                  <span className="ml-3 text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">{LOGIN_COPY.remember}</span>
-                </label>
-                <Link to="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary-container transition-colors">{LOGIN_COPY.forgotPassword}</Link>
-              </div>
-
-              {errorMessage && <p className="text-error text-sm" role="alert">{errorMessage}</p>}
-
-              <button className="w-full signature-gradient text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? LOGIN_COPY.submitting : LOGIN_COPY.submit}
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </form>
-
-            <div className="mt-10 pt-8 border-t border-outline-variant/20 text-center">
-              <p className="text-sm text-on-surface-variant">
-                {LOGIN_COPY.createAccountPrompt}
-                <a className="font-bold text-primary hover:underline ml-1" href="#">{LOGIN_COPY.createAccountAction}</a>
-              </p>
-            </div>
+              {LOGIN_COPY.remember}
+            </label>
+            <Link to="/forgot-password" className="font-semibold text-primary transition-colors hover:text-primary-container">
+              {LOGIN_COPY.forgotPassword}
+            </Link>
           </div>
 
-          <AuthSecurityBadges />
-        </div>
-      </main>
+          {validationError && <p className="text-sm text-error" role="alert">{validationError}</p>}
+          {errorMessage && <p className="text-sm text-error" role="alert">{errorMessage}</p>}
 
-      <AuthFooter variant="full" brandText="EduHealth" />
-    </div>
+          <button
+            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? LOGIN_COPY.submitting : LOGIN_COPY.submit}
+            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </form>
+
+        <div className="mt-4 border-t border-outline-variant/20 pt-3.5">
+          <AuthSupportText prompt={LOGIN_COPY.supportPrompt} action={LOGIN_COPY.supportAction} />
+        </div>
+      </AuthCard>
+    </AuthShell>
   );
 };
 

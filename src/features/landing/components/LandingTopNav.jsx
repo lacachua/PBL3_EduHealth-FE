@@ -5,7 +5,7 @@ import BrandLogo from '../../../shared/components/common/BrandLogo';
 const LandingTopNav = () => {
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-white/50 bg-white/80 shadow-md shadow-slate-900/5 backdrop-blur-xl">
-      <div className="mx-auto flex h-[5.5rem] w-full max-w-7xl items-center justify-between px-6">
+      <div className="mx-auto flex h-[5.5rem] w-full max-w-7xl items-center justify-between px-4 sm:px-6">
         <BrandLogo />
         <div className="hidden items-center space-x-8 font-headline text-[0.95rem] font-semibold tracking-tight md:flex">
           <a className="border-b-2 border-primary pb-1 text-primary" href="#giai-phap">Giải pháp</a>
