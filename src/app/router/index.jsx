@@ -1,46 +1,65 @@
 import React from "react";
-import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
+import { Navigate, createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 
 // Layouts
 import SiteLayout from "../../layouts/SiteLayout";
 import AdminLayout from "../../layouts/AdminLayout";
+import AuthLayout from "../../layouts/AuthLayout";
 
 // Guards
 import RequireAuth from "../guards/RequireAuth";
 import RequireRole from "../guards/RequireRole";
-
-// Pages
-import LandingPage from "../../pages/LandingPage";
-import LoginPage from "../../features/auth/pages/LoginPage";
-import ForgotPasswordPage from "../../features/auth/pages/ForgotPasswordPage";
-import VerifyOtpPage from "../../features/auth/pages/VerifyOtpPage";
-import ChangePasswordPage from "../../features/auth/pages/ChangePasswordPage";
-import NotFoundPage from "../../pages/NotFoundPage";
-import ForbiddenPage from "../../pages/ForbiddenPage";
-import ServerErrorPage from "../../pages/ServerErrorPage";
-
-// Dashboards
-import AdminDashboard from "../../features/dashboard/admin/AdminDashboard";
-import NurseDashboard from "../../features/dashboard/nurse/NurseDashboard";
-import ParentDashboard from "../../features/dashboard/parent/ParentDashboard";
+import {
+  AdminDashboardPage,
+  AdminModulePlaceholder,
+  CatalogManagementPage,
+  ChangePasswordPage,
+  ForbiddenPage,
+  ForgotPasswordPage,
+  LandingPage,
+  Lazy,
+  LoginPage,
+  NotFoundPage,
+  NurseDashboard,
+  ParentDashboard,
+  ReportsPage,
+  ServerErrorPage,
+  StudentManagementPage,
+  SystemLogsPage,
+  UserManagementPage,
+  VerifyOtpPage,
+} from "./lazyRouteElements";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       {/* Public + Auth Routes */}
       <Route element={<SiteLayout />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
-        <Route path="/change-password" element={<ChangePasswordPage />} />
+        <Route path="/" element={<Lazy><LandingPage /></Lazy>} />
+      </Route>
+
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Lazy><LoginPage /></Lazy>} />
+        <Route path="/forgot-password" element={<Lazy><ForgotPasswordPage /></Lazy>} />
+        <Route path="/verify-otp" element={<Lazy><VerifyOtpPage /></Lazy>} />
+        <Route path="/change-password" element={<Lazy><ChangePasswordPage /></Lazy>} />
       </Route>
 
       {/* Protected Admin Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["admin"]} />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard" element={<Lazy><AdminDashboardPage /></Lazy>} />
+            <Route path="/admin/students" element={<Lazy><StudentManagementPage /></Lazy>} />
+            <Route path="/admin/students/create" element={<Navigate to="/admin/students" replace />} />
+            <Route path="/admin/users" element={<Lazy><UserManagementPage /></Lazy>} />
+            <Route path="/admin/catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
+            <Route path="/admin/reports" element={<Lazy><ReportsPage /></Lazy>} />
+            <Route path="/admin/system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
+            <Route
+              path="/admin/settings"
+              element={<Lazy><AdminModulePlaceholder moduleKey="settings" /></Lazy>}
+            />
           </Route>
         </Route>
       </Route>
@@ -48,21 +67,21 @@ export const router = createBrowserRouter(
       {/* Protected Nurse Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["nurse"]} />}>
-          <Route path="/nurse/dashboard" element={<NurseDashboard />} />
+          <Route path="/nurse/dashboard" element={<Lazy><NurseDashboard /></Lazy>} />
         </Route>
       </Route>
 
       {/* Protected Parent Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["parent"]} />}>
-          <Route path="/parent/dashboard" element={<ParentDashboard />} />
+          <Route path="/parent/dashboard" element={<Lazy><ParentDashboard /></Lazy>} />
         </Route>
       </Route>
 
       {/* Error Pages */}
-      <Route path="/403" element={<ForbiddenPage />} />
-      <Route path="/500" element={<ServerErrorPage />} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="/403" element={<Lazy><ForbiddenPage /></Lazy>} />
+      <Route path="/500" element={<Lazy><ServerErrorPage /></Lazy>} />
+      <Route path="*" element={<Lazy><NotFoundPage /></Lazy>} />
     </Route>
   )
 );

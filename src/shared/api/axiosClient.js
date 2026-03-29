@@ -1,18 +1,9 @@
 import axios from "axios";
+import { env } from "../../app/config/env";
 import { clearAuthStorage, getAccessToken } from "../services/tokenClient";
 
-const resolveBaseUrl = () => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-  if (!baseUrl) {
-    console.warn("[axiosClient] VITE_API_BASE_URL is undefined. Check your .env and restart dev server.");
-  }
-
-  return baseUrl;
-};
-
 const axiosClient = axios.create({
-  baseURL: resolveBaseUrl(),
+  baseURL: env.apiBaseUrl,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

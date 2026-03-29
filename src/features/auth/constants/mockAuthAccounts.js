@@ -3,7 +3,7 @@ export const mockAuthAccounts = [
     identifier: 'ntctuyen@gmail.com',
     password: 'Tuyen123@',
     role: 'admin',
-    fullName: 'Nguyen Tuyen (Quản trị viên)',
+    fullName: 'Nguyen Tuyen',
   },
   {
     identifier: 'ntctuyen01@gmail.com',

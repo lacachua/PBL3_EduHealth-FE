@@ -1,49 +1,38 @@
-import axiosClient from "../../../shared/api/axiosClient";
-import { normalizeApiData } from "../../../shared/api/normalizeResponse";
+import {
+  createStudentManagementApi,
+  deleteStudentManagementApi,
+  getStudentManagementDetailApi,
+  getStudentManagementListApi,
+  updateStudentManagementApi,
+} from './studentManagementApi';
 
-const STUDENTS_ENDPOINT = "/students";
-
-const buildQueryString = (params = {}) => {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      searchParams.append(key, value);
-    }
-  });
-
-  const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : "";
-};
-
+// Compatibility API layer retained for gradual backend integration.
+// Keep this legacy facade and route real endpoint updates through studentManagementApi.js.
 export const getStudentsApi = async (params = {}) => {
-  const query = buildQueryString(params);
-  const response = await axiosClient.get(`${STUDENTS_ENDPOINT}${query}`);
-  const normalizedData = normalizeApiData(response);
+  const envelope = await getStudentManagementListApi(params);
+  const data = envelope?.data;
 
-  if (Array.isArray(normalizedData)) {
-    return normalizedData;
-  }
-
-  return normalizedData?.items || normalizedData?.students || [];
+  if (Array.isArray(data?.students)) return data.students;
+  if (Array.isArray(data?.items)) return data.items;
+  return [];
 };
 
 export const getStudentByIdApi = async (studentId) => {
-  const response = await axiosClient.get(`${STUDENTS_ENDPOINT}/${studentId}`);
-  return normalizeApiData(response);
+  const envelope = await getStudentManagementDetailApi(studentId);
+  return envelope?.data || null;
 };
 
 export const createStudentApi = async (payload) => {
-  const response = await axiosClient.post(STUDENTS_ENDPOINT, payload);
-  return normalizeApiData(response);
+  const response = await createStudentManagementApi(payload);
+  return response?.data?.student || null;
 };
 
 export const updateStudentApi = async (studentId, payload) => {
-  const response = await axiosClient.patch(`${STUDENTS_ENDPOINT}/${studentId}`, payload);
-  return normalizeApiData(response);
+  const response = await updateStudentManagementApi(studentId, payload);
+  return response?.data?.student || null;
 };
 
 export const deleteStudentApi = async (studentId) => {
-  await axiosClient.delete(`${STUDENTS_ENDPOINT}/${studentId}`);
+  await deleteStudentManagementApi(studentId);
   return { success: true };
 };

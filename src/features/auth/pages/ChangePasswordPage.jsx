@@ -5,11 +5,13 @@ import { resetPassword } from '../services/authApi';
 import AuthShell from '../components/AuthShell';
 import AuthCard from '../components/AuthCard';
 import AuthPageHeader from '../components/AuthPageHeader';
-import AuthTextField from '../components/AuthTextField';
+import PasswordField from '../components/PasswordField';
 import AuthBackLink from '../components/AuthBackLink';
-import AuthSupportText from '../components/AuthSupportText';
-import PasswordRules from '../components/PasswordRules';
+import PasswordChecklist from '../components/PasswordChecklist';
+import AuthStatusMessage from '../components/AuthStatusMessage';
 import { authCopy } from '../constants/authCopy';
+import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
+import { getPasswordChecks } from '../utils/authValidators';
 
 const CHANGE_COPY = authCopy.changePassword;
 
@@ -22,28 +24,60 @@ const ChangePasswordPage = () => {
     newPassword: '',
     confirmPassword: '',
   });
-  const [validationError, setValidationError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [touched, setTouched] = useState({
+    newPassword: false,
+    confirmPassword: false,
+  });
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const passwordRulesCheck = useMemo(() => ({
-    minLength: formData.newPassword.length >= 8,
-    hasUppercase: /[A-Z]/.test(formData.newPassword),
-    hasNumber: /\d/.test(formData.newPassword),
-    hasSpecial: /[^A-Za-z0-9]/.test(formData.newPassword),
-  }), [formData.newPassword]);
+  const passwordRulesCheck = useMemo(
+    () => getPasswordChecks(formData.newPassword),
+    [formData.newPassword]
+  );
 
   const isPasswordValid = Object.values(passwordRulesCheck).every(Boolean);
-  const passwordRules = [
-    { label: CHANGE_COPY.rules[0], met: passwordRulesCheck.minLength },
-    { label: CHANGE_COPY.rules[1], met: passwordRulesCheck.hasUppercase },
-    { label: CHANGE_COPY.rules[2], met: passwordRulesCheck.hasNumber },
-    { label: CHANGE_COPY.rules[3], met: passwordRulesCheck.hasSpecial },
-  ];
+  const shouldShowRuleError = touched.newPassword && formData.newPassword.length > 0;
+
+  const passwordRules = useMemo(
+    () => [
+      {
+        key: 'min-length',
+        label: CHANGE_COPY.rules[0],
+        met: passwordRulesCheck.minLength,
+        showError: shouldShowRuleError && !passwordRulesCheck.minLength,
+      },
+      {
+        key: 'upper',
+        label: CHANGE_COPY.rules[1],
+        met: passwordRulesCheck.hasUppercase,
+        showError: shouldShowRuleError && !passwordRulesCheck.hasUppercase,
+      },
+      {
+        key: 'number',
+        label: CHANGE_COPY.rules[2],
+        met: passwordRulesCheck.hasNumber,
+        showError: shouldShowRuleError && !passwordRulesCheck.hasNumber,
+      },
+      {
+        key: 'special',
+        label: CHANGE_COPY.rules[3],
+        met: passwordRulesCheck.hasSpecial,
+        showError: shouldShowRuleError && !passwordRulesCheck.hasSpecial,
+      },
+    ],
+    [passwordRulesCheck, shouldShowRuleError]
+  );
 
   const clearFeedback = () => {
-    if (validationError) setValidationError('');
+    if (fieldErrors.newPassword || fieldErrors.confirmPassword) {
+      setFieldErrors({ newPassword: '', confirmPassword: '' });
+    }
     if (submitError) setSubmitError('');
     if (submitSuccess) setSubmitSuccess('');
   };
@@ -54,24 +88,37 @@ const ChangePasswordPage = () => {
     clearFeedback();
   };
 
+  const handleBlur = (event) => {
+    const { name } = event.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setValidationError('');
     setSubmitError('');
     setSubmitSuccess('');
+    setTouched({ newPassword: true, confirmPassword: true });
+
+    const nextErrors = {
+      newPassword: '',
+      confirmPassword: '',
+    };
 
     if (!isPasswordValid) {
-      setValidationError(CHANGE_COPY.invalidPassword);
-      return;
+      nextErrors.newPassword = CHANGE_COPY.invalidPassword;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      setValidationError(CHANGE_COPY.mismatchedPassword);
+      nextErrors.confirmPassword = CHANGE_COPY.mismatchedPassword;
+    }
+
+    if (nextErrors.newPassword || nextErrors.confirmPassword) {
+      setFieldErrors(nextErrors);
       return;
     }
 
     if (!identifier || (!otp && !resetToken)) {
-      setSubmitError('Phiên đặt lại mật khẩu không hợp lệ. Vui lòng thực hiện lại từ bước OTP.');
+      setSubmitError(CHANGE_COPY.invalidSession);
       return;
     }
 
@@ -83,8 +130,10 @@ const ChangePasswordPage = () => {
         resetToken,
         newPassword: formData.newPassword,
       });
-      setSubmitSuccess('Cập nhật mật khẩu thành công. Bạn có thể đăng nhập lại.');
+      setSubmitSuccess(CHANGE_COPY.successMessage);
       setFormData({ newPassword: '', confirmPassword: '' });
+      setTouched({ newPassword: false, confirmPassword: false });
+      setFieldErrors({ newPassword: '', confirmPassword: '' });
     } catch (error) {
       setSubmitError(normalizeApiMessage(error, 'Không thể cập nhật mật khẩu. Vui lòng thử lại.'));
     } finally {
@@ -93,59 +142,59 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <AuthShell contentClassName="max-w-[31rem]">
+    <AuthShell panel={AUTH_PANEL_CONFIG.changePassword}>
       <AuthCard>
         <AuthPageHeader
-          icon="lock_reset"
           title={CHANGE_COPY.title}
-          description={CHANGE_COPY.description}
+          subtitle={CHANGE_COPY.description}
+          centered
         />
 
-        <form className="space-y-3.5" onSubmit={handleSubmit}>
-          <AuthTextField
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <PasswordField
             id="new-password"
             label={CHANGE_COPY.newPasswordLabel}
-            icon="lock"
             name="newPassword"
             value={formData.newPassword}
             onChange={handleChange}
-            type="password"
-            placeholder="••••••••"
-            enablePasswordToggle
+            onBlur={handleBlur}
+            autoComplete="new-password"
+            placeholder={CHANGE_COPY.newPasswordPlaceholder}
+            error={fieldErrors.newPassword}
           />
 
-          <PasswordRules rules={passwordRules} />
+          <div className="rounded-lg bg-auth-surface-soft/45 px-3.5 py-2.5">
+            <PasswordChecklist rules={passwordRules} />
+          </div>
 
-          <AuthTextField
+          <PasswordField
             id="confirm-password"
             label={CHANGE_COPY.confirmPasswordLabel}
-            icon="verified_user"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            type="password"
-            placeholder="••••••••"
-            enablePasswordToggle
+            onBlur={handleBlur}
+            autoComplete="new-password"
+            placeholder={CHANGE_COPY.confirmPasswordPlaceholder}
+            error={fieldErrors.confirmPassword}
           />
 
-          {validationError && <p className="text-sm text-error">{validationError}</p>}
-          {submitError && <p className="text-sm text-error">{submitError}</p>}
-          {submitSuccess && <p className="text-sm text-primary">{submitSuccess}</p>}
+          <AuthStatusMessage message={submitError} type="error" />
+          <AuthStatusMessage message={submitSuccess} type="success" />
 
           <button
-            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            className="auth-primary-button flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold text-white transition-all hover:brightness-[1.03] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-70"
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? CHANGE_COPY.submitting : CHANGE_COPY.submit}
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            <span className="material-symbols-outlined text-[21px]">arrow_forward</span>
           </button>
-        </form>
 
-        <div className="mt-4 flex flex-col items-center gap-2.5 border-t border-outline-variant/20 pt-3.5">
-          <AuthBackLink to="/login">{CHANGE_COPY.backToLogin}</AuthBackLink>
-          <AuthSupportText prompt={CHANGE_COPY.supportPrompt} action={CHANGE_COPY.supportAction} />
-        </div>
+          <div className="border-t border-auth-border/70 pt-3.5">
+            <AuthBackLink to="/login">{CHANGE_COPY.backToLogin}</AuthBackLink>
+          </div>
+        </form>
       </AuthCard>
     </AuthShell>
   );

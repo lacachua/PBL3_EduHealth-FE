@@ -1,0 +1,133 @@
+import {
+  STUDENT_CREATE_CLASS_OPTIONS,
+  STUDENT_CREATE_GENDER_OPTIONS,
+} from '../constants/studentCreateOptions';
+
+export const STUDENT_STATUS_OPTIONS = [
+  { label: 'Tất cả trạng thái', value: 'all' },
+  { label: 'Hoạt động', value: 'ACTIVE' },
+  { label: 'Chờ duyệt hồ sơ', value: 'PENDING_APPROVAL' },
+  { label: 'Tạm nghỉ', value: 'TEMP_SUSPENDED' },
+  { label: 'Đã chuyển trường', value: 'TRANSFERRED' },
+  { label: 'Đã khóa', value: 'LOCKED' },
+];
+
+export const STUDENT_GENDER_FILTER_OPTIONS = [
+  { label: 'Tất cả giới tính', value: 'all' },
+  ...STUDENT_CREATE_GENDER_OPTIONS,
+];
+
+export const STUDENT_CLASS_FILTER_OPTIONS = [
+  { label: 'Tất cả lớp', value: 'all' },
+  ...STUDENT_CREATE_CLASS_OPTIONS,
+];
+
+export const STUDENT_FILTER_DEFAULTS = {
+  keyword: '',
+  classId: 'all',
+  gender: 'all',
+  status: 'all',
+};
+
+export const STUDENT_PAGE_SIZE = 10;
+
+const STUDENT_ENDPOINTS_SINGLETON = Object.freeze({
+  list: '/api/v1/students',
+  detail: (studentId) => `/api/v1/students/${studentId}`,
+  healthProfile: (studentId) => `/api/v1/students/${studentId}/health-profile`,
+});
+
+export const STUDENT_ENDPOINTS = STUDENT_ENDPOINTS_SINGLETON;
+
+export const STUDENT_BASIC_EDITABLE_FIELDS = [
+  'fullName',
+  'dateOfBirth',
+  'gender',
+  'classId',
+  'email',
+  'phoneNumber',
+];
+
+export const STUDENT_HEALTH_EDITABLE_FIELDS = [
+  'heightCm',
+  'weightKg',
+  'bloodType',
+  'eyeStatus',
+  'chronicNote',
+  'generalHealthNote',
+  'allergies',
+];
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+
+export const buildStudentBasicPatchPayload = (values = {}) => ({
+  fullName: values.fullName?.trim() || '',
+  dateOfBirth: values.dateOfBirth || null,
+  gender: values.gender || null,
+  classId: values.classId || null,
+  email: values.email?.trim() || '',
+  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : { phoneNumber: null }),
+});
+
+export const buildStudentHealthPatchPayload = (values = {}) => ({
+  ...(values.heightCm === '' || values.heightCm === null || values.heightCm === undefined ? { heightCm: null } : { heightCm: Number(values.heightCm) }),
+  ...(values.weightKg === '' || values.weightKg === null || values.weightKg === undefined ? { weightKg: null } : { weightKg: Number(values.weightKg) }),
+  ...(values.bloodType?.trim() ? { bloodType: values.bloodType.trim() } : { bloodType: null }),
+  ...(values.eyeStatus?.trim() ? { eyeStatus: values.eyeStatus.trim() } : { eyeStatus: null }),
+  ...(values.chronicNote?.trim() ? { chronicNote: values.chronicNote.trim() } : { chronicNote: null }),
+  ...(values.generalHealthNote?.trim() ? { generalHealthNote: values.generalHealthNote.trim() } : { generalHealthNote: null }),
+  ...(values.allergies?.trim() ? { allergies: values.allergies.trim() } : { allergies: null }),
+});
+
+export const validateStudentBasicForm = (values = {}) => {
+  const errors = {};
+
+  if (!values.fullName?.trim()) {
+    errors.fullName = 'Vui lòng nhập họ tên học sinh';
+  }
+
+  if (!values.dateOfBirth) {
+    errors.dateOfBirth = 'Vui lòng chọn ngày sinh';
+  }
+
+  if (!values.gender) {
+    errors.gender = 'Vui lòng chọn giới tính';
+  }
+
+  if (!values.classId) {
+    errors.classId = 'Vui lòng chọn lớp';
+  }
+
+  if (!values.email?.trim()) {
+    errors.email = 'Vui lòng nhập email';
+  } else if (!emailRegex.test(values.email.trim())) {
+    errors.email = 'Định dạng email chưa hợp lệ';
+  }
+
+  if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
+    errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
+  }
+
+  return errors;
+};
+
+export const validateStudentHealthForm = (values = {}) => {
+  const errors = {};
+
+  if (values.heightCm !== '' && values.heightCm !== null && values.heightCm !== undefined) {
+    const height = Number(values.heightCm);
+    if (Number.isNaN(height) || height <= 0) {
+      errors.heightCm = 'Chiều cao phải là số lớn hơn 0';
+    }
+  }
+
+  if (values.weightKg !== '' && values.weightKg !== null && values.weightKg !== undefined) {
+    const weight = Number(values.weightKg);
+    if (Number.isNaN(weight) || weight <= 0) {
+      errors.weightKg = 'Cân nặng phải là số lớn hơn 0';
+    }
+  }
+
+  return errors;
+};

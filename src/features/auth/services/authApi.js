@@ -1,5 +1,5 @@
-import axiosClient from "../../../shared/api/axiosClient";
-import { normalizeApiData, normalizeApiEnvelope } from "../../../shared/api/normalizeResponse";
+import { apiGetData, apiPostData } from "../../../shared/api/apiClient";
+import { runtimeConfig, waitForMock } from "../../../shared/config/runtimeConfig";
 import {
   AUTH_API_ENDPOINTS,
   buildForgotPasswordRequest,
@@ -12,33 +12,18 @@ import {
 } from "../constants/authApiContract";
 import { mockAuthAccounts } from "../constants/mockAuthAccounts";
 
-const isMockAuthEnabled = import.meta.env.VITE_ENABLE_MOCK_AUTH !== "false";
+const isMockAuthEnabled = runtimeConfig.enableMockAuth;
 
 const normalizeIdentifier = (value) => value?.trim().toLowerCase();
 
 const createMockToken = (role) => `mock-${role}-token`;
 
-const wait = (duration = 500) => new Promise((resolve) => {
-  setTimeout(resolve, duration);
-});
-
 const createMockSuccessResponse = async (payload) => {
-  await wait();
+  await waitForMock("auth");
   return { success: true, ...payload };
 };
 
-const postAuth = async (endpoint, payload) => {
-  const response = await axiosClient.post(endpoint, payload);
-  const envelope = normalizeApiEnvelope(response);
-
-  if (envelope.success === false) {
-    const error = new Error(envelope.message || "Request failed");
-    error.response = { data: response?.data };
-    throw error;
-  }
-
-  return normalizeApiData(response);
-};
+const postAuth = (endpoint, payload) => apiPostData(endpoint, payload);
 
 const mockLogin = async (payload) => {
   const identifier = normalizeIdentifier(payload?.identifier);
@@ -77,16 +62,7 @@ export const login = async (payload) => {
 };
 
 export const getMe = async () => {
-  const response = await axiosClient.get(AUTH_API_ENDPOINTS.me);
-  const envelope = normalizeApiEnvelope(response);
-
-  if (envelope.success === false) {
-    const error = new Error(envelope.message || "Request failed");
-    error.response = { data: response?.data };
-    throw error;
-  }
-
-  const normalizedData = envelope.data;
+  const normalizedData = await apiGetData(AUTH_API_ENDPOINTS.me);
 
   if (normalizedData && typeof normalizedData === "object" && "user" in normalizedData) {
     return normalizedData.user;

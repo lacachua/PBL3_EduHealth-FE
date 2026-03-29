@@ -33,7 +33,7 @@ const LandingNewsSection = () => {
   );
 
   return (
-    <section id="ban-tin-y-te" className="bg-surface-container-low py-12 md:py-14">
+    <section id="ban-tin-y-te" className="bg-[#f2f7f3] py-10 md:py-11">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Bản tin y tế học đường"
@@ -42,9 +42,9 @@ const LandingNewsSection = () => {
           align="center"
         />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
           {newsItems.map((item) => (
-            <article key={item.title} className="flex h-full flex-col rounded-2xl bg-surface-container-lowest p-6 shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10">
+            <article key={item.title} className="flex h-full flex-col rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-primary">{item.date}</p>
               <h3 className="mb-3 font-headline text-xl font-bold leading-snug text-on-surface">{item.title}</h3>
               <p className="flex-1 text-sm leading-relaxed text-on-surface-variant">{item.summary}</p>

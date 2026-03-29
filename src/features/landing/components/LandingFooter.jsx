@@ -3,16 +3,16 @@ import BrandLogo from '../../../shared/components/common/BrandLogo';
 
 const LandingFooter = () => {
   return (
-    <footer className="w-full border-t border-outline-variant/20 bg-surface pt-10">
+    <footer className="w-full border-t border-outline-variant/20 bg-[#f8faf7] pt-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 pb-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <div className="grid grid-cols-1 gap-7 pb-7 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           <div>
             <BrandLogo textClassName="text-2xl" iconClassName="text-[1.55rem]" className="-ml-2 mb-4" />
             <p className="max-w-[20rem] text-sm leading-7 text-on-surface-variant">
               Nền tảng hỗ trợ phòng y tế nhà trường kết nối thông tin sức khỏe với phụ huynh học sinh.
             </p>
 
-            <div className="mt-5 flex items-center gap-3 text-primary">
+            <div className="mt-4 flex items-center gap-3 text-primary">
               <span className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-lowest">
                 <span className="material-symbols-outlined text-lg">health_and_safety</span>
               </span>

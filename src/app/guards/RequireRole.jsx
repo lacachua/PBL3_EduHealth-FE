@@ -4,9 +4,10 @@ import { useAuth } from "../providers/useAuth";
 
 const RequireRole = ({ allowedRoles }) => {
   const { user } = useAuth();
-  const userRole = user?.role;
+  const userRole = user?.role?.toUpperCase?.();
+  const normalizedAllowedRoles = (allowedRoles || []).map((role) => role?.toUpperCase?.());
 
-  if (!userRole || !allowedRoles.includes(userRole)) {
+  if (!userRole || !normalizedAllowedRoles.includes(userRole)) {
     return <Navigate to="/403" replace />;
   }
 

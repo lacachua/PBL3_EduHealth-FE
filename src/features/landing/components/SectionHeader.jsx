@@ -11,9 +11,9 @@ const SectionHeader = ({
   const isCentered = align === "center";
 
   return (
-    <div className={`mb-7 md:mb-9 ${className}`}>
+    <div className={`mb-6 md:mb-7 ${className}`}>
       <div
-        className={`flex flex-col gap-4 ${
+        className={`flex flex-col gap-3 ${
           isCentered
             ? "items-center text-center"
             : "md:flex-row md:items-end md:justify-between"
@@ -23,9 +23,11 @@ const SectionHeader = ({
           {eyebrow ? (
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/75">{eyebrow}</p>
           ) : null}
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface md:text-4xl">{title}</h2>
+          <h2 className="font-headline text-3xl font-semibold tracking-tight text-primary-container md:text-[2rem]">
+            {title}
+          </h2>
           {description ? (
-            <p className="mt-2 text-sm leading-6 text-on-surface-variant md:text-base">{description}</p>
+            <p className="mt-1.5 text-sm leading-6 text-on-surface-variant md:text-base">{description}</p>
           ) : null}
         </div>
 
