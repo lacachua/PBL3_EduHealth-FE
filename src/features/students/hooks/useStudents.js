@@ -1,41 +1,39 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from 'react';
 import {
   createStudentApi,
   deleteStudentApi,
   getStudentByIdApi,
   getStudentsApi,
   updateStudentApi,
-} from "../services/studentsApi";
-import { normalizeApiMessage } from "../../../shared/api/normalizeResponse";
+} from '../services/studentsApi';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 
+// Compatibility hook retained for screens that still depend on legacy shape.
 export const useStudents = (initialQuery = {}) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const fetchStudents = useCallback(
-    async (nextQuery = initialQuery) => {
-      setLoading(true);
-      setError("");
+  const fetchStudents = useCallback(async (nextQuery = initialQuery) => {
+    setLoading(true);
+    setError('');
 
-      try {
-        const data = await getStudentsApi(nextQuery);
-        setStudents(Array.isArray(data) ? data : []);
-      } catch (apiError) {
-        setError(normalizeApiMessage(apiError));
-        setStudents([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [initialQuery]
-  );
+    try {
+      const data = await getStudentsApi(nextQuery);
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (apiError) {
+      setError(normalizeApiMessage(apiError));
+      setStudents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [initialQuery]);
 
   const fetchStudentById = useCallback(async (studentId) => {
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const data = await getStudentByIdApi(studentId);
@@ -52,12 +50,14 @@ export const useStudents = (initialQuery = {}) => {
 
   const createStudent = useCallback(async (payload) => {
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
-      const createdStudent = await createStudentApi(payload);
-      setStudents((prev) => [createdStudent, ...prev]);
-      return createdStudent;
+      const created = await createStudentApi(payload);
+      if (created) {
+        setStudents((prev) => [created, ...prev]);
+      }
+      return created;
     } catch (apiError) {
       setError(normalizeApiMessage(apiError));
       throw apiError;
@@ -68,18 +68,13 @@ export const useStudents = (initialQuery = {}) => {
 
   const updateStudent = useCallback(async (studentId, payload) => {
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
-      const updatedStudent = await updateStudentApi(studentId, payload);
-
-      setStudents((prev) =>
-        prev.map((student) => (student?.id === studentId ? updatedStudent : student))
-      );
-
-      setSelectedStudent((prev) => (prev?.id === studentId ? updatedStudent : prev));
-
-      return updatedStudent;
+      const updated = await updateStudentApi(studentId, payload);
+      setStudents((prev) => prev.map((student) => (student?.id === studentId ? updated : student)));
+      setSelectedStudent((prev) => (prev?.id === studentId ? updated : prev));
+      return updated;
     } catch (apiError) {
       setError(normalizeApiMessage(apiError));
       throw apiError;
@@ -90,7 +85,7 @@ export const useStudents = (initialQuery = {}) => {
 
   const deleteStudent = useCallback(async (studentId) => {
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
       await deleteStudentApi(studentId);
@@ -105,10 +100,10 @@ export const useStudents = (initialQuery = {}) => {
   }, []);
 
   const status = useMemo(() => {
-    if (loading) return "loading";
-    if (error) return "error";
-    if (!students.length) return "empty";
-    return "success";
+    if (loading) return 'loading';
+    if (error) return 'error';
+    if (!students.length) return 'empty';
+    return 'success';
   }, [loading, error, students.length]);
 
   return {
@@ -123,6 +118,6 @@ export const useStudents = (initialQuery = {}) => {
     createStudent,
     updateStudent,
     deleteStudent,
-    clearError: () => setError(""),
+    clearError: () => setError(''),
   };
 };
