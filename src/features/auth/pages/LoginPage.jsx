@@ -6,12 +6,18 @@ import { useAuth } from '../../../app/providers/useAuth';
 import AuthShell from '../components/AuthShell';
 import AuthCard from '../components/AuthCard';
 import AuthPageHeader from '../components/AuthPageHeader';
-import AuthTextField from '../components/AuthTextField';
-import AuthSupportText from '../components/AuthSupportText';
+import AuthInput from '../components/AuthInput';
+import PasswordField from '../components/PasswordField';
+import AuthStatusMessage from '../components/AuthStatusMessage';
 import { authCopy } from '../constants/authCopy';
+import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
+import { validateRequired } from '../utils/authValidators';
 
 const LOGIN_COPY = authCopy.login;
 const ROLE_PATHS = {
+  ADMIN: '/admin/dashboard',
+  NURSE: '/nurse/dashboard',
+  PARENT: '/parent/dashboard',
   admin: '/admin/dashboard',
   nurse: '/nurse/dashboard',
   parent: '/parent/dashboard',
@@ -27,14 +33,17 @@ const LoginPage = () => {
     remember: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [validationError, setValidationError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    identifier: '',
+    password: '',
+  });
+  const [submitError, setSubmitError] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (validationError) setValidationError('');
-    if (errorMessage) setErrorMessage('');
+    setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    if (submitError) setSubmitError('');
   };
 
   const handleRememberChange = (event) => {
@@ -43,16 +52,23 @@ const LoginPage = () => {
   };
 
   const resolveRolePath = (role) => {
-    return ROLE_PATHS[role] || '/';
+    if (!role) {
+      return '/';
+    }
+    return ROLE_PATHS[role] || ROLE_PATHS[String(role).toUpperCase()] || ROLE_PATHS[String(role).toLowerCase()] || '/';
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setValidationError('');
-    setErrorMessage('');
+    setSubmitError('');
 
-    if (!formData.identifier.trim() || !formData.password) {
-      setValidationError('Vui lòng nhập đầy đủ thông tin đăng nhập.');
+    const nextErrors = {
+      identifier: validateRequired(formData.identifier) ? '' : LOGIN_COPY.invalidIdentifier,
+      password: validateRequired(formData.password) ? '' : LOGIN_COPY.invalidPassword,
+    };
+
+    if (nextErrors.identifier || nextErrors.password) {
+      setFieldErrors(nextErrors);
       return;
     }
 
@@ -76,77 +92,73 @@ const LoginPage = () => {
       const fromPath = location.state?.from?.pathname;
       navigate(fromPath || resolveRolePath(responseUser.role), { replace: true });
     } catch (error) {
-      setErrorMessage(normalizeApiMessage(error, LOGIN_COPY.genericError));
+      setSubmitError(normalizeApiMessage(error, LOGIN_COPY.genericError));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <AuthShell contentClassName="max-w-[30rem]">
+    <AuthShell panel={AUTH_PANEL_CONFIG.login}>
       <AuthCard>
         <AuthPageHeader
-          icon="health_and_safety"
           title={LOGIN_COPY.title}
-          description={LOGIN_COPY.description}
+          subtitle={LOGIN_COPY.description}
+          centered
         />
 
-        <form className="space-y-3.5" onSubmit={handleSubmit}>
-          <AuthTextField
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <AuthInput
             id="identifier"
             label={LOGIN_COPY.identifierLabel}
             icon="person"
             name="identifier"
             value={formData.identifier}
             onChange={handleInputChange}
-            placeholder="name@school.edu"
+            placeholder={LOGIN_COPY.identifierPlaceholder}
+            autoComplete="username"
             required
+            error={fieldErrors.identifier}
           />
 
-          <AuthTextField
+          <PasswordField
             id="password"
             label={LOGIN_COPY.passwordLabel}
-            icon="lock"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            type="password"
-            placeholder="••••••••"
+            placeholder={LOGIN_COPY.passwordPlaceholder}
+            autoComplete="current-password"
             required
-            enablePasswordToggle
+            error={fieldErrors.password}
           />
 
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <label className="flex cursor-pointer items-center gap-2 text-on-surface-variant transition-colors hover:text-on-surface">
+          <div className="flex items-center justify-between gap-3 pt-1.5 text-sm">
+            <label className="flex cursor-pointer items-center gap-2 text-auth-text-body transition-colors hover:text-auth-text-strong">
               <input
-                className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary/20"
+                className="h-4 w-4 rounded border-auth-border text-auth-primary focus:ring-auth-primary/20"
                 type="checkbox"
                 checked={formData.remember}
                 onChange={handleRememberChange}
               />
               {LOGIN_COPY.remember}
             </label>
-            <Link to="/forgot-password" className="font-semibold text-primary transition-colors hover:text-primary-container">
+            <Link to="/forgot-password" className="font-semibold text-auth-primary transition-colors hover:text-auth-primary-hover">
               {LOGIN_COPY.forgotPassword}
             </Link>
           </div>
 
-          {validationError && <p className="text-sm text-error" role="alert">{validationError}</p>}
-          {errorMessage && <p className="text-sm text-error" role="alert">{errorMessage}</p>}
+          <AuthStatusMessage message={submitError} type="error" />
 
           <button
-            className="signature-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-on-primary shadow-md shadow-primary/15 transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            className="auth-primary-button group flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold text-white transition-all hover:brightness-[1.03] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-70"
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? LOGIN_COPY.submitting : LOGIN_COPY.submit}
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            <span className="material-symbols-outlined text-[21px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
           </button>
         </form>
-
-        <div className="mt-4 border-t border-outline-variant/20 pt-3.5">
-          <AuthSupportText prompt={LOGIN_COPY.supportPrompt} action={LOGIN_COPY.supportAction} />
-        </div>
       </AuthCard>
     </AuthShell>
   );

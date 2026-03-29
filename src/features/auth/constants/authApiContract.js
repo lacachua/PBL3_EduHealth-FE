@@ -1,10 +1,10 @@
 export const AUTH_API_ENDPOINTS = {
-  login: "/api/v1/auth/login",
-  me: "/api/v1/auth/me",
-  forgotPassword: "/api/v1/auth/forgot-password/request-otp",
-  verifyOtp: "/api/v1/auth/forgot-password/verify-otp",
-  resendOtp: "/api/v1/auth/forgot-password/request-otp",
-  resetPassword: "/api/v1/auth/forgot-password/reset",
+  login: "/auth/login",
+  me: "/auth/me",
+  forgotPassword: "/auth/forgot-password/request-otp",
+  verifyOtp: "/auth/forgot-password/verify-otp",
+  resendOtp: "/auth/forgot-password/request-otp",
+  resetPassword: "/auth/forgot-password/reset",
 };
 
 export const buildLoginRequest = ({ identifier, password }) => ({

@@ -1,15 +1,18 @@
 import React from 'react';
+import AuthVisualPanel from './AuthVisualPanel';
 
-const AuthShell = ({ children, contentClassName = '' }) => {
+const AuthShell = ({
+  children,
+  panel,
+}) => {
   return (
-    <section className="relative px-4 py-6 sm:px-6 sm:py-8">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-28 left-[-8%] h-64 w-64 rounded-full bg-primary/8 blur-3xl sm:h-72 sm:w-72" />
-        <div className="absolute bottom-[-4rem] right-[-8%] h-72 w-72 rounded-full bg-secondary-container/20 blur-3xl sm:h-80 sm:w-80" />
-      </div>
+    <section className="auth-bg-pattern relative min-h-screen overflow-hidden">
+      <div className="mx-auto grid min-h-[calc(100vh-2rem)] w-full max-w-[1220px] grid-cols-1 gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch lg:gap-5 lg:px-8 lg:py-4">
+        <AuthVisualPanel panel={panel} />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl">
-        <div className={`mx-auto w-full ${contentClassName}`}>{children}</div>
+        <div className="relative flex min-h-[420px] flex-col rounded-2xl border border-auth-border/70 bg-auth-surface/95 p-4 auth-surface-shadow sm:p-4.5 lg:p-5">
+          <div className="flex-1">{children}</div>
+        </div>
       </div>
     </section>
   );
