@@ -75,3 +75,36 @@ export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu
     fallback
   );
 };
+
+export const mapApiFieldErrors = (error) => {
+  const envelope = normalizeApiEnvelope(error?.response);
+  const errors = Array.isArray(envelope.errors) ? envelope.errors : [];
+  const mapped = {};
+
+  errors.forEach((item) => {
+    if (!item || typeof item !== 'object') {
+      return;
+    }
+
+    const field = (item.field || item.path || '').toString().trim();
+    const message = (item.message || '').toString().trim();
+
+    if (field && message) {
+      mapped[field] = message;
+    }
+  });
+
+  if (Object.keys(mapped).length) {
+    return mapped;
+  }
+
+  const fallbackField = error?.response?.data?.field;
+  const fallbackMessage = error?.response?.data?.message;
+  if (fallbackField && fallbackMessage) {
+    return { [fallbackField]: fallbackMessage };
+  }
+
+  return {};
+};
+
+export const isNetworkError = (error) => !error?.response;
