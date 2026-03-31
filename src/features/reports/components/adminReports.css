@@ -1,0 +1,17 @@
+.admin-report-drawer {
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-report-drawer.open {
+  transform: translateX(0);
+}
+
+.chart-bar-segment {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.chart-bar-segment:hover {
+  filter: brightness(0.92);
+  transform: scaleX(1.05);
+}

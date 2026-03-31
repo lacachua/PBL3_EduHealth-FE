@@ -1,13 +1,25 @@
 import React from 'react';
 
-const ExportActions = ({ exporting, onExport }) => {
+const ExportActions = ({ onExport, exporting = false }) => {
   return (
-    <div className="flex items-center gap-2">
-      <button type="button" disabled={exporting} onClick={() => onExport('xlsx')} className="rounded-xl border border-outline-variant bg-surface px-3 py-2 text-sm font-semibold text-on-surface-variant disabled:opacity-50">
-        Xuất Excel
+    <div className="flex">
+      <button
+        type="button"
+        disabled={exporting}
+        onClick={() => onExport('pdf')}
+        className="inline-flex items-center gap-2 rounded-l-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface disabled:opacity-60"
+      >
+        <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+        PDF
       </button>
-      <button type="button" disabled={exporting} onClick={() => onExport('pdf')} className="rounded-xl bg-secondary px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
-        Xuất PDF
+      <button
+        type="button"
+        disabled={exporting}
+        onClick={() => onExport('xlsx')}
+        className="inline-flex items-center gap-2 rounded-r-xl border border-secondary bg-secondary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-secondary/90 disabled:opacity-60"
+      >
+        <span className="material-symbols-outlined text-[18px]">download</span>
+        Xuất Excel
       </button>
     </div>
   );

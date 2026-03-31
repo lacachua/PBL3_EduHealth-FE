@@ -11,7 +11,7 @@ import PasswordField from '../components/PasswordField';
 import AuthStatusMessage from '../components/AuthStatusMessage';
 import { authCopy } from '../constants/authCopy';
 import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
-import { validateRequired } from '../utils/authValidators';
+import { validateRequired } from '../schemas/authSchema';
 
 const LOGIN_COPY = authCopy.login;
 const ROLE_PATHS = {

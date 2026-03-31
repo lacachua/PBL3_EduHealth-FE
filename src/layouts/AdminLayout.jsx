@@ -19,16 +19,8 @@ const getUserRoleLabel = (user) => {
   return 'Quản trị viên';
 };
 
-const isActiveItem = (pathname, to) => {
-  if (to === '/admin/dashboard') {
-    return pathname === to;
-  }
-
-  return pathname.startsWith(to);
-};
-
 const AdminLayout = () => {
-  const { pathname } = useLocation();
+  const { key: locationKey } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -108,29 +100,32 @@ const AdminLayout = () => {
 
               <div className="space-y-1">
                 {group.items.map((item) => {
-                  const active = isActiveItem(pathname, item.to);
-
                   return (
                     <NavLink
                       key={item.id}
                       to={item.to}
+                      end={item.to === '/admin/dashboard'}
                       onClick={closeSidebar}
                       title={isSidebarCollapsed ? item.label : undefined}
-                      className={`group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
-                        active
+                      className={({ isActive }) => `group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
+                        isActive
                           ? 'bg-secondary-container text-secondary'
                           : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
                       }`}
                     >
-                      {active ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-secondary" /> : null}
-                      <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
-                      {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
+                      {({ isActive }) => (
+                        <>
+                          {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-secondary" /> : null}
+                          <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
+                          {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
 
-                      {isSidebarCollapsed ? (
-                        <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface px-2 py-1 text-xs font-semibold text-on-surface-variant opacity-0 shadow-sm transition group-hover:opacity-100">
-                          {item.label}
-                        </span>
-                      ) : null}
+                          {isSidebarCollapsed ? (
+                            <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface px-2 py-1 text-xs font-semibold text-on-surface-variant opacity-0 shadow-sm transition group-hover:opacity-100">
+                              {item.label}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
                     </NavLink>
                   );
                 })}
@@ -205,7 +200,7 @@ const AdminLayout = () => {
         </header>
 
         <div className="px-4 pb-4 pt-3 sm:px-5">
-          <Outlet />
+          <Outlet key={locationKey} />
         </div>
       </main>
     </div>

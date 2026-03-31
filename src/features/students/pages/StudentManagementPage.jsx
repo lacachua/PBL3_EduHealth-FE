@@ -17,6 +17,7 @@ import { useStudentManagementPageState } from '../hooks/useStudentManagementPage
 
 const StudentManagementPage = () => {
   const location = useLocation();
+
   const {
     filters,
     tableData,
@@ -159,7 +160,7 @@ const StudentManagementPage = () => {
       />
 
       <StudentEditDrawer
-        key={`${selectedTargetId || 'no-student'}-${editOpen ? 'open' : 'closed'}`}
+        key={`basic-edit-${selectedTargetId || 'no-student'}-${editOpen ? 'open' : 'closed'}`}
         open={editOpen}
         student={selectedTarget}
         submitting={basicSaving}
@@ -171,7 +172,7 @@ const StudentManagementPage = () => {
       />
 
       <StudentHealthEditDrawer
-        key={`${selectedTargetId || 'no-student'}-${healthEditOpen ? 'open' : 'closed'}`}
+        key={`health-edit-${selectedTargetId || 'no-student'}-${healthEditOpen ? 'open' : 'closed'}`}
         open={healthEditOpen}
         student={selectedTarget}
         profile={selectedHealthProfile}

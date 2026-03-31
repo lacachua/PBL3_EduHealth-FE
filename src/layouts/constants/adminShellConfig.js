@@ -29,9 +29,15 @@ export const adminSidebarGroups = [
       },
       {
         id: 'admin-catalogs',
-        label: 'Quản lý danh mục',
+        label: 'Danh mục dùng chung',
         icon: 'category',
         to: '/admin/catalogs',
+      },
+      {
+        id: 'admin-medicines',
+        label: 'Kho thuốc',
+        icon: 'medication',
+        to: '/admin/medicines',
       },
       {
         id: 'admin-reports',

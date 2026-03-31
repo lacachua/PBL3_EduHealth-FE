@@ -19,6 +19,7 @@ import {
   LandingPage,
   Lazy,
   LoginPage,
+  MedicinesPage,
   NotFoundPage,
   NurseDashboard,
   ParentDashboard,
@@ -48,16 +49,18 @@ export const router = createBrowserRouter(
       {/* Protected Admin Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["admin"]} />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<Lazy><AdminDashboardPage /></Lazy>} />
-            <Route path="/admin/students" element={<Lazy><StudentManagementPage /></Lazy>} />
-            <Route path="/admin/students/create" element={<Navigate to="/admin/students" replace />} />
-            <Route path="/admin/users" element={<Lazy><UserManagementPage /></Lazy>} />
-            <Route path="/admin/catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
-            <Route path="/admin/reports" element={<Lazy><ReportsPage /></Lazy>} />
-            <Route path="/admin/system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<Lazy><AdminDashboardPage /></Lazy>} />
+            <Route path="students" element={<Lazy><StudentManagementPage /></Lazy>} />
+            <Route path="students/create" element={<Navigate to="/admin/students" replace />} />
+            <Route path="users" element={<Lazy><UserManagementPage /></Lazy>} />
+            <Route path="catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
+            <Route path="medicines" element={<Lazy><MedicinesPage /></Lazy>} />
+            <Route path="reports" element={<Lazy><ReportsPage /></Lazy>} />
+            <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
             <Route
-              path="/admin/settings"
+              path="settings"
               element={<Lazy><AdminModulePlaceholder moduleKey="settings" /></Lazy>}
             />
           </Route>

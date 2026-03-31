@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { adaptSystemLogsResponse } from '../adapters/systemLogsAdapter';
 import { getSystemLogsApi } from '../services/systemLogsApi';
 
-const initialFilters = { keyword: '', actor: '', module: 'all', action: 'all', timeRange: 'all' };
+const initialFilters = { keyword: '', fromDate: '', toDate: '', role: 'all', action: 'all' };
 
 export const useSystemLogs = () => {
   const [filters, setFilters] = useState(initialFilters);
@@ -12,19 +12,15 @@ export const useSystemLogs = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchList = useCallback(async (next = {}) => {
+  const fetchList = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
       const envelope = await getSystemLogsApi({
-        page: next.page || page,
+        page,
         pageSize: 10,
-        keyword: next.keyword ?? filters.keyword,
-        actor: next.actor ?? filters.actor,
-        module: next.module ?? filters.module,
-        action: next.action ?? filters.action,
-        timeRange: next.timeRange ?? filters.timeRange,
+        ...filters,
       });
       setTableData(adaptSystemLogsResponse(envelope));
     } catch (apiError) {
@@ -33,21 +29,19 @@ export const useSystemLogs = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters.action, filters.actor, filters.keyword, filters.module, filters.timeRange, page]);
+  }, [filters, page]);
 
   useEffect(() => {
-    fetchList({ page: 1 });
+    fetchList();
   }, [fetchList]);
 
   const onFiltersChange = (nextFilters) => {
     setFilters(nextFilters);
     setPage(1);
-    fetchList({ ...nextFilters, page: 1 });
   };
 
   const onPageChange = (nextPage) => {
     setPage(nextPage);
-    fetchList({ page: nextPage });
   };
 
   const status = useMemo(() => {

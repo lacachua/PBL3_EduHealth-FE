@@ -33,32 +33,12 @@ const normalizeKpis = (source = {}) => ([
   },
   {
     id: 'active-catalogs',
-    label: 'Danh mục đang dùng',
+    label: 'Tổng danh mục',
     value: toNumber(source.activeCatalogEntries),
     icon: 'inventory_2',
     tone: 'success',
   },
-  {
-    id: 'review-total',
-    label: 'Mục cần rà soát',
-    value: toNumber(source.reviewTotal),
-    icon: 'fact_check',
-    tone: 'warning',
-  },
 ]);
-
-const normalizeReviewItems = (items) => {
-  if (!Array.isArray(items)) return [];
-
-  return items.map((item, index) => ({
-    id: item?.id || `review-${index + 1}`,
-    title: toText(item?.title, 'Mục cần rà soát'),
-    description: toText(item?.description, ''),
-    count: toNumber(item?.count),
-    tone: toText(item?.tone, 'neutral'),
-    to: toText(item?.to, '/admin/dashboard'),
-  }));
-};
 
 const normalizeActivities = (items) => {
   if (!Array.isArray(items)) return [];
@@ -76,11 +56,10 @@ const normalizeActivities = (items) => {
 
 const buildEmpty = () => ({
   title: 'Tổng quan quản trị',
-  subtitle: 'Theo dõi số liệu vận hành và danh sách cần rà soát của nhà trường.',
+  subtitle: 'Theo dõi số liệu hệ thống và điều hướng nhanh tác vụ quản trị.',
   schoolName: 'Trường Tiểu học Trần Cao Vân',
   generatedAt: '',
   kpis: normalizeKpis(),
-  reviewItems: [],
   activities: [],
 });
 
@@ -101,7 +80,6 @@ export const adaptAdminDashboardEnvelope = (responseOrEnvelope) => {
     schoolName: toText(source.schoolName, 'Trường Tiểu học Trần Cao Vân'),
     generatedAt: toText(source.generatedAt || envelope?.meta?.generatedAt, ''),
     kpis: normalizeKpis(source.kpis),
-    reviewItems: normalizeReviewItems(source.reviewItems),
-    activities: normalizeActivities(source.recentActivities),
+    activities: normalizeActivities(source.recentActivities).slice(0, 3),
   };
 };

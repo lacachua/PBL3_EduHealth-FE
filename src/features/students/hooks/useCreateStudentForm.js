@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_CREATE_INITIAL_VALUES } from '../constants/studentCreateOptions';
 import { createStudentManagementApi, updateStudentHealthProfileApi } from '../services/studentManagementApi';
@@ -185,12 +185,12 @@ export const useCreateStudentForm = () => {
     });
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormValues(cloneInitialValues());
     setFieldErrors({});
     setSubmitError('');
     setSubmitting(false);
-  };
+  }, []);
 
   const submit = async () => {
     const nextErrors = buildFieldErrors(formValues);

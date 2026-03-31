@@ -13,7 +13,8 @@ const extractPayload = (responseOrPayload) => {
     return null;
   }
 
-  if ("data" in responseOrPayload) {
+  // Guard against double-extraction if the object is already an API Envelope
+  if ("data" in responseOrPayload && !("success" in responseOrPayload && "meta" in responseOrPayload)) {
     return responseOrPayload.data;
   }
 
@@ -65,6 +66,10 @@ export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu
   const status = error?.response?.status;
   const envelope = normalizeApiEnvelope(error?.response);
   const firstErrorMessage = Array.isArray(envelope.errors) ? envelope.errors[0]?.message : null;
+
+  if (!error?.response) {
+    return fallback;
+  }
 
   return (
     envelope.message ||

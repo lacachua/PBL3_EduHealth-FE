@@ -10,8 +10,8 @@ import AuthStatusMessage from '../components/AuthStatusMessage';
 import OTPInput from '../components/OTPInput';
 import { authCopy } from '../constants/authCopy';
 import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
-import { maskEmail } from '../utils/authFormatters';
-import { validateOtpCode } from '../utils/authValidators';
+import { maskEmail } from '../adapters/authAdapter';
+import { validateOtpCode } from '../schemas/authSchema';
 
 const VERIFY_COPY = authCopy.verifyOtp;
 const OTP_LENGTH = 6;
