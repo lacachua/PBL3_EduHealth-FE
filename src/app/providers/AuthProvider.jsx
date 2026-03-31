@@ -11,25 +11,26 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => getStoredUser());
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(getAccessToken()));
 
   const login = (payload) => {
     const normalizedUser = payload?.user ?? payload ?? null;
     const token = payload?.accessToken ?? payload?.token;
     const remember = Boolean(payload?.remember);
 
-    if (!normalizedUser || !token) {
-      return;
-    }
+    if (!normalizedUser || !token) return;
 
     setStoredUser(normalizedUser, remember);
     setAccessToken(token, remember);
 
     setUser(normalizedUser);
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
     clearAuthStorage();
     setUser(null);
+    setIsAuthenticated(false);
   };
 
   const value = useMemo(
@@ -37,16 +38,12 @@ export const AuthProvider = ({ children }) => {
       user,
       login,
       logout,
-      isAuthenticated: Boolean(getAccessToken()),
+      isAuthenticated,
     }),
-    [user]
+    [user, isAuthenticated]
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export { AuthContext };
