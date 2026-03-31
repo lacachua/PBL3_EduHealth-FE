@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
 import RoleBadge from './RoleBadge';
-import ConfirmActionDialog from './ConfirmActionDialog';
+import ConfirmDialog from '../../../shared/components/admin/ConfirmDialog';
 
 const MODE_OPTIONS = [
   { value: 'TEMPORARY', label: 'Tạo mật khẩu tạm' },
@@ -205,7 +205,7 @@ const ResetPasswordModal = ({ open, user, submitting, onCancel, onConfirm }) => 
           ) : null}
         </div>
 
-        <ConfirmActionDialog
+        <ConfirmDialog
           open={confirmOpen}
           title="Xác nhận reset mật khẩu"
           message={mode === 'CUSTOM'

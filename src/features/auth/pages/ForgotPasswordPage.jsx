@@ -10,7 +10,7 @@ import AuthBackLink from '../components/AuthBackLink';
 import AuthStatusMessage from '../components/AuthStatusMessage';
 import { authCopy } from '../constants/authCopy';
 import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
-import { validateEmail, validateRequired } from '../utils/authValidators';
+import { validateEmail, validateRequired } from '../schemas/authSchema';
 
 const FORGOT_COPY = authCopy.forgotPassword;
 

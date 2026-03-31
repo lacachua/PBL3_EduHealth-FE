@@ -11,7 +11,7 @@ import PasswordChecklist from '../components/PasswordChecklist';
 import AuthStatusMessage from '../components/AuthStatusMessage';
 import { authCopy } from '../constants/authCopy';
 import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
-import { getPasswordChecks } from '../utils/authValidators';
+import { getPasswordChecks } from '../schemas/authSchema';
 
 const CHANGE_COPY = authCopy.changePassword;
 

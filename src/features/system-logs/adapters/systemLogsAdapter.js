@@ -1,34 +1,16 @@
-import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
-import { ADMIN_MODULE_LABELS } from '../../../shared/constants/adminLabels';
-
-const statusTone = {
-  success: 'success',
-  warning: 'warning',
-  error: 'danger',
-};
-
-const actionLabelMap = {
-  CREATE_STUDENT: 'Tạo mới học sinh',
-  UPDATE_ROLE: 'Cập nhật vai trò',
-  DELETE_DUPLICATE: 'Xóa bản ghi trùng',
-  EXPORT_REPORT: 'Xuất báo cáo',
-  SYNC_ERROR: 'Đồng bộ lỗi',
-  UPDATE_VACCINATION: 'Cập nhật tiêm chủng',
-};
-
-const targetTypeLabelMap = {
-  student: 'Học sinh',
-  'user-account': 'Tài khoản người dùng',
-  'catalog-item': 'Mục danh mục',
-  report: 'Báo cáo',
-  'integration-job': 'Phiên đồng bộ',
-  'student-vaccination': 'Tiêm chủng học sinh',
-};
+﻿import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 
 const statusLabelMap = {
   success: 'Thành công',
   warning: 'Cảnh báo',
   error: 'Lỗi',
+};
+
+const roleLabelMap = {
+  admin: 'Quản trị viên',
+  nurse: 'Nhân viên y tế',
+  student: 'Học sinh',
+  system: 'Hệ thống',
 };
 
 export const adaptSystemLogsResponse = (payload) => {
@@ -39,12 +21,21 @@ export const adaptSystemLogsResponse = (payload) => {
 
   const rows = Array.isArray(envelope.data?.logs)
     ? envelope.data.logs.map((item) => ({
-      ...item,
-      moduleLabel: ADMIN_MODULE_LABELS[item.module] || item.module,
-      actionLabel: actionLabelMap[item.action] || item.action,
-      targetTypeLabel: targetTypeLabelMap[item.targetType] || item.targetType || '--',
-      statusTone: statusTone[item.status] || 'neutral',
-      statusLabel: statusLabelMap[item.status] || item.status,
+      id: item.id || '--',
+      occurredAt: item.occurredAt || '--',
+      actorName: item.actorName || '--',
+      actorUsername: item.actorUsername || '--',
+      actorRole: item.actorRole || '--',
+      roleLabel: roleLabelMap[item.actorRole] || item.actorRole || '--',
+      actionCategory: item.actionCategory || '--',
+      actionLabel: item.actionLabel || '--',
+      moduleLabel: item.moduleLabel || '--',
+      targetName: item.targetName || '--',
+      targetTypeLabel: item.targetTypeLabel || '--',
+      statusTone: item.statusTone || 'neutral',
+      statusLabel: statusLabelMap[item.statusTone] || item.statusLabel || item.statusTone || '--',
+      message: item.message || '--',
+      detail: item.detail || item.message || '--'
     }))
     : [];
 

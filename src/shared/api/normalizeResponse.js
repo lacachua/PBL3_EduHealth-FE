@@ -13,7 +13,8 @@ const extractPayload = (responseOrPayload) => {
     return null;
   }
 
-  if ("data" in responseOrPayload) {
+  // Guard against double-extraction if the object is already an API Envelope
+  if ("data" in responseOrPayload && !("success" in responseOrPayload && "meta" in responseOrPayload)) {
     return responseOrPayload.data;
   }
 
