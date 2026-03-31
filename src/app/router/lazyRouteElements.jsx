@@ -24,5 +24,6 @@ export const ParentDashboard = React.lazy(() => import("../../features/dashboard
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));
 export const CatalogManagementPage = React.lazy(() => import("../../features/catalogs/pages/CatalogManagementPage"));
+export const MedicinesPage = React.lazy(() => import("../../features/medicines/pages/MedicinesPage"));
 export const ReportsPage = React.lazy(() => import("../../features/reports/pages/ReportsPage"));
 export const SystemLogsPage = React.lazy(() => import("../../features/system-logs/pages/SystemLogsPage"));

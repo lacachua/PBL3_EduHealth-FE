@@ -19,6 +19,7 @@ import {
   LandingPage,
   Lazy,
   LoginPage,
+  MedicinesPage,
   NotFoundPage,
   NurseDashboard,
   ParentDashboard,
@@ -54,6 +55,7 @@ export const router = createBrowserRouter(
             <Route path="/admin/students/create" element={<Navigate to="/admin/students" replace />} />
             <Route path="/admin/users" element={<Lazy><UserManagementPage /></Lazy>} />
             <Route path="/admin/catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
+            <Route path="/admin/medicines" element={<Lazy><MedicinesPage /></Lazy>} />
             <Route path="/admin/reports" element={<Lazy><ReportsPage /></Lazy>} />
             <Route path="/admin/system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
             <Route

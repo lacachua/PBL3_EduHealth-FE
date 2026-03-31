@@ -67,6 +67,10 @@ export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu
   const envelope = normalizeApiEnvelope(error?.response);
   const firstErrorMessage = Array.isArray(envelope.errors) ? envelope.errors[0]?.message : null;
 
+  if (!error?.response) {
+    return fallback;
+  }
+
   return (
     envelope.message ||
     firstErrorMessage ||

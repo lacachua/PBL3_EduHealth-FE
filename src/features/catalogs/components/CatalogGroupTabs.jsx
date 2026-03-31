@@ -1,7 +1,7 @@
 import React from 'react';
 import { CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
 
-const CatalogTabs = ({ activeGroup, onChange }) => (
+const CatalogGroupTabs = ({ activeGroup, onChange }) => (
   <div className="flex flex-wrap items-center gap-2">
     {CATALOG_GROUPS.map((group) => (
       <button
@@ -10,7 +10,7 @@ const CatalogTabs = ({ activeGroup, onChange }) => (
         onClick={() => onChange(group.value)}
         className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
           activeGroup === group.value
-            ? 'border-secondary bg-secondary-container text-secondary'
+            ? 'border-secondary/35 bg-secondary-container/25 text-secondary'
             : 'border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-low'
         }`}
       >
@@ -20,4 +20,4 @@ const CatalogTabs = ({ activeGroup, onChange }) => (
   </div>
 );
 
-export default CatalogTabs;
+export default CatalogGroupTabs;

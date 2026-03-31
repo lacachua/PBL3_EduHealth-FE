@@ -1,109 +1,120 @@
-import React, { useState } from 'react';
-import ConfirmDialog from '../../../shared/components/admin/ConfirmDialog';
-import EmptyState from '../../../shared/components/admin/EmptyState';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import ErrorState from '../../../shared/components/admin/ErrorState';
+import ForbiddenState from '../../../shared/components/admin/ForbiddenState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import Pagination from '../../../shared/components/admin/Pagination';
 import SectionCard from '../../../shared/components/admin/SectionCard';
 import TableToolbar from '../../../shared/components/admin/TableToolbar';
-import CatalogFilters from '../components/CatalogFilters';
-import CatalogItemModal from '../components/CatalogItemModal';
-import CatalogTable from '../components/CatalogTable';
-import CatalogTabs from '../components/CatalogTabs';
-import { useCatalogManagement } from '../hooks/useCatalogManagement';
+import CatalogDetailDrawer from '../components/CatalogDetailDrawer';
+import CatalogGroupTabs from '../components/CatalogGroupTabs';
+import CatalogLookupEmptyState from '../components/CatalogLookupEmptyState';
+import CatalogLookupFilters from '../components/CatalogLookupFilters';
+import CatalogLookupTable from '../components/CatalogLookupTable';
+import { useCatalogDetail } from '../hooks/useCatalogDetail';
+import { useCatalogList } from '../hooks/useCatalogList';
 
 const groupUi = {
   vaccines: {
-    title: 'danh mục vắc xin',
-    subtitle: 'Theo dõi danh sách vắc xin đang dùng, hạn rà soát và chuẩn hóa dữ liệu tiêm chủng.',
+    title: 'nhóm vắc xin',
+    subtitle: 'Tra cứu dữ liệu chuẩn phục vụ hồ sơ tiêm chủng và theo dõi sức khỏe học sinh.',
   },
   diseases: {
-    title: 'danh mục bệnh lý',
-    subtitle: 'Chuẩn hóa bệnh lý phục vụ khai báo hồ sơ sức khỏe và đối soát lượt khám.',
+    title: 'nhóm bệnh lý',
+    subtitle: 'Đối chiếu mã bệnh lý dùng chung cho khai báo hồ sơ sức khỏe và khám bệnh học đường.',
   },
   allergies: {
-    title: 'danh mục dị ứng',
-    subtitle: 'Quản lý dị ứng cần cảnh báo khi khám, kê thuốc và lập kế hoạch tiêm chủng.',
+    title: 'nhóm dị ứng',
+    subtitle: 'Theo dõi danh mục dị ứng chuẩn để hỗ trợ cảnh báo trong khám bệnh và vận hành y tế.',
   },
 };
 
-const CatalogManagementPage = () => {
-  const { group, filters, tableData, status, error, submitting, onGroupChange, onFiltersChange, onPageChange, saveItem, deleteItem, fetchList } = useCatalogManagement();
+const CatalogLookupPage = () => {
+  const {
+    group,
+    filters,
+    tableData,
+    status,
+    error,
+    accessState,
+    fetchList,
+    onGroupChange,
+    onFiltersChange,
+    onResetFilters,
+    onPageChange,
+  } = useCatalogList();
 
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [formOpen, setFormOpen] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const {
+    selectedItem,
+    detailOpen,
+    detailLoading,
+    detailError,
+    accessState: detailAccessState,
+    openDetail,
+    closeDetail,
+  } = useCatalogDetail();
+
+  if (accessState === 'unauthorized' || detailAccessState === 'unauthorized') {
+    return <Navigate to="/login" replace />;
+  }
+
   const activeGroupUi = groupUi[group] || groupUi.vaccines;
 
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Quản lý danh mục"
-        description="Chuẩn hóa danh mục dùng chung cho tiêm chủng, hồ sơ sức khỏe và vận hành nhà trường."
+        title="Tra cứu danh mục dùng chung"
+        description="Không gian tra cứu dữ liệu chuẩn phục vụ hồ sơ sức khỏe, tiêm chủng, khám bệnh và vận hành hệ thống EduHealth."
         actions={(
           <button
             type="button"
-            onClick={() => {
-              setSelectedItem(null);
-              setFormOpen(true);
-            }}
-            className="rounded-xl bg-secondary px-3.5 py-2 text-sm font-semibold text-white"
+            onClick={() => fetchList()}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-outline-variant bg-surface px-3.5 py-2 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low"
           >
-            Thêm danh mục
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            Làm mới
           </button>
         )}
       />
 
-      <SectionCard title="Nhóm danh mục" subtitle="Chọn nhóm để thao tác CRUD theo từng miền dữ liệu nghiệp vụ">
-        <CatalogTabs activeGroup={group} onChange={onGroupChange} />
+      <SectionCard title="Nhóm danh mục" subtitle="Chuyển nhanh nhóm dữ liệu để tra cứu danh mục tương ứng.">
+        <CatalogGroupTabs activeGroup={group} onChange={onGroupChange} />
       </SectionCard>
 
       <SectionCard title={`Danh sách ${activeGroupUi.title}`} subtitle={activeGroupUi.subtitle}>
-        <TableToolbar filters={<CatalogFilters initialValue={filters} onApply={onFiltersChange} />} actions={null} />
+        <TableToolbar
+          filters={<CatalogLookupFilters initialValue={filters} onApply={onFiltersChange} onReset={onResetFilters} />}
+          actions={null}
+        />
 
+        {accessState === 'forbidden' ? <ForbiddenState message={error} /> : null}
         {status === 'loading' ? <LoadingSpinner label="Đang tải danh mục..." /> : null}
         {status === 'error' ? <ErrorState message={error} onRetry={fetchList} /> : null}
-        {status === 'empty' ? <EmptyState title="Không có dữ liệu danh mục" description="Nhóm danh mục này chưa có bản ghi theo bộ lọc hiện tại." /> : null}
+        {status === 'empty' ? <CatalogLookupEmptyState /> : null}
 
         {status === 'success' ? (
           <>
-            <CatalogTable
+            <CatalogLookupTable
               rows={tableData.rows}
-              onEdit={(row) => { setSelectedItem(row); setFormOpen(true); }}
-              onDelete={(row) => { setSelectedItem(row); setConfirmOpen(true); }}
+              onViewDetail={(row) => openDetail(row, { group })}
             />
-            <Pagination page={tableData.page} pageSize={tableData.pageSize} totalItems={tableData.totalItems} onPageChange={onPageChange} />
+            {tableData.totalPages > 1 ? (
+              <Pagination page={tableData.page} pageSize={tableData.pageSize} totalItems={tableData.totalItems} onPageChange={onPageChange} />
+            ) : null}
           </>
         ) : null}
       </SectionCard>
 
-      <CatalogItemModal
-        key={`${selectedItem?.id || 'new'}-${formOpen ? 'open' : 'closed'}`}
-        open={formOpen}
+      <CatalogDetailDrawer
+        open={detailOpen}
         item={selectedItem}
-        submitting={submitting}
-        onClose={() => setFormOpen(false)}
-        onSubmit={async (payload) => {
-          await saveItem(payload);
-          setFormOpen(false);
-        }}
-      />
-
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Xóa danh mục"
-        message={selectedItem ? `Bạn muốn xóa danh mục ${selectedItem.name}?` : 'Bạn muốn xóa danh mục này?'}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={async () => {
-          if (selectedItem?.id) await deleteItem(selectedItem.id);
-          setConfirmOpen(false);
-          setSelectedItem(null);
-        }}
-        confirmLabel="Xóa"
+        loading={detailLoading}
+        error={detailError}
+        onClose={closeDetail}
       />
     </div>
   );
 };
 
-export default CatalogManagementPage;
+export default CatalogLookupPage;
