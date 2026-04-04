@@ -19,7 +19,7 @@ export const ServerErrorPage = React.lazy(() => import("../../pages/ServerErrorP
 
 export const AdminDashboardPage = React.lazy(() => import("../../features/dashboard/admin/pages/AdminDashboardPage"));
 export const AdminModulePlaceholder = React.lazy(() => import("../../features/dashboard/admin/components/AdminModulePlaceholder"));
-export const NurseDashboard = React.lazy(() => import("../../features/dashboard/nurse/NurseDashboard"));
+export const ModulePlaceholderPage = React.lazy(() => import("../../features/nurse/components/ModulePlaceholderPage"));
 export const ParentDashboard = React.lazy(() => import("../../features/dashboard/parent/ParentDashboard"));
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));
