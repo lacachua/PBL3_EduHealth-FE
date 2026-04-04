@@ -1,45 +1,37 @@
 export const AUTH_API_ENDPOINTS = {
-  login: "/auth/login",
-  me: "/auth/me",
-  forgotPassword: "/auth/forgot-password/request-otp",
-  verifyOtp: "/auth/forgot-password/verify-otp",
-  resendOtp: "/auth/forgot-password/request-otp",
-  resetPassword: "/auth/forgot-password/reset",
+  login: "/api/v1/auth/login",
+  me: "/api/v1/auth/me",
+  forgotPassword: "/api/v1/auth/forgot-password/request-otp",
+  verifyOtp: "/api/v1/auth/forgot-password/verify-otp",
+  resendOtp: "/api/v1/auth/forgot-password/request-otp",
+  resetPassword: "/api/v1/auth/forgot-password/reset",
 };
 
 export const buildLoginRequest = ({ identifier, password }) => ({
-  username: identifier,
   identifier,
   password,
 });
 
 export const buildForgotPasswordRequest = ({ identifier }) => ({
-  username: identifier,
   email: identifier,
-  identifier,
 });
 
 export const buildVerifyOtpRequest = ({ identifier, otp }) => ({
-  username: identifier,
   email: identifier,
-  identifier,
   otp,
 });
 
 export const buildResendOtpRequest = ({ identifier }) => ({
-  username: identifier,
   email: identifier,
-  identifier,
 });
 
-export const buildResetPasswordRequest = ({ identifier, otp, resetToken, newPassword }) => {
+export const buildResetPasswordRequest = ({ identifier, resetToken, newPassword, confirmPassword }) => {
   const payload = {
-    identifier,
+    email: identifier,
+    resetToken,
     newPassword,
+    confirmPassword: confirmPassword || newPassword,
   };
-
-  if (otp) payload.otp = otp;
-  if (resetToken) payload.resetToken = resetToken;
 
   return payload;
 };
@@ -49,7 +41,20 @@ export const normalizeLoginResponse = (payload) => {
     return { user: null, accessToken: null };
   }
 
-  const normalizedUser = payload.user || payload.account || null;
+  const extractFlatUser = (value) => {
+    if (!value || typeof value !== "object") {
+      return null;
+    }
+
+    const rest = Object.fromEntries(
+      Object.entries(value).filter(
+        ([key]) => !["accessToken", "token", "jwt", "expiresAt"].includes(key)
+      )
+    );
+    return Object.keys(rest).length ? rest : null;
+  };
+
+  const normalizedUser = payload.user || payload.account || extractFlatUser(payload) || null;
   const normalizedToken = payload.accessToken || payload.token || payload.jwt || null;
 
   return {

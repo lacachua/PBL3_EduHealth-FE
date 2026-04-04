@@ -7,19 +7,19 @@ export const normalizeStudentListQuery = (query = {}) => {
   };
 
   const keyword = clean(query.keyword || '');
-  if (keyword) params.keyword = keyword;
+  if (keyword) params.search = keyword;
 
-  const grade = clean(query.grade || 'all');
-  if (grade && grade !== 'all') params.grade = grade;
-
-  const className = clean(query.className || 'all');
-  if (className && className !== 'all') params.className = className;
+  const classId = clean(query.classId || 'all');
+  if (classId && classId !== 'all') {
+    const parsed = Number(classId);
+    if (Number.isFinite(parsed)) {
+      params.classId = parsed;
+    }
+  }
 
   const status = clean(query.status || 'all');
-  if (status && status !== 'all') params.status = status;
-
-  const dataMissing = clean(query.dataMissing || 'all');
-  if (dataMissing && dataMissing !== 'all') params.dataMissing = dataMissing;
+  if (status === 'ACTIVE') params.isActive = true;
+  if (status === 'LOCKED') params.isActive = false;
 
   return params;
 };

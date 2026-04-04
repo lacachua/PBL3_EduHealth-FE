@@ -70,7 +70,7 @@ export const getStudentHealthProfileApi = async (studentId) => {
     return getStudentHealthProfileMockEnvelope(studentId);
   }
 
-  return apiGetEnvelope(STUDENT_ENDPOINTS.healthProfile(studentId));
+  return apiGetEnvelope(STUDENT_ENDPOINTS.detail(studentId));
 };
 
 export const updateStudentHealthProfileApi = async (studentId, payload) => {
@@ -85,7 +85,7 @@ export const updateStudentHealthProfileApi = async (studentId, payload) => {
     };
   }
 
-  return apiPatchEnvelope(STUDENT_ENDPOINTS.healthProfile(studentId), payload);
+  return apiPatchEnvelope(STUDENT_ENDPOINTS.detail(studentId), payload);
 };
 
 export const deleteStudentManagementApi = async (studentId) => {

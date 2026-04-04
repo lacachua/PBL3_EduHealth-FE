@@ -2,17 +2,11 @@ import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 
 const statusToneMap = {
   ACTIVE: 'success',
-  PENDING_APPROVAL: 'warning',
-  TEMP_SUSPENDED: 'neutral',
-  TRANSFERRED: 'danger',
   LOCKED: 'danger',
 };
 
 const statusLabelMap = {
   ACTIVE: 'Hoạt động',
-  PENDING_APPROVAL: 'Chờ duyệt hồ sơ',
-  TEMP_SUSPENDED: 'Tạm nghỉ',
-  TRANSFERRED: 'Đã chuyển trường',
   LOCKED: 'Đã khóa',
 };
 
@@ -41,10 +35,10 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
 
   const rows = sourceRows.length
     ? sourceRows.map((item) => ({
-      id: item.id,
-      studentId: item.studentId || item.id,
+      id: item.userId,
+      studentId: item.userId,
       userId: item.userId || null,
-      studentCode: item.studentCode || '--',
+      studentCode: item.studentCode || `HS-${item.userId || '--'}`,
       fullName: item.fullName,
       dateOfBirth: item.dateOfBirth || '--',
       gender: item.gender || '--',
@@ -53,33 +47,37 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
       className: item.className,
       username: item.username || '--',
       email: item.email || '--',
-      phoneNumber: item.phoneNumber || '--',
-      heightCm: item.heightCm ?? null,
-      weightKg: item.weightKg ?? null,
-      eyeStatus: item.eyeStatus || '',
-      allergies: item.allergies || '',
-      chronicNote: item.chronicNote || '',
-      status: item.status,
-      statusLabel: item.statusLabel || statusLabelMap[item.status] || 'Không rõ',
-      statusTone: statusToneMap[item.status] || 'neutral',
+      phoneNumber: item.phone || '--',
+      phone: item.phone || '--',
+      heightCm: item.currentHeight ?? null,
+      weightKg: item.currentWeight ?? null,
+      currentHeight: item.currentHeight ?? null,
+      currentWeight: item.currentWeight ?? null,
+      eyeStatus: '',
+      allergies: '',
+      chronicNote: '',
+      medicalHistoryNotes: item.medicalHistoryNotes || '',
+      status: item.isActive ? 'ACTIVE' : 'LOCKED',
+      statusLabel: item.isActive ? statusLabelMap.ACTIVE : statusLabelMap.LOCKED,
+      statusTone: item.isActive ? statusToneMap.ACTIVE : statusToneMap.LOCKED,
       createdAt: item.createdAt || null,
       updatedAt: item.updatedAt,
-      apiId: item.studentId || item.id || item.studentCode,
+      apiId: item.userId,
     }))
     : [];
 
   const normalizedRows = rows.map((item) => ({
     ...item,
-    hasHealthWarning: Boolean(item.allergies || item.chronicNote),
-    hasMissingHealthData: item.heightCm === null || item.weightKg === null,
-    id: item.id || item.studentCode || item.studentId,
+    hasHealthWarning: Boolean(item.medicalHistoryNotes),
+    hasMissingHealthData: item.currentHeight === null || item.currentWeight === null,
+    id: item.id || item.studentId,
   }));
 
   return {
     rows: normalizedRows,
     page: Number(envelope.meta?.page || 1),
     pageSize: Number(envelope.meta?.pageSize || 10),
-    totalItems: Number(envelope.meta?.totalItems || normalizedRows.length),
+    totalItems: Number(envelope.meta?.totalItems || envelope.meta?.total || normalizedRows.length),
     totalPages: Number(envelope.meta?.totalPages || 1),
   };
 };
@@ -92,11 +90,12 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
   }
 
   const item = envelope.data;
+  const status = item.isActive ? 'ACTIVE' : 'LOCKED';
   return {
-    id: item.id || item.studentId,
-    studentId: item.studentId || item.id,
+    id: item.userId,
+    studentId: item.userId,
     userId: item.userId || null,
-    studentCode: item.studentCode || '--',
+    studentCode: item.studentCode || `HS-${item.userId || '--'}`,
     fullName: item.fullName || '--',
     dateOfBirth: item.dateOfBirth || '--',
     gender: item.gender || '--',
@@ -105,18 +104,27 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     className: item.className || '--',
     username: item.username || '--',
     email: item.email || '--',
-    phoneNumber: item.phoneNumber || '--',
+    phoneNumber: item.phone || '--',
+    phone: item.phone || '--',
+    heightCm: item.currentHeight ?? '',
+    weightKg: item.currentWeight ?? '',
+    currentHeight: item.currentHeight ?? '',
+    currentWeight: item.currentWeight ?? '',
+    eyeStatus: '',
+    allergies: '',
+    chronicNote: '',
+    medicalHistoryNotes: item.medicalHistoryNotes || '',
     identifier: item.identifier || '--',
     address: item.address || '--',
     parentName: item.parentName || '--',
     parentPhoneNumber: item.parentPhoneNumber || '--',
     emergencyContactNote: item.emergencyContactNote || '--',
-    status: item.status || '--',
-    statusLabel: statusLabelMap[item.status] || item.status || '--',
-    statusTone: statusToneMap[item.status] || 'neutral',
+    status,
+    statusLabel: statusLabelMap[status] || '--',
+    statusTone: statusToneMap[status] || 'neutral',
     createdAt: item.createdAt || null,
     updatedAt: item.updatedAt || null,
-    apiId: item.studentId || item.id,
+    apiId: item.userId,
   };
 };
 
@@ -129,14 +137,17 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
   }
 
   return {
-    heightCm: item.heightCm ?? '',
-    weightKg: item.weightKg ?? '',
-    bloodType: item.bloodType || '',
-    eyeStatus: item.eyeStatus || '',
-    chronicNote: item.chronicNote || '',
-    generalHealthNote: item.generalHealthNote || '',
-    allergies: item.allergies || '',
-    medicalHistory: item.medicalHistory || '',
+    currentHeight: item.currentHeight ?? '',
+    currentWeight: item.currentWeight ?? '',
+    heightCm: item.currentHeight ?? '',
+    weightKg: item.currentWeight ?? '',
+    medicalHistoryNotes: item.medicalHistoryNotes || '',
+    bloodType: '',
+    eyeStatus: '',
+    chronicNote: '',
+    generalHealthNote: '',
+    allergies: '',
+    medicalHistory: item.medicalHistoryNotes || '',
     lastExaminationDate: item.lastExaminationDate || '',
     updatedBy: item.updatedBy || '',
     healthProfileUpdatedAt: item.healthProfileUpdatedAt || item.updatedAt || null,

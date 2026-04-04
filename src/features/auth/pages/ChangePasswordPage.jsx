@@ -126,9 +126,9 @@ const ChangePasswordPage = () => {
     try {
       await resetPassword({
         identifier,
-        otp,
         resetToken,
         newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword,
       });
       setSubmitSuccess(CHANGE_COPY.successMessage);
       setFormData({ newPassword: '', confirmPassword: '' });
