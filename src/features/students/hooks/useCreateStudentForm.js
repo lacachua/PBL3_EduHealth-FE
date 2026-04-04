@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_CREATE_INITIAL_VALUES } from '../constants/studentCreateOptions';
-import { createStudentManagementApi, updateStudentHealthProfileApi } from '../services/studentManagementApi';
+import { createStudentManagementApi } from '../services/studentManagementApi';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -52,14 +52,18 @@ const buildFieldErrors = (values) => {
     errors['profile.classId'] = 'Vui lòng chọn lớp.';
   }
 
-  if (!values.account.username.trim()) {
-    errors['account.username'] = 'Vui lòng nhập tên đăng nhập.';
-  }
-
   if (!values.account.password.trim()) {
     errors['account.password'] = 'Vui lòng nhập mật khẩu khởi tạo.';
   } else if (values.account.password.trim().length < 6) {
     errors['account.password'] = 'Mật khẩu tối thiểu 6 ký tự.';
+  }
+
+  if (!values.account.email.trim()) {
+    errors['account.email'] = 'Vui lòng nhập email.';
+  }
+
+  if (!values.account.phoneNumber.trim()) {
+    errors['account.phoneNumber'] = 'Vui lòng nhập số điện thoại.';
   }
 
   if (values.account.email.trim() && !EMAIL_REGEX.test(values.account.email.trim())) {
@@ -87,44 +91,29 @@ const mapBackendFieldErrors = (errors = []) => {
 };
 
 const buildPayload = (values) => ({
-  account: {
-    username: values.account.username.trim(),
-    password: values.account.password.trim(),
-    ...(values.account.email.trim() ? { email: values.account.email.trim() } : {}),
-    ...(values.account.phoneNumber.trim() ? { phoneNumber: values.account.phoneNumber.trim() } : {}),
-  },
-  profile: {
-    studentCode: values.profile.studentCode.trim(),
-    fullName: values.profile.fullName.trim(),
-    dateOfBirth: values.profile.dateOfBirth,
-    gender: values.profile.gender,
-    classId: values.profile.classId,
-  },
-});
-
-const hasInitialHealth = (values) => {
-  return Boolean(
-    values.health.heightCm !== ''
-    || values.health.weightKg !== ''
-    || values.health.eyeStatus.trim()
-    || values.health.chronicNote.trim()
-    || values.health.allergies.trim(),
-  );
-};
-
-const buildInitialHealthPayload = (values) => ({
-  ...(values.health.heightCm === '' ? { heightCm: null } : { heightCm: Number(values.health.heightCm) }),
-  ...(values.health.weightKg === '' ? { weightKg: null } : { weightKg: Number(values.health.weightKg) }),
-  ...(values.health.eyeStatus.trim() ? { eyeStatus: values.health.eyeStatus.trim() } : { eyeStatus: null }),
-  ...(values.health.chronicNote.trim() ? { chronicNote: values.health.chronicNote.trim() } : { chronicNote: null }),
-  ...(values.health.allergies.trim() ? { allergies: values.health.allergies.trim() } : { allergies: null }),
+  classId: Number(values.profile.classId),
+  fullName: values.profile.fullName.trim(),
+  dateOfBirth: values.profile.dateOfBirth,
+  currentHeight: values.health.heightCm === '' ? 0 : Number(values.health.heightCm),
+  currentWeight: values.health.weightKg === '' ? 0 : Number(values.health.weightKg),
+  medicalHistoryNotes: [
+    values.health.eyeStatus?.trim() ? `Tình trạng mắt: ${values.health.eyeStatus.trim()}` : null,
+    values.health.chronicNote?.trim() ? `Ghi chú bệnh mãn tính: ${values.health.chronicNote.trim()}` : null,
+    values.health.allergies?.trim() ? `Dị ứng: ${values.health.allergies.trim()}` : null,
+  ].filter(Boolean).join('\n') || null,
+  phone: values.account.phoneNumber.trim(),
+  email: values.account.email.trim(),
+  gender: values.profile.gender,
+  password: values.account.password.trim(),
 });
 
 const resolveCreatedStudentId = (envelope) => {
   const data = envelope?.data;
   return data?.studentId
+    || data?.userId
     || data?.id
     || data?.student?.studentId
+    || data?.student?.userId
     || data?.student?.id
     || data?.profile?.studentId
     || null;
@@ -207,15 +196,9 @@ export const useCreateStudentForm = () => {
       const payload = buildPayload(formValues);
       const envelope = await createStudentManagementApi(payload);
       const createdStudentId = resolveCreatedStudentId(envelope);
-
-      if (hasInitialHealth(formValues) && createdStudentId) {
-        const healthPayload = buildInitialHealthPayload(formValues);
-        await updateStudentHealthProfileApi(createdStudentId, healthPayload);
-      }
-
-      const successMessage = hasInitialHealth(formValues)
-        ? 'Tạo học sinh thành công và đã lưu thông tin sức khỏe ban đầu.'
-        : 'Tạo học sinh thành công.';
+      const successMessage = createdStudentId
+        ? 'Tạo học sinh thành công.'
+        : 'Tạo học sinh thành công (không đọc được id trả về).';
 
       return {
         success: true,

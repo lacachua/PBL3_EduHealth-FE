@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { login as loginApi } from '../services/authApi';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { useAuth } from '../../../app/providers/useAuth';
+import { resolveRoleHomePath } from '../../../shared/config/roleHomePaths';
 import AuthShell from '../components/AuthShell';
 import AuthCard from '../components/AuthCard';
 import AuthPageHeader from '../components/AuthPageHeader';
@@ -14,19 +15,11 @@ import { AUTH_PANEL_CONFIG } from '../constants/authFlowConfig';
 import { validateRequired } from '../schemas/authSchema';
 
 const LOGIN_COPY = authCopy.login;
-const ROLE_PATHS = {
-  ADMIN: '/admin/dashboard',
-  NURSE: '/nurse/dashboard',
-  PARENT: '/parent/dashboard',
-  admin: '/admin/dashboard',
-  nurse: '/nurse/dashboard',
-  parent: '/parent/dashboard',
-};
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
     identifier: '',
     password: '',
@@ -51,12 +44,11 @@ const LoginPage = () => {
     setFormData((prev) => ({ ...prev, remember: checked }));
   };
 
-  const resolveRolePath = (role) => {
-    if (!role) {
-      return '/';
-    }
-    return ROLE_PATHS[role] || ROLE_PATHS[String(role).toUpperCase()] || ROLE_PATHS[String(role).toLowerCase()] || '/';
-  };
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    navigate(resolveRoleHomePath(user?.role, '/'), { replace: true });
+  }, [isAuthenticated, navigate, user?.role]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -90,7 +82,7 @@ const LoginPage = () => {
       login({ user: responseUser, accessToken: responseToken, remember: formData.remember });
 
       const fromPath = location.state?.from?.pathname;
-      navigate(fromPath || resolveRolePath(responseUser.role), { replace: true });
+      navigate(fromPath || resolveRoleHomePath(responseUser.role, '/'), { replace: true });
     } catch (error) {
       setSubmitError(normalizeApiMessage(error, LOGIN_COPY.genericError));
     } finally {

@@ -5,6 +5,8 @@ import { Navigate, createBrowserRouter, createRoutesFromElements, Route } from "
 import SiteLayout from "../../layouts/SiteLayout";
 import AdminLayout from "../../layouts/AdminLayout";
 import AuthLayout from "../../layouts/AuthLayout";
+import NurseLayout from "../../layouts/NurseLayout";
+import { nurseModuleMeta } from "../../features/nurse/config/nurseModuleMeta";
 
 // Guards
 import RequireAuth from "../guards/RequireAuth";
@@ -21,15 +23,24 @@ import {
   LoginPage,
   MedicinesPage,
   NotFoundPage,
-  NurseDashboard,
+  ModulePlaceholderPage,
+  NurseHealthProfilesPage,
   ParentDashboard,
   ReportsPage,
+  NurseHealthProfileDetailPage,
+  NurseStudentsPage,
   ServerErrorPage,
   StudentManagementPage,
   SystemLogsPage,
   UserManagementPage,
   VerifyOtpPage,
 } from "./lazyRouteElements";
+
+const renderNurseModule = ({ title, description, moduleName }) => (
+  <Lazy>
+    <ModulePlaceholderPage title={title} description={description} moduleName={moduleName} />
+  </Lazy>
+);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -70,7 +81,18 @@ export const router = createBrowserRouter(
       {/* Protected Nurse Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["nurse"]} />}>
-          <Route path="/nurse/dashboard" element={<Lazy><NurseDashboard /></Lazy>} />
+          <Route path="/nurse" element={<NurseLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={renderNurseModule(nurseModuleMeta.dashboard)} />
+            <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
+            <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
+            <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
+            <Route path="medicines" element={renderNurseModule(nurseModuleMeta.medicines)} />
+            <Route path="examinations" element={renderNurseModule(nurseModuleMeta.examinations)} />
+            <Route path="vaccinations" element={renderNurseModule(nurseModuleMeta.vaccinations)} />
+            <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
+            <Route path="profile" element={renderNurseModule(nurseModuleMeta.profile)} />
+          </Route>
         </Route>
       </Route>
 

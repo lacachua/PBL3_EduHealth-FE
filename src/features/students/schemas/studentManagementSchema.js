@@ -34,7 +34,6 @@ export const STUDENT_PAGE_SIZE = 10;
 const STUDENT_ENDPOINTS_SINGLETON = Object.freeze({
   list: '/api/v1/students',
   detail: (studentId) => `/api/v1/students/${studentId}`,
-  healthProfile: (studentId) => `/api/v1/students/${studentId}/health-profile`,
 });
 
 export const STUDENT_ENDPOINTS = STUDENT_ENDPOINTS_SINGLETON;
@@ -51,10 +50,8 @@ export const STUDENT_BASIC_EDITABLE_FIELDS = [
 export const STUDENT_HEALTH_EDITABLE_FIELDS = [
   'heightCm',
   'weightKg',
-  'bloodType',
   'eyeStatus',
   'chronicNote',
-  'generalHealthNote',
   'allergies',
 ];
 
@@ -65,19 +62,19 @@ export const buildStudentBasicPatchPayload = (values = {}) => ({
   fullName: values.fullName?.trim() || '',
   dateOfBirth: values.dateOfBirth || null,
   gender: values.gender || null,
-  classId: values.classId || null,
+  classId: values.classId ? Number(values.classId) : null,
   email: values.email?.trim() || '',
-  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : { phoneNumber: null }),
+  ...(values.phoneNumber?.trim() ? { phone: values.phoneNumber.trim() } : { phone: null }),
 });
 
 export const buildStudentHealthPatchPayload = (values = {}) => ({
-  ...(values.heightCm === '' || values.heightCm === null || values.heightCm === undefined ? { heightCm: null } : { heightCm: Number(values.heightCm) }),
-  ...(values.weightKg === '' || values.weightKg === null || values.weightKg === undefined ? { weightKg: null } : { weightKg: Number(values.weightKg) }),
-  ...(values.bloodType?.trim() ? { bloodType: values.bloodType.trim() } : { bloodType: null }),
-  ...(values.eyeStatus?.trim() ? { eyeStatus: values.eyeStatus.trim() } : { eyeStatus: null }),
-  ...(values.chronicNote?.trim() ? { chronicNote: values.chronicNote.trim() } : { chronicNote: null }),
-  ...(values.generalHealthNote?.trim() ? { generalHealthNote: values.generalHealthNote.trim() } : { generalHealthNote: null }),
-  ...(values.allergies?.trim() ? { allergies: values.allergies.trim() } : { allergies: null }),
+  ...(values.heightCm === '' || values.heightCm === null || values.heightCm === undefined ? { currentHeight: null } : { currentHeight: Number(values.heightCm) }),
+  ...(values.weightKg === '' || values.weightKg === null || values.weightKg === undefined ? { currentWeight: null } : { currentWeight: Number(values.weightKg) }),
+  medicalHistoryNotes: [
+    values.eyeStatus?.trim() ? `Tình trạng mắt: ${values.eyeStatus.trim()}` : null,
+    values.chronicNote?.trim() ? `Ghi chú bệnh mãn tính: ${values.chronicNote.trim()}` : null,
+    values.allergies?.trim() ? `Dị ứng: ${values.allergies.trim()}` : null,
+  ].filter(Boolean).join('\n') || null,
 });
 
 export const validateStudentBasicForm = (values = {}) => {
