@@ -47,11 +47,11 @@ const RightDrawer = ({
       <button
         type="button"
         aria-label="Đóng panel"
-        className="absolute inset-0 bg-on-surface/32"
+        className="absolute inset-0 bg-on-surface/32 animate-[nurseFadeIn_180ms_ease-out]"
         onClick={onClose}
       />
 
-      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)]`}>
+      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)] animate-[nurseSlideInRight_190ms_ease-out]`}>
         <header className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -63,7 +63,7 @@ const RightDrawer = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition hover:bg-surface-container-low"
+                className="nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:bg-surface-container-low"
                 aria-label="Đóng"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>

@@ -40,11 +40,11 @@ const NurseLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5FBF8] text-[#16332B]">
+    <div className="nurse-page-bg min-h-screen text-[#0F172A]">
       <div
         aria-hidden="true"
         onClick={closeSidebar}
-        className={`fixed inset-0 z-30 bg-slate-900/25 transition md:hidden ${
+        className={`fixed inset-0 z-30 bg-slate-900/25 transition-opacity duration-200 md:hidden ${
           isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />

@@ -1,0 +1,35 @@
+import { apiGetEnvelope, apiPatchEnvelope } from '../../../shared/api/apiClient';
+
+export const getNurseStudentHealthProfileApi = (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}/health-profile`);
+
+export const getNurseStudentDetailApi = (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}`);
+
+export const updateNurseStudentHealthProfileApi = (studentId, payload) => apiPatchEnvelope(`/api/v1/students/${studentId}/health-profile`, payload);
+
+export const getNurseStudentHealthHistoryApi = (studentId, query = {}) => apiGetEnvelope(`/api/v1/students/${studentId}/health-history`, {
+	params: {
+		page: Number(query.page || 1),
+		pageSize: Number(query.pageSize || 10),
+		...(query.fromDate ? { fromDate: query.fromDate } : {}),
+		...(query.toDate ? { toDate: query.toDate } : {}),
+	},
+});
+
+export const getNurseStudentExaminationsApi = (query = {}) => apiGetEnvelope('/api/v1/examinations', {
+	params: {
+		page: Number(query.page || 1),
+		pageSize: Number(query.pageSize || 10),
+		...(query.studentId ? { studentId: query.studentId } : {}),
+		...(query.classId ? { classId: query.classId } : {}),
+		...(query.fromDate ? { fromDate: query.fromDate } : {}),
+		...(query.toDate ? { toDate: query.toDate } : {}),
+	},
+});
+
+export const getNurseStudentsLookupApi = (query = {}) => apiGetEnvelope('/api/v1/students', {
+	params: {
+		page: Number(query.page || 1),
+		pageSize: Number(query.pageSize || 10),
+		...(query.search ? { search: query.search } : {}),
+	},
+});

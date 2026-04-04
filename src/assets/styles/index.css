@@ -160,6 +160,113 @@
       radial-gradient(640px 360px at -10% 14%, rgba(63, 111, 152, 0.08), transparent 64%),
       linear-gradient(180deg, #f4f8f7 0%, #f1f6f5 100%);
   }
+
+  .nurse-page-bg {
+    --nurse-primary-main: #15803d;
+    --nurse-primary-hover: #166534;
+    --nurse-primary-soft: #ecfdf3;
+    --nurse-background: #f8fafc;
+    --nurse-surface: #ffffff;
+    --nurse-text-primary: #0f172a;
+    --nurse-text-secondary: #64748b;
+    --nurse-border: #e2e8f0;
+    --nurse-banner-soft: #e8f7ee;
+    --nurse-table-header-soft: #edf7f1;
+    --nurse-soft-border: #d7ecdd;
+    --nurse-soft-title: #14532d;
+
+    background:
+      radial-gradient(760px 420px at 100% -6%, rgba(21, 128, 61, 0.05), transparent 62%),
+      radial-gradient(620px 340px at -10% 14%, rgba(22, 101, 52, 0.05), transparent 64%),
+      linear-gradient(180deg, var(--nurse-background) 0%, var(--nurse-background) 100%);
+  }
+
+  .nurse-focus-ring {
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease;
+  }
+
+  .nurse-focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--nurse-primary-soft);
+  }
+
+  .nurse-interactive {
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .nurse-card-soft {
+    border: 1px solid var(--nurse-border);
+    background: var(--nurse-surface);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+  }
+
+  .nurse-card-soft:hover {
+    border-color: var(--nurse-soft-border);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .nurse-btn-primary {
+    background: var(--nurse-primary-main);
+    color: #ffffff;
+    transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .nurse-btn-primary:hover {
+    background: var(--nurse-primary-hover);
+    box-shadow: 0 4px 10px rgba(21, 128, 61, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .nurse-btn-secondary {
+    border: 1px solid var(--nurse-border);
+    background: var(--nurse-surface);
+    color: var(--nurse-text-primary);
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .nurse-btn-secondary:hover {
+    border-color: var(--nurse-soft-border);
+    background: var(--nurse-primary-soft);
+    transform: translateY(-1px);
+  }
+
+  .nurse-input {
+    border: 1px solid var(--nurse-border);
+    background: var(--nurse-surface);
+    color: var(--nurse-text-primary);
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .nurse-input:focus {
+    border-color: var(--nurse-primary-main);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--nurse-primary-soft);
+  }
+
+  .nurse-banner-soft {
+    border: 1px solid var(--nurse-soft-border);
+    background: var(--nurse-banner-soft);
+  }
+
+  .nurse-table-head-strong {
+    border-bottom: 1px solid var(--nurse-soft-border);
+    background: var(--nurse-table-header-soft);
+    color: var(--nurse-soft-title);
+  }
+
+  .nurse-table-summary-strong {
+    border-bottom: 1px solid var(--nurse-soft-border);
+    background: var(--nurse-table-header-soft);
+    color: var(--nurse-soft-title);
+  }
+
+  .nurse-section-header-strong {
+    border-bottom: 1px solid var(--nurse-soft-border);
+    background: var(--nurse-table-header-soft);
+    color: var(--nurse-soft-title);
+  }
 }
 
 .material-symbols-outlined {
@@ -192,6 +299,37 @@
   to {
     transform: scaleX(1);
     opacity: 1;
+  }
+}
+
+@keyframes nurseFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nurseFadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nurseSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

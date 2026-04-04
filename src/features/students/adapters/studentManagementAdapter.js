@@ -18,6 +18,15 @@ const defaultModel = {
   totalPages: 1,
 };
 
+const resolveStudentIdentity = (item = {}) => {
+  const candidate = item.userId ?? item.studentId ?? item.id ?? null;
+  const parsed = Number(candidate);
+  if (Number.isInteger(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return null;
+};
+
 export const adaptStudentManagementResponse = (responseOrPayload) => {
   const envelope = normalizeApiEnvelope(responseOrPayload);
 
@@ -35,10 +44,10 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
 
   const rows = sourceRows.length
     ? sourceRows.map((item) => ({
-      id: item.userId,
-      studentId: item.userId,
-      userId: item.userId || null,
-      studentCode: item.studentCode || `HS-${item.userId || '--'}`,
+      id: resolveStudentIdentity(item),
+      studentId: resolveStudentIdentity(item),
+      userId: resolveStudentIdentity(item),
+      studentCode: item.studentCode || `HS-${resolveStudentIdentity(item) || '--'}`,
       fullName: item.fullName,
       dateOfBirth: item.dateOfBirth || '--',
       gender: item.gender || '--',
@@ -62,7 +71,7 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
       statusTone: item.isActive ? statusToneMap.ACTIVE : statusToneMap.LOCKED,
       createdAt: item.createdAt || null,
       updatedAt: item.updatedAt,
-      apiId: item.userId,
+      apiId: resolveStudentIdentity(item),
     }))
     : [];
 
@@ -90,12 +99,13 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
   }
 
   const item = envelope.data;
+  const resolvedStudentId = resolveStudentIdentity(item);
   const status = item.isActive ? 'ACTIVE' : 'LOCKED';
   return {
-    id: item.userId,
-    studentId: item.userId,
-    userId: item.userId || null,
-    studentCode: item.studentCode || `HS-${item.userId || '--'}`,
+    id: resolvedStudentId,
+    studentId: resolvedStudentId,
+    userId: resolvedStudentId,
+    studentCode: item.studentCode || `HS-${resolvedStudentId || '--'}`,
     fullName: item.fullName || '--',
     dateOfBirth: item.dateOfBirth || '--',
     gender: item.gender || '--',
@@ -116,15 +126,16 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     medicalHistoryNotes: item.medicalHistoryNotes || '',
     identifier: item.identifier || '--',
     address: item.address || '--',
-    parentName: item.parentName || '--',
-    parentPhoneNumber: item.parentPhoneNumber || '--',
+    guardian: item.guardian || item.parentName || '--',
+    parentName: item.parentName || item.guardian || '--',
+    parentPhoneNumber: item.parentPhoneNumber || item.phone || '--',
     emergencyContactNote: item.emergencyContactNote || '--',
     status,
     statusLabel: statusLabelMap[status] || '--',
     statusTone: statusToneMap[status] || 'neutral',
     createdAt: item.createdAt || null,
     updatedAt: item.updatedAt || null,
-    apiId: item.userId,
+    apiId: resolvedStudentId,
   };
 };
 
@@ -136,21 +147,33 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
     return null;
   }
 
+  const profileSource = item.healthProfile || item;
+  const allergies = Array.isArray(profileSource.allergies)
+    ? profileSource.allergies
+      .map((allergy) => allergy?.allergyTypeName || allergy?.name || allergy?.label || '')
+      .filter(Boolean)
+      .join(', ')
+    : (profileSource.allergies || '');
+
+  const updatedBy = typeof profileSource.updatedBy === 'object'
+    ? profileSource.updatedBy?.fullName || ''
+    : (profileSource.updatedBy || item.updatedBy || '');
+
   return {
-    currentHeight: item.currentHeight ?? '',
-    currentWeight: item.currentWeight ?? '',
-    heightCm: item.currentHeight ?? '',
-    weightKg: item.currentWeight ?? '',
+    currentHeight: profileSource.heightCm ?? profileSource.currentHeight ?? '',
+    currentWeight: profileSource.weightKg ?? profileSource.currentWeight ?? '',
+    heightCm: profileSource.heightCm ?? profileSource.currentHeight ?? '',
+    weightKg: profileSource.weightKg ?? profileSource.currentWeight ?? '',
     medicalHistoryNotes: item.medicalHistoryNotes || '',
-    bloodType: '',
-    eyeStatus: '',
-    chronicNote: '',
-    generalHealthNote: '',
-    allergies: '',
+    bloodType: profileSource.bloodType || '',
+    eyeStatus: profileSource.eyeStatus || '',
+    chronicNote: profileSource.chronicNote || '',
+    generalHealthNote: profileSource.generalHealthNote || '',
+    allergies,
     medicalHistory: item.medicalHistoryNotes || '',
     lastExaminationDate: item.lastExaminationDate || '',
-    updatedBy: item.updatedBy || '',
-    healthProfileUpdatedAt: item.healthProfileUpdatedAt || item.updatedAt || null,
+    updatedBy,
+    healthProfileUpdatedAt: profileSource.updatedAt || item.healthProfileUpdatedAt || item.updatedAt || null,
     updatedAt: item.updatedAt || null,
   };
 };
