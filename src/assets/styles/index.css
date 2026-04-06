@@ -233,10 +233,28 @@
   }
 
   .nurse-input {
-    border: 1px solid var(--nurse-border);
-    background: var(--nurse-surface);
-    color: var(--nurse-text-primary);
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
     transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .nurse-input::placeholder {
+    color: #94a3b8;
+    opacity: 1;
+  }
+
+  .nurse-input:read-only,
+  .nurse-input[readonly] {
+    border-color: #e2e8f0;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  textarea.nurse-input {
+    min-height: 96px;
+    resize: vertical;
+    line-height: 1.4;
   }
 
   .nurse-input:focus {
