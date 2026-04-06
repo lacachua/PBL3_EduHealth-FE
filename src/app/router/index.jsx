@@ -28,6 +28,7 @@ import {
   ParentDashboard,
   ReportsPage,
   NurseHealthProfileDetailPage,
+  NurseMedicinesPage,
   NurseStudentsPage,
   ServerErrorPage,
   StudentManagementPage,
@@ -87,7 +88,7 @@ export const router = createBrowserRouter(
             <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
             <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
             <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
-            <Route path="medicines" element={renderNurseModule(nurseModuleMeta.medicines)} />
+            <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
             <Route path="examinations" element={renderNurseModule(nurseModuleMeta.examinations)} />
             <Route path="vaccinations" element={renderNurseModule(nurseModuleMeta.vaccinations)} />
             <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />

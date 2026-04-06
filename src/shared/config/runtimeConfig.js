@@ -3,6 +3,7 @@ import { env } from "../../app/config/env";
 const RUNTIME_CONFIG_SINGLETON = Object.freeze({
   enableMockAuth: Boolean(env.enableMockAuth),
   enableMockAdminDashboard: Boolean(env.enableMockAdminDashboard),
+  enableMockMedicines: Boolean(env.enableMockMedicines),
   mockDelayMs: Object.freeze({
     default: 200,
     auth: 500,
