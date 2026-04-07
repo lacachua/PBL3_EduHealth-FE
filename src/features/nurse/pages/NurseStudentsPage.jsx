@@ -8,7 +8,6 @@ import EmptyState from '../../../shared/components/admin/EmptyState';
 import Pagination from '../../../shared/components/admin/Pagination';
 import RightDrawer from '../../../shared/components/admin/RightDrawer';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import { runtimeConfig } from '../../../shared/config/runtimeConfig';
 import {
   resolveNurseStudentRouteId,
   resolveNurseStudentRouteIdFromRow,
@@ -18,13 +17,10 @@ import {
   adaptStudentHealthProfileResponse,
 } from '../../students/adapters/studentManagementAdapter';
 import { useStudentManagement } from '../../students/hooks/useStudentManagement';
-import { getStudentManagementDetailApi } from '../../students/services/studentManagementApi';
 import {
-  getNurseStudentHealthProfileMockEnvelope,
-  NURSE_STUDENT_CLASS_FALLBACK_OPTIONS,
-  NURSE_STUDENT_CLASS_LABEL_MAP,
-} from '../mocks/nurseStudentsMock';
-import { getNurseStudentHealthProfileApi } from '../services/nurseStudentsApi';
+  getNurseStudentDetailApi,
+  getNurseStudentHealthProfileApi,
+} from '../services/nurseStudentsApi';
 
 const DEFAULT_FILTERS = {
   keyword: '',
@@ -81,20 +77,12 @@ const toGenderLabel = (value) => {
 };
 
 const resolveClassLabel = (classId, className) => {
-  return NURSE_STUDENT_CLASS_LABEL_MAP[classId]
-    || NURSE_STUDENT_CLASS_LABEL_MAP[className]
-    || className
+  return className
+    || classId
     || '--';
 };
 
-const createFallbackHealthProfile = ({ row, index }) => {
-  const envelope = getNurseStudentHealthProfileMockEnvelope({ row, index });
-  const mapped = adaptStudentHealthProfileResponse(envelope);
-
-  if (mapped) {
-    return mapped;
-  }
-
+const createApiFallbackHealthProfile = ({ row }) => {
   return {
     currentHeight: row.currentHeight ?? row.heightCm ?? '',
     currentWeight: row.currentWeight ?? row.weightKg ?? '',
@@ -105,18 +93,23 @@ const createFallbackHealthProfile = ({ row, index }) => {
     chronicNote: '',
     generalHealthNote: '',
     allergies: '',
+    allergyItems: [],
     updatedBy: '',
     healthProfileUpdatedAt: row.updatedAt || null,
   };
 };
 
-const normalizeHealthProfile = ({ envelope, row, index }) => {
+const createFallbackHealthProfile = ({ row }) => {
+  return createApiFallbackHealthProfile({ row });
+};
+
+const normalizeHealthProfile = ({ envelope, row }) => {
   const mapped = adaptStudentHealthProfileResponse(envelope);
   if (mapped) {
     return mapped;
   }
 
-  return createFallbackHealthProfile({ row, index });
+  return createFallbackHealthProfile({ row });
 };
 
 const inferAlerts = ({ row, detail, profile }) => {
@@ -160,7 +153,7 @@ const NurseStudentsPage = () => {
     tableData,
     status,
     error,
-  } = useStudentManagement();
+  } = useStudentManagement({ mockEnabledOverride: false });
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);
@@ -169,7 +162,6 @@ const NurseStudentsPage = () => {
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [feedback, setFeedback] = useState(null);
-  const [useMockContext, setUseMockContext] = useState(Boolean(runtimeConfig.enableMockAdminDashboard));
 
   const showFeedback = useCallback((message, type = 'success') => {
     setFeedback({ message, type });
@@ -220,7 +212,7 @@ const NurseStudentsPage = () => {
     }
   }, [navigate, showFeedback]);
 
-  const loadStudentContext = useCallback(async (row, index) => {
+  const loadStudentContext = useCallback(async (row) => {
     const studentId = resolveNurseStudentRouteIdFromRow(row);
     if (!studentId || requestedIdsRef.current.has(studentId)) {
       return;
@@ -228,14 +220,8 @@ const NurseStudentsPage = () => {
 
     requestedIdsRef.current.add(studentId);
 
-    if (runtimeConfig.enableMockAdminDashboard) {
-      const fallbackProfile = createFallbackHealthProfile({ row, index });
-      setProfileByStudentId((prev) => ({ ...prev, [studentId]: fallbackProfile }));
-      return;
-    }
-
     const [detailResult, profileResult] = await Promise.allSettled([
-      getStudentManagementDetailApi(studentId),
+      getNurseStudentDetailApi(studentId),
       getNurseStudentHealthProfileApi(studentId),
     ]);
 
@@ -247,22 +233,18 @@ const NurseStudentsPage = () => {
     }
 
     if (profileResult.status === 'fulfilled') {
-      const mappedProfile = normalizeHealthProfile({ envelope: profileResult.value, row, index });
+      const mappedProfile = normalizeHealthProfile({ envelope: profileResult.value, row });
       setProfileByStudentId((prev) => ({ ...prev, [studentId]: mappedProfile }));
       return;
     }
 
-    const fallbackProfile = createFallbackHealthProfile({ row, index });
+    const fallbackProfile = createFallbackHealthProfile({ row });
     setProfileByStudentId((prev) => ({ ...prev, [studentId]: fallbackProfile }));
-
-    if (detailResult.status === 'rejected' && profileResult.status === 'rejected') {
-      setUseMockContext(true);
-    }
   }, []);
 
   useEffect(() => {
-    tableData.rows.forEach((row, index) => {
-      loadStudentContext(row, index);
+    tableData.rows.forEach((row) => {
+      loadStudentContext(row);
     });
   }, [loadStudentContext, tableData.rows]);
 
@@ -295,10 +277,10 @@ const NurseStudentsPage = () => {
   };
 
   const rowsWithContext = useMemo(() => {
-    return tableData.rows.map((row, index) => {
+    return tableData.rows.map((row) => {
       const studentId = resolveNurseStudentRouteIdFromRow(row);
       const detail = detailByStudentId[studentId] || null;
-      const profile = profileByStudentId[studentId] || (useMockContext ? createFallbackHealthProfile({ row, index }) : null);
+      const profile = profileByStudentId[studentId] || null;
 
       const classNameDisplay = resolveClassLabel(row.classId, row.className);
       const alerts = inferAlerts({ row, detail, profile });
@@ -318,13 +300,9 @@ const NurseStudentsPage = () => {
         healthStatusKey,
       };
     });
-  }, [detailByStudentId, profileByStudentId, tableData.rows, useMockContext]);
+  }, [detailByStudentId, profileByStudentId, tableData.rows]);
 
   const classOptions = useMemo(() => {
-    if (useMockContext) {
-      return NURSE_STUDENT_CLASS_FALLBACK_OPTIONS;
-    }
-
     const map = new Map();
 
     rowsWithContext.forEach((row) => {
@@ -336,7 +314,7 @@ const NurseStudentsPage = () => {
 
     const dynamicOptions = Array.from(map.entries()).map(([value, label]) => ({ value, label }));
     return [{ value: 'all', label: 'Tất cả lớp' }, ...dynamicOptions];
-  }, [rowsWithContext, useMockContext]);
+  }, [rowsWithContext]);
 
   const filteredRows = useMemo(() => {
     return rowsWithContext.filter((row) => {
@@ -480,13 +458,13 @@ const NurseStudentsPage = () => {
               items={[
                 {
                   id: 'view-profile',
-                  label: 'Xem hồ sơ',
+                  label: 'Xem nhanh hồ sơ',
                   icon: 'visibility',
                   onClick: () => openStudentProfile(row._studentId),
                 },
                 {
                   id: 'open-health-profile-detail',
-                  label: 'Mở hồ sơ sức khỏe',
+                  label: 'Mở trang hồ sơ sức khỏe',
                   icon: 'quick_reference_all',
                   onClick: () => navigateToHealthProfile(row._studentId, {
                     source: 'nurse-students',
@@ -727,23 +705,12 @@ const NurseStudentsPage = () => {
                     : <span className="text-[#94A3B8]">—</span>}
                 </div>
 
-                <p className="text-[#64748B]">Người cập nhật</p>
-                <p>{selectedRow.profile?.updatedBy || '--'}</p>
-
                 <p className="text-[#64748B]">Cập nhật gần nhất</p>
                 <p>{toDateLabel(selectedRow.profile?.healthProfileUpdatedAt || selectedRow.updatedAt)}</p>
               </div>
             </section>
 
             <div className="flex flex-wrap gap-2 border-t border-[#E2E8F0] pt-3">
-              <button
-                type="button"
-                onClick={() => navigateToExaminationByStudent(selectedRow)}
-                className="nurse-focus-ring nurse-btn-primary rounded-md px-3 py-1.5 text-sm font-semibold"
-              >
-                Tạo phiếu khám mới
-              </button>
-
               <button
                 type="button"
                 onClick={() => {
@@ -769,7 +736,7 @@ const NurseStudentsPage = () => {
 
                   try {
                     const envelope = await getNurseStudentHealthProfileApi(studentId);
-                    const mappedProfile = normalizeHealthProfile({ envelope, row: selectedRow, index: 0 });
+                    const mappedProfile = normalizeHealthProfile({ envelope, row: selectedRow });
                     setProfileByStudentId((prev) => ({ ...prev, [studentId]: mappedProfile }));
                     showFeedback('Đã đồng bộ hồ sơ sức khỏe mới nhất.', 'success');
                   } catch (apiError) {

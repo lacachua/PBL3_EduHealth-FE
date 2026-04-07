@@ -148,6 +148,35 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
   }
 
   const profileSource = item.healthProfile || item;
+  const parseAllergyId = (value) => {
+    if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+      return value;
+    }
+
+    const normalized = String(value || '').trim();
+    if (!normalized) {
+      return null;
+    }
+
+    const digits = normalized.replace(/\D/g, '');
+    if (!digits) {
+      return null;
+    }
+
+    const parsed = Number(digits);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  };
+
+  const allergyItems = Array.isArray(profileSource.allergies)
+    ? profileSource.allergies.map((allergy, index) => ({
+      id: allergy?.id || `allergy-${index + 1}`,
+      allergyId: parseAllergyId(allergy?.allergyId ?? allergy?.allergyTypeId),
+      allergyTypeId: allergy?.allergyTypeId || '',
+      allergyTypeName: allergy?.allergyTypeName || allergy?.name || allergy?.label || '',
+      note: allergy?.note || '',
+    }))
+    : [];
+
   const allergies = Array.isArray(profileSource.allergies)
     ? profileSource.allergies
       .map((allergy) => allergy?.allergyTypeName || allergy?.name || allergy?.label || '')
@@ -170,6 +199,7 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
     chronicNote: profileSource.chronicNote || '',
     generalHealthNote: profileSource.generalHealthNote || '',
     allergies,
+    allergyItems,
     medicalHistory: item.medicalHistoryNotes || '',
     lastExaminationDate: item.lastExaminationDate || '',
     updatedBy,

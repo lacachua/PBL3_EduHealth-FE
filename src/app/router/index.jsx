@@ -16,6 +16,9 @@ import {
   AdminModulePlaceholder,
   CatalogManagementPage,
   ChangePasswordPage,
+  CreateExaminationPage,
+  ExaminationDetailPage,
+  ExaminationLandingPage,
   ForbiddenPage,
   ForgotPasswordPage,
   LandingPage,
@@ -89,7 +92,9 @@ export const router = createBrowserRouter(
             <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
             <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
             <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
-            <Route path="examinations" element={renderNurseModule(nurseModuleMeta.examinations)} />
+            <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
+            <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
+            <Route path="students/:studentId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
             <Route path="vaccinations" element={renderNurseModule(nurseModuleMeta.vaccinations)} />
             <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
             <Route path="profile" element={renderNurseModule(nurseModuleMeta.profile)} />

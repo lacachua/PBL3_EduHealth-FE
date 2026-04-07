@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { parseMedicinesApiError } from '../adapters/medicineErrorParser';
 import { mapMedicineDetailResponse, mapMedicineMovementsResponse } from '../adapters/medicineResponseMapper';
-import { getMedicineDetailApi, getMedicineMovementsApi } from '../services/medicinesApi';
+import { getMedicineById } from '../services/getMedicineById';
+import { getMedicineMovements } from '../services/getMedicineMovements';
 
 const defaultMovements = {
   rows: [],
@@ -38,8 +39,8 @@ export const useMedicineDetail = () => {
 
     try {
       const [detailResponse, movementResponse] = await Promise.all([
-        getMedicineDetailApi(row.id),
-        getMedicineMovementsApi(row.id, { page: 1, pageSize: 5 }),
+        getMedicineById(row.id),
+        getMedicineMovements(row.id, { page: 1, pageSize: 5 }),
       ]);
 
       const detail = mapMedicineDetailResponse(detailResponse);
@@ -64,7 +65,7 @@ export const useMedicineDetail = () => {
     setMovementsLoading(true);
     setMovementsError('');
     try {
-      const response = await getMedicineMovementsApi(medicine.id, { page, pageSize });
+      const response = await getMedicineMovements(medicine.id, { page, pageSize });
       setMovementsData(mapMedicineMovementsResponse(response));
     } catch (apiError) {
       const parsedError = parseMedicinesApiError(apiError);

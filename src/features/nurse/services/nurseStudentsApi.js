@@ -15,16 +15,9 @@ export const getNurseStudentHealthHistoryApi = (studentId, query = {}) => apiGet
 	},
 });
 
-export const getNurseStudentExaminationsApi = (query = {}) => apiGetEnvelope('/api/v1/examinations', {
-	params: {
-		page: Number(query.page || 1),
-		pageSize: Number(query.pageSize || 10),
-		...(query.studentId ? { studentId: query.studentId } : {}),
-		...(query.classId ? { classId: query.classId } : {}),
-		...(query.fromDate ? { fromDate: query.fromDate } : {}),
-		...(query.toDate ? { toDate: query.toDate } : {}),
-	},
-});
+export const getNurseStudentVaccinationsApi = (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}/vaccinations`);
+
+export const getNurseAllergyTypesApi = () => apiGetEnvelope('/api/v1/students/allergy-types');
 
 export const getNurseStudentsLookupApi = (query = {}) => apiGetEnvelope('/api/v1/students', {
 	params: {

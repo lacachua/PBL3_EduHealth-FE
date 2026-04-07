@@ -5,17 +5,53 @@ import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackTo
 import SectionCard from '../../../shared/components/admin/SectionCard';
 import { resolveNurseStudentRouteId } from '../adapters/nurseStudentIdentifierAdapter';
 import NurseHealthProfileHeader from '../components/health-profile/NurseHealthProfileHeader';
+import NurseHealthProfileEditDrawer from '../components/health-profile/NurseHealthProfileEditDrawer';
 import NurseHealthMetricCards from '../components/health-profile/NurseHealthMetricCards';
 import NurseHealthOverviewPanels from '../components/health-profile/NurseHealthOverviewPanels';
 import NurseHealthProfileTabs from '../components/health-profile/NurseHealthProfileTabs';
 import { useNurseHealthProfileDetail } from '../hooks/useNurseHealthProfileDetail';
-import StudentHealthEditDrawer from '../../students/components/StudentHealthEditDrawer';
 
 const historyCardClass = 'rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3';
 const sectionCardClass = 'nurse-card-soft rounded-xl p-4';
 const sectionHeaderClass = 'nurse-section-header-strong -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
 const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-[#14532D]';
 const sectionSubtitleClass = 'mt-0.5 text-[11px] text-[#14532D]/75';
+
+const vaccinationStatusMeta = (status) => {
+  const normalized = String(status || '').toUpperCase();
+  if (normalized === 'DONE') {
+    return {
+      label: 'Đã tiêm',
+      className: 'bg-[#DCFCE7] text-[#166534]',
+    };
+  }
+
+  if (normalized === 'POSTPONED') {
+    return {
+      label: 'Hoãn tiêm',
+      className: 'bg-[#FEF3C7] text-[#B45309]',
+    };
+  }
+
+  if (normalized === 'CONTRAINDICATED') {
+    return {
+      label: 'Chống chỉ định',
+      className: 'bg-[#FEE2E2] text-[#B91C1C]',
+    };
+  }
+
+  if (normalized === 'ABSENT') {
+    return {
+      label: 'Vắng mặt',
+      className: 'bg-[#E2E8F0] text-[#334155]',
+    };
+  }
+
+  return {
+    label: 'Chờ tiêm',
+    className: 'bg-[#DBEAFE] text-[#1D4ED8]',
+  };
+};
 
 const NurseHealthProfileDetailPage = () => {
   const navigate = useNavigate();
@@ -45,6 +81,7 @@ const NurseHealthProfileDetailPage = () => {
     setHealthEditOpen,
     healthSaving,
     healthFieldErrors,
+    allergyTypeOptions,
     feedback,
     clearFeedback,
     refreshProfile,
@@ -188,14 +225,20 @@ const NurseHealthProfileDetailPage = () => {
         <div className="space-y-2">
           {model.vaccinations.map((record) => (
             <article key={record.id} className={historyCardClass}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-[#0F172A]">{record.vaccineName}</p>
-                <span className="inline-flex items-center rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-semibold text-[#166534]">
-                  Đã tiêm
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-[#64748B]">Ngày tiêm: {record.administeredAt}</p>
-              <p className="mt-1 text-xs text-[#64748B]">Địa điểm: {record.location || '--'}</p>
+              {(() => {
+                const statusMeta = vaccinationStatusMeta(record.status);
+                return (
+                  <>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-[#0F172A]">{record.vaccineName}</p>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusMeta.className}`}>
+                        {statusMeta.label}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-[#64748B]">Ngày tiêm: {record.administeredAt}</p>
+                  </>
+                );
+              })()}
             </article>
           ))}
         </div>
@@ -268,7 +311,6 @@ const NurseHealthProfileDetailPage = () => {
                 alerts={model.alerts}
                 vaccinations={model.vaccinations}
                 emergencyContacts={model.emergencyContacts}
-                growth={model.growth}
                 healthHistory={model.healthHistory}
                 examinationHistory={model.examinationHistory}
               />
@@ -282,11 +324,13 @@ const NurseHealthProfileDetailPage = () => {
         ) : null}
       </AdminAsyncState>
 
-      <StudentHealthEditDrawer
+      <NurseHealthProfileEditDrawer
         key={`nurse-health-edit-${healthEditOpen ? 'open' : 'closed'}-${model?.header?.studentId || 'none'}`}
         open={healthEditOpen}
         student={mappedStudentForEdit}
         profile={model?.profile || null}
+        allergyItems={model?.allergyItems || []}
+        allergyTypeOptions={allergyTypeOptions}
         submitting={healthSaving}
         apiErrors={healthFieldErrors}
         onClose={() => setHealthEditOpen(false)}

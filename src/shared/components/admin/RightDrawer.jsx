@@ -5,6 +5,7 @@ const RightDrawer = ({
   title,
   subtitle,
   widthClass = 'max-w-[560px]',
+  panelAnimationClass = 'animate-[nurseSlideInRight_190ms_ease-out]',
   onClose,
   children,
   footer,
@@ -51,7 +52,7 @@ const RightDrawer = ({
         onClick={onClose}
       />
 
-      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)] animate-[nurseSlideInRight_190ms_ease-out]`}>
+      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} ${panelAnimationClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)]`}>
         <header className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>

@@ -24,6 +24,9 @@ export const NurseStudentsPage = React.lazy(() => import("../../features/nurse/p
 export const NurseHealthProfilesPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfilesPage"));
 export const NurseHealthProfileDetailPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfileDetailPage"));
 export const NurseMedicinesPage = React.lazy(() => import("../../features/nurse/pages/NurseMedicinesPage"));
+export const ExaminationLandingPage = React.lazy(() => import("../../features/examinations/pages/ExaminationLandingPage"));
+export const CreateExaminationPage = React.lazy(() => import("../../features/examinations/pages/CreateExaminationPage"));
+export const ExaminationDetailPage = React.lazy(() => import("../../features/examinations/pages/ExaminationDetailPage"));
 export const ParentDashboard = React.lazy(() => import("../../features/dashboard/parent/ParentDashboard"));
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));

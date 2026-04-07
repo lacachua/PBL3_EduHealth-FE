@@ -77,7 +77,7 @@ const MedicinesAlertsPanel = ({ alerts, loading, error, onOpenMedicine }) => {
             badgeClassName="bg-[#FEF3C7] text-[#92400E]"
             items={lowStock}
             emptyLabel="Hiện không có thuốc nào ở mức sắp hết."
-            actionLabel="Nhập kho"
+            actionLabel="Mở chi tiết"
             onAction={onOpenMedicine}
           />
 

@@ -1,7 +1,6 @@
 import React from 'react';
-import ActionDropdown from '../../../../shared/components/admin/ActionDropdown';
 
-const MedicinesTable = ({ rows, loading, error, onRetry, onView, onEdit, onStockIn, onDispose, onToggleStatus }) => {
+const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
   if (loading) {
     return <p className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-4 text-sm text-[#64748B]">Đang tải danh mục thuốc...</p>;
   }
@@ -36,7 +35,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView, onEdit, onStock
             <th className="px-4 py-3 text-right">Mức cảnh báo</th>
             <th className="px-4 py-3">Trạng thái</th>
             <th className="px-4 py-3">Cảnh báo</th>
-            <th className="px-4 py-3 text-right">Tùy chọn</th>
+            <th className="px-4 py-3 text-right">Chi tiết</th>
           </tr>
         </thead>
 
@@ -113,35 +112,13 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView, onEdit, onStock
                 </td>
                 <td className="px-4 py-3" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                   <div className="flex justify-end">
-                    <ActionDropdown
-                      menuWidth={208}
-                      items={[
-                        {
-                          id: 'edit',
-                          icon: 'edit',
-                          label: 'Chỉnh sửa',
-                          onClick: () => onEdit(item),
-                        },
-                        {
-                          id: 'stock-in',
-                          icon: 'add_box',
-                          label: 'Nhập kho',
-                          onClick: () => onStockIn(item),
-                        },
-                        {
-                          id: 'toggle-status',
-                          icon: item.status === 'ACTIVE' ? 'toggle_off' : 'toggle_on',
-                          label: item.status === 'ACTIVE' ? 'Chuyển sang ngưng sử dụng' : 'Chuyển sang đang sử dụng',
-                          onClick: () => onToggleStatus(item),
-                        },
-                        {
-                          id: 'dispose',
-                          icon: 'delete',
-                          label: 'Hủy thuốc',
-                          onClick: () => onDispose(item),
-                        },
-                      ]}
-                    />
+                    <button
+                      type="button"
+                      onClick={() => onView(item)}
+                      className="nurse-focus-ring rounded-lg border border-[#D1FAE5] bg-[#ECFDF3] px-2.5 py-1.5 text-xs font-semibold text-[#166534]"
+                    >
+                      Mở chi tiết
+                    </button>
                   </div>
                 </td>
               </tr>

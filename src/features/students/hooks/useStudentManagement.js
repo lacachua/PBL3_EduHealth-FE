@@ -37,7 +37,7 @@ const defaultTableData = {
 
 const autoDismissDelay = 2600;
 
-export const useStudentManagement = () => {
+export const useStudentManagement = ({ autoFetch = true, mockEnabledOverride } = {}) => {
   const [filters, setFilters] = useState(STUDENT_FILTER_DEFAULTS);
   const [page, setPage] = useState(1);
   const [tableData, setTableData] = useState(defaultTableData);
@@ -92,7 +92,9 @@ export const useStudentManagement = () => {
     };
 
     try {
-      const envelope = await getStudentManagementListApi(query);
+      const envelope = await getStudentManagementListApi(query, {
+        mockEnabled: mockEnabledOverride,
+      });
       setTableData(adaptStudentManagementResponse(envelope));
     } catch (apiError) {
       setError(normalizeApiMessage(apiError));
@@ -100,21 +102,29 @@ export const useStudentManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters.classId, filters.gender, filters.keyword, filters.status, page]);
+  }, [filters.classId, filters.gender, filters.keyword, filters.status, mockEnabledOverride, page]);
 
   useEffect(() => {
+    if (!autoFetch) {
+      return;
+    }
+
     fetchList({ page: 1 });
-  }, [fetchList]);
+  }, [autoFetch, fetchList]);
 
   const onFiltersChange = (nextFilters) => {
     setFilters(nextFilters);
     setPage(1);
-    fetchList({ ...nextFilters, page: 1 });
+    if (autoFetch) {
+      fetchList({ ...nextFilters, page: 1 });
+    }
   };
 
   const onPageChange = (nextPage) => {
     setPage(nextPage);
-    fetchList({ page: nextPage });
+    if (autoFetch) {
+      fetchList({ page: nextPage });
+    }
   };
 
   const createStudent = async (payload) => {

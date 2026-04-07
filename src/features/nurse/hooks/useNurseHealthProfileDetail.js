@@ -10,21 +10,29 @@ import {
   buildNurseHealthProfileViewModel,
 } from '../adapters/nurseHealthProfileAdapter';
 import {
-  getNurseHealthExaminationMockEnvelope,
   getNurseHealthHistoryMockEnvelope,
   getNurseHealthProfileMockEnvelope,
   getNurseHealthStudentDetailMockEnvelope,
 } from '../mocks/nurseHealthProfileDetailMock';
 import {
+  getNurseAllergyTypesApi,
   getNurseStudentDetailApi,
-  getNurseStudentExaminationsApi,
   getNurseStudentHealthHistoryApi,
   getNurseStudentHealthProfileApi,
+  getNurseStudentVaccinationsApi,
   getNurseStudentsLookupApi,
   updateNurseStudentHealthProfileApi,
 } from '../services/nurseStudentsApi';
 
 const autoDismissMs = 2800;
+
+const createEmptyEnvelope = () => ({
+  success: false,
+  message: '',
+  data: null,
+  errors: null,
+  meta: null,
+});
 
 const resolveLookupStudentId = async () => {
   const envelope = await getNurseStudentsLookupApi({ page: 1, pageSize: 1 });
@@ -36,15 +44,6 @@ const resolveLookupStudentId = async () => {
 
   const first = items[0];
   return resolveNurseStudentRouteId(first?.userId, first?.id);
-};
-
-const getProfileStudentCode = (profileEnvelope) => {
-  const data = profileEnvelope?.data || null;
-  if (!data || typeof data !== 'object') {
-    return '';
-  }
-
-  return data.studentId || data.studentCode || '';
 };
 
 export const useNurseHealthProfileDetail = ({
@@ -61,6 +60,7 @@ export const useNurseHealthProfileDetail = ({
   const [healthEditOpen, setHealthEditOpen] = useState(Boolean(initialHealthEditOpen));
   const [healthSaving, setHealthSaving] = useState(false);
   const [healthFieldErrors, setHealthFieldErrors] = useState({});
+  const [allergyTypeOptions, setAllergyTypeOptions] = useState([]);
   const [feedback, setFeedback] = useState(null);
 
   const feedbackTimerRef = useRef(null);
@@ -74,6 +74,46 @@ export const useNurseHealthProfileDetail = ({
   useEffect(() => () => {
     window.clearTimeout(feedbackTimerRef.current);
   }, []);
+
+  const fetchAllergyTypeOptions = useCallback(async () => {
+    if (runtimeConfig.enableMockHealthProfiles) {
+      setAllergyTypeOptions([]);
+      return;
+    }
+
+    try {
+      const envelope = await getNurseAllergyTypesApi();
+      const source = Array.isArray(envelope?.data)
+        ? envelope.data
+        : [];
+
+      const mapped = source
+        .filter((item) => Number.isFinite(Number(item?.allergyId)) && Number(item.allergyId) > 0)
+        .map((item) => {
+          const allergyId = Number(item.allergyId);
+          const allergyTypeId = item.allergyTypeId || `ALG${String(allergyId).padStart(3, '0')}`;
+          const allergyTypeName = item.allergyTypeName || `Dị ứng #${allergyId}`;
+
+          return {
+            allergyId,
+            allergyTypeId,
+            allergyTypeName,
+            severity: item.severity || '',
+            label: `${allergyTypeName} (${allergyTypeId})`,
+          };
+        });
+
+      setAllergyTypeOptions(mapped);
+    } catch {
+      setAllergyTypeOptions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllergyTypeOptions().catch(() => {
+      setAllergyTypeOptions([]);
+    });
+  }, [fetchAllergyTypeOptions]);
 
   const fetchProfile = useCallback(async (requestedStudentId) => {
     setStatus('loading');
@@ -99,18 +139,17 @@ export const useNurseHealthProfileDetail = ({
 
     setResolvedStudentId(targetStudentId);
 
-    if (runtimeConfig.enableMockAdminDashboard) {
+    if (runtimeConfig.enableMockHealthProfiles) {
       const detailEnvelope = getNurseHealthStudentDetailMockEnvelope(targetStudentId);
       const profileEnvelope = getNurseHealthProfileMockEnvelope(targetStudentId);
       const historyEnvelope = getNurseHealthHistoryMockEnvelope(targetStudentId, { page: 1, pageSize: 10 });
-      const examEnvelope = getNurseHealthExaminationMockEnvelope(targetStudentId);
 
       const viewModel = buildNurseHealthProfileViewModel({
         studentId: targetStudentId,
         detailEnvelope,
         profileEnvelope,
         healthHistoryEnvelope: historyEnvelope,
-        examinationEnvelope: examEnvelope,
+        useSupplementaryMock: true,
       });
 
       setModel(viewModel);
@@ -119,47 +158,46 @@ export const useNurseHealthProfileDetail = ({
       return;
     }
 
-    const [detailResult, profileResult, historyResult] = await Promise.allSettled([
+    const [detailResult, profileResult, historyResult, vaccinationResult] = await Promise.allSettled([
       getNurseStudentDetailApi(targetStudentId),
       getNurseStudentHealthProfileApi(targetStudentId),
       getNurseStudentHealthHistoryApi(targetStudentId, { page: 1, pageSize: 10 }),
+      getNurseStudentVaccinationsApi(targetStudentId),
     ]);
 
     const detailEnvelope = detailResult.status === 'fulfilled'
       ? detailResult.value
-      : getNurseHealthStudentDetailMockEnvelope(targetStudentId);
+      : createEmptyEnvelope();
 
     const profileEnvelope = profileResult.status === 'fulfilled'
       ? profileResult.value
-      : getNurseHealthProfileMockEnvelope(targetStudentId);
+      : createEmptyEnvelope();
 
     const historyEnvelope = historyResult.status === 'fulfilled'
       ? historyResult.value
-      : getNurseHealthHistoryMockEnvelope(targetStudentId, { page: 1, pageSize: 10 });
+      : createEmptyEnvelope();
 
-    const profileStudentCode = getProfileStudentCode(profileEnvelope);
-
-    let examinationEnvelope = getNurseHealthExaminationMockEnvelope(targetStudentId);
-    if (profileStudentCode) {
-      try {
-        examinationEnvelope = await getNurseStudentExaminationsApi({
-          studentId: profileStudentCode,
-          page: 1,
-          pageSize: 8,
-        });
-      } catch {
-        examinationEnvelope = getNurseHealthExaminationMockEnvelope(targetStudentId);
-      }
-    }
+    const vaccinationEnvelope = vaccinationResult.status === 'fulfilled'
+      ? vaccinationResult.value
+      : createEmptyEnvelope();
 
     const allFailed = detailResult.status === 'rejected'
       && profileResult.status === 'rejected'
       && historyResult.status === 'rejected';
 
     if (allFailed) {
-      setSyncMessage('Không thể đồng bộ đầy đủ dữ liệu từ máy chủ. Đang hiển thị bộ dữ liệu gần nhất để tiếp tục theo dõi.');
-    } else if (detailResult.status === 'rejected' || profileResult.status === 'rejected' || historyResult.status === 'rejected') {
-      setSyncMessage('Một phần dữ liệu chưa đồng bộ kịp thời. Hệ thống đã bổ sung dữ liệu dự phòng để giữ liền mạch nghiệp vụ.');
+      setSyncMessage('');
+      setModel(null);
+      setError('Không thể đồng bộ hồ sơ sức khỏe từ máy chủ. Vui lòng thử lại.');
+      setStatus('error');
+      return;
+    } else if (
+      detailResult.status === 'rejected'
+      || profileResult.status === 'rejected'
+      || historyResult.status === 'rejected'
+      || vaccinationResult.status === 'rejected'
+    ) {
+      setSyncMessage('Một phần dữ liệu chưa đồng bộ kịp thời. Vui lòng kiểm tra lại kết nối để lấy đủ hồ sơ mới nhất.');
     } else {
       setSyncMessage('');
     }
@@ -169,7 +207,7 @@ export const useNurseHealthProfileDetail = ({
       detailEnvelope,
       profileEnvelope,
       healthHistoryEnvelope: historyEnvelope,
-      examinationEnvelope,
+      vaccinationEnvelope,
     });
 
     setModel(viewModel);
@@ -197,7 +235,7 @@ export const useNurseHealthProfileDetail = ({
       return false;
     }
 
-    if (runtimeConfig.enableMockAdminDashboard) {
+    if (runtimeConfig.enableMockHealthProfiles) {
       showFeedback('Cập nhật thành công trên chế độ dữ liệu mẫu.', 'success');
       await fetchProfile(resolvedStudentId);
       return true;
@@ -244,6 +282,7 @@ export const useNurseHealthProfileDetail = ({
     setHealthEditOpen,
     healthSaving,
     healthFieldErrors,
+    allergyTypeOptions,
     feedback,
     clearFeedback: () => setFeedback(null),
     refreshProfile,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseMedicinesApiError } from '../adapters/medicineErrorParser';
 import { mapMedicinesListResponse } from '../adapters/medicineResponseMapper';
-import { getMedicinesApi } from '../services/medicinesApi';
+import { getMedicines } from '../services/getMedicines';
 
 const defaultFilters = {
   keyword: '',
@@ -32,7 +32,7 @@ export const useMedicines = () => {
     setAccessState('ok');
 
     try {
-      const response = await getMedicinesApi({
+      const response = await getMedicines({
         page,
         pageSize: 10,
         keyword: filters.keyword,
