@@ -1,0 +1,157 @@
+.exam-module {
+  --exam-app-bg: #f4f7f6;
+  --exam-card-bg: #ffffff;
+  --exam-subtle-bg: #f8faf9;
+  --exam-border: #d9e2de;
+  --exam-text-primary: #163126;
+  --exam-text-secondary: #5f746b;
+  --exam-primary: #0f8a4b;
+  --exam-primary-hover: #0b6f3c;
+  --exam-primary-subtle: #e8f6ee;
+  --exam-warning-subtle: #fff6e5;
+  --exam-warning-text: #9a6700;
+  --exam-error-subtle: #fdecec;
+  --exam-error-text: #b42318;
+  --exam-info-subtle: #eef4ff;
+  --exam-info-text: #175cd3;
+
+  color: var(--exam-text-primary);
+}
+
+.exam-page-bg {
+  background: var(--exam-app-bg);
+}
+
+.exam-banner {
+  border: 1px solid var(--exam-border);
+  background: var(--exam-primary-subtle);
+}
+
+.exam-card {
+  border: 1px solid var(--exam-border);
+  background: var(--exam-card-bg);
+}
+
+.exam-section-subtle {
+  border: 1px solid var(--exam-border);
+  background: var(--exam-subtle-bg);
+}
+
+.exam-input {
+  border: 1px solid var(--exam-border);
+  background: #ffffff;
+  color: var(--exam-text-primary);
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.exam-input::placeholder {
+  color: var(--exam-text-secondary);
+  opacity: 0.85;
+}
+
+.exam-input:focus {
+  border-color: var(--exam-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--exam-primary) 18%, transparent);
+}
+
+.exam-btn-primary {
+  background: var(--exam-primary);
+  color: #ffffff;
+  transition: background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.exam-btn-primary:hover {
+  background: var(--exam-primary-hover);
+}
+
+.exam-btn-secondary {
+  border: 1px solid var(--exam-border);
+  background: #ffffff;
+  color: var(--exam-text-primary);
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.exam-btn-secondary:hover {
+  border-color: color-mix(in srgb, var(--exam-primary) 45%, var(--exam-border));
+  background: var(--exam-primary-subtle);
+}
+
+.exam-btn-text {
+  color: var(--exam-info-text);
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.exam-btn-text:hover {
+  color: #1248ac;
+}
+
+.exam-muted {
+  color: var(--exam-text-secondary);
+}
+
+.exam-pill-selected {
+  border: 1px solid color-mix(in srgb, var(--exam-primary) 35%, var(--exam-border));
+  background: var(--exam-primary-subtle);
+  color: var(--exam-primary-hover);
+}
+
+.exam-warning {
+  border: 1px solid color-mix(in srgb, var(--exam-warning-text) 35%, var(--exam-border));
+  background: var(--exam-warning-subtle);
+  color: var(--exam-warning-text);
+}
+
+.exam-error {
+  border: 1px solid color-mix(in srgb, var(--exam-error-text) 28%, var(--exam-border));
+  background: var(--exam-error-subtle);
+  color: var(--exam-error-text);
+}
+
+.exam-table-head {
+  border-bottom: 1px solid var(--exam-border);
+  background: var(--exam-subtle-bg);
+  color: var(--exam-text-secondary);
+}
+
+.exam-row-hover {
+  transition: background-color 120ms ease;
+}
+
+.exam-row-hover:hover {
+  background: #f6faf8;
+}
+
+.exam-modal-overlay {
+  transition: opacity 140ms ease;
+}
+
+.exam-modal-panel {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.exam-drawer-open {
+  animation: examDrawerIn 220ms ease-out both;
+}
+
+@keyframes examDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exam-module *,
+  .exam-modal-overlay,
+  .exam-modal-panel,
+  .exam-drawer-open {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
