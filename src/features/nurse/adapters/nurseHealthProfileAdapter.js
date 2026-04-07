@@ -3,10 +3,8 @@ import {
   adaptStudentDetailResponse,
   adaptStudentHealthProfileResponse,
 } from '../../students/adapters/studentManagementAdapter';
-import {
-  getNurseHealthProfileSupplementaryMock,
-  NURSE_HEALTH_CLASS_LABEL_MAP,
-} from '../mocks/nurseHealthProfileDetailMock';
+import { NURSE_HEALTH_CLASS_LABEL_MAP } from '../mocks/nurseHealthProfileDetailMock';
+import { getNurseHealthProfileSupplementaryMock } from '../mocks/nurseHealthProfileSupplementaryMock';
 
 const toNumber = (value) => {
   const parsed = Number(value);
@@ -152,6 +150,30 @@ export const adaptNurseExaminationHistoryResponse = (responseOrPayload) => {
   }));
 };
 
+export const adaptNurseVaccinationHistoryResponse = (responseOrPayload) => {
+  const envelope = normalizeApiEnvelope(responseOrPayload);
+
+  if (envelope?.success === false) {
+    return [];
+  }
+
+  const source = Array.isArray(envelope.data)
+    ? envelope.data
+    : Array.isArray(envelope.data?.items)
+      ? envelope.data.items
+      : [];
+
+  return source.map((item) => ({
+    id: item.studentVaccinationId || `${item.campaignId || 'VAC'}-${item.scheduledDate || ''}`,
+    vaccineName: item.vaccineName || item.campaignName || '--',
+    administeredAt: item.vaccinatedAt || item.scheduledDate || null,
+    status: item.status || 'PENDING',
+    doseNumber: Number(item.doseNumber || 0),
+    campaignName: item.campaignName || '',
+    note: item.note || '',
+  }));
+};
+
 const deriveMedicationHistory = (healthHistoryItems = []) => {
   const records = [];
 
@@ -221,7 +243,7 @@ const deriveHealthAlerts = ({ profile, detail, allergyItems }) => {
   return alerts;
 };
 
-const deriveGrowthIndicators = ({ heightCm, weightKg, fallbackGrowth }) => {
+const deriveBmiIndicators = ({ heightCm, weightKg }) => {
   const h = toNumber(heightCm);
   const w = toNumber(weightKg);
   const bmi = h && w ? round1(w / ((h / 100) ** 2)) : null;
@@ -235,9 +257,6 @@ const deriveGrowthIndicators = ({ heightCm, weightKg, fallbackGrowth }) => {
         : bmi <= 19
           ? 'Bình thường'
           : 'Cần giám sát cân nặng',
-    weightForAgePercent: fallbackGrowth?.weightForAgePercent ?? 0,
-    heightForAgePercent: fallbackGrowth?.heightForAgePercent ?? 0,
-    note: fallbackGrowth?.note || 'Dữ liệu tham chiếu theo lứa tuổi học sinh tiểu học.',
   };
 };
 
@@ -246,22 +265,29 @@ export const buildNurseHealthProfileViewModel = ({
   detailEnvelope,
   profileEnvelope,
   healthHistoryEnvelope,
+  vaccinationEnvelope,
   examinationEnvelope,
+  useSupplementaryMock = false,
 }) => {
   const detail = adaptStudentDetailResponse(detailEnvelope);
   const profile = adaptStudentHealthProfileResponse(profileEnvelope);
   const healthHistory = adaptNurseHealthHistoryResponse(healthHistoryEnvelope);
   const examinationHistory = adaptNurseExaminationHistoryResponse(examinationEnvelope);
+  const vaccinationHistory = adaptNurseVaccinationHistoryResponse(vaccinationEnvelope);
 
   const normalizedDetail = normalizeApiEnvelope(detailEnvelope)?.data || {};
   const rawProfileEnvelope = normalizeApiEnvelope(profileEnvelope);
-  const supplementary = getNurseHealthProfileSupplementaryMock(studentId);
+  const supplementary = useSupplementaryMock
+    ? getNurseHealthProfileSupplementaryMock(studentId)
+    : {
+      vaccinations: [],
+      emergencyContacts: [],
+    };
   const allergyItems = parseAllergyList(profile, rawProfileEnvelope.data);
   const medicationHistory = deriveMedicationHistory(healthHistory.items);
-  const growth = deriveGrowthIndicators({
+  const growth = deriveBmiIndicators({
     heightCm: profile?.heightCm,
     weightKg: profile?.weightKg,
-    fallbackGrowth: supplementary.growthIndicators,
   });
 
   const classNameDisplay = normalizeClassName(detail?.classId, detail?.className || rawProfileEnvelope?.data?.className);
@@ -313,6 +339,10 @@ export const buildNurseHealthProfileViewModel = ({
     ]
     : [];
 
+  const vaccinations = vaccinationHistory.length
+    ? vaccinationHistory
+    : supplementary.vaccinations;
+
   return {
     header,
     profile,
@@ -322,9 +352,8 @@ export const buildNurseHealthProfileViewModel = ({
     healthHistory,
     examinationHistory,
     medicationHistory,
-    vaccinations: supplementary.vaccinations,
+    vaccinations,
     emergencyContacts,
-    growth,
   };
 };
 
@@ -342,6 +371,53 @@ const normalizeNullableNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const parseAllergyId = (value) => {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  const text = String(value || '').trim();
+  if (!text) {
+    return null;
+  }
+
+  const digits = text.replace(/\D/g, '');
+  if (!digits) {
+    return null;
+  }
+
+  const parsed = Number(digits);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const formatAllergyTypeId = (allergyId) => {
+  return `ALG${String(allergyId).padStart(3, '0')}`;
+};
+
+const normalizeAllergiesForPatch = (allergies) => {
+  if (!Array.isArray(allergies)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const normalized = [];
+
+  allergies.forEach((item) => {
+    const allergyId = parseAllergyId(item?.allergyId ?? item?.allergyTypeId);
+    if (!allergyId || seen.has(allergyId)) {
+      return;
+    }
+
+    seen.add(allergyId);
+    normalized.push({
+      allergyTypeId: formatAllergyTypeId(allergyId),
+      note: normalizeNullableText(item?.note),
+    });
+  });
+
+  return normalized;
+};
+
 export const buildNurseHealthProfileUpdatePayload = (values = {}) => {
   return {
     heightCm: normalizeNullableNumber(values.heightCm),
@@ -350,5 +426,6 @@ export const buildNurseHealthProfileUpdatePayload = (values = {}) => {
     eyeStatus: normalizeNullableText(values.eyeStatus),
     chronicNote: normalizeNullableText(values.chronicNote),
     generalHealthNote: normalizeNullableText(values.generalHealthNote),
+    allergies: normalizeAllergiesForPatch(values.allergies),
   };
 };

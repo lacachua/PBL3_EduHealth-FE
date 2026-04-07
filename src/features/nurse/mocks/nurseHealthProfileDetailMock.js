@@ -404,11 +404,23 @@ export const getNurseHealthExaminationMockEnvelope = (studentId) => {
   };
 };
 
-export const getNurseHealthProfileSupplementaryMock = (studentId) => {
-  const fallback = pickFallback(studentId);
-  return {
-    vaccinations: fallback.vaccinations,
-    emergencyContacts: fallback.emergencyContacts,
-    growthIndicators: fallback.growthIndicators,
-  };
+export const getNurseHealthProfileStudentsMockRows = () => {
+  return fallbackProfiles.map((item) => ({
+    id: item.detail.userId,
+    studentId: item.detail.userId,
+    userId: item.detail.userId,
+    studentCode: item.detail.studentCode,
+    fullName: item.detail.fullName,
+    dateOfBirth: item.detail.dateOfBirth,
+    gender: item.detail.gender,
+    classId: item.detail.classId,
+    className: item.detail.className,
+    email: item.detail.email,
+    phone: item.detail.phone,
+    medicalHistoryNotes: item.detail.medicalHistoryNotes,
+    currentHeight: item.detail.currentHeight,
+    currentWeight: item.detail.currentWeight,
+    updatedAt: item.detail.updatedAt,
+  }));
 };
+

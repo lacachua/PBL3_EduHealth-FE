@@ -18,6 +18,7 @@ import {
   NURSE_STUDENT_CLASS_FALLBACK_OPTIONS,
   NURSE_STUDENT_CLASS_LABEL_MAP,
 } from '../mocks/nurseStudentsMock';
+import { getNurseHealthProfileStudentsMockRows } from '../mocks/nurseHealthProfileDetailMock';
 import { getNurseStudentHealthProfileApi } from '../services/nurseStudentsApi';
 
 const DEFAULT_FILTERS = {
@@ -92,12 +93,37 @@ const resolveClassLabel = (classId, className) => {
     || '--';
 };
 
-const createFallbackHealthProfile = ({ row, index }) => {
+const createMockHealthProfile = ({ row, index }) => {
   const envelope = getNurseStudentHealthProfileMockEnvelope({ row, index });
   const mapped = adaptStudentHealthProfileResponse(envelope);
 
   if (mapped) {
     return mapped;
+  }
+
+  return createApiFallbackHealthProfile({ row });
+};
+
+const createApiFallbackHealthProfile = ({ row }) => {
+  return {
+    currentHeight: row.currentHeight ?? row.heightCm ?? '',
+    currentWeight: row.currentWeight ?? row.weightKg ?? '',
+    heightCm: row.currentHeight ?? row.heightCm ?? '',
+    weightKg: row.currentWeight ?? row.weightKg ?? '',
+    bloodType: '',
+    eyeStatus: '',
+    chronicNote: '',
+    generalHealthNote: '',
+    allergies: '',
+    allergyItems: [],
+    updatedBy: '',
+    healthProfileUpdatedAt: row.updatedAt || null,
+  };
+};
+
+const createFallbackHealthProfile = ({ row, index, useMockContext }) => {
+  if (useMockContext) {
+    return createMockHealthProfile({ row, index });
   }
 
   return {
@@ -110,14 +136,15 @@ const createFallbackHealthProfile = ({ row, index }) => {
     chronicNote: '',
     generalHealthNote: '',
     allergies: '',
+    allergyItems: [],
     updatedBy: '',
     healthProfileUpdatedAt: row.updatedAt || null,
   };
 };
 
-const normalizeHealthProfile = ({ envelope, row, index }) => {
+const normalizeHealthProfile = ({ envelope, row, index, useMockContext }) => {
   const mapped = adaptStudentHealthProfileResponse(envelope);
-  return mapped || createFallbackHealthProfile({ row, index });
+  return mapped || createFallbackHealthProfile({ row, index, useMockContext });
 };
 
 const inferAlerts = ({ row, profile }) => {
@@ -173,6 +200,7 @@ const NurseHealthProfilesPage = () => {
   const navigate = useNavigate();
   const requestedIdsRef = useRef(new Set());
   const feedbackTimerRef = useRef(null);
+  const isHealthProfilesMockMode = Boolean(runtimeConfig.enableMockHealthProfiles);
 
   const {
     onFiltersChange,
@@ -181,13 +209,22 @@ const NurseHealthProfilesPage = () => {
     tableData,
     status,
     error,
-  } = useStudentManagement();
+  } = useStudentManagement({
+    autoFetch: !isHealthProfilesMockMode,
+    mockEnabledOverride: isHealthProfilesMockMode ? true : false,
+  });
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);
   const [profileByStudentId, setProfileByStudentId] = useState({});
-  const [useMockContext, setUseMockContext] = useState(Boolean(runtimeConfig.enableMockAdminDashboard));
+  const [useMockContext] = useState(isHealthProfilesMockMode);
+  const [hasProfileSyncGap, setHasProfileSyncGap] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const mockStudentRows = useMemo(() => getNurseHealthProfileStudentsMockRows(), []);
+
+  const sourceRows = useMemo(() => (
+    isHealthProfilesMockMode ? mockStudentRows : tableData.rows
+  ), [isHealthProfilesMockMode, mockStudentRows, tableData.rows]);
 
   const showFeedback = useCallback((message, type = 'error') => {
     setFeedback({ message, type });
@@ -207,31 +244,36 @@ const NurseHealthProfilesPage = () => {
 
     requestedIdsRef.current.add(studentId);
 
-    if (runtimeConfig.enableMockAdminDashboard) {
-      const fallbackProfile = createFallbackHealthProfile({ row, index });
+    if (isHealthProfilesMockMode) {
+      const fallbackProfile = createFallbackHealthProfile({ row, index, useMockContext: true });
       setProfileByStudentId((prev) => ({ ...prev, [studentId]: fallbackProfile }));
       return;
     }
 
     try {
       const envelope = await getNurseStudentHealthProfileApi(studentId);
-      const mappedProfile = normalizeHealthProfile({ envelope, row, index });
+      const mappedProfile = normalizeHealthProfile({ envelope, row, index, useMockContext: false });
       setProfileByStudentId((prev) => ({ ...prev, [studentId]: mappedProfile }));
     } catch {
-      const fallbackProfile = createFallbackHealthProfile({ row, index });
+      const fallbackProfile = createFallbackHealthProfile({ row, index, useMockContext: false });
       setProfileByStudentId((prev) => ({ ...prev, [studentId]: fallbackProfile }));
-      setUseMockContext(true);
+      setHasProfileSyncGap(true);
     }
-  }, []);
+  }, [isHealthProfilesMockMode]);
 
   useEffect(() => {
-    tableData.rows.forEach((row, index) => {
+    sourceRows.forEach((row, index) => {
       loadStudentHealthProfile(row, index);
     });
-  }, [loadStudentHealthProfile, tableData.rows]);
+  }, [loadStudentHealthProfile, sourceRows]);
 
   const handleApplyFilters = (event) => {
     event.preventDefault();
+
+    if (isHealthProfilesMockMode) {
+      setActiveFilters(draftFilters);
+      return;
+    }
 
     const classId = Number.isFinite(Number(draftFilters.classValue))
       ? draftFilters.classValue
@@ -250,6 +292,11 @@ const NurseHealthProfilesPage = () => {
   const handleResetFilters = () => {
     setDraftFilters(DEFAULT_FILTERS);
     setActiveFilters(DEFAULT_FILTERS);
+
+    if (isHealthProfilesMockMode) {
+      return;
+    }
+
     onFiltersChange({
       keyword: '',
       classId: 'all',
@@ -259,9 +306,10 @@ const NurseHealthProfilesPage = () => {
   };
 
   const rowsWithContext = useMemo(() => {
-    return tableData.rows.map((row, index) => {
+    return sourceRows.map((row, index) => {
       const studentId = resolveNurseStudentRouteIdFromRow(row);
-      const profile = profileByStudentId[studentId] || (useMockContext ? createFallbackHealthProfile({ row, index }) : null);
+      const profile = profileByStudentId[studentId]
+        || (useMockContext ? createFallbackHealthProfile({ row, index, useMockContext: true }) : null);
       const classNameDisplay = resolveClassLabel(row.classId, row.className);
       const alerts = inferAlerts({ row, profile });
       const profileStatus = deriveProfileRecordStatus({ row, profile, alerts });
@@ -281,10 +329,10 @@ const NurseHealthProfilesPage = () => {
         updatedAtDaysAgo: profileStatus.daysSinceUpdated,
       };
     });
-  }, [profileByStudentId, tableData.rows, useMockContext]);
+  }, [profileByStudentId, sourceRows, useMockContext]);
 
   const classOptions = useMemo(() => {
-    if (useMockContext) {
+    if (useMockContext || isHealthProfilesMockMode) {
       return NURSE_STUDENT_CLASS_FALLBACK_OPTIONS;
     }
 
@@ -298,10 +346,19 @@ const NurseHealthProfilesPage = () => {
 
     const dynamicOptions = Array.from(map.entries()).map(([value, label]) => ({ value, label }));
     return [{ value: 'all', label: 'Tất cả lớp' }, ...dynamicOptions];
-  }, [rowsWithContext, useMockContext]);
+  }, [isHealthProfilesMockMode, rowsWithContext, useMockContext]);
 
   const filteredRows = useMemo(() => {
+    const keyword = String(activeFilters.keyword || '').trim().toLowerCase();
+
     return rowsWithContext.filter((row) => {
+      if (keyword) {
+        const text = `${row.studentCode || ''} ${row.fullName || ''}`.toLowerCase();
+        if (!text.includes(keyword)) {
+          return false;
+        }
+      }
+
       if (activeFilters.classValue !== 'all' && String(row.classFilterValue) !== String(activeFilters.classValue)) {
         return false;
       }
@@ -320,7 +377,25 @@ const NurseHealthProfilesPage = () => {
 
       return true;
     });
-  }, [activeFilters.alertState, activeFilters.classValue, activeFilters.profileStatus, rowsWithContext]);
+  }, [activeFilters.alertState, activeFilters.classValue, activeFilters.keyword, activeFilters.profileStatus, rowsWithContext]);
+
+  const effectiveStatus = isHealthProfilesMockMode
+    ? (filteredRows.length ? 'success' : 'empty')
+    : status;
+
+  const effectiveError = isHealthProfilesMockMode ? '' : error;
+
+  const effectiveMeta = isHealthProfilesMockMode
+    ? {
+      page: 1,
+      pageSize: Math.max(filteredRows.length, 1),
+      totalItems: filteredRows.length,
+    }
+    : {
+      page: tableData.page,
+      pageSize: tableData.pageSize,
+      totalItems: tableData.totalItems,
+    };
 
   const stats = useMemo(() => {
     return {
@@ -575,13 +650,13 @@ const NurseHealthProfilesPage = () => {
 
       <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
         <div className="nurse-table-summary-strong px-3 py-2 text-[11px] sm:px-4">
-          Đang hiển thị <span className="font-semibold text-[#0F172A]">{filteredRows.length}</span> hồ sơ trên trang này • Tổng <span className="font-semibold text-[#0F172A]">{tableData.totalItems}</span> học sinh
+          Đang hiển thị <span className="font-semibold text-[#0F172A]">{filteredRows.length}</span> hồ sơ trên trang này • Tổng <span className="font-semibold text-[#0F172A]">{effectiveMeta.totalItems}</span> học sinh
         </div>
 
         <AdminAsyncState
-          status={status}
-          error={error}
-          onRetry={fetchList}
+          status={effectiveStatus}
+          error={effectiveError}
+          onRetry={isHealthProfilesMockMode ? undefined : fetchList}
           loadingLabel="Đang tải danh sách hồ sơ sức khỏe..."
           emptyTitle="Không có hồ sơ sức khỏe"
           emptyDescription="Danh sách hồ sơ sẽ hiển thị sau khi hệ thống đồng bộ dữ liệu học sinh."
@@ -604,10 +679,10 @@ const NurseHealthProfilesPage = () => {
               <div className="border-t border-[#E2E8F0] px-3 py-2 sm:px-4">
                 <Pagination
                   compact
-                  page={tableData.page}
-                  pageSize={tableData.pageSize}
-                  totalItems={tableData.totalItems}
-                  onPageChange={onPageChange}
+                  page={effectiveMeta.page}
+                  pageSize={effectiveMeta.pageSize}
+                  totalItems={effectiveMeta.totalItems}
+                  onPageChange={isHealthProfilesMockMode ? (() => {}) : onPageChange}
                 />
               </div>
             </>
@@ -622,9 +697,11 @@ const NurseHealthProfilesPage = () => {
         </AdminAsyncState>
       </section>
 
-      {useMockContext ? (
+      {useMockContext || hasProfileSyncGap ? (
         <div className="rounded-xl border border-[#D1FAE5] bg-[#F0FDF4] px-3.5 py-2.5 text-xs text-[#166534]">
-          Một phần dữ liệu đang sử dụng nguồn dự phòng để đảm bảo luồng theo dõi hồ sơ không bị gián đoạn.
+          {useMockContext
+            ? 'Đang hiển thị dữ liệu full mock cho module Health Profile theo cấu hình môi trường.'
+            : 'Một phần hồ sơ chưa đồng bộ kịp thời từ máy chủ. Dữ liệu nền học sinh vẫn lấy từ API thật.'}
         </div>
       ) : null}
     </div>

@@ -13,10 +13,16 @@ import {
 import { normalizeStudentListQuery } from '../adapters/studentManagementPayloadMapper';
 import { STUDENT_ENDPOINTS } from '../schemas/studentManagementSchema';
 
-const isMockEnabled = runtimeConfig.enableMockAdminDashboard;
+const resolveMockEnabled = (options = {}) => {
+  if (typeof options.mockEnabled === 'boolean') {
+    return options.mockEnabled;
+  }
 
-export const getStudentManagementListApi = async (query = {}) => {
-  if (isMockEnabled) {
+  return runtimeConfig.enableMockAdminDashboard;
+};
+
+export const getStudentManagementListApi = async (query = {}, options = {}) => {
+  if (resolveMockEnabled(options)) {
     await waitForMock();
     return getStudentManagementMockEnvelope(query);
   }
@@ -26,7 +32,7 @@ export const getStudentManagementListApi = async (query = {}) => {
 };
 
 export const createStudentManagementApi = async (payload) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return {
       success: true,
@@ -41,7 +47,7 @@ export const createStudentManagementApi = async (payload) => {
 };
 
 export const updateStudentManagementApi = async (studentId, payload) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return {
       success: true,
@@ -56,7 +62,7 @@ export const updateStudentManagementApi = async (studentId, payload) => {
 };
 
 export const getStudentManagementDetailApi = async (studentId) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return getStudentManagementDetailMockEnvelope(studentId);
   }
@@ -65,7 +71,7 @@ export const getStudentManagementDetailApi = async (studentId) => {
 };
 
 export const getStudentHealthProfileApi = async (studentId) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return getStudentHealthProfileMockEnvelope(studentId);
   }
@@ -74,7 +80,7 @@ export const getStudentHealthProfileApi = async (studentId) => {
 };
 
 export const updateStudentHealthProfileApi = async (studentId, payload) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return {
       success: true,
@@ -89,7 +95,7 @@ export const updateStudentHealthProfileApi = async (studentId, payload) => {
 };
 
 export const deleteStudentManagementApi = async (studentId) => {
-  if (isMockEnabled) {
+  if (resolveMockEnabled()) {
     await waitForMock();
     return {
       success: true,

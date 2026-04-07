@@ -15,6 +15,10 @@ export const getNurseStudentHealthHistoryApi = (studentId, query = {}) => apiGet
 	},
 });
 
+export const getNurseStudentVaccinationsApi = (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}/vaccinations`);
+
+export const getNurseAllergyTypesApi = () => apiGetEnvelope('/api/v1/students/allergy-types');
+
 export const getNurseStudentsLookupApi = (query = {}) => apiGetEnvelope('/api/v1/students', {
 	params: {
 		page: Number(query.page || 1),

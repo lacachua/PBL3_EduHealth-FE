@@ -17,23 +17,21 @@ const ExaminationDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { examinationId } = useParams();
+  const hasValidExaminationId = Boolean(examinationId);
 
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [data, setData] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState(() => location.state?.feedback || null);
 
   useEffect(() => {
     if (location.state?.feedback) {
-      setFeedback(location.state.feedback);
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
-    if (!examinationId) {
-      setStatus('error');
-      setError('Mã phiếu khám không hợp lệ.');
+    if (!hasValidExaminationId) {
       return;
     }
 
@@ -68,7 +66,10 @@ const ExaminationDetailPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [examinationId]);
+  }, [examinationId, hasValidExaminationId]);
+
+  const effectiveStatus = hasValidExaminationId ? status : 'error';
+  const effectiveError = hasValidExaminationId ? error : 'Mã phiếu khám không hợp lệ.';
 
   return (
     <div className="exam-module exam-page-bg space-y-3.5 rounded-2xl p-1.5 md:p-2">
@@ -102,8 +103,8 @@ const ExaminationDetailPage = () => {
       </section>
 
       <AdminAsyncState
-        status={status}
-        error={error}
+        status={effectiveStatus}
+        error={effectiveError}
         onRetry={() => navigate(0)}
         loadingLabel="Đang tải chi tiết phiếu khám..."
         emptyTitle="Không có dữ liệu"

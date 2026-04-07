@@ -70,7 +70,7 @@ const ExaminationLandingPage = () => {
   const [error, setError] = useState('');
   const [listData, setListData] = useState(defaultListData);
 
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState(() => location.state?.feedback || null);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerInitialStudentId, setPickerInitialStudentId] = useState(null);
@@ -106,7 +106,13 @@ const ExaminationLandingPage = () => {
   }, [appliedFilters, page]);
 
   useEffect(() => {
-    fetchList(page, appliedFilters);
+    const timer = window.setTimeout(() => {
+      fetchList(page, appliedFilters);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [appliedFilters, fetchList, page]);
 
   useEffect(() => {
@@ -115,20 +121,22 @@ const ExaminationLandingPage = () => {
       return;
     }
 
-    if (state.feedback) {
-      setFeedback(state.feedback);
-    }
-
-    if (state.openCreateExamination) {
-      setPickerOpen(true);
-      const initialId = Number(state.studentId);
-      setPickerInitialStudentId(Number.isFinite(initialId) && initialId > 0 ? initialId : null);
-      setPickerInitialStudentName(state.studentName || '');
-    }
+    const timer = window.setTimeout(() => {
+      if (state.openCreateExamination) {
+        setPickerOpen(true);
+        const initialId = Number(state.studentId);
+        setPickerInitialStudentId(Number.isFinite(initialId) && initialId > 0 ? initialId : null);
+        setPickerInitialStudentName(state.studentName || '');
+      }
+    }, 0);
 
     if (state.feedback || state.openCreateExamination) {
       navigate(location.pathname, { replace: true, state: null });
     }
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [location.pathname, location.state, navigate]);
 
   const columns = useMemo(() => ([

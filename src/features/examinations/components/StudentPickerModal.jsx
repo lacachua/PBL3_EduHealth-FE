@@ -79,42 +79,26 @@ const StudentPickerModal = ({
     profile: null,
     history: [],
   });
-  const [shouldRender, setShouldRender] = useState(open);
-  const [isClosing, setIsClosing] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      setShouldRender(true);
-      setIsClosing(false);
-      return undefined;
-    }
-
-    if (!shouldRender) {
-      return undefined;
-    }
-
-    setIsClosing(true);
-    const timer = window.setTimeout(() => {
-      setShouldRender(false);
-      setIsClosing(false);
-    }, 140);
-
-    return () => window.clearTimeout(timer);
-  }, [open, shouldRender]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    setSelectedStudentId(initialSelectedStudentId || null);
-    setSelectedStudentSnapshot(null);
-    if (initialSelectedStudentName) {
-      setSearch(initialSelectedStudentName);
-    } else {
-      setSearch('');
-    }
-    setPage(1);
+    const timer = window.setTimeout(() => {
+      setSelectedStudentId(initialSelectedStudentId || null);
+      setSelectedStudentSnapshot(null);
+      if (initialSelectedStudentName) {
+        setSearch(initialSelectedStudentName);
+      } else {
+        setSearch('');
+      }
+      setPage(1);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [initialSelectedStudentId, initialSelectedStudentName, open]);
 
   useEffect(() => {
@@ -144,9 +128,13 @@ const StudentPickerModal = ({
         setListData(mapped);
         setListStatus(mapped.rows.length ? 'success' : 'empty');
 
-        if (!selectedStudentId && mapped.rows.length) {
-          setSelectedStudentId(mapped.rows[0].userId);
-        }
+        setSelectedStudentId((current) => {
+          if (current) {
+            return current;
+          }
+
+          return mapped.rows.length ? mapped.rows[0].userId : null;
+        });
       } catch (error) {
         if (!isMounted) {
           return;
@@ -233,7 +221,7 @@ const StudentPickerModal = ({
     : [];
   const hasMedicalWarning = allergies.length > 0 || Boolean(previewData.profile?.healthProfile?.chronicNote);
 
-  if (!shouldRender) {
+  if (!open) {
     return null;
   }
 
@@ -241,12 +229,12 @@ const StudentPickerModal = ({
     <div className="exam-module fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-4">
       <button
         type="button"
-        className={`exam-modal-overlay absolute inset-0 bg-[#0F172A]/35 ${isClosing ? 'opacity-0 duration-[140ms]' : 'opacity-100 duration-[180ms]'}`}
+        className="exam-modal-overlay absolute inset-0 bg-[#0F172A]/35 opacity-100 duration-[180ms]"
         onClick={onClose}
         aria-label="Đóng cửa sổ"
       />
 
-      <div className={`exam-modal-panel relative z-10 flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#D9E2DE] bg-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] ${isClosing ? 'translate-y-1 opacity-0 duration-[140ms]' : 'translate-y-0 opacity-100 duration-[180ms]'}`}>
+      <div className="exam-modal-panel relative z-10 flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#D9E2DE] bg-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] translate-y-0 opacity-100 duration-[180ms]">
         <header className="shrink-0 border-b border-[#D9E2DE] bg-[#F8FAF9] px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
