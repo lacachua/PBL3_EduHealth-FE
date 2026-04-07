@@ -5,10 +5,8 @@ import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackTo
 import DataTable from '../../../shared/components/admin/DataTable';
 import Pagination from '../../../shared/components/admin/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import ExaminationDetailDrawer from '../components/ExaminationDetailDrawer';
 import StudentPickerModal from '../components/StudentPickerModal';
 import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
-import { getExaminationDetail } from '../services/getExaminationDetail';
 import { getExaminations } from '../services/getExaminations';
 import '../styles/examinationUi.css';
 
@@ -78,12 +76,6 @@ const ExaminationLandingPage = () => {
   const [pickerInitialStudentId, setPickerInitialStudentId] = useState(null);
   const [pickerInitialStudentName, setPickerInitialStudentName] = useState('');
 
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detailError, setDetailError] = useState('');
-  const [detailData, setDetailData] = useState(null);
-  const [detailId, setDetailId] = useState('');
-
   const appliedFilterCount = useMemo(() => (
     Object.values(appliedFilters).filter((value) => String(value || '').trim()).length
   ), [appliedFilters]);
@@ -112,21 +104,6 @@ const ExaminationLandingPage = () => {
       setError(normalizeApiMessage(apiError));
     }
   }, [appliedFilters, page]);
-
-  const fetchDetail = useCallback(async (examinationId) => {
-    setDetailLoading(true);
-    setDetailError('');
-
-    try {
-      const response = await getExaminationDetail(examinationId);
-      setDetailData(response?.data || null);
-    } catch (apiError) {
-      setDetailData(null);
-      setDetailError(normalizeApiMessage(apiError));
-    } finally {
-      setDetailLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     fetchList(page, appliedFilters);
@@ -211,9 +188,7 @@ const ExaminationLandingPage = () => {
           <button
             type="button"
             onClick={() => {
-              setDetailOpen(true);
-              setDetailId(row.id);
-              fetchDetail(row.id);
+              navigate(`/nurse/examinations/${row.id}`);
             }}
             className="exam-btn-secondary nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg"
             aria-label={`Xem phiếu ${row.id}`}
@@ -223,7 +198,7 @@ const ExaminationLandingPage = () => {
         </div>
       ),
     },
-  ]), [fetchDetail]);
+  ]), [navigate]);
 
   return (
     <div className="exam-module exam-page-bg space-y-3.5 rounded-2xl p-1.5 md:p-2">
@@ -405,29 +380,6 @@ const ExaminationLandingPage = () => {
               source: 'examination-landing',
             },
           });
-        }}
-      />
-
-      <ExaminationDetailDrawer
-        open={detailOpen}
-        detail={detailData}
-        loading={detailLoading}
-        error={detailError}
-        onClose={() => {
-          setDetailOpen(false);
-          setDetailData(null);
-          setDetailError('');
-          setDetailId('');
-        }}
-        onRetry={() => {
-          if (detailId) {
-            fetchDetail(detailId);
-          }
-        }}
-        onOpenDetailPage={() => {
-          if (detailId) {
-            navigate(`/nurse/examinations/${detailId}`);
-          }
         }}
       />
     </div>

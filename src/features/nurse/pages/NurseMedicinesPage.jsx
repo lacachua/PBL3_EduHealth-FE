@@ -394,10 +394,6 @@ const NurseMedicinesPage = () => {
               error={listStatus === 'error' ? listError : ''}
               onRetry={() => fetchMedicinesList(page, appliedFilters)}
               onView={openDetailFromRow}
-              onEdit={openUpdateMedicine}
-              onStockIn={openStockInMedicine}
-              onDispose={openDisposeMedicine}
-              onToggleStatus={openStatusUpdate}
             />
 
             {(listStatus === 'success' || listStatus === 'empty') && medicinesData.totalPages > 1 ? (

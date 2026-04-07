@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { parseMedicinesApiError } from '../adapters/medicineErrorParser';
 import { mapMedicineAlertsResponse } from '../adapters/medicineResponseMapper';
-import { getMedicineAlertsApi } from '../services/medicinesApi';
+import { getMedicineAlerts } from '../services/getMedicineAlerts';
 
 const defaultAlerts = {
   alerts: [],
@@ -22,7 +22,7 @@ export const useMedicineAlerts = () => {
     setError('');
 
     try {
-      const response = await getMedicineAlertsApi({ type: 'ALL' });
+      const response = await getMedicineAlerts({ type: 'ALL' });
       setAlertsData(mapMedicineAlertsResponse(response));
     } catch (apiError) {
       const parsedError = parseMedicinesApiError(apiError);

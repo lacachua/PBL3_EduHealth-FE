@@ -738,14 +738,6 @@ const NurseStudentsPage = () => {
             <div className="flex flex-wrap gap-2 border-t border-[#E2E8F0] pt-3">
               <button
                 type="button"
-                onClick={() => navigateToExaminationByStudent(selectedRow)}
-                className="nurse-focus-ring nurse-btn-primary rounded-md px-3 py-1.5 text-sm font-semibold"
-              >
-                Tạo phiếu khám mới
-              </button>
-
-              <button
-                type="button"
                 onClick={() => {
                   navigateToHealthProfile(selectedRow._studentId, {
                     source: 'nurse-students',

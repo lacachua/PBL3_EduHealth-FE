@@ -4,6 +4,7 @@ const RUNTIME_CONFIG_SINGLETON = Object.freeze({
   enableMockAuth: Boolean(env.enableMockAuth),
   enableMockAdminDashboard: Boolean(env.enableMockAdminDashboard),
   enableMockMedicines: Boolean(env.enableMockMedicines),
+  enableMockExaminations: Boolean(env.enableMockExaminations),
   mockDelayMs: Object.freeze({
     default: 200,
     auth: 500,

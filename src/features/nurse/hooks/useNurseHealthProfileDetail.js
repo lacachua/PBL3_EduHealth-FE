@@ -4,6 +4,7 @@ import {
   normalizeApiMessage,
 } from '../../../shared/api/normalizeResponse';
 import { runtimeConfig } from '../../../shared/config/runtimeConfig';
+import { getExaminations } from '../../examinations/services/getExaminations';
 import { resolveNurseStudentRouteId } from '../adapters/nurseStudentIdentifierAdapter';
 import {
   buildNurseHealthProfileUpdatePayload,
@@ -17,7 +18,6 @@ import {
 } from '../mocks/nurseHealthProfileDetailMock';
 import {
   getNurseStudentDetailApi,
-  getNurseStudentExaminationsApi,
   getNurseStudentHealthHistoryApi,
   getNurseStudentHealthProfileApi,
   getNurseStudentsLookupApi,
@@ -142,7 +142,7 @@ export const useNurseHealthProfileDetail = ({
     let examinationEnvelope = getNurseHealthExaminationMockEnvelope(targetStudentId);
     if (profileStudentCode) {
       try {
-        examinationEnvelope = await getNurseStudentExaminationsApi({
+        examinationEnvelope = await getExaminations({
           studentId: profileStudentCode,
           page: 1,
           pageSize: 8,
