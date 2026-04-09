@@ -7,31 +7,25 @@ const labelClassName = 'mb-1 block text-xs font-semibold text-on-surface-variant
 
 const PROFILE_FIELDS = [
   {
-    key: 'studentCode',
-    label: 'Mã học sinh',
-    placeholder: 'Ví dụ: HS001',
-    type: 'text',
-  },
-  {
     key: 'fullName',
-    label: 'Họ tên',
+    label: 'Họ tên *',
     placeholder: 'Ví dụ: Trần Văn An',
     type: 'text',
   },
   {
     key: 'dateOfBirth',
-    label: 'Ngày sinh',
+    label: 'Ngày sinh *',
     type: 'date',
   },
   {
     key: 'gender',
-    label: 'Giới tính',
+    label: 'Giới tính *',
     type: 'select',
     options: STUDENT_CREATE_GENDER_OPTIONS,
   },
   {
     key: 'classId',
-    label: 'Lớp',
+    label: 'Lớp *',
     type: 'select',
     className: 'md:col-span-2',
     options: [{ value: '', label: 'Chọn lớp' }, ...STUDENT_CREATE_CLASS_OPTIONS],

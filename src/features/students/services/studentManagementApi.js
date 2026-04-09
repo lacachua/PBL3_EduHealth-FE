@@ -1,110 +1,29 @@
-import {
-  apiDeleteEnvelope,
-  apiGetEnvelope,
-  apiPatchEnvelope,
-  apiPostEnvelope,
-} from '../../../shared/api/apiClient';
-import { runtimeConfig, waitForMock } from '../../../shared/config/runtimeConfig';
-import {
-  getStudentHealthProfileMockEnvelope,
-  getStudentManagementDetailMockEnvelope,
-  getStudentManagementMockEnvelope,
-} from '../mocks/studentManagementMock';
-import { normalizeStudentListQuery } from '../adapters/studentManagementPayloadMapper';
-import { STUDENT_ENDPOINTS } from '../schemas/studentManagementSchema';
-
-const resolveMockEnabled = (options = {}) => {
-  if (typeof options.mockEnabled === 'boolean') {
-    return options.mockEnabled;
-  }
-
-  return runtimeConfig.enableMockAdminDashboard;
-};
+import { studentManagementRepository } from '../repositories/studentManagementRepository';
 
 export const getStudentManagementListApi = async (query = {}, options = {}) => {
-  if (resolveMockEnabled(options)) {
-    await waitForMock();
-    return getStudentManagementMockEnvelope(query);
-  }
-
-  const normalizedQuery = normalizeStudentListQuery(query);
-  return apiGetEnvelope(STUDENT_ENDPOINTS.list, { params: normalizedQuery });
+  return studentManagementRepository.getList(query, options);
 };
 
-export const createStudentManagementApi = async (payload) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return {
-      success: true,
-      message: 'Tạo học sinh thành công',
-      data: { student: payload },
-      errors: null,
-      meta: { source: 'mock' },
-    };
-  }
-
-  return apiPostEnvelope(STUDENT_ENDPOINTS.list, payload);
+export const createStudentManagementApi = async (payload, options = {}) => {
+  return studentManagementRepository.create(payload, options);
 };
 
-export const updateStudentManagementApi = async (studentId, payload) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return {
-      success: true,
-      message: 'Cập nhật học sinh thành công',
-      data: { studentId, ...payload },
-      errors: null,
-      meta: { source: 'mock' },
-    };
-  }
-
-  return apiPatchEnvelope(STUDENT_ENDPOINTS.detail(studentId), payload);
+export const updateStudentManagementApi = async (studentId, payload, options = {}) => {
+  return studentManagementRepository.update(studentId, payload, options);
 };
 
-export const getStudentManagementDetailApi = async (studentId) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return getStudentManagementDetailMockEnvelope(studentId);
-  }
-
-  return apiGetEnvelope(STUDENT_ENDPOINTS.detail(studentId));
+export const getStudentManagementDetailApi = async (studentId, options = {}) => {
+  return studentManagementRepository.getDetail(studentId, options);
 };
 
-export const getStudentHealthProfileApi = async (studentId) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return getStudentHealthProfileMockEnvelope(studentId);
-  }
-
-  return apiGetEnvelope(STUDENT_ENDPOINTS.detail(studentId));
+export const getStudentHealthProfileApi = async (studentId, options = {}) => {
+  return studentManagementRepository.getHealthProfile(studentId, options);
 };
 
-export const updateStudentHealthProfileApi = async (studentId, payload) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return {
-      success: true,
-      message: 'Cập nhật hồ sơ sức khỏe thành công',
-      data: { studentId, ...payload },
-      errors: null,
-      meta: { source: 'mock' },
-    };
-  }
-
-  return apiPatchEnvelope(STUDENT_ENDPOINTS.detail(studentId), payload);
+export const updateStudentHealthProfileApi = async (studentId, payload, options = {}) => {
+  return studentManagementRepository.updateHealthProfile(studentId, payload, options);
 };
 
-export const deleteStudentManagementApi = async (studentId) => {
-  if (resolveMockEnabled()) {
-    await waitForMock();
-    return {
-      success: true,
-      message: 'Xóa học sinh thành công',
-      data: { studentId },
-      errors: null,
-      meta: { source: 'mock' },
-    };
-  }
-
-  return apiDeleteEnvelope(STUDENT_ENDPOINTS.detail(studentId));
+export const deleteStudentManagementApi = async (studentId, options = {}) => {
+  return studentManagementRepository.remove(studentId, options);
 };

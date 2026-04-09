@@ -3,8 +3,6 @@ import {
   adaptStudentDetailResponse,
   adaptStudentHealthProfileResponse,
 } from '../../students/adapters/studentManagementAdapter';
-import { NURSE_HEALTH_CLASS_LABEL_MAP } from '../mocks/nurseHealthProfileDetailMock';
-import { getNurseHealthProfileSupplementaryMock } from '../mocks/nurseHealthProfileSupplementaryMock';
 
 const toNumber = (value) => {
   const parsed = Number(value);
@@ -44,10 +42,13 @@ const calculateAgeLabel = (value) => {
 };
 
 const normalizeClassName = (classId, className) => {
-  return NURSE_HEALTH_CLASS_LABEL_MAP[classId]
-    || NURSE_HEALTH_CLASS_LABEL_MAP[className]
-    || className
-    || '--';
+  const normalizedClassName = String(className || '').trim();
+  if (normalizedClassName) {
+    return normalizedClassName;
+  }
+
+  const normalizedClassId = String(classId || '').trim();
+  return normalizedClassId || '--';
 };
 
 const parseAllergyList = (profile, rawEnvelopeData) => {
@@ -267,7 +268,6 @@ export const buildNurseHealthProfileViewModel = ({
   healthHistoryEnvelope,
   vaccinationEnvelope,
   examinationEnvelope,
-  useSupplementaryMock = false,
 }) => {
   const detail = adaptStudentDetailResponse(detailEnvelope);
   const profile = adaptStudentHealthProfileResponse(profileEnvelope);
@@ -277,12 +277,6 @@ export const buildNurseHealthProfileViewModel = ({
 
   const normalizedDetail = normalizeApiEnvelope(detailEnvelope)?.data || {};
   const rawProfileEnvelope = normalizeApiEnvelope(profileEnvelope);
-  const supplementary = useSupplementaryMock
-    ? getNurseHealthProfileSupplementaryMock(studentId)
-    : {
-      vaccinations: [],
-      emergencyContacts: [],
-    };
   const allergyItems = parseAllergyList(profile, rawProfileEnvelope.data);
   const medicationHistory = deriveMedicationHistory(healthHistory.items);
   const growth = deriveBmiIndicators({
@@ -339,10 +333,6 @@ export const buildNurseHealthProfileViewModel = ({
     ]
     : [];
 
-  const vaccinations = vaccinationHistory.length
-    ? vaccinationHistory
-    : supplementary.vaccinations;
-
   return {
     header,
     profile,
@@ -352,7 +342,7 @@ export const buildNurseHealthProfileViewModel = ({
     healthHistory,
     examinationHistory,
     medicationHistory,
-    vaccinations,
+    vaccinations: vaccinationHistory,
     emergencyContacts,
   };
 };

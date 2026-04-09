@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
@@ -39,6 +40,8 @@ const defaultContext = {
   profile: null,
   history: [],
 };
+
+const NURSE_MEDICINES_OPTIONS = { moduleKey: DATA_MODULES.NURSE_MEDICINES };
 
 const parseMedicinesEnvelope = (envelope) => {
   const rows = Array.isArray(envelope?.data)
@@ -109,7 +112,7 @@ const CreateExaminationPage = () => {
         getStudentDetail(studentUserId),
         getStudentHealthProfile(studentUserId),
         getStudentHealthHistory(studentUserId, { page: 1, pageSize: 5 }),
-        getMedicines({ page: 1, pageSize: MEDICINE_PICKER_PAGE_SIZE, status: 'ACTIVE' }),
+        getMedicines({ page: 1, pageSize: MEDICINE_PICKER_PAGE_SIZE, status: 'ACTIVE' }, NURSE_MEDICINES_OPTIONS),
       ]);
 
       if (!isMounted) {

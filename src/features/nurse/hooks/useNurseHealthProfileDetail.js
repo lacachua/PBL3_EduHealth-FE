@@ -3,17 +3,11 @@ import {
   mapApiFieldErrors,
   normalizeApiMessage,
 } from '../../../shared/api/normalizeResponse';
-import { runtimeConfig } from '../../../shared/config/runtimeConfig';
 import { resolveNurseStudentRouteId } from '../adapters/nurseStudentIdentifierAdapter';
 import {
   buildNurseHealthProfileUpdatePayload,
   buildNurseHealthProfileViewModel,
 } from '../adapters/nurseHealthProfileAdapter';
-import {
-  getNurseHealthHistoryMockEnvelope,
-  getNurseHealthProfileMockEnvelope,
-  getNurseHealthStudentDetailMockEnvelope,
-} from '../mocks/nurseHealthProfileDetailMock';
 import {
   getNurseAllergyTypesApi,
   getNurseStudentDetailApi,
@@ -76,11 +70,6 @@ export const useNurseHealthProfileDetail = ({
   }, []);
 
   const fetchAllergyTypeOptions = useCallback(async () => {
-    if (runtimeConfig.enableMockHealthProfiles) {
-      setAllergyTypeOptions([]);
-      return;
-    }
-
     try {
       const envelope = await getNurseAllergyTypesApi();
       const source = Array.isArray(envelope?.data)
@@ -138,25 +127,6 @@ export const useNurseHealthProfileDetail = ({
     }
 
     setResolvedStudentId(targetStudentId);
-
-    if (runtimeConfig.enableMockHealthProfiles) {
-      const detailEnvelope = getNurseHealthStudentDetailMockEnvelope(targetStudentId);
-      const profileEnvelope = getNurseHealthProfileMockEnvelope(targetStudentId);
-      const historyEnvelope = getNurseHealthHistoryMockEnvelope(targetStudentId, { page: 1, pageSize: 10 });
-
-      const viewModel = buildNurseHealthProfileViewModel({
-        studentId: targetStudentId,
-        detailEnvelope,
-        profileEnvelope,
-        healthHistoryEnvelope: historyEnvelope,
-        useSupplementaryMock: true,
-      });
-
-      setModel(viewModel);
-      setSyncMessage('Đang hiển thị dữ liệu mẫu để tiếp tục hoàn thiện giao diện nghiệp vụ y tế học đường.');
-      setStatus('success');
-      return;
-    }
 
     const [detailResult, profileResult, historyResult, vaccinationResult] = await Promise.allSettled([
       getNurseStudentDetailApi(targetStudentId),
@@ -233,12 +203,6 @@ export const useNurseHealthProfileDetail = ({
   const updateHealthProfile = useCallback(async (values) => {
     if (!resolvedStudentId) {
       return false;
-    }
-
-    if (runtimeConfig.enableMockHealthProfiles) {
-      showFeedback('Cập nhật thành công trên chế độ dữ liệu mẫu.', 'success');
-      await fetchProfile(resolvedStudentId);
-      return true;
     }
 
     setHealthSaving(true);

@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
+import { ACCOUNT_BASE_CLASS, ACCOUNT_STATUS_BADGE_CLASS_MAP } from '../constants/accountUiTokens';
 import RoleBadge from './RoleBadge';
 import AccountPill from './AccountPill';
 
-const statusClassMap = {
-  ACTIVE: 'border-[#EECFCC] bg-[#FBEDEC] text-[#B85C57]',
-  LOCKED: 'border-[#CDE4D8] bg-[#EAF6EF] text-[#2E7D57]',
-};
-
-const UserStatusConfirmModal = ({ open, user, submitting, onCancel, onConfirm }) => {
+const UserStatusConfirmModalContent = ({ user, submitting, onCancel, onConfirm }) => {
   const [reason, setReason] = useState('');
 
   useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         onCancel?.();
@@ -24,11 +15,7 @@ const UserStatusConfirmModal = ({ open, user, submitting, onCancel, onConfirm })
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [open, onCancel]);
-
-  if (!open || !user) {
-    return null;
-  }
+  }, [onCancel]);
 
   const isLockAction = user.status === 'ACTIVE';
   const title = isLockAction ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
@@ -71,7 +58,7 @@ const UserStatusConfirmModal = ({ open, user, submitting, onCancel, onConfirm })
             <p className={ACCOUNT_BASE_CLASS.mutedText}>Vai trò</p>
             <RoleBadge role={user.role} label={user.roleLabel} />
             <p className={ACCOUNT_BASE_CLASS.mutedText}>Trạng thái hiện tại</p>
-            <AccountPill className={statusClassMap[user.status] || 'border-[#D8E3DE] bg-[#F7FAF8] text-[#42534D]'}>
+            <AccountPill className={ACCOUNT_STATUS_BADGE_CLASS_MAP[user.status] || 'border-[#D8E3DE] bg-[#F7FAF8] text-[#42534D]'}>
               {user.statusLabel}
             </AccountPill>
           </div>
@@ -110,6 +97,14 @@ const UserStatusConfirmModal = ({ open, user, submitting, onCancel, onConfirm })
       </div>
     </div>
   );
+};
+
+const UserStatusConfirmModal = ({ open, user, ...props }) => {
+  if (!open || !user) {
+    return null;
+  }
+
+  return <UserStatusConfirmModalContent key={user.id || user.username || user.email} user={user} {...props} />;
 };
 
 export default UserStatusConfirmModal;

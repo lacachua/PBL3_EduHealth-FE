@@ -30,6 +30,7 @@ const UserManagementPage = () => {
     detailLoading,
     detailError,
     detailSyncMessage,
+    createFieldErrors,
     updateFieldErrors,
     fetchList,
     fetchUserDetail,
@@ -37,6 +38,7 @@ const UserManagementPage = () => {
     onResetFilters,
     onPageChange,
     clearFeedback,
+    setCreateFieldErrors,
     setSelectedUser,
     createUser,
     updateUser,
@@ -72,6 +74,7 @@ const UserManagementPage = () => {
   } = useUserManagementPageState({
     navigate,
     setSelectedUser,
+    setCreateFieldErrors,
     fetchUserDetail,
     createUser,
     updateUser,
@@ -108,7 +111,7 @@ const UserManagementPage = () => {
         sectionClassName={`overflow-hidden rounded-xl shadow-[0_1px_4px_rgba(15,23,42,0.04)] ${ACCOUNT_BASE_CLASS.section}`}
         panelClassName={`border-b px-4 py-3 md:px-5 ${ACCOUNT_BASE_CLASS.subtlePanel} ${ACCOUNT_BASE_CLASS.mutedText}`}
         borderClassName={`border-t px-4 py-3 md:px-5 ${ACCOUNT_BASE_CLASS.border}`}
-        filters={<UserFilters key={JSON.stringify(filters)} initialValue={filters} onApply={onFiltersChange} onReset={onResetFilters} />}
+        filters={<UserFilters initialValue={filters} onApply={onFiltersChange} onReset={onResetFilters} />}
         summary={`Hiển thị ${tableData.rows.length} / ${tableData.totalItems} tài khoản`}
         status={status}
         error={error}
@@ -133,9 +136,9 @@ const UserManagementPage = () => {
       />
 
       <CreateNurseAccountModal
-        key={`create-nurse-${createNurseOpen ? 'open' : 'closed'}`}
         open={createNurseOpen}
         submitting={submitting}
+        apiErrors={createFieldErrors}
         onClose={closeCreateNurseModal}
         onSubmit={handleSubmitCreate}
       />
@@ -154,7 +157,6 @@ const UserManagementPage = () => {
       />
 
       <UserEditDrawer
-        key={`${activeUser?.id || 'no-user'}-${editOpen ? 'open' : 'closed'}`}
         open={editOpen}
         user={activeUser}
         submitting={submitting}
@@ -166,7 +168,6 @@ const UserManagementPage = () => {
       />
 
       <UserStatusConfirmModal
-        key={`status-${statusConfirmUser?.id || 'none'}-${statusConfirmUser?.status || 'na'}`}
         open={Boolean(statusConfirmUser)}
         user={statusConfirmUser}
         submitting={submitting}
@@ -175,7 +176,6 @@ const UserManagementPage = () => {
       />
 
       <ResetPasswordModal
-        key={`reset-${resetPasswordUser?.id || 'none'}-${resetPasswordUser?.status || 'na'}`}
         open={Boolean(resetPasswordUser)}
         user={resetPasswordUser}
         submitting={submitting}

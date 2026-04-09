@@ -323,14 +323,129 @@ const studentRows = [
 
 const statusMap = {
   ACTIVE: 'Hoạt động',
-  PENDING_APPROVAL: 'Chờ duyệt hồ sơ',
-  TEMP_SUSPENDED: 'Tạm nghỉ',
-  TRANSFERRED: 'Đã chuyển trường',
-  LOCKED: 'Đã khóa',
+  INACTIVE: 'Ngưng hoạt động',
+};
+
+const normalizeStatus = (value) => (String(value || '').toUpperCase() === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE');
+
+const toStudentNumericId = (value) => {
+  const direct = Number(value);
+  if (Number.isInteger(direct) && direct > 0) {
+    return direct;
+  }
+
+  const normalized = String(value || '').trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const digits = normalized.replace(/\D/g, '');
+  if (!digits) {
+    return null;
+  }
+
+  const parsed = Number(digits);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const toCanonicalStudentId = (row) => {
+  const numericId = toStudentNumericId(row?.id ?? row?.studentId);
+  if (!numericId) {
+    return String(row?.studentId || '').trim() || 'STD001';
+  }
+
+  const compact = String(numericId).slice(-3).padStart(3, '0');
+  return `STD${compact}`;
+};
+
+const toCanonicalStudentCode = (row) => {
+  const numericId = toStudentNumericId(row?.id ?? row?.studentId);
+  if (!numericId) {
+    return String(row?.studentCode || '').trim() || 'HS001';
+  }
+
+  const compact = String(numericId).slice(-3).padStart(3, '0');
+  return `HS${compact}`;
+};
+
+const toAllergyItems = (allergiesText = '') => {
+  const source = String(allergiesText || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return source.map((allergyTypeName, index) => ({
+    id: `ALG-${index + 1}`,
+    allergyTypeId: `ALG${String(index + 1).padStart(3, '0')}`,
+    allergyTypeName,
+    note: '',
+  }));
+};
+
+const resolveStudentRow = (studentId) => {
+  const normalized = String(studentId || '').trim();
+  const numeric = toStudentNumericId(normalized);
+
+  return studentRows.find((row) => {
+    const rowNumeric = toStudentNumericId(row.id ?? row.studentId);
+    return row.id === studentId
+      || row.studentId === studentId
+      || row.studentCode === studentId
+      || toCanonicalStudentId(row) === normalized
+      || toCanonicalStudentCode(row) === normalized
+      || (numeric && rowNumeric === numeric);
+  }) || null;
+};
+
+const toHistoryItems = (row) => {
+  const numericId = toStudentNumericId(row.id ?? row.studentId) || 1;
+  const primaryDate = row.lastExaminationDate || String(row.updatedAt || '').slice(0, 10) || '2026-03-20';
+  const allergyText = String(row.allergies || '').trim();
+  const diseaseName = allergyText ? 'Theo dõi dị ứng' : 'Khám sức khỏe định kỳ';
+  const diagnosis = row.medicalHistory
+    ? `Theo dõi: ${row.medicalHistory}`
+    : (row.generalHealthNote || 'Thể trạng ổn định');
+
+  return [
+    {
+      visitId: `VIS-${numericId}-01`,
+      visitDate: `${primaryDate}T08:30:00Z`,
+      diseaseType: {
+        id: 'DIS001',
+        name: diseaseName,
+      },
+      symptoms: row.eyeStatus || 'Khám tổng quát theo định kỳ',
+      diagnosis,
+      treatment: 'Tiếp tục theo dõi và phối hợp phụ huynh theo dõi tại nhà.',
+      note: row.generalHealthNote || '',
+      prescriptions: [],
+      nurse: {
+        userId: 'USR002',
+        fullName: row.updatedBy || 'Y tá phụ trách',
+      },
+    },
+    {
+      visitId: `VIS-${numericId}-02`,
+      visitDate: `${String(row.createdAt || '2026-02-10').slice(0, 10)}T09:00:00Z`,
+      diseaseType: {
+        id: 'DIS008',
+        name: 'Tư vấn sức khỏe học đường',
+      },
+      symptoms: 'Theo dõi chỉ số chiều cao, cân nặng',
+      diagnosis: 'Các chỉ số cơ bản trong ngưỡng theo dõi',
+      treatment: 'Khuyến nghị duy trì vận động và dinh dưỡng cân bằng.',
+      note: '',
+      prescriptions: [],
+      nurse: {
+        userId: 'USR003',
+        fullName: 'Y tá học đường',
+      },
+    },
+  ];
 };
 
 const applyFilters = (rows, query) => {
-  const keyword = (query.keyword || '').trim().toLowerCase();
+  const keyword = (query.keyword || query.search || '').trim().toLowerCase();
 
   return rows.filter((row) => {
     const byKeyword = !keyword
@@ -341,9 +456,12 @@ const applyFilters = (rows, query) => {
 
     const byClass = !query.classId || query.classId === 'all' || row.classId === query.classId;
     const byGender = !query.gender || query.gender === 'all' || row.gender === query.gender;
-    const byStatus = !query.status || query.status === 'all' || row.status === query.status;
+    const normalizedStatus = normalizeStatus(row.status);
+    const byStatus = !query.status || query.status === 'all' || normalizedStatus === query.status;
+    const byActive = typeof query.isActive !== 'boolean'
+      || (query.isActive ? normalizedStatus === 'ACTIVE' : normalizedStatus === 'INACTIVE');
 
-    return byKeyword && byClass && byGender && byStatus;
+    return byKeyword && byClass && byGender && byStatus && byActive;
   });
 };
 
@@ -356,12 +474,27 @@ export const getStudentManagementMockEnvelope = (query = {}) => {
 
   return {
     success: true,
-    message: 'Student management data loaded',
+    message: 'Tải danh sách học sinh thành công',
     data: {
-      students: items.map((item) => ({
-        ...item,
-        statusLabel: statusMap[item.status] || 'Không rõ',
-      })),
+      students: items.map((item) => {
+        const status = normalizeStatus(item.status);
+
+        return {
+          ...item,
+          id: toStudentNumericId(item.id ?? item.studentId),
+          userId: toStudentNumericId(item.id ?? item.studentId),
+          studentId: toCanonicalStudentId(item),
+          studentCode: toCanonicalStudentCode(item),
+          phone: item.phoneNumber,
+          guardian: item.parentName,
+          status,
+          isActive: status === 'ACTIVE',
+          currentHeight: item.heightCm ?? null,
+          currentWeight: item.weightKg ?? null,
+          medicalHistoryNotes: item.medicalHistory || '',
+          statusLabel: statusMap[status] || 'Không rõ',
+        };
+      }),
     },
     errors: null,
     meta: {
@@ -375,7 +508,7 @@ export const getStudentManagementMockEnvelope = (query = {}) => {
 };
 
 export const getStudentManagementDetailMockEnvelope = (studentId) => {
-  const item = studentRows.find((row) => row.id === studentId || row.studentId === studentId || row.studentCode === studentId);
+  const item = resolveStudentRow(studentId);
 
   if (!item) {
     return {
@@ -387,13 +520,16 @@ export const getStudentManagementDetailMockEnvelope = (studentId) => {
     };
   }
 
+  const status = normalizeStatus(item.status);
+
   return {
     success: true,
     message: 'Lấy chi tiết học sinh thành công',
     data: {
-      id: item.id,
-      studentId: item.studentId,
-      studentCode: item.studentCode,
+      id: toStudentNumericId(item.id ?? item.studentId),
+      userId: toStudentNumericId(item.id ?? item.studentId),
+      studentId: toCanonicalStudentId(item),
+      studentCode: toCanonicalStudentCode(item),
       fullName: item.fullName,
       dateOfBirth: item.dateOfBirth,
       gender: item.gender,
@@ -402,13 +538,19 @@ export const getStudentManagementDetailMockEnvelope = (studentId) => {
       username: item.username,
       email: item.email,
       phoneNumber: item.phoneNumber,
+      phone: item.phoneNumber,
       identifier: item.identifier,
       address: item.address,
+      guardian: item.parentName,
       parentName: item.parentName,
       parentPhoneNumber: item.parentPhoneNumber,
       emergencyContactNote: item.emergencyContactNote,
-      status: item.status,
-      statusLabel: statusMap[item.status] || 'Không rõ',
+      status,
+      statusLabel: statusMap[status] || 'Không rõ',
+      isActive: status === 'ACTIVE',
+      currentHeight: item.heightCm ?? null,
+      currentWeight: item.weightKg ?? null,
+      medicalHistoryNotes: item.medicalHistory || '',
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     },
@@ -418,7 +560,7 @@ export const getStudentManagementDetailMockEnvelope = (studentId) => {
 };
 
 export const getStudentHealthProfileMockEnvelope = (studentId) => {
-  const item = studentRows.find((row) => row.id === studentId || row.studentId === studentId || row.studentCode === studentId);
+  const item = resolveStudentRow(studentId);
 
   if (!item) {
     return {
@@ -430,24 +572,80 @@ export const getStudentHealthProfileMockEnvelope = (studentId) => {
     };
   }
 
+  const allergies = toAllergyItems(item.allergies || '');
+
   return {
     success: true,
     message: 'Lấy hồ sơ sức khỏe thành công',
     data: {
+      studentId: toCanonicalStudentId(item),
+      studentCode: toCanonicalStudentCode(item),
+      fullName: item.fullName,
+      classId: item.classId,
+      className: item.className,
+      medicalHistoryNotes: item.medicalHistory || '',
+      healthProfile: {
+        heightCm: item.heightCm,
+        weightKg: item.weightKg,
+        bloodType: item.bloodType || '',
+        eyeStatus: item.eyeStatus || '',
+        chronicNote: item.chronicNote || '',
+        generalHealthNote: item.generalHealthNote || '',
+        allergies,
+        updatedBy: {
+          userId: 'USR002',
+          fullName: item.updatedBy || 'Y tá học đường',
+        },
+        updatedAt: item.healthProfileUpdatedAt || item.updatedAt,
+      },
       heightCm: item.heightCm,
       weightKg: item.weightKg,
       bloodType: item.bloodType || '',
       eyeStatus: item.eyeStatus || '',
       chronicNote: item.chronicNote || '',
       generalHealthNote: item.generalHealthNote || '',
-      allergies: item.allergies || '',
+      allergies: allergies.map((entry) => entry.allergyTypeName).join(', '),
       medicalHistory: item.medicalHistory || '',
       lastExaminationDate: item.lastExaminationDate || '',
-      updatedBy: item.updatedBy || '',
+      updatedBy: item.updatedBy || 'Y tá học đường',
       healthProfileUpdatedAt: item.healthProfileUpdatedAt || item.updatedAt,
       updatedAt: item.updatedAt,
     },
     errors: null,
     meta: { source: 'mock' },
+  };
+};
+
+export const getStudentHealthHistoryMockEnvelope = (studentId, query = {}) => {
+  const item = resolveStudentRow(studentId);
+
+  if (!item) {
+    return {
+      success: false,
+      message: 'Không tìm thấy lịch sử khám sức khỏe',
+      data: null,
+      errors: [{ field: 'studentId', message: 'Không tìm thấy lịch sử khám sức khỏe' }],
+      meta: { source: 'mock' },
+    };
+  }
+
+  const page = Number(query.page || 1);
+  const pageSize = Number(query.pageSize || 10);
+  const rows = toHistoryItems(item);
+  const start = (page - 1) * pageSize;
+  const items = rows.slice(start, start + pageSize);
+
+  return {
+    success: true,
+    message: 'Lấy lịch sử khám sức khỏe thành công',
+    data: items,
+    errors: null,
+    meta: {
+      page,
+      pageSize,
+      totalItems: rows.length,
+      totalPages: Math.max(1, Math.ceil(rows.length / pageSize)),
+      source: 'mock',
+    },
   };
 };

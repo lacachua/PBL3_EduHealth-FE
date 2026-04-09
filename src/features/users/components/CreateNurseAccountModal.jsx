@@ -12,20 +12,18 @@ const initialForm = {
   role: USER_ROLES.NURSE,
 };
 
-const CreateNurseAccountModal = ({
-  open,
+const CreateNurseAccountModalContent = ({
   submitting,
+  apiErrors = {},
   onClose,
   onSubmit,
 }) => {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
+  const mergedErrors = useMemo(() => ({ ...apiErrors, ...errors }), [apiErrors, errors]);
 
+  useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         onClose?.();
@@ -33,16 +31,12 @@ const CreateNurseAccountModal = ({
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [open, onClose]);
+  }, [onClose]);
 
   const isFormValid = useMemo(() => {
     const nextErrors = validateUserForm({ values: form, isEdit: false });
     return Object.keys(nextErrors).length === 0;
   }, [form]);
-
-  if (!open) {
-    return null;
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -66,45 +60,46 @@ const CreateNurseAccountModal = ({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5 md:py-4">
+          <p className="mb-3 text-xs text-on-surface-muted">Các trường có dấu * là bắt buộc theo contract backend.</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <EditableField
-              label="Tên đăng nhập"
+              label="Tên đăng nhập *"
               value={form.username}
               onChange={(value) => setForm((prev) => ({ ...prev, username: value }))}
               placeholder="Ví dụ: nurse01"
-              error={errors.username}
+              error={mergedErrors.username}
             />
             <EditableField
-              label="Mật khẩu"
+              label="Mật khẩu *"
               type="password"
               value={form.password}
               onChange={(value) => setForm((prev) => ({ ...prev, password: value }))}
               placeholder="Tối thiểu 6 ký tự"
-              error={errors.password}
+              error={mergedErrors.password}
             />
             <EditableField
-              label="Họ tên"
+              label="Họ tên *"
               value={form.fullName}
               onChange={(value) => setForm((prev) => ({ ...prev, fullName: value }))}
               placeholder="Ví dụ: Nguyễn Thị Lan"
-              error={errors.fullName}
+              error={mergedErrors.fullName}
             />
             <EditableField
-              label="Email"
+              label="Email *"
               type="email"
               value={form.email}
               onChange={(value) => setForm((prev) => ({ ...prev, email: value }))}
               placeholder="Ví dụ: lan@yte.edu.vn"
-              error={errors.email}
+              error={mergedErrors.email}
             />
             <EditableField
-              label="Số điện thoại"
+              label="Số điện thoại (không bắt buộc)"
               value={form.phoneNumber}
               onChange={(value) => setForm((prev) => ({ ...prev, phoneNumber: value }))}
               placeholder="Ví dụ: 0905123456"
-              error={errors.phoneNumber}
+              error={mergedErrors.phoneNumber}
             />
-            <ReadonlyField label="Vai trò" value="Nhân viên y tế" showReadonlyBadge={false} />
+            <ReadonlyField label="Vai trò (cố định)" value="Nhân viên y tế (NURSE)" showReadonlyBadge={false} />
           </div>
         </div>
 
@@ -138,6 +133,14 @@ const CreateNurseAccountModal = ({
       </div>
     </div>
   );
+};
+
+const CreateNurseAccountModal = ({ open, ...props }) => {
+  if (!open) {
+    return null;
+  }
+
+  return <CreateNurseAccountModalContent {...props} />;
 };
 
 export default CreateNurseAccountModal;

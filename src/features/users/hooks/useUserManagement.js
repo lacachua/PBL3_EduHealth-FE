@@ -37,6 +37,7 @@ export const useUsersManagement = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [createFieldErrors, setCreateFieldErrors] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
@@ -71,8 +72,8 @@ export const useUsersManagement = () => {
         page: overrides.page ?? page,
         pageSize: USER_PAGE_SIZE,
         keyword: overrides.keyword ?? filters.keyword,
-        role: overrides.role ?? filters.role,
-        status: overrides.status ?? filters.status,
+        role: (overrides.role ?? filters.role) === 'all' ? undefined : (overrides.role ?? filters.role),
+        status: (overrides.status ?? filters.status) === 'all' ? undefined : (overrides.status ?? filters.status),
       };
 
       const envelope = await getUsers(query);
@@ -109,6 +110,7 @@ export const useUsersManagement = () => {
 
   const submitCreateUser = async (payload) => {
     const errors = validateUserForm({ values: payload, isEdit: false });
+    setCreateFieldErrors(errors);
     if (Object.keys(errors).length) {
       const message = Object.values(errors)[0];
       showFeedback(message, 'error');
@@ -116,6 +118,7 @@ export const useUsersManagement = () => {
     }
 
     setSubmitting(true);
+    setCreateFieldErrors({});
 
     try {
       const submitPayload = buildCreateUserPayload(payload);
@@ -124,6 +127,10 @@ export const useUsersManagement = () => {
       await fetchList({ page: 1 });
       setPage(1);
     } catch (err) {
+      const nextFieldErrors = mapApiFieldErrors(err);
+      if (Object.keys(nextFieldErrors).length) {
+        setCreateFieldErrors(nextFieldErrors);
+      }
       showFeedback(normalizeApiMessage(err), 'error');
       throw err;
     } finally {
@@ -255,6 +262,7 @@ export const useUsersManagement = () => {
     detailLoading,
     detailError,
     detailSyncMessage,
+    createFieldErrors,
     updateFieldErrors,
     fetchList,
     fetchUserDetail,
@@ -262,8 +270,8 @@ export const useUsersManagement = () => {
     onResetFilters,
     onPageChange,
     clearFeedback,
-    setUpdateFieldErrors,
     setSelectedUser,
+    setCreateFieldErrors,
     createUser: submitCreateUser,
     updateUser: submitUpdateUser,
     toggleStatus: submitToggleUserStatus,

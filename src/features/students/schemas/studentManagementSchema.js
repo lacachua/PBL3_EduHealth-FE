@@ -1,20 +1,11 @@
 import {
   STUDENT_CREATE_CLASS_OPTIONS,
-  STUDENT_CREATE_GENDER_OPTIONS,
 } from '../constants/studentCreateOptions';
 
 export const STUDENT_STATUS_OPTIONS = [
   { label: 'Tất cả trạng thái', value: 'all' },
   { label: 'Hoạt động', value: 'ACTIVE' },
-  { label: 'Chờ duyệt hồ sơ', value: 'PENDING_APPROVAL' },
-  { label: 'Tạm nghỉ', value: 'TEMP_SUSPENDED' },
-  { label: 'Đã chuyển trường', value: 'TRANSFERRED' },
-  { label: 'Đã khóa', value: 'LOCKED' },
-];
-
-export const STUDENT_GENDER_FILTER_OPTIONS = [
-  { label: 'Tất cả giới tính', value: 'all' },
-  ...STUDENT_CREATE_GENDER_OPTIONS,
+  { label: 'Ngưng hoạt động', value: 'INACTIVE' },
 ];
 
 export const STUDENT_CLASS_FILTER_OPTIONS = [
@@ -25,7 +16,6 @@ export const STUDENT_CLASS_FILTER_OPTIONS = [
 export const STUDENT_FILTER_DEFAULTS = {
   keyword: '',
   classId: 'all',
-  gender: 'all',
   status: 'all',
 };
 
@@ -34,6 +24,7 @@ export const STUDENT_PAGE_SIZE = 10;
 const STUDENT_ENDPOINTS_SINGLETON = Object.freeze({
   list: '/api/v1/students',
   detail: (studentId) => `/api/v1/students/${studentId}`,
+  healthProfile: (studentId) => `/api/v1/students/${studentId}/health-profile`,
 });
 
 export const STUDENT_ENDPOINTS = STUDENT_ENDPOINTS_SINGLETON;

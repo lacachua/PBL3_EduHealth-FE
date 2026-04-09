@@ -1,12 +1,11 @@
 import { apiPostEnvelope } from '../../../shared/api/apiClient';
-import { runtimeConfig, waitForMock } from '../../../shared/config/runtimeConfig';
+import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
+import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { createExaminationMockEnvelope } from '../mocks/examinationsMock';
 import { EXAMINATION_ENDPOINTS } from '../schemas/examinationsSchema';
 
-const isMockEnabled = runtimeConfig.enableMockExaminations;
-
 export const createExamination = async (payload) => {
-  if (isMockEnabled) {
+  if (resolveModuleDataSource(DATA_MODULES.NURSE_EXAMINATIONS) === 'mock') {
     await waitForMock('adminDashboard');
     return createExaminationMockEnvelope(payload);
   }

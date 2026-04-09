@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import EmptyState from '../../../shared/components/admin/EmptyState';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import MockScopeNotice from '../../../shared/components/admin/MockScopeNotice';
 import AdminReportDetailDrawer from '../components/AdminReportDetailDrawer';
 import AdminReportFilters from '../components/AdminReportFilters';
 import AdminReportHeader from '../components/AdminReportHeader';
@@ -11,7 +12,7 @@ import AdminReportSummaryCards from '../components/AdminReportSummaryCards';
 import AdminReportDetailTable from '../components/AdminReportDetailTable';
 import ExportActions from '../components/ExportActions';
 import { useAdminReportsDashboard } from '../hooks/useAdminReportsDashboard';
-import { adminReportFilterOptions } from '../mocks/adminReportsMock';
+import { adminReportFilterOptions } from '../constants/adminReportFilterOptions';
 import '../components/adminReports.css';
 
 const createInitialFilters = () => ({
@@ -99,6 +100,11 @@ const ReportsPage = () => {
         onRefresh={handleRefreshData}
       />
 
+      <MockScopeNotice
+        moduleLabel="Reports"
+        message="Reports hiện đang ở chế độ demo (mock-only), thuộc phạm vi deferred và chờ backend chính thức. Các thao tác ghi/gửi đã được tạm khóa để tránh hiểu nhầm là đang submit BE thật."
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="text-xs font-semibold uppercase tracking-wider text-on-surface-muted">
           Chế độ báo cáo quản trị
@@ -155,6 +161,7 @@ const ReportsPage = () => {
         onSaveDirective={handleSaveDirective}
         onSendNotification={handleSendNotification}
         saving={savingDirective}
+        writeActionsDisabled
       />
     </div>
   );

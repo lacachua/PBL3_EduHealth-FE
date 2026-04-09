@@ -15,7 +15,7 @@ const getUserRoleLabel = (user) => {
   const role = String(user?.role || '').toUpperCase();
   if (role === 'ADMIN') return 'Quản trị viên';
   if (role === 'NURSE') return 'Nhân viên y tế';
-  if (role === 'PARENT') return 'Phụ huynh';
+  if (role === 'STUDENT' || role === 'PARENT') return 'Học sinh';
   return 'Quản trị viên';
 };
 

@@ -6,24 +6,19 @@ const labelClassName = 'mb-1 block text-xs font-semibold text-on-surface-variant
 
 const ACCOUNT_FIELDS = [
   {
-    key: 'username',
-    label: 'Tên đăng nhập',
-    placeholder: 'Ví dụ: HS001',
-  },
-  {
     key: 'password',
-    label: 'Mật khẩu khởi tạo',
+    label: 'Mật khẩu khởi tạo *',
     placeholder: 'Tối thiểu 6 ký tự',
     type: 'password',
   },
   {
     key: 'email',
-    label: 'Email',
+    label: 'Email *',
     placeholder: 'Ví dụ: hs001@school.local',
   },
   {
     key: 'phoneNumber',
-    label: 'Số điện thoại',
+    label: 'Số điện thoại *',
     placeholder: 'Ví dụ: 0867347321',
   },
 ];

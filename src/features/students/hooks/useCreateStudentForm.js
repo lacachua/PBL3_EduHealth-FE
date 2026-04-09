@@ -30,10 +30,6 @@ const isDateBeforeToday = (value) => {
 const buildFieldErrors = (values) => {
   const errors = {};
 
-  if (!values.profile.studentCode.trim()) {
-    errors['profile.studentCode'] = 'Vui lòng nhập mã học sinh.';
-  }
-
   if (!values.profile.fullName.trim()) {
     errors['profile.fullName'] = 'Vui lòng nhập họ tên.';
   }
@@ -74,17 +70,48 @@ const buildFieldErrors = (values) => {
     errors['health.heightCm'] = 'Chiều cao phải lớn hơn 0.';
   }
 
+  if (values.health.heightCm === '') {
+    errors['health.heightCm'] = 'Vui lòng nhập chiều cao ban đầu.';
+  }
+
   if (values.health.weightKg !== '' && Number(values.health.weightKg) <= 0) {
     errors['health.weightKg'] = 'Cân nặng phải lớn hơn 0.';
+  }
+
+  if (values.health.weightKg === '') {
+    errors['health.weightKg'] = 'Vui lòng nhập cân nặng ban đầu.';
+  }
+
+  if (!values.health.guardian.trim()) {
+    errors['health.guardian'] = 'Vui lòng nhập người giám hộ.';
+  }
+
+  if (!values.health.medicalHistoryNotes.trim()) {
+    errors['health.medicalHistoryNotes'] = 'Vui lòng nhập ghi chú tiền sử sức khỏe ban đầu.';
   }
 
   return errors;
 };
 
 const mapBackendFieldErrors = (errors = []) => {
+  const fieldMap = {
+    classId: 'profile.classId',
+    fullName: 'profile.fullName',
+    dateOfBirth: 'profile.dateOfBirth',
+    gender: 'profile.gender',
+    email: 'account.email',
+    phone: 'account.phoneNumber',
+    password: 'account.password',
+    currentHeight: 'health.heightCm',
+    currentWeight: 'health.weightKg',
+    guardian: 'health.guardian',
+    medicalHistoryNotes: 'health.medicalHistoryNotes',
+  };
+
   return errors.reduce((acc, item) => {
     if (item?.field && item?.message) {
-      acc[item.field] = item.message;
+      const fieldKey = fieldMap[item.field] || item.field;
+      acc[fieldKey] = item.message;
     }
     return acc;
   }, {});
@@ -94,13 +121,10 @@ const buildPayload = (values) => ({
   classId: Number(values.profile.classId),
   fullName: values.profile.fullName.trim(),
   dateOfBirth: values.profile.dateOfBirth,
-  currentHeight: values.health.heightCm === '' ? 0 : Number(values.health.heightCm),
-  currentWeight: values.health.weightKg === '' ? 0 : Number(values.health.weightKg),
-  medicalHistoryNotes: [
-    values.health.eyeStatus?.trim() ? `Tình trạng mắt: ${values.health.eyeStatus.trim()}` : null,
-    values.health.chronicNote?.trim() ? `Ghi chú bệnh mãn tính: ${values.health.chronicNote.trim()}` : null,
-    values.health.allergies?.trim() ? `Dị ứng: ${values.health.allergies.trim()}` : null,
-  ].filter(Boolean).join('\n') || null,
+  currentHeight: Number(values.health.heightCm),
+  currentWeight: Number(values.health.weightKg),
+  medicalHistoryNotes: values.health.medicalHistoryNotes.trim(),
+  guardian: values.health.guardian.trim(),
   phone: values.account.phoneNumber.trim(),
   email: values.account.email.trim(),
   gender: values.profile.gender,

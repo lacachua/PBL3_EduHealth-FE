@@ -8,6 +8,7 @@ import EmptyState from '../../../shared/components/admin/EmptyState';
 import Pagination from '../../../shared/components/admin/Pagination';
 import RightDrawer from '../../../shared/components/admin/RightDrawer';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
   resolveNurseStudentRouteId,
   resolveNurseStudentRouteIdFromRow,
@@ -153,7 +154,7 @@ const NurseStudentsPage = () => {
     tableData,
     status,
     error,
-  } = useStudentManagement({ mockEnabledOverride: false });
+  } = useStudentManagement({ moduleKey: DATA_MODULES.NURSE_STUDENTS });
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);

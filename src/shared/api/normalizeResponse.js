@@ -66,6 +66,16 @@ export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu
   const status = error?.response?.status;
   const envelope = normalizeApiEnvelope(error?.response);
   const firstErrorMessage = Array.isArray(envelope.errors) ? envelope.errors[0]?.message : null;
+  const problemDetails = error?.response?.data;
+
+  const firstProblemError = (() => {
+    const entries = Object.entries(problemDetails?.errors || {});
+    if (!entries.length) {
+      return null;
+    }
+    const [, messages] = entries[0];
+    return Array.isArray(messages) ? messages[0] : null;
+  })();
 
   if (!error?.response) {
     return fallback;
@@ -74,6 +84,9 @@ export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu
   return (
     envelope.message ||
     firstErrorMessage ||
+    problemDetails?.title ||
+    firstProblemError ||
+    problemDetails?.detail ||
     error?.response?.data?.message ||
     HTTP_ERROR_MESSAGES[status] ||
     error?.message ||
@@ -98,6 +111,28 @@ export const mapApiFieldErrors = (error) => {
       mapped[field] = message;
     }
   });
+
+  if (Object.keys(mapped).length) {
+    return mapped;
+  }
+
+  const problemErrors = error?.response?.data?.errors;
+  if (problemErrors && typeof problemErrors === 'object') {
+    Object.entries(problemErrors).forEach(([field, messages]) => {
+      const firstMessage = Array.isArray(messages) ? messages[0] : messages;
+      if (!firstMessage) {
+        return;
+      }
+
+      mapped[field] = String(firstMessage);
+      if (field.length > 1) {
+        const camelField = `${field[0].toLowerCase()}${field.slice(1)}`;
+        if (!mapped[camelField]) {
+          mapped[camelField] = String(firstMessage);
+        }
+      }
+    });
+  }
 
   if (Object.keys(mapped).length) {
     return mapped;

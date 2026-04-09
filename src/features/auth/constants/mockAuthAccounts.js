@@ -14,7 +14,7 @@ export const mockAuthAccounts = [
   {
     identifier: 'ntctuyen02@gmail.com',
     password: 'Tuyen123@',
-    role: 'parent',
-    fullName: 'Nguyen Tuyen (Phụ huynh)',
+    role: 'student',
+    fullName: 'Nguyen Tuyen (Học sinh)',
   },
 ];

@@ -2,12 +2,9 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
-import ConfirmDialog from '../../../shared/components/admin/ConfirmDialog';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import StudentDetailDrawer from '../components/StudentDetailDrawer';
-import StudentEditDrawer from '../components/StudentEditDrawer';
 import StudentFilters from '../components/StudentFilters';
-import StudentHealthEditDrawer from '../components/StudentHealthEditDrawer';
 import StudentTable from '../components/StudentTable';
 import StudentCreateModal from '../components/StudentCreateModal';
 import { STUDENT_BASE_CLASS } from '../constants/studentUiTokens';
@@ -23,74 +20,48 @@ const StudentManagementPage = () => {
     tableData,
     status,
     error,
-    feedback,
     selectedStudent,
     selectedHealthProfile,
-    detailStudentId,
     basicDetailLoading,
     healthDetailLoading,
     basicDetailError,
     healthDetailError,
     basicSyncMessage,
     healthSyncMessage,
-    basicFieldErrors,
-    healthFieldErrors,
-    basicSaving,
-    healthSaving,
-    clearFeedback,
     setSelectedStudent,
     setSelectedHealthProfile,
     onFiltersChange,
     onPageChange,
     fetchList,
     fetchStudentDetail,
-    updateStudentBasic,
-    updateStudentHealth,
   } = useStudentManagement();
 
   const {
     selectedTarget,
-    selectedTargetId,
     detailOpen,
-    editOpen,
-    healthEditOpen,
     createOpen,
     localFeedback,
     fromAdminUsers,
-    actionDialogConfig,
     openStudentDetail,
-    openBasicEdit,
-    openHealthEdit,
     setDetailOpen,
-    setEditOpen,
-    setHealthEditOpen,
     setCreateOpen,
     closeFeedback,
-    setActionDialog,
-    closeActionDialog,
-    handleActionDialogConfirm,
     handleCreateSuccess,
-    submitStudentBasic,
-    submitStudentHealth,
     retryStudentDetail,
   } = useStudentManagementPageState({
     locationState: location.state,
     selectedStudent,
-    detailStudentId,
     setSelectedStudent,
     setSelectedHealthProfile,
     fetchStudentDetail,
-    clearFeedback,
     fetchList,
     tablePage: tableData.page,
-    updateStudentBasic,
-    updateStudentHealth,
   });
 
   return (
     <div className={`space-y-4 ${STUDENT_BASE_CLASS.app}`}>
       <AdminFeedbackToast
-        feedback={feedback || localFeedback}
+        feedback={localFeedback}
         onClose={closeFeedback}
         closeAriaLabel={STUDENT_MANAGEMENT_COPY.closeToastAriaLabel}
         closeLabel={STUDENT_MANAGEMENT_COPY.closeToastLabel}
@@ -128,7 +99,7 @@ const StudentManagementPage = () => {
         loadingLabel={STUDENT_MANAGEMENT_COPY.loadingLabel}
         emptyTitle={STUDENT_MANAGEMENT_COPY.emptyTitle}
         emptyDescription={STUDENT_MANAGEMENT_COPY.emptyDescription}
-        table={<StudentTable rows={tableData.rows} onViewDetail={openStudentDetail} onEditBasic={openBasicEdit} onEditHealth={openHealthEdit} />}
+        table={<StudentTable rows={tableData.rows} onViewDetail={openStudentDetail} />}
         pagination={{
           page: tableData.page,
           pageSize: tableData.pageSize,
@@ -146,57 +117,13 @@ const StudentManagementPage = () => {
         syncMessage={basicSyncMessage || healthSyncMessage}
         onClose={() => setDetailOpen(false)}
         onRetry={retryStudentDetail}
-        onEditBasic={() => {
-          setDetailOpen(false);
-          setEditOpen(true);
-        }}
-        onEditHealth={() => {
-          setDetailOpen(false);
-          setHealthEditOpen(true);
-        }}
-        onViewHistory={() => setActionDialog({ type: 'history' })}
-        onResetPassword={() => setActionDialog({ type: 'reset-password' })}
-        onToggleStatus={() => setActionDialog({ type: 'toggle-status' })}
-      />
-
-      <StudentEditDrawer
-        key={`basic-edit-${selectedTargetId || 'no-student'}-${editOpen ? 'open' : 'closed'}`}
-        open={editOpen}
-        student={selectedTarget}
-        submitting={basicSaving}
-        apiErrors={basicFieldErrors}
-        onClose={() => setEditOpen(false)}
-        onSubmit={submitStudentBasic}
-        onResetPassword={() => setActionDialog({ type: 'reset-password' })}
-        onToggleStatus={() => setActionDialog({ type: 'toggle-status' })}
-      />
-
-      <StudentHealthEditDrawer
-        key={`health-edit-${selectedTargetId || 'no-student'}-${healthEditOpen ? 'open' : 'closed'}`}
-        open={healthEditOpen}
-        student={selectedTarget}
-        profile={selectedHealthProfile}
-        submitting={healthSaving}
-        apiErrors={healthFieldErrors}
-        onClose={() => setHealthEditOpen(false)}
-        onSubmit={submitStudentHealth}
       />
 
       <StudentCreateModal
-        key={`create-student-${createOpen ? 'open' : 'closed'}`}
         open={createOpen}
         fromAdminUsers={fromAdminUsers}
         onClose={() => setCreateOpen(false)}
         onSuccess={handleCreateSuccess}
-      />
-
-      <ConfirmDialog
-        open={Boolean(actionDialogConfig)}
-        title={actionDialogConfig?.title || ''}
-        message={actionDialogConfig?.message || ''}
-        confirmLabel={actionDialogConfig?.confirmLabel || 'Đóng'}
-        onCancel={closeActionDialog}
-        onConfirm={handleActionDialogConfirm}
       />
     </div>
   );

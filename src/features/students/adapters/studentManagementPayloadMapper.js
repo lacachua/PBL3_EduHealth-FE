@@ -19,7 +19,7 @@ export const normalizeStudentListQuery = (query = {}) => {
 
   const status = clean(query.status || 'all');
   if (status === 'ACTIVE') params.isActive = true;
-  if (status === 'LOCKED') params.isActive = false;
+  if (status === 'INACTIVE') params.isActive = false;
 
   return params;
 };

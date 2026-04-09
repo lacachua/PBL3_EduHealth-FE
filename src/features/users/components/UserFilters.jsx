@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   USER_FILTER_DEFAULTS,
   USER_ROLE_OPTIONS,
@@ -10,6 +10,10 @@ const controlClass = `h-10 rounded-lg border bg-[#FBFCFB] px-3 text-sm outline-n
 
 const UserFilters = ({ initialValue, onApply, onReset }) => {
   const [draft, setDraft] = useState(initialValue);
+
+  useEffect(() => {
+    setDraft(initialValue);
+  }, [initialValue]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -30,7 +34,7 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
           type="search"
           value={draft.keyword}
           onChange={(event) => setDraft((prev) => ({ ...prev, keyword: event.target.value }))}
-          placeholder="Tìm theo họ tên hoặc email"
+          placeholder="Tìm theo tên đăng nhập, họ tên, email hoặc số điện thoại"
           className={`w-full pl-9 pr-3 ${controlClass}`}
         />
       </label>

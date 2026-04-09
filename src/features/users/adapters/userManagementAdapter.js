@@ -25,15 +25,15 @@ export const adaptUserListResponse = (payload) => {
     return { rows: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 };
   }
 
-  const sourceRows = Array.isArray(envelope.data?.users)
+  const sourceRows = Array.isArray(envelope.data)
+    ? envelope.data
+    : Array.isArray(envelope.data?.users)
     ? envelope.data.users
     : Array.isArray(envelope.data?.items)
       ? envelope.data.items
       : [];
 
-  const rows = sourceRows
-      .filter((item) => item.role === 'ADMIN' || item.role === 'NURSE')
-      .map(adaptUserRow);
+  const rows = sourceRows.map(adaptUserRow);
 
   return {
     rows,

@@ -33,19 +33,35 @@ const statusFilterToQuery = (value) => {
 const parseStudentsEnvelope = (envelope) => {
   const rows = Array.isArray(envelope?.data)
     ? envelope.data
+    : Array.isArray(envelope?.data?.students)
+      ? envelope.data.students
     : Array.isArray(envelope?.data?.items)
       ? envelope.data.items
       : [];
 
+  const resolveStudentUserId = (item) => {
+    const parsed = Number(item?.userId ?? item?.id ?? item?.studentId);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
+
   return {
-    rows: rows.map((item) => ({
-      userId: Number(item.userId),
-      fullName: item.fullName || '--',
-      className: item.className || '--',
-      dateOfBirth: item.dateOfBirth || null,
-      guardian: item.guardian || '--',
-      isActive: Boolean(item.isActive),
-    })),
+    rows: rows
+      .map((item) => {
+        const userId = resolveStudentUserId(item);
+        if (!userId) {
+          return null;
+        }
+
+        return {
+          userId,
+          fullName: item.fullName || '--',
+          className: item.className || '--',
+          dateOfBirth: item.dateOfBirth || null,
+          guardian: item.guardian || item.parentName || '--',
+          isActive: typeof item.isActive === 'boolean' ? item.isActive : item.status === 'ACTIVE',
+        };
+      })
+      .filter(Boolean),
     page: Number(envelope?.meta?.page || 1),
     pageSize: Number(envelope?.meta?.pageSize || STUDENT_PICKER_PAGE_SIZE),
     totalItems: Number(envelope?.meta?.total || envelope?.meta?.totalItems || rows.length),

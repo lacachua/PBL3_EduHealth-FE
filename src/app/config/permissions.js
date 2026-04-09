@@ -1,7 +1,7 @@
 export const ROLES = {
   ADMIN: 'admin',
   NURSE: 'nurse',
-  PARENT: 'parent',
+  STUDENT: 'student',
 };
 
 export const PERMISSIONS = {

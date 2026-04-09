@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import EmptyState from '../../../../shared/components/admin/EmptyState';
 import ErrorState from '../../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../../shared/components/admin/LoadingSpinner';
+import MockScopeNotice from '../../../../shared/components/admin/MockScopeNotice';
 import PageHeader from '../../../../shared/components/admin/PageHeader';
 import SectionCard from '../../../../shared/components/admin/SectionCard';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
@@ -43,6 +44,8 @@ const AdminDashboardPage = () => {
           </>
         }
       />
+
+      <MockScopeNotice moduleLabel="Admin Dashboard" />
 
       {dashboardData.generatedAt ? (
         <p className="-mt-2 px-1 text-xs text-on-surface-variant">Cập nhật lúc: {new Date(dashboardData.generatedAt).toLocaleString('vi-VN')}</p>
