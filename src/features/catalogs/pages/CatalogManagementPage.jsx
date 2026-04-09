@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import ForbiddenState from '../../../shared/components/admin/ForbiddenState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import MockScopeNotice from '../../../shared/components/admin/MockScopeNotice';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import Pagination from '../../../shared/components/admin/Pagination';
 import SectionCard from '../../../shared/components/admin/SectionCard';
@@ -77,6 +78,8 @@ const CatalogLookupPage = () => {
           </button>
         )}
       />
+
+      <MockScopeNotice moduleLabel="Catalogs" />
 
       <SectionCard title="Nhóm danh mục" subtitle="Chuyển nhanh nhóm dữ liệu để tra cứu danh mục tương ứng.">
         <CatalogGroupTabs activeGroup={group} onChange={onGroupChange} />

@@ -12,13 +12,11 @@ export const STUDENT_CREATE_CLASS_OPTIONS = [
 
 export const STUDENT_CREATE_INITIAL_VALUES = {
   account: {
-    username: '',
     password: '',
     email: '',
     phoneNumber: '',
   },
   profile: {
-    studentCode: '',
     fullName: '',
     dateOfBirth: '',
     gender: 'MALE',
@@ -27,8 +25,7 @@ export const STUDENT_CREATE_INITIAL_VALUES = {
   health: {
     heightCm: '',
     weightKg: '',
-    eyeStatus: '',
-    chronicNote: '',
-    allergies: '',
+    guardian: '',
+    medicalHistoryNotes: '',
   },
 };

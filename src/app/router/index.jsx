@@ -102,10 +102,11 @@ export const router = createBrowserRouter(
         </Route>
       </Route>
 
-      {/* Protected Parent Routes */}
+      {/* Protected Student Routes */}
       <Route element={<RequireAuth />}>
-        <Route element={<RequireRole allowedRoles={["parent"]} />}>
-          <Route path="/parent/dashboard" element={<Lazy><ParentDashboard /></Lazy>} />
+        <Route element={<RequireRole allowedRoles={["student"]} />}>
+          <Route path="/student/dashboard" element={<Lazy><ParentDashboard /></Lazy>} />
+          <Route path="/parent/dashboard" element={<Navigate to="/student/dashboard" replace />} />
         </Route>
       </Route>
 

@@ -14,8 +14,7 @@ const createInitial = (user) => ({
   phoneNumber: user?.phoneNumber || '',
 });
 
-const UserEditDrawer = ({
-  open,
+const UserEditDrawerContent = ({
   user,
   submitting,
   apiErrors = {},
@@ -92,7 +91,7 @@ const UserEditDrawer = ({
 
   return (
     <RightDrawer
-      open={open}
+      open
       onClose={onClose}
       title="Chỉnh sửa tài khoản"
       subtitle="Chỉ cập nhật các trường API cho phép"
@@ -168,6 +167,14 @@ const UserEditDrawer = ({
       </div>
     </RightDrawer>
   );
+};
+
+const UserEditDrawer = ({ open, user, ...props }) => {
+  if (!open || !user) {
+    return null;
+  }
+
+  return <UserEditDrawerContent key={user.id || user.username || user.email} user={user} {...props} />;
 };
 
 export default UserEditDrawer;

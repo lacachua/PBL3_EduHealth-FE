@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import Pagination from '../../../shared/components/admin/Pagination';
 import {
@@ -33,6 +34,8 @@ import { getMedicines } from '../../medicines/services/getMedicines';
 import { stockInMedicine } from '../../medicines/services/stockInMedicine';
 import { updateMedicine } from '../../medicines/services/updateMedicine';
 import { updateMedicineStatus } from '../../medicines/services/updateMedicineStatus';
+
+const NURSE_MEDICINES_OPTIONS = { moduleKey: DATA_MODULES.NURSE_MEDICINES };
 
 const DEFAULT_FILTERS = {
   keyword: '',
@@ -134,7 +137,7 @@ const NurseMedicinesPage = () => {
         status: nextFilters.status,
         lowStock: nextFilters.lowStock,
         expiring: nextFilters.expiring,
-      });
+      }, NURSE_MEDICINES_OPTIONS);
 
       const mapped = mapMedicineListEnvelope(response);
       setMedicinesData(mapped);
@@ -152,7 +155,7 @@ const NurseMedicinesPage = () => {
     setAlertsError('');
 
     try {
-      const response = await getMedicineAlerts({ type: 'ALL' });
+      const response = await getMedicineAlerts({ type: 'ALL' }, NURSE_MEDICINES_OPTIONS);
       setAlerts(mapMedicineAlertsEnvelope(response));
     } catch (error) {
       const message = resolveApiError(error);
@@ -172,7 +175,7 @@ const NurseMedicinesPage = () => {
     setDetailError('');
 
     try {
-      const response = await getMedicineById(medicineId);
+      const response = await getMedicineById(medicineId, NURSE_MEDICINES_OPTIONS);
       const mapped = mapMedicineDetailEnvelope(response);
       setDetailMedicine(mapped);
       return mapped;
@@ -201,7 +204,7 @@ const NurseMedicinesPage = () => {
         type: nextFilters.type || undefined,
         fromDate: nextFilters.fromDate || undefined,
         toDate: nextFilters.toDate || undefined,
-      });
+      }, NURSE_MEDICINES_OPTIONS);
 
       setMovementData(mapMedicineMovementsEnvelope(response));
     } catch (error) {
@@ -445,7 +448,7 @@ const NurseMedicinesPage = () => {
         submitting={actionSubmitting}
         error={actionError}
         onSubmit={(payload) => runAction(
-          () => createMedicine(payload),
+          () => createMedicine(payload, NURSE_MEDICINES_OPTIONS),
           'Thêm thuốc thành công.'
         )}
       />
@@ -458,7 +461,7 @@ const NurseMedicinesPage = () => {
         submitting={actionSubmitting}
         error={actionError}
         onSubmit={(payload) => runAction(
-          () => updateMedicine(activeMedicine?.id, payload),
+          () => updateMedicine(activeMedicine?.id, payload, NURSE_MEDICINES_OPTIONS),
           'Cập nhật thuốc thành công.'
         )}
       />
@@ -471,7 +474,7 @@ const NurseMedicinesPage = () => {
         submitting={actionSubmitting}
         error={actionError}
         onSubmit={(payload) => runAction(
-          () => stockInMedicine(activeMedicine?.id, payload),
+          () => stockInMedicine(activeMedicine?.id, payload, NURSE_MEDICINES_OPTIONS),
           'Nhập kho thành công.'
         )}
       />
@@ -484,7 +487,7 @@ const NurseMedicinesPage = () => {
         submitting={actionSubmitting}
         error={actionError}
         onSubmit={(payload) => runAction(
-          () => disposeMedicine(activeMedicine?.id, payload),
+          () => disposeMedicine(activeMedicine?.id, payload, NURSE_MEDICINES_OPTIONS),
           'Hủy thuốc thành công.'
         )}
       />
@@ -497,7 +500,7 @@ const NurseMedicinesPage = () => {
         submitting={actionSubmitting}
         error={actionError}
         onSubmit={(payload) => runAction(
-          () => updateMedicineStatus(activeMedicine?.id, payload),
+          () => updateMedicineStatus(activeMedicine?.id, payload, NURSE_MEDICINES_OPTIONS),
           'Cập nhật trạng thái thành công.'
         )}
       />

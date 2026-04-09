@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import MockScopeNotice from '../../../shared/components/admin/MockScopeNotice';
 import Pagination from '../../../shared/components/admin/Pagination';
 import SystemLogsFilters from '../components/SystemLogsFilters';
 import SystemLogsTable from '../components/SystemLogsTable';
@@ -16,6 +17,8 @@ const SystemLogsPage = () => {
 
   return (
     <div className="space-y-4">
+      <MockScopeNotice moduleLabel="System Logs" />
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Nhật ký hệ thống</h1>

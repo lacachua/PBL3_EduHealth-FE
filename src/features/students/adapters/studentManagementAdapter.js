@@ -2,12 +2,21 @@ import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 
 const statusToneMap = {
   ACTIVE: 'success',
-  LOCKED: 'danger',
+  INACTIVE: 'danger',
 };
 
 const statusLabelMap = {
   ACTIVE: 'Hoạt động',
-  LOCKED: 'Đã khóa',
+  INACTIVE: 'Ngưng hoạt động',
+};
+
+const toStudentStatus = (item = {}) => {
+  if (typeof item.isActive === 'boolean') {
+    return item.isActive ? 'ACTIVE' : 'INACTIVE';
+  }
+
+  const rawStatus = String(item.status || '').toUpperCase();
+  return rawStatus === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE';
 };
 
 const defaultModel = {
@@ -24,6 +33,22 @@ const resolveStudentIdentity = (item = {}) => {
   if (Number.isInteger(parsed) && parsed > 0) {
     return parsed;
   }
+
+  const normalized = String(candidate || '').trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const digits = normalized.replace(/\D/g, '');
+  if (!digits) {
+    return null;
+  }
+
+  const fromDigits = Number(digits);
+  if (Number.isInteger(fromDigits) && fromDigits > 0) {
+    return fromDigits;
+  }
+
   return null;
 };
 
@@ -48,29 +73,29 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
       studentId: resolveStudentIdentity(item),
       userId: resolveStudentIdentity(item),
       studentCode: item.studentCode || `HS-${resolveStudentIdentity(item) || '--'}`,
-      fullName: item.fullName,
+      fullName: item.fullName || '--',
       dateOfBirth: item.dateOfBirth || '--',
       gender: item.gender || '--',
       genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : '--',
       classId: item.classId || '--',
-      className: item.className,
+      className: item.className || '--',
       username: item.username || '--',
       email: item.email || '--',
-      phoneNumber: item.phone || '--',
-      phone: item.phone || '--',
-      heightCm: item.currentHeight ?? null,
-      weightKg: item.currentWeight ?? null,
-      currentHeight: item.currentHeight ?? null,
-      currentWeight: item.currentWeight ?? null,
+      phoneNumber: item.phoneNumber || item.phone || '--',
+      phone: item.phone || item.phoneNumber || '--',
+      heightCm: item.currentHeight ?? item.heightCm ?? null,
+      weightKg: item.currentWeight ?? item.weightKg ?? null,
+      currentHeight: item.currentHeight ?? item.heightCm ?? null,
+      currentWeight: item.currentWeight ?? item.weightKg ?? null,
       eyeStatus: '',
       allergies: '',
       chronicNote: '',
-      medicalHistoryNotes: item.medicalHistoryNotes || '',
-      status: item.isActive ? 'ACTIVE' : 'LOCKED',
-      statusLabel: item.isActive ? statusLabelMap.ACTIVE : statusLabelMap.LOCKED,
-      statusTone: item.isActive ? statusToneMap.ACTIVE : statusToneMap.LOCKED,
+      medicalHistoryNotes: item.medicalHistoryNotes || item.medicalHistory || '',
+      status: toStudentStatus(item),
+      statusLabel: item.statusLabel || statusLabelMap[toStudentStatus(item)] || '--',
+      statusTone: statusToneMap[toStudentStatus(item)] || 'neutral',
       createdAt: item.createdAt || null,
-      updatedAt: item.updatedAt,
+      updatedAt: item.updatedAt || null,
       apiId: resolveStudentIdentity(item),
     }))
     : [];
@@ -100,7 +125,7 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
 
   const item = envelope.data;
   const resolvedStudentId = resolveStudentIdentity(item);
-  const status = item.isActive ? 'ACTIVE' : 'LOCKED';
+  const status = toStudentStatus(item);
   return {
     id: resolvedStudentId,
     studentId: resolvedStudentId,
@@ -114,16 +139,16 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     className: item.className || '--',
     username: item.username || '--',
     email: item.email || '--',
-    phoneNumber: item.phone || '--',
-    phone: item.phone || '--',
-    heightCm: item.currentHeight ?? '',
-    weightKg: item.currentWeight ?? '',
-    currentHeight: item.currentHeight ?? '',
-    currentWeight: item.currentWeight ?? '',
+    phoneNumber: item.phoneNumber || item.phone || '--',
+    phone: item.phone || item.phoneNumber || '--',
+    heightCm: item.currentHeight ?? item.heightCm ?? '',
+    weightKg: item.currentWeight ?? item.weightKg ?? '',
+    currentHeight: item.currentHeight ?? item.heightCm ?? '',
+    currentWeight: item.currentWeight ?? item.weightKg ?? '',
     eyeStatus: '',
     allergies: '',
     chronicNote: '',
-    medicalHistoryNotes: item.medicalHistoryNotes || '',
+    medicalHistoryNotes: item.medicalHistoryNotes || item.medicalHistory || '',
     identifier: item.identifier || '--',
     address: item.address || '--',
     guardian: item.guardian || item.parentName || '--',
@@ -131,7 +156,7 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     parentPhoneNumber: item.parentPhoneNumber || item.phone || '--',
     emergencyContactNote: item.emergencyContactNote || '--',
     status,
-    statusLabel: statusLabelMap[status] || '--',
+    statusLabel: item.statusLabel || statusLabelMap[status] || '--',
     statusTone: statusToneMap[status] || 'neutral',
     createdAt: item.createdAt || null,
     updatedAt: item.updatedAt || null,

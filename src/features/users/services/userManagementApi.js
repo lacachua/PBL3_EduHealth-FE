@@ -1,73 +1,27 @@
-import {
-  apiGetEnvelope,
-  apiPatchEnvelope,
-  apiPostEnvelope,
-} from '../../../shared/api/apiClient';
-import { runtimeConfig, waitForMock } from '../../../shared/config/runtimeConfig';
-import {
-  createUserMock,
-  getUserByIdMock,
-  getUserManagementMockEnvelope,
-  resetUserPasswordMock,
-  toggleUserStatusMock,
-  updateUserMock,
-} from '../mocks/userManagementMock';
-import { USER_ENDPOINTS } from '../schemas/userManagementSchema';
-
-const isMockEnabled = runtimeConfig.enableMockAdminDashboard;
+import { userManagementRepository } from '../repositories/userManagementRepository';
 
 export const getUsers = async (query = {}) => {
-  if (isMockEnabled) {
-    await waitForMock('users');
-    return getUserManagementMockEnvelope(query);
-  }
-
-  return apiGetEnvelope(USER_ENDPOINTS.list, { params: query });
+  return userManagementRepository.getUsers(query);
 };
 
 export const getUserById = async (userId) => {
-  if (isMockEnabled) {
-    await waitForMock();
-    return getUserByIdMock(userId);
-  }
-
-  return apiGetEnvelope(USER_ENDPOINTS.detail(userId));
+  return userManagementRepository.getUserById(userId);
 };
 
 export const createUser = async (payload) => {
-  if (isMockEnabled) {
-    await waitForMock('users');
-    return createUserMock(payload);
-  }
-
-  return apiPostEnvelope(USER_ENDPOINTS.list, payload);
+  return userManagementRepository.createUser(payload);
 };
 
 export const updateUser = async (userId, payload) => {
-  if (isMockEnabled) {
-    await waitForMock('users');
-    return updateUserMock(userId, payload);
-  }
-
-  return apiPatchEnvelope(USER_ENDPOINTS.detail(userId), payload);
+  return userManagementRepository.updateUser(userId, payload);
 };
 
 export const toggleUserStatus = async (userId, payload) => {
-  if (isMockEnabled) {
-    await waitForMock('users');
-    return toggleUserStatusMock(userId, payload);
-  }
-
-  return apiPatchEnvelope(USER_ENDPOINTS.status(userId), payload);
+  return userManagementRepository.toggleUserStatus(userId, payload);
 };
 
 export const resetUserPassword = async (userId, payload) => {
-  if (isMockEnabled) {
-    await waitForMock('users');
-    return resetUserPasswordMock(userId, payload);
-  }
-
-  return apiPostEnvelope(USER_ENDPOINTS.resetPassword(userId), payload);
+  return userManagementRepository.resetUserPassword(userId, payload);
 };
 
 // Keep aliases for existing imports in other modules.

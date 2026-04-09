@@ -34,11 +34,6 @@ const StudentDetailDrawer = ({
   syncMessage,
   onClose,
   onRetry,
-  onEditBasic,
-  onEditHealth,
-  onViewHistory,
-  onResetPassword,
-  onToggleStatus,
 }) => {
   const avatarSrc = student?.avatarUrl || student?.photoUrl || student?.profileImageUrl || '';
   const allergyItems = getAllergyItems(healthProfile?.allergies);
@@ -122,24 +117,6 @@ const StudentDetailDrawer = ({
             <InfoRow label="Ngày tạo">{student.createdAt || '--'}</InfoRow>
             <InfoRow label="Ngày cập nhật">{student.updatedAt || '--'}</InfoRow>
             <InfoRow label="Cập nhật hồ sơ sức khỏe">{healthProfile?.healthProfileUpdatedAt || '--'}</InfoRow>
-          </div>
-
-          <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
-            <button type="button" className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]" onClick={onEditBasic}>
-              Chỉnh sửa thông tin học sinh
-            </button>
-            <button type="button" className="rounded-md border border-info/30 bg-info-soft px-3 py-1.5 text-sm font-semibold text-info transition hover:bg-info-soft/80" onClick={onEditHealth}>
-              Cập nhật hồ sơ sức khỏe
-            </button>
-            <button type="button" className="rounded-md border border-outline-variant bg-white px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low" onClick={onViewHistory}>
-              Xem lịch sử sức khỏe
-            </button>
-            <button type="button" className="rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80" onClick={onResetPassword}>
-              Reset mật khẩu
-            </button>
-            <button type="button" className="rounded-md border border-danger/30 bg-danger-soft px-3 py-1.5 text-sm font-semibold text-danger transition hover:bg-danger-soft/80" onClick={onToggleStatus}>
-              Ẩn hồ sơ / ngưng hoạt động
-            </button>
           </div>
         </div>
       ) : null}

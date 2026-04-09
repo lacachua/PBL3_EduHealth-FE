@@ -1,12 +1,17 @@
 export const ROLE_HOME_PATHS = {
   ADMIN: '/admin/dashboard',
   NURSE: '/nurse/dashboard',
-  PARENT: '/parent/dashboard',
+  STUDENT: '/student/dashboard',
+};
+
+const LEGACY_ROLE_ALIASES = {
+  PARENT: 'STUDENT',
 };
 
 export const resolveRoleHomePath = (role, fallback = '/') => {
   if (!role) return fallback;
 
   const normalizedRole = String(role).toUpperCase();
-  return ROLE_HOME_PATHS[normalizedRole] || fallback;
+  const effectiveRole = LEGACY_ROLE_ALIASES[normalizedRole] || normalizedRole;
+  return ROLE_HOME_PATHS[effectiveRole] || fallback;
 };

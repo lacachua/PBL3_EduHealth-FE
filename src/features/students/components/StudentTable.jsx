@@ -14,7 +14,7 @@ const withFallback = (value, fallback = 'Chưa cập nhật') => {
   return value;
 };
 
-const StudentTable = ({ rows, onViewDetail, onEditBasic, onEditHealth }) => {
+const StudentTable = ({ rows, onViewDetail }) => {
   const renderHealthSummary = (row) => {
     const metrics = [];
     if (row.heightCm !== null && row.heightCm !== undefined && row.heightCm !== '') {
@@ -96,8 +96,6 @@ const StudentTable = ({ rows, onViewDetail, onEditBasic, onEditHealth }) => {
           <StudentActionsMenu
             items={[
               { id: 'view-detail', label: 'Xem chi tiết', icon: 'visibility', onClick: () => onViewDetail(row) },
-              { id: 'edit-basic', label: 'Chỉnh sửa', icon: 'edit', onClick: () => onEditBasic(row) },
-              { id: 'edit-health', label: 'Cập nhật hồ sơ sức khỏe', icon: 'monitor_heart', onClick: () => onEditHealth(row) },
             ]}
           />
         </div>

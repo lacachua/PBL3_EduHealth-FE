@@ -1,6 +1,10 @@
 import React from 'react';
 
 const moduleCopyMap = {
+  dashboard: {
+    title: 'Tổng quan',
+    description: 'Module này đang được giữ cho bản demo/mock và chưa nằm trong phạm vi live hiện tại.',
+  },
   students: {
     title: 'Quản lý học sinh',
     description: 'Module quản lý học sinh sẽ được bổ sung tại đây.',
@@ -11,15 +15,15 @@ const moduleCopyMap = {
   },
   catalogs: {
     title: 'Quản lý danh mục',
-    description: 'Module danh mục dữ liệu gốc sẽ được bổ sung tại đây.',
+    description: 'Module này đang được giữ cho bản demo/mock và chưa nằm trong phạm vi live hiện tại.',
   },
   reports: {
     title: 'Báo cáo',
-    description: 'Module báo cáo tổng hợp sẽ được bổ sung tại đây.',
+    description: 'Module này đang được giữ cho bản demo/mock và chưa nằm trong phạm vi live hiện tại.',
   },
   systemLogs: {
     title: 'Nhật ký hệ thống',
-    description: 'Module nhật ký hệ thống sẽ được bổ sung tại đây.',
+    description: 'Module này đang được giữ cho bản demo/mock và chưa nằm trong phạm vi live hiện tại.',
   },
   settings: {
     title: 'Cài đặt',

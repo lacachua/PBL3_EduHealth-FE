@@ -57,7 +57,7 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
               <AvatarPlaceholder />
               <div>
                 <h3 className="font-headline text-lg font-semibold text-on-surface md:text-[1.2rem]">Tạo hồ sơ học sinh</h3>
-                <p className="mt-1 text-sm text-on-surface-variant">Tạo tài khoản STUDENT và hồ sơ ban đầu.</p>
+                <p className="mt-1 text-sm text-on-surface-variant">Tạo tài khoản STUDENT và hồ sơ cơ bản. Thông tin sức khỏe chi tiết có thể cập nhật sau.</p>
               </div>
             </div>
             <button

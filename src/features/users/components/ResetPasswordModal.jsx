@@ -17,7 +17,7 @@ const InfoRow = ({ label, children }) => (
   </>
 );
 
-const ResetPasswordModal = ({ open, user, submitting, onCancel, onConfirm }) => {
+const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) => {
   const [mode, setMode] = useState('TEMPORARY');
   const [newPassword, setNewPassword] = useState('');
   const [fieldError, setFieldError] = useState('');
@@ -26,10 +26,6 @@ const ResetPasswordModal = ({ open, user, submitting, onCancel, onConfirm }) => 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         onCancel?.();
@@ -38,11 +34,7 @@ const ResetPasswordModal = ({ open, user, submitting, onCancel, onConfirm }) => 
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [open, onCancel, user?.id]);
-
-  if (!open || !user) {
-    return null;
-  }
+  }, [onCancel]);
 
   const userInfoRows = [
     {
@@ -218,6 +210,14 @@ const ResetPasswordModal = ({ open, user, submitting, onCancel, onConfirm }) => 
       </div>
     </div>
   );
+};
+
+const ResetPasswordModal = ({ open, user, ...props }) => {
+  if (!open || !user) {
+    return null;
+  }
+
+  return <ResetPasswordModalContent key={user.id || user.username || user.email} user={user} {...props} />;
 };
 
 export default ResetPasswordModal;

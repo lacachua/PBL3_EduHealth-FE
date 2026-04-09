@@ -7,34 +7,28 @@ const labelClassName = 'mb-1 block text-xs font-semibold text-on-surface-variant
 const FIELDS = [
   {
     key: 'heightCm',
-    label: 'Chiều cao (cm)',
+    label: 'Chiều cao ban đầu (cm) *',
     type: 'number',
     placeholder: 'Ví dụ: 132',
   },
   {
     key: 'weightKg',
-    label: 'Cân nặng (kg)',
+    label: 'Cân nặng ban đầu (kg) *',
     type: 'number',
     placeholder: 'Ví dụ: 29.5',
   },
   {
-    key: 'eyeStatus',
-    label: 'Tình trạng mắt',
+    key: 'guardian',
+    label: 'Người giám hộ *',
     type: 'text',
-    placeholder: 'Ví dụ: Cận thị nhẹ',
+    placeholder: 'Ví dụ: Nguyễn Văn B',
   },
   {
-    key: 'chronicNote',
-    label: 'Ghi chú bệnh nền',
-    type: 'textarea',
-    placeholder: 'Nhập nếu có',
-  },
-  {
-    key: 'allergies',
-    label: 'Dị ứng',
+    key: 'medicalHistoryNotes',
+    label: 'Ghi chú tiền sử sức khỏe ban đầu *',
     type: 'textarea',
     className: 'md:col-span-2',
-    placeholder: 'Phân tách bằng dấu phẩy, ví dụ: Dị ứng sữa, Dị ứng hải sản',
+    placeholder: 'Ví dụ: Tiền sử hen nhẹ, từng dị ứng hải sản...',
   },
 ];
 
@@ -42,7 +36,7 @@ const StudentHealthInitialSection = ({ values, errors, onChange }) => {
   return (
     <>
       <div className="md:col-span-2 rounded-md border border-info/25 bg-info-soft px-3 py-2 text-xs text-info">
-        Thông tin sức khỏe ban đầu là tùy chọn, có thể cập nhật sau.
+        Tạo hồ sơ ban đầu theo contract hiện tại. Thông tin sức khỏe chi tiết (mắt, bệnh nền, dị ứng chi tiết) có thể cập nhật sau ở bước hồ sơ sức khỏe.
       </div>
 
       {FIELDS.map((field) => {

@@ -3,6 +3,7 @@ import { useState } from 'react';
 export const useUserManagementPageState = ({
   navigate,
   setSelectedUser,
+  setCreateFieldErrors,
   fetchUserDetail,
   createUser,
   updateUser,
@@ -18,11 +19,13 @@ export const useUserManagementPageState = ({
   const [resetPasswordUser, setResetPasswordUser] = useState(null);
 
   const handleCreate = () => {
+    setCreateFieldErrors({});
     setAccountTypeModalOpen(true);
   };
 
   const handleSelectNurseAccount = () => {
     setAccountTypeModalOpen(false);
+    setCreateFieldErrors({});
     setCreateNurseOpen(true);
   };
 
@@ -88,7 +91,10 @@ export const useUserManagementPageState = ({
   };
 
   const closeAccountTypeModal = () => setAccountTypeModalOpen(false);
-  const closeCreateNurseModal = () => setCreateNurseOpen(false);
+  const closeCreateNurseModal = () => {
+    setCreateFieldErrors({});
+    setCreateNurseOpen(false);
+  };
   const closeStatusConfirmModal = () => setStatusConfirmUser(null);
   const closeResetPasswordModal = () => setResetPasswordUser(null);
 

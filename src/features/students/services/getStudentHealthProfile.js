@@ -1,5 +1,5 @@
-import { apiGetEnvelope } from '../../../shared/api/apiClient';
+import { nurseStudentsRepository } from '../../nurse/repositories/nurseStudentsRepository';
 
 export const getStudentHealthProfile = async (studentId) => {
-  return apiGetEnvelope(`/api/v1/students/${studentId}/health-profile`);
+  return nurseStudentsRepository.getStudentHealthProfile(studentId);
 };
