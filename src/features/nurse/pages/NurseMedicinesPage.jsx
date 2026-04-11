@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import Pagination from '../../../shared/components/admin/Pagination';
+import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import {
   buildSummaryStats,
   mapMedicineAlertsEnvelope,
@@ -343,10 +344,10 @@ const NurseMedicinesPage = () => {
 
   return (
     <div className="space-y-4">
-      <header className="rounded-2xl border border-[#D7ECDD] bg-white px-4 py-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:px-5">
-        <h1 className="text-2xl font-extrabold text-[#0F172A] md:text-3xl">Thuốc / Kho thuốc</h1>
-        <p className="mt-1 text-sm text-[#64748B]">Quản lý danh mục thuốc, theo dõi tồn kho và hạn sử dụng tại phòng y tế.</p>
-      </header>
+      <NurseModulePageHeader
+        title="Thuốc / Kho thuốc"
+        description="Quản lý danh mục thuốc, theo dõi tồn kho và hạn sử dụng tại phòng y tế."
+      />
 
       <MedicinesToolbar
         value={draftFilters}

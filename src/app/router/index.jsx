@@ -32,7 +32,10 @@ import {
   ReportsPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
+  NursePendingVaccinationsPage,
   NurseStudentsPage,
+  NurseVaccinationCampaignDetailPage,
+  NurseVaccinationCampaignsPage,
   ServerErrorPage,
   StudentManagementPage,
   SystemLogsPage,
@@ -95,7 +98,9 @@ export const router = createBrowserRouter(
             <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
             <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
             <Route path="students/:studentId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
-            <Route path="vaccinations" element={renderNurseModule(nurseModuleMeta.vaccinations)} />
+            <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
+            <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
+            <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
             <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
             <Route path="profile" element={renderNurseModule(nurseModuleMeta.profile)} />
           </Route>

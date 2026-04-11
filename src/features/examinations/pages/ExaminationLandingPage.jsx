@@ -4,6 +4,7 @@ import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import DataTable from '../../../shared/components/admin/DataTable';
 import Pagination from '../../../shared/components/admin/Pagination';
+import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import StudentPickerModal from '../components/StudentPickerModal';
 import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
@@ -222,12 +223,10 @@ const ExaminationLandingPage = () => {
         }}
       />
 
-      <section className="exam-banner rounded-2xl px-4 py-3.5 sm:px-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Khám bệnh học đường</h1>
-            <p className="exam-muted mt-1 text-sm">Theo dõi các lần khám gần đây, tra cứu nhanh và tạo phiếu khám mới theo từng học sinh.</p>
-          </div>
+      <NurseModulePageHeader
+        title="Khám bệnh học đường"
+        description="Theo dõi các lần khám gần đây, tra cứu nhanh và tạo phiếu khám mới theo từng học sinh."
+        actions={(
           <button
             type="button"
             onClick={() => {
@@ -240,8 +239,8 @@ const ExaminationLandingPage = () => {
             <span className="material-symbols-outlined text-[18px]">add</span>
             Tạo phiếu khám mới
           </button>
-        </div>
-      </section>
+        )}
+      />
 
       <section className="exam-card rounded-xl p-4">
         <form

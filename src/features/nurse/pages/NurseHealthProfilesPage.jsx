@@ -6,6 +6,7 @@ import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 import DataTable from '../../../shared/components/admin/DataTable';
 import EmptyState from '../../../shared/components/admin/EmptyState';
 import Pagination from '../../../shared/components/admin/Pagination';
+import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
   resolveNurseStudentRouteId,
@@ -483,10 +484,10 @@ const NurseHealthProfilesPage = () => {
         }}
       />
 
-      <section className="nurse-banner-soft rounded-2xl px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.03)] sm:px-5">
-        <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#14532D] sm:text-[1.62rem]">Hồ sơ sức khỏe học sinh</h1>
-        <p className="mt-1 text-sm text-[#64748B]">Theo dõi tiến độ cập nhật hồ sơ, cảnh báo y tế và ưu tiên rà soát sức khỏe học đường.</p>
-      </section>
+      <NurseModulePageHeader
+        title="Hồ sơ sức khỏe học sinh"
+        description="Theo dõi tiến độ cập nhật hồ sơ, cảnh báo y tế và ưu tiên rà soát sức khỏe học đường."
+      />
 
       <section className="nurse-card-soft rounded-2xl px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">

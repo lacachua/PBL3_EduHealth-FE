@@ -10,6 +10,13 @@ const RightDrawer = ({
   children,
   footer,
   headerActions,
+  panelClassName = '',
+  headerClassName = '',
+  titleClassName = '',
+  subtitleClassName = '',
+  closeButtonClassName = '',
+  bodyClassName = '',
+  footerClassName = '',
 }) => {
   useEffect(() => {
     if (!open) {
@@ -52,19 +59,19 @@ const RightDrawer = ({
         onClick={onClose}
       />
 
-      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} ${panelAnimationClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)]`}>
-        <header className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-3 md:px-5">
+      <aside className={`absolute inset-y-0 right-0 flex w-full ${widthClass} ${panelAnimationClass} flex-col border-l border-outline-variant bg-surface-container-lowest shadow-[-14px_0_30px_rgba(15,23,42,0.17)] ${panelClassName}`}>
+        <header className={`shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-3 md:px-5 ${headerClassName}`}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-headline text-lg font-semibold text-on-surface md:text-[1.18rem]">{title}</h2>
-              {subtitle ? <p className="mt-1 text-sm text-on-surface-variant">{subtitle}</p> : null}
+              <h2 className={`font-headline text-lg font-semibold text-on-surface md:text-[1.18rem] ${titleClassName}`}>{title}</h2>
+              {subtitle ? <p className={`mt-1 text-sm text-on-surface-variant ${subtitleClassName}`}>{subtitle}</p> : null}
             </div>
             <div className="flex items-center gap-2">
               {headerActions}
               <button
                 type="button"
                 onClick={onClose}
-                className="nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:bg-surface-container-low"
+                className={`nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:bg-surface-container-low ${closeButtonClassName}`}
                 aria-label="Đóng"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -73,10 +80,10 @@ const RightDrawer = ({
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5 md:py-4">{children}</div>
+        <div className={`min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5 md:py-4 ${bodyClassName}`}>{children}</div>
 
         {footer ? (
-          <footer className="shrink-0 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 md:px-5">
+          <footer className={`shrink-0 border-t border-outline-variant bg-surface-container-lowest px-4 py-3 md:px-5 ${footerClassName}`}>
             {footer}
           </footer>
         ) : null}

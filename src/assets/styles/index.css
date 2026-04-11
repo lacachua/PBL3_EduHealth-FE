@@ -187,7 +187,7 @@
 
   .nurse-focus-ring:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--nurse-primary-soft);
+    box-shadow: 0 0 0 2px var(--nurse-primary-soft, #ecfdf3);
   }
 
   .nurse-interactive {
@@ -208,27 +208,27 @@
   }
 
   .nurse-btn-primary {
-    background: var(--nurse-primary-main);
+    background: var(--nurse-primary-main, #15803d);
     color: #ffffff;
     transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
   }
 
   .nurse-btn-primary:hover {
-    background: var(--nurse-primary-hover);
+    background: var(--nurse-primary-hover, #166534);
     box-shadow: 0 4px 10px rgba(21, 128, 61, 0.2);
     transform: translateY(-1px);
   }
 
   .nurse-btn-secondary {
-    border: 1px solid var(--nurse-border);
-    background: var(--nurse-surface);
-    color: var(--nurse-text-primary);
+    border: 1px solid var(--nurse-border, #e2e8f0);
+    background: var(--nurse-surface, #ffffff);
+    color: var(--nurse-text-primary, #0f172a);
     transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
   }
 
   .nurse-btn-secondary:hover {
-    border-color: var(--nurse-soft-border);
-    background: var(--nurse-primary-soft);
+    border-color: var(--nurse-soft-border, #d7ecdd);
+    background: var(--nurse-primary-soft, #ecfdf3);
     transform: translateY(-1px);
   }
 
@@ -258,9 +258,9 @@
   }
 
   .nurse-input:focus {
-    border-color: var(--nurse-primary-main);
+    border-color: var(--nurse-primary-main, #15803d);
     outline: none;
-    box-shadow: 0 0 0 2px var(--nurse-primary-soft);
+    box-shadow: 0 0 0 2px var(--nurse-primary-soft, #ecfdf3);
   }
 
   .nurse-banner-soft {

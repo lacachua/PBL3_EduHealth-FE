@@ -88,7 +88,7 @@ const NurseSidebar = ({ isSidebarOpen, isSidebarCollapsed, onCloseSidebar, onTog
                   <NavLink
                     key={item.id}
                     to={item.to}
-                    end={!item.to.startsWith('/nurse/health-profiles')}
+                    end={!(item.to.startsWith('/nurse/health-profiles') || item.to.startsWith('/nurse/vaccinations'))}
                     onClick={onCloseSidebar}
                     title={isSidebarCollapsed ? item.label : undefined}
                     className={({ isActive }) => `nurse-focus-ring nurse-interactive group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] ${
