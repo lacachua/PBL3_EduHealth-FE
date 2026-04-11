@@ -97,7 +97,7 @@ export const router = createBrowserRouter(
             <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
             <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
             <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
-            <Route path="students/:studentId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
+            <Route path="students/:studentUserId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
             <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
             <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
             <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />

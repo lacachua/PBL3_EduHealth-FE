@@ -10,7 +10,6 @@ import { getStudentHealthHistory } from '../../students/services/getStudentHealt
 import { getStudentHealthProfile } from '../../students/services/getStudentHealthProfile';
 import { MEDICINE_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
 import { createExamination } from '../services/createExamination';
-import '../styles/examinationUi.css';
 
 const toDateInputValue = (date = new Date()) => {
   const year = date.getFullYear();
@@ -71,7 +70,7 @@ const normalizePrescriptionItem = (item) => ({
 const CreateExaminationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { studentId: studentUserIdParam } = useParams();
+  const { studentUserId: studentUserIdParam } = useParams();
 
   const parsedStudentUserId = Number(studentUserIdParam);
   const studentUserId = Number.isFinite(parsedStudentUserId) && parsedStudentUserId > 0
@@ -97,7 +96,7 @@ const CreateExaminationPage = () => {
   useEffect(() => {
     if (!studentUserId) {
       setStatus('error');
-      setContextError('Mã học sinh trên URL không hợp lệ.');
+      setContextError('Liên kết tạo phiếu khám không hợp lệ.');
       return;
     }
 
@@ -159,7 +158,8 @@ const CreateExaminationPage = () => {
     };
   }, [reloadToken, studentUserId]);
 
-  const studentIdForSubmit = contextData.profile?.studentId || '';
+  const studentRecordIdForSubmit = contextData.profile?.studentId || '';
+  const studentCodeForDisplay = contextData.profile?.studentCode || '--';
 
   const medicinesById = useMemo(() => {
     const map = new Map();
@@ -189,8 +189,8 @@ const CreateExaminationPage = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!studentIdForSubmit) {
-      errors.studentId = 'Không xác định được studentId chuẩn của BE (STDxxx).';
+    if (!studentRecordIdForSubmit) {
+      errors.studentId = 'Không xác định được mã hồ sơ học sinh (STDxxx).';
     }
 
     if (!formValues.visitDate) {
@@ -252,7 +252,7 @@ const CreateExaminationPage = () => {
     }
 
     const payload = {
-      studentId: studentIdForSubmit,
+      studentId: studentRecordIdForSubmit,
       visitDate: `${formValues.visitDate}T00:00:00`,
       diseaseTypeId: formValues.diseaseTypeId.trim() || null,
       symptoms: formValues.symptoms.trim(),
@@ -337,7 +337,7 @@ const CreateExaminationPage = () => {
   };
 
   return (
-    <div className="exam-module exam-page-bg space-y-3.5 rounded-2xl p-1.5 md:p-2">
+    <div className="space-y-3.5 text-[#0F172A]">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -350,7 +350,7 @@ const CreateExaminationPage = () => {
         }}
       />
 
-      <section className="exam-banner rounded-2xl px-4 py-3.5 sm:px-5">
+      <section className="nurse-banner-soft rounded-2xl px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.03)] sm:px-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Tạo phiếu khám</h1>
@@ -359,7 +359,7 @@ const CreateExaminationPage = () => {
           <button
             type="button"
             onClick={() => navigate('/nurse/examinations')}
-            className="exam-btn-secondary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="nurse-btn-secondary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[17px]">arrow_back</span>
             Quay lại danh sách
@@ -383,7 +383,7 @@ const CreateExaminationPage = () => {
       >
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-12">
           <aside className="space-y-3.5 xl:col-span-4">
-            <section className="exam-card rounded-xl p-4">
+            <section className="nurse-card-soft rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Thông tin học sinh</h2>
               <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155]">
                 <div>
@@ -392,11 +392,11 @@ const CreateExaminationPage = () => {
                 </div>
                 <div>
                   <dt className="text-xs text-[#5F746B]">Mã học sinh</dt>
-                  <dd className="font-medium text-[#163126]">{studentIdForSubmit || '--'}</dd>
+                  <dd className="font-medium text-[#163126]">{studentCodeForDisplay || '--'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-[#5F746B]">Mã hồ sơ</dt>
-                  <dd className="font-medium text-[#163126]">{contextData.profile?.studentCode || '--'}</dd>
+                  <dd className="font-medium text-[#163126]">{studentRecordIdForSubmit || '--'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-[#5F746B]">Lớp</dt>
@@ -413,7 +413,7 @@ const CreateExaminationPage = () => {
               </dl>
             </section>
 
-            <section className="exam-error rounded-xl p-4">
+            <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-4 text-[#B91C1C]">
               <h2 className="text-sm font-bold">Cảnh báo dị ứng và lưu ý sức khỏe</h2>
               <div className="mt-2 space-y-2 text-sm">
                 <div>
@@ -435,12 +435,12 @@ const CreateExaminationPage = () => {
               </div>
             </section>
 
-            <section className="exam-card rounded-xl p-4">
+            <section className="nurse-card-soft rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h2>
               {contextData.history.length ? (
                 <ul className="mt-2 space-y-2">
                   {contextData.history.slice(0, 4).map((item) => (
-                    <li key={item.visitId} className="exam-section-subtle rounded-md px-3 py-2 text-sm">
+                    <li key={item.visitId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm">
                       <p className="text-xs text-[#5F746B]">{dateLabel(item.visitDate)}</p>
                       <p className="font-semibold text-[#163126]">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
                       <p className="text-xs text-[#5F746B]">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
@@ -453,7 +453,7 @@ const CreateExaminationPage = () => {
             </section>
           </aside>
 
-          <section className="exam-card rounded-xl p-4 xl:col-span-8">
+          <section className="nurse-card-soft rounded-xl p-4 xl:col-span-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               {fieldErrors.studentId ? (
                 <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{fieldErrors.studentId}</p>
@@ -470,7 +470,7 @@ const CreateExaminationPage = () => {
                     type="date"
                     value={formValues.visitDate}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, visitDate: event.target.value }))}
-                    className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
+                    className="nurse-focus-ring nurse-input h-10 rounded-lg px-3 text-sm"
                   />
                   {fieldErrors.visitDate ? <span className="text-xs text-[#B91C1C]">{fieldErrors.visitDate}</span> : null}
                 </label>
@@ -482,7 +482,7 @@ const CreateExaminationPage = () => {
                     value={formValues.diseaseTypeId}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
                     placeholder="Ví dụ: DIS001"
-                    className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
+                    className="nurse-focus-ring nurse-input h-10 rounded-lg px-3 text-sm"
                   />
                 </label>
               </div>
@@ -494,7 +494,7 @@ const CreateExaminationPage = () => {
                     value={formValues.symptoms}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, symptoms: event.target.value }))}
                     rows={4}
-                    className="exam-input nurse-focus-ring rounded-lg px-3 py-2 text-sm"
+                    className="nurse-focus-ring nurse-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập triệu chứng"
                   />
                   {fieldErrors.symptoms ? <span className="text-xs text-[#B91C1C]">{fieldErrors.symptoms}</span> : null}
@@ -506,7 +506,7 @@ const CreateExaminationPage = () => {
                     value={formValues.diagnosis}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, diagnosis: event.target.value }))}
                     rows={4}
-                    className="exam-input nurse-focus-ring rounded-lg px-3 py-2 text-sm"
+                    className="nurse-focus-ring nurse-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập chẩn đoán"
                   />
                   {fieldErrors.diagnosis ? <span className="text-xs text-[#B91C1C]">{fieldErrors.diagnosis}</span> : null}
@@ -520,7 +520,7 @@ const CreateExaminationPage = () => {
                     value={formValues.treatment}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, treatment: event.target.value }))}
                     rows={3}
-                    className="exam-input nurse-focus-ring rounded-lg px-3 py-2 text-sm"
+                    className="nurse-focus-ring nurse-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập hướng xử lý"
                   />
                   {fieldErrors.treatment ? <span className="text-xs text-[#B91C1C]">{fieldErrors.treatment}</span> : null}
@@ -532,19 +532,19 @@ const CreateExaminationPage = () => {
                     value={formValues.note}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, note: event.target.value }))}
                     rows={3}
-                    className="exam-input nurse-focus-ring rounded-lg px-3 py-2 text-sm"
+                    className="nurse-focus-ring nurse-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập ghi chú (nếu có)"
                   />
                 </label>
               </div>
 
-              <section className="exam-section-subtle space-y-3 rounded-lg p-3">
+              <section className="space-y-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-sm font-bold text-[#163126]">Thuốc cấp cho học sinh</h3>
                   <button
                     type="button"
                     onClick={addPrescriptionRow}
-                    className="exam-btn-secondary nurse-focus-ring inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                    className="nurse-btn-secondary nurse-focus-ring inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold"
                   >
                     <span className="material-symbols-outlined text-[15px]">add</span>
                     Thêm thuốc
@@ -556,7 +556,7 @@ const CreateExaminationPage = () => {
                 ) : null}
 
                 {!medicineLoadError && !medicines.length ? (
-                  <p className="exam-warning rounded-md px-2.5 py-2 text-xs">Hiện không có thuốc còn tồn kho để cấp phát cho lượt khám này.</p>
+                  <p className="rounded-md border border-[#FCD34D] bg-[#FFFBEB] px-2.5 py-2 text-xs text-[#92400E]">Hiện không có thuốc còn tồn kho để cấp phát cho lượt khám này.</p>
                 ) : null}
 
                 {prescriptions.length ? (
@@ -565,14 +565,14 @@ const CreateExaminationPage = () => {
                       const selectedMedicine = medicinesById.get(item.medicineId);
 
                       return (
-                        <article key={`prescription-${index}`} className="exam-card rounded-md p-3">
+                        <article key={`prescription-${index}`} className="rounded-md border border-[#E2E8F0] bg-white p-3">
                           <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
                             <label className="md:col-span-4 flex flex-col gap-1">
                               <span className="text-[11px] font-semibold text-[#5F746B]">Thuốc *</span>
                               <select
                                 value={item.medicineId}
                                 onChange={(event) => updatePrescriptionRow(index, { medicineId: event.target.value })}
-                                className="exam-input nurse-focus-ring h-10 rounded-lg px-2.5 text-sm"
+                                className="nurse-focus-ring nurse-input h-10 rounded-lg px-2.5 text-sm"
                               >
                                 <option value="">Chọn thuốc</option>
                                 {medicines.map((medicine) => (
@@ -590,7 +590,7 @@ const CreateExaminationPage = () => {
                                   Tồn kho còn: {selectedMedicine.currentStock}
                                 </span>
                               ) : null}
-                              {selectedMedicine?.isLowStock ? <span className="exam-warning inline-flex w-fit rounded-md px-1.5 py-0.5 text-[10px] font-semibold">Sắp hết thuốc</span> : null}
+                              {selectedMedicine?.isLowStock ? <span className="inline-flex w-fit rounded-md border border-[#FCD34D] bg-[#FFFBEB] px-1.5 py-0.5 text-[10px] font-semibold text-[#92400E]">Sắp hết thuốc</span> : null}
                               {fieldErrors[`prescriptions[${index}].medicineId`] ? (
                                 <span className="text-xs text-[#B91C1C]">{fieldErrors[`prescriptions[${index}].medicineId`]}</span>
                               ) : null}
@@ -603,7 +603,7 @@ const CreateExaminationPage = () => {
                                 min="1"
                                 value={item.quantity}
                                 onChange={(event) => updatePrescriptionRow(index, { quantity: event.target.value })}
-                                className="exam-input nurse-focus-ring h-10 rounded-lg px-2.5 text-sm"
+                                className="nurse-focus-ring nurse-input h-10 rounded-lg px-2.5 text-sm"
                               />
                               {fieldErrors[`prescriptions[${index}].quantity`] ? (
                                 <span className="text-xs text-[#B91C1C]">{fieldErrors[`prescriptions[${index}].quantity`]}</span>
@@ -616,7 +616,7 @@ const CreateExaminationPage = () => {
                                 type="text"
                                 value={item.dosage}
                                 onChange={(event) => updatePrescriptionRow(index, { dosage: event.target.value })}
-                                className="exam-input nurse-focus-ring h-10 rounded-lg px-2.5 text-sm"
+                                className="nurse-focus-ring nurse-input h-10 rounded-lg px-2.5 text-sm"
                                 placeholder="Ví dụ: 1 viên/lần"
                               />
                             </label>
@@ -627,7 +627,7 @@ const CreateExaminationPage = () => {
                                 type="text"
                                 value={item.usageInstruction}
                                 onChange={(event) => updatePrescriptionRow(index, { usageInstruction: event.target.value })}
-                                className="exam-input nurse-focus-ring h-10 rounded-lg px-2.5 text-sm"
+                                className="nurse-focus-ring nurse-input h-10 rounded-lg px-2.5 text-sm"
                                 placeholder="Ví dụ: Uống sau ăn"
                               />
                             </label>
@@ -660,15 +660,15 @@ const CreateExaminationPage = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/nurse/examinations')}
-                    className="exam-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
+                    className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
                     disabled={submitting}
                   >
                     Hủy bỏ
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting || !studentIdForSubmit}
-                    className="exam-btn-primary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={submitting || !studentRecordIdForSubmit}
+                    className="nurse-btn-primary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {submitting ? 'Đang lưu...' : 'Hoàn tất phiếu khám'}
                   </button>

@@ -8,11 +8,17 @@ const roleToneClass = {
 };
 
 const actionToneClass = {
-  create: 'text-emerald-600',
-  update: 'text-blue-600',
-  delete: 'text-red-600',
-  export: 'text-purple-600',
-  sync: 'text-orange-600',
+  create_user: 'text-emerald-700',
+  lock_user: 'text-amber-700',
+  update_health_profile: 'text-sky-700',
+  create_examination: 'text-cyan-700',
+  stock_in_medicine: 'text-indigo-700',
+  update_vaccination_status: 'text-blue-700',
+  sync_system_data: 'text-orange-700',
+  create: 'text-emerald-700',
+  update: 'text-blue-700',
+  delete: 'text-red-700',
+  sync: 'text-orange-700',
 };
 
 const formatDateParts = (value) => {
@@ -35,17 +41,28 @@ const SystemLogsTable = ({ rows, onSelect }) => {
             <th className="px-5 py-3.5 whitespace-nowrap">Hành động</th>
             <th className="px-5 py-3.5 whitespace-nowrap">Đối tượng</th>
             <th className="px-5 py-3.5">Chi tiết</th>
-            <th className="px-5 py-3.5 text-center whitespace-nowrap">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
           {rows.map((row) => {
-            const { dateLabel, timeLabel } = formatDateParts(row.occurredAt);
+            const { dateLabel, timeLabel } = formatDateParts(row.createdAt);
             const roleClass = roleToneClass[row.actorRole] || 'bg-slate-100 text-slate-600';
-            const actionClass = actionToneClass[row.actionCategory] || 'text-slate-600';
+            const actionClass = actionToneClass[row.action] || 'text-slate-700';
 
             return (
-              <tr key={row.id} className="hover:bg-slate-50/70 transition-colors">
+              <tr
+                key={row.id}
+                onClick={() => onSelect?.(row)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onSelect?.(row);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50/80 focus:outline-none"
+              >
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
                   <div className="font-medium text-slate-800 text-[13px]">{dateLabel}</div>
                   <div className="text-[11px] text-slate-500">{timeLabel}</div>
@@ -66,20 +83,11 @@ const SystemLogsTable = ({ rows, onSelect }) => {
                   <div className="text-[11px] text-slate-500">{row.moduleLabel || '--'}</div>
                 </td>
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="font-medium text-slate-800 text-[13px]">{row.targetName || row.targetTypeLabel || '--'}</div>
+                  <div className="font-medium text-slate-800 text-[13px]">{row.targetLabel || row.targetTypeLabel || '--'}</div>
                   <div className="text-[11px] text-slate-500">{row.targetTypeLabel || '--'}</div>
                 </td>
-                <td className="px-5 py-3.5 align-middle max-w-[220px] 2xl:max-w-[320px] truncate text-[13px] text-slate-600" title={row.message}>
-                  {row.message}
-                </td>
-                <td className="px-5 py-3.5 align-middle text-center whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => onSelect?.(row)}
-                    className="inline-flex items-center text-xs font-semibold text-emerald-700 transition hover:text-emerald-900 hover:underline underline-offset-2"
-                  >
-                    Xem
-                  </button>
+                <td className="px-5 py-3.5 align-middle max-w-[220px] 2xl:max-w-[360px] text-[13px] text-slate-600">
+                  <p className="line-clamp-2" title={row.description}>{row.description}</p>
                 </td>
               </tr>
             );

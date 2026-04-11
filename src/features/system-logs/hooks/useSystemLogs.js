@@ -3,10 +3,22 @@ import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { adaptSystemLogsResponse } from '../adapters/systemLogsAdapter';
 import { getSystemLogsApi } from '../services/systemLogsApi';
 
-const initialFilters = { keyword: '', fromDate: '', toDate: '', role: 'all', action: 'all' };
+export const SYSTEM_LOGS_DEFAULT_FILTERS = {
+  keyword: '',
+  fromDate: '',
+  toDate: '',
+  role: 'all',
+  module: 'all',
+  action: 'all',
+};
+
+const normalizeFilters = (nextFilters = {}) => ({
+  ...SYSTEM_LOGS_DEFAULT_FILTERS,
+  ...nextFilters,
+});
 
 export const useSystemLogs = () => {
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(SYSTEM_LOGS_DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const [tableData, setTableData] = useState({ rows: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
@@ -36,7 +48,7 @@ export const useSystemLogs = () => {
   }, [fetchList]);
 
   const onFiltersChange = (nextFilters) => {
-    setFilters(nextFilters);
+    setFilters(normalizeFilters(nextFilters));
     setPage(1);
   };
 

@@ -79,7 +79,7 @@ const CatalogLookupPage = () => {
         )}
       />
 
-      <MockScopeNotice moduleLabel="Catalogs" />
+      <MockScopeNotice moduleLabel="Catalogs" className="py-2.5 text-xs" />
 
       <SectionCard title="Nhóm danh mục" subtitle="Chuyển nhanh nhóm dữ liệu để tra cứu danh mục tương ứng.">
         <CatalogGroupTabs activeGroup={group} onChange={onGroupChange} />

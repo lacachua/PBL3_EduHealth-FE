@@ -12,6 +12,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
 
   return (
     <form
+      className="w-full"
       onSubmit={(event) => {
         event.preventDefault();
         onApply(draft);
@@ -22,13 +23,13 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
           value={draft.keyword}
           onChange={(keyword) => setDraft((prev) => ({ ...prev, keyword }))}
           placeholder="Tìm theo mã hoặc tên danh mục..."
-          className="max-w-sm"
+          className="w-full md:min-w-[300px] md:flex-1 lg:max-w-[420px]"
         />
 
         <select
           value={draft.status}
           onChange={(event) => setDraft((prev) => ({ ...prev, status: event.target.value }))}
-          className="rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
+          className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 md:w-[200px]"
         >
           {CATALOG_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -37,15 +38,18 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
 
         <button
           type="submit"
-          className="rounded-xl border border-outline-variant bg-surface px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low"
+          className="w-full rounded-xl border border-outline-variant bg-surface px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low md:w-auto"
         >
           Áp dụng
         </button>
 
         <button
           type="button"
-          onClick={onReset}
-          className="rounded-xl border border-outline-variant/70 bg-transparent px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low"
+          onClick={() => {
+            setDraft({ keyword: '', status: 'all' });
+            onReset();
+          }}
+          className="w-full rounded-xl border border-outline-variant/70 bg-transparent px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low md:w-auto"
         >
           Đặt lại
         </button>

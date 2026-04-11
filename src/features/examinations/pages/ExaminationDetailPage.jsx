@@ -4,7 +4,6 @@ import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { getExaminationDetail } from '../services/getExaminationDetail';
-import '../styles/examinationUi.css';
 
 const dateTimeLabel = (value) => {
   if (!value) return '--';
@@ -72,7 +71,7 @@ const ExaminationDetailPage = () => {
   const effectiveError = hasValidExaminationId ? error : 'Mã phiếu khám không hợp lệ.';
 
   return (
-    <div className="exam-module exam-page-bg space-y-3.5 rounded-2xl p-1.5 md:p-2">
+    <div className="space-y-3.5 text-[#0F172A]">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -85,7 +84,7 @@ const ExaminationDetailPage = () => {
         }}
       />
 
-      <section className="exam-banner rounded-2xl px-4 py-3.5 sm:px-5">
+      <section className="nurse-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Chi tiết phiếu khám</h1>
@@ -94,7 +93,7 @@ const ExaminationDetailPage = () => {
           <button
             type="button"
             onClick={() => navigate('/nurse/examinations')}
-            className="exam-btn-secondary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="nurse-btn-secondary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[17px]">arrow_back</span>
             Quay lại danh sách
@@ -113,7 +112,7 @@ const ExaminationDetailPage = () => {
       >
         {data ? (
           <div className="space-y-3.5">
-            <section className="exam-card rounded-xl p-4">
+            <section className="nurse-card-soft rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Thông tin chung</h2>
               <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
                 <div>
@@ -130,6 +129,10 @@ const ExaminationDetailPage = () => {
                 </div>
                 <div>
                   <dt className="text-xs text-[#64748B]">Mã học sinh</dt>
+                  <dd className="font-medium text-[#0F172A]">{data.student?.studentCode || '--'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-[#64748B]">Mã hồ sơ</dt>
                   <dd className="font-medium text-[#0F172A]">{data.student?.studentId || '--'}</dd>
                 </div>
                 <div>
@@ -147,7 +150,7 @@ const ExaminationDetailPage = () => {
               </dl>
             </section>
 
-            <section className="exam-card rounded-xl p-4">
+            <section className="nurse-card-soft rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Nội dung khám</h2>
               <div className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155]">
                 <div>
@@ -169,12 +172,12 @@ const ExaminationDetailPage = () => {
               </div>
             </section>
 
-            <section className="exam-card rounded-xl p-4">
+            <section className="nurse-card-soft rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Đơn thuốc</h2>
               {Array.isArray(data.prescriptions) && data.prescriptions.length ? (
                 <div className="mt-2 space-y-2">
                   {data.prescriptions.map((item) => (
-                    <article key={item.prescriptionId} className="exam-section-subtle rounded-md px-3 py-2">
+                    <article key={item.prescriptionId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
                       <p className="text-sm font-semibold text-[#163126]">{item.medicineName || '--'}</p>
                       <p className="text-xs text-[#5F746B]">Số lượng: {item.quantity ?? '--'}</p>
                       <p className="text-xs text-[#5F746B]">Liều dùng: {item.dosage || '--'}</p>

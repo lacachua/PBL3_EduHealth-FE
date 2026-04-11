@@ -32,6 +32,14 @@ const DataTable = ({
             <tr
               key={getRowKey ? getRowKey(row) : row.id || index}
               onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+              onKeyDown={onRowClick ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onRowClick(row, index);
+                }
+              } : undefined}
+              role={onRowClick ? 'button' : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
               className={`${rowClassName || 'transition-colors duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low'} ${onRowClick ? 'cursor-pointer' : ''}`}
             >
               {columns.map((column) => (

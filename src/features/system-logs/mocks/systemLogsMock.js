@@ -1,192 +1,129 @@
-﻿const baseRows = [
+﻿const activityTemplates = [
   {
-    id: 'LOG-193S-2026',
-    actorName: 'Nguyễn Văn A',
-    actorUsername: 'nguyenvana_student',
-    actorRole: 'student',
-    actionCategory: 'export',
-    actionLabel: 'Xem báo cáo',
-    moduleLabel: 'Báo cáo',
-    targetName: 'Báo cáo sức khỏe tháng 3',
-    targetTypeLabel: 'Báo cáo',
-    statusTone: 'success',
-    message: 'Học sinh xem báo cáo sức khỏe định kỳ tháng 3',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-193T-2026',
-    actorName: 'Admin System',
-    actorUsername: 'admin_system',
+    actorName: 'Admin Trần Mai',
+    actorUsername: 'admin.tm',
     actorRole: 'admin',
-    actionCategory: 'update',
-    actionLabel: 'Cập nhật hệ thống',
-    moduleLabel: 'Hệ thống',
-    targetName: 'Cấu hình phân quyền',
-    targetTypeLabel: 'Hệ thống',
-    statusTone: 'warning',
-    message: 'Admin thay đổi cấu hình phân quyền hệ thống',
-    statusLabel: 'Cảnh báo'
+    module: 'users',
+    action: 'create_user',
+    targetType: 'user_account',
+    targetLabel: 'Tài khoản Nguyễn Minh Hùng',
+    targetId: 'USR-1204',
+    description: 'Tạo mới tài khoản phụ huynh để kích hoạt truy cập cổng sức khỏe học sinh.',
+    status: 'success',
+    metadata: { createdBy: 'admin.tm', source: 'admin-user-management' },
   },
   {
-    id: 'LOG-193U-2026',
-    actorName: 'Trần Thị B',
-    actorUsername: 'tranb_nurse',
-    actorRole: 'nurse',
-    actionCategory: 'update',
-    actionLabel: 'Cập nhật hồ sơ',
-    moduleLabel: 'Học sinh',
-    targetName: 'Nguyễn Văn C',
-    targetTypeLabel: 'Học sinh',
-    statusTone: 'success',
-    message: 'Cập nhật chỉ số BMI cho học sinh Nguyễn Văn C',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-193V-2026',
-    actorName: 'Admin System',
-    actorUsername: 'admin_system',
+    actorName: 'Admin Trần Mai',
+    actorUsername: 'admin.tm',
     actorRole: 'admin',
-    actionCategory: 'other',
-    actionLabel: 'Đăng nhập',
-    moduleLabel: 'Hệ thống',
-    targetName: 'Hệ thống',
-    targetTypeLabel: 'Hệ thống',
-    statusTone: 'error',
-    message: 'Đăng nhập thất bại (Sai mật khẩu)',
-    statusLabel: 'Lỗi'
+    module: 'users',
+    action: 'lock_user',
+    targetType: 'user_account',
+    targetLabel: 'Tài khoản phụ huynh Lê Thu Hà',
+    targetId: 'USR-1038',
+    description: 'Khóa tạm thời tài khoản sau nhiều lần đăng nhập thất bại liên tiếp.',
+    status: 'warning',
+    metadata: { reason: 'Sai mật khẩu quá 5 lần', previousStatus: 'active', currentStatus: 'locked' },
   },
   {
-    id: 'LOG-193W-2026',
-    actorName: 'Lê Thị D',
-    actorUsername: 'lethid_student',
-    actorRole: 'student',
-    actionCategory: 'export',
-    actionLabel: 'Xem lịch tiêm',
-    moduleLabel: 'Tiêm chủng',
-    targetName: 'Lịch tiêm chủng',
-    targetTypeLabel: 'Tiêm chủng',
-    statusTone: 'success',
-    message: 'Học sinh xem lịch tiêm chủng mở rộng',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-193X-2026',
-    actorName: 'Phạm Văn E',
-    actorUsername: 'phamvane_nurse',
+    actorName: 'Y tá Nguyễn Thu An',
+    actorUsername: 'nurse.nta',
     actorRole: 'nurse',
-    actionCategory: 'delete',
-    actionLabel: 'Xóa bản ghi',
-    moduleLabel: 'Khám sức khỏe',
-    targetName: 'Bản ghi khám',
-    targetTypeLabel: 'Khám sức khỏe',
-    statusTone: 'warning',
-    message: 'Xóa bản ghi khám sức khỏe bị lỗi do vi phạm ràng buộc',
-    statusLabel: 'Cảnh báo'
+    module: 'health_profiles',
+    action: 'update_health_profile',
+    targetType: 'health_profile',
+    targetLabel: 'Hồ sơ sức khỏe Trần Gia Bảo',
+    targetId: 'HP-5502',
+    description: 'Cập nhật chỉ số BMI và ghi nhận tiền sử dị ứng theo xác nhận mới nhất.',
+    status: 'success',
+    metadata: { source: 'student-profile-screen', previousStatus: 'review', currentStatus: 'active' },
   },
   {
-    id: 'LOG-194A-2026',
-    actorName: 'Hệ Thống',
-    actorUsername: 'system_auto',
+    actorName: 'Y tá Nguyễn Thu An',
+    actorUsername: 'nurse.nta',
+    actorRole: 'nurse',
+    module: 'examinations',
+    action: 'create_examination',
+    targetType: 'examination',
+    targetLabel: 'Phiếu khám học sinh Nguyễn Gia Hân',
+    targetId: 'EXM-3321',
+    description: 'Tạo phiếu khám mới và cập nhật chẩn đoán viêm họng cấp cho học sinh.',
+    status: 'success',
+    metadata: { examinationCode: 'EXM-3321' },
+  },
+  {
+    actorName: 'Dược sĩ Lê Hoàng',
+    actorUsername: 'nurse.lh',
+    actorRole: 'nurse',
+    module: 'medicines',
+    action: 'stock_in_medicine',
+    targetType: 'medicine_stock',
+    targetLabel: 'Lô Paracetamol 500mg',
+    targetId: 'MED-BATCH-221',
+    description: 'Nhập kho thuốc mới theo phiếu nhập từ nhà cung cấp đạt chuẩn.',
+    status: 'success',
+    metadata: { quantityIn: 450, source: 'warehouse-inbound' },
+  },
+  {
+    actorName: 'Y tá Hoàng Minh',
+    actorUsername: 'nurse.hm',
+    actorRole: 'nurse',
+    module: 'vaccinations',
+    action: 'update_vaccination_status',
+    targetType: 'vaccination_record',
+    targetLabel: 'Hồ sơ tiêm chủng lớp 5A',
+    targetId: 'VAC-REC-5A',
+    description: 'Cập nhật trạng thái tiêm chủng sau khi hoàn tất đợt tiêm nhắc cho lớp 5A.',
+    status: 'success',
+    metadata: { vaccineName: 'MMR', previousStatus: 'scheduled', currentStatus: 'completed' },
+  },
+  {
+    actorName: 'System Scheduler',
+    actorUsername: 'system.scheduler',
     actorRole: 'system',
-    actionCategory: 'sync',
-    actionLabel: 'Đồng bộ dữ liệu',
-    moduleLabel: 'Hệ thống',
-    targetName: 'Cơ sở dữ liệu y tế',
-    targetTypeLabel: 'Hệ thống',
-    statusTone: 'success',
-    message: 'Đồng bộ dữ liệu y tế tự động thành công',
-    statusLabel: 'Thành công'
+    module: 'system_sync',
+    action: 'sync_system_data',
+    targetType: 'sync_job',
+    targetLabel: 'Đồng bộ hồ sơ học sinh với SIS',
+    targetId: 'SYNC-7788',
+    description: 'Đồng bộ dữ liệu hệ thống định kỳ hoàn tất, không phát hiện xung đột bản ghi.',
+    status: 'success',
+    metadata: { syncBatch: 'BATCH-20260411-02', source: 'scheduler-nightly' },
   },
   {
-    id: 'LOG-194B-2026',
-    actorName: 'Admin System',
-    actorUsername: 'admin_system',
-    actorRole: 'admin',
-    actionCategory: 'update',
-    actionLabel: 'Khóa tài khoản',
-    moduleLabel: 'Người dùng',
-    targetName: 'lethid_student',
-    targetTypeLabel: 'Tài khoản',
-    statusTone: 'warning',
-    message: 'Khóa tài khoản học sinh do sai mật khẩu quá 5 lần',
-    statusLabel: 'Cảnh báo'
+    actorName: 'System Scheduler',
+    actorUsername: 'system.scheduler',
+    actorRole: 'system',
+    module: 'system_sync',
+    action: 'sync_system_data',
+    targetType: 'sync_job',
+    targetLabel: 'Đồng bộ dữ liệu tiêm chủng với hệ thống tỉnh',
+    targetId: 'SYNC-7794',
+    description: 'Đồng bộ dữ liệu thất bại do mất kết nối tạm thời tới hệ thống đối tác.',
+    status: 'error',
+    metadata: { syncBatch: 'BATCH-20260411-05', reason: 'Kết nối timeout tới cổng đối tác' },
   },
-  {
-    id: 'LOG-194C-2026',
-    actorName: 'Admin System',
-    actorUsername: 'admin_system',
-    actorRole: 'admin',
-    actionCategory: 'create',
-    actionLabel: 'Tạo tài khoản',
-    moduleLabel: 'Người dùng',
-    targetName: 'Trần Văn F',
-    targetTypeLabel: 'Tài khoản',
-    statusTone: 'success',
-    message: 'Tạo tài khoản học sinh mới',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-194D-2026',
-    actorName: 'Nguyễn Văn A',
-    actorUsername: 'nguyenvana_student',
-    actorRole: 'student',
-    actionCategory: 'other',
-    actionLabel: 'Đăng nhập',
-    moduleLabel: 'Hệ thống',
-    targetName: 'Portal',
-    targetTypeLabel: 'Web',
-    statusTone: 'success',
-    message: 'Học sinh đăng nhập thành công',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-194E-2026',
-    actorName: 'Trần Thị B',
-    actorUsername: 'tranb_nurse',
-    actorRole: 'nurse',
-    actionCategory: 'export',
-    actionLabel: 'Xuất báo cáo',
-    moduleLabel: 'Báo cáo',
-    targetName: 'Thống kê dịch bệnh',
-    targetTypeLabel: 'Báo cáo',
-    statusTone: 'success',
-    message: 'Xuất báo cáo thống kê tình hình dịch bệnh tháng 3',
-    statusLabel: 'Thành công'
-  },
-  {
-    id: 'LOG-194F-2026',
-    actorName: 'Admin System',
-    actorUsername: 'admin_system',
-    actorRole: 'admin',
-    actionCategory: 'other',
-    actionLabel: 'Đăng nhập',
-    moduleLabel: 'Hệ thống',
-    targetName: 'Portal',
-    targetTypeLabel: 'Web',
-    statusTone: 'error',
-    message: 'Đăng nhập thất bại (Tài khoản bị vô hiệu hóa)',
-    statusLabel: 'Lỗi'
-  }
 ];
 
 const rows = [];
 const startDate = new Date('2026-03-20T08:00:00Z');
 
-// Generate 45 mock logs to span across multiple pages
+// Generate enough records for pagination and role/date filtering.
 for (let i = 0; i < 45; i++) {
-  const baseTemplate = baseRows[i % baseRows.length];
-  const itemDate = new Date(startDate.getTime() + i * 3600000 * 2.5); // Add 2.5 hours per item
-  
+  const template = activityTemplates[i % activityTemplates.length];
+  const itemDate = new Date(startDate.getTime() + i * 3600000 * 2.5);
+
   rows.push({
-    ...baseTemplate,
     id: `LOG-${1000 + i}-2026`,
-    occurredAt: itemDate.toISOString(),
+    createdAt: itemDate.toISOString(),
+    ...template,
   });
 }
 
 const filterRows = (data, query) => {
   const keyword = (query.keyword || '').toLowerCase().trim();
   const role = (query.role || 'all').toLowerCase();
+  const module = (query.module || 'all').toLowerCase();
   const action = (query.action || 'all').toLowerCase();
 
   const fromDate = query.fromDate ? new Date(query.fromDate) : null;
@@ -199,21 +136,25 @@ const filterRows = (data, query) => {
   return data.filter((row) => {
     const byKeyword =
       !keyword ||
-      (row.message && row.message.toLowerCase().includes(keyword)) ||
+      (row.description && row.description.toLowerCase().includes(keyword)) ||
+      (row.targetLabel && row.targetLabel.toLowerCase().includes(keyword)) ||
+      (row.actorName && row.actorName.toLowerCase().includes(keyword)) ||
       (row.actorUsername && row.actorUsername.toLowerCase().includes(keyword)) ||
-      (row.actionLabel && row.actionLabel.toLowerCase().includes(keyword));
+      (row.action && row.action.toLowerCase().includes(keyword)) ||
+      (row.module && row.module.toLowerCase().includes(keyword));
 
     const byRole = role === 'all' || row.actorRole?.toLowerCase() === role;
-    const byAction = action === 'all' || row.actionCategory?.toLowerCase() === action;
+    const byModule = module === 'all' || row.module?.toLowerCase() === module;
+    const byAction = action === 'all' || row.action?.toLowerCase() === action;
 
     let byDateRange = true;
     if (fromDate || toDate) {
-      const rowDate = new Date(row.occurredAt);
+      const rowDate = new Date(row.createdAt);
       if (fromDate && rowDate < fromDate) byDateRange = false;
       if (toDate && rowDate > toDate) byDateRange = false;
     }
 
-    return byKeyword && byRole && byAction && byDateRange;
+    return byKeyword && byRole && byModule && byAction && byDateRange;
   });
 };
 
@@ -222,7 +163,7 @@ export const getSystemLogsMockEnvelope = (query = {}) => {
   const pageSize = Number(query.pageSize || 10);
   
   // Sort descending by default to show newest first
-  const sortedRows = [...rows].sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt));
+  const sortedRows = [...rows].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   
   const filtered = filterRows(sortedRows, query);
 

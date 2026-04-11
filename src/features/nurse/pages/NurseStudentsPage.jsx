@@ -203,7 +203,7 @@ const NurseStudentsPage = () => {
         state: {
           source: 'nurse-students',
           openCreateExamination: true,
-          studentId,
+          studentUserId: studentId,
           studentName: student?.fullName,
         },
       });

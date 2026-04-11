@@ -1,4 +1,5 @@
 ﻿import React, { useMemo, useState } from 'react';
+import { SYSTEM_LOGS_DEFAULT_FILTERS } from '../hooks/useSystemLogs';
 
 const inputClass =
   'w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600';
@@ -13,10 +14,15 @@ const roleOptions = [
 ];
 
 const SystemLogsFilters = ({ initialValue, onApply }) => {
-  const [draft, setDraft] = useState(initialValue);
+  const [draft, setDraft] = useState(() => ({ ...SYSTEM_LOGS_DEFAULT_FILTERS, ...initialValue }));
 
   const hasActiveFilters = useMemo(() => {
-    return draft.keyword || draft.fromDate || draft.toDate || (draft.role && draft.role !== 'all');
+    return draft.keyword
+      || draft.fromDate
+      || draft.toDate
+      || (draft.role && draft.role !== 'all')
+      || (draft.module && draft.module !== 'all')
+      || (draft.action && draft.action !== 'all');
   }, [draft]);
 
   const handleSubmit = (event) => {
@@ -25,13 +31,14 @@ const SystemLogsFilters = ({ initialValue, onApply }) => {
   };
 
   const handleReset = () => {
-    const defaultVals = { keyword: '', fromDate: '', toDate: '', role: 'all' };
+    const defaultVals = SYSTEM_LOGS_DEFAULT_FILTERS;
     setDraft(defaultVals);
     onApply(defaultVals);
   };
 
   const removeFilter = (key) => {
-    const updated = { ...draft, [key]: key === 'role' ? 'all' : '' };
+    const resetToAllKeys = ['role', 'module', 'action'];
+    const updated = { ...draft, [key]: resetToAllKeys.includes(key) ? 'all' : '' };
     setDraft(updated);
     onApply(updated);
   };
@@ -44,7 +51,7 @@ const SystemLogsFilters = ({ initialValue, onApply }) => {
           <input
             type="text"
             className={inputClass}
-            placeholder="Nội dung, người dùng..."
+            placeholder="Nội dung, người thao tác, đối tượng..."
             value={draft.keyword || ''}
             onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
           />
