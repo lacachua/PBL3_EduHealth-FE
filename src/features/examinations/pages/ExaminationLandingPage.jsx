@@ -3,15 +3,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import DataTable from '../../../shared/components/admin/DataTable';
+import EmptyState from '../../../shared/components/admin/EmptyState';
 import Pagination from '../../../shared/components/admin/Pagination';
+import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import StudentPickerModal from '../components/StudentPickerModal';
 import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
 import { getExaminations } from '../services/getExaminations';
-import '../styles/examinationUi.css';
 
 const defaultFilters = {
-  studentId: '',
+  keyword: '',
   classId: '',
   diseaseTypeId: '',
   fromDate: '',
@@ -45,7 +46,8 @@ const parseExaminationListEnvelope = (envelope) => {
       id: item.id,
       visitDate: item.visitDate,
       studentName: item.student?.fullName || '--',
-      studentId: item.student?.studentId || '--',
+      studentCode: item.student?.studentCode || '--',
+      studentRecordId: item.student?.studentId || '--',
       className: item.student?.className || '--',
       diseaseTypeName: item.diseaseType?.name || '--',
       diagnosis: item.diagnosis || '--',
@@ -56,6 +58,11 @@ const parseExaminationListEnvelope = (envelope) => {
     totalItems: Number(envelope?.meta?.totalItems || rows.length),
     totalPages: Number(envelope?.meta?.totalPages || 0),
   };
+};
+
+const toApiStudentIdFromKeyword = (keyword) => {
+  const normalized = String(keyword || '').trim().toUpperCase();
+  return /^STD\d+$/i.test(normalized) ? normalized : '';
 };
 
 const ExaminationLandingPage = () => {
@@ -85,10 +92,12 @@ const ExaminationLandingPage = () => {
     setError('');
 
     try {
+      const apiStudentId = toApiStudentIdFromKeyword(nextFilters.keyword);
+
       const response = await getExaminations({
         page: nextPage,
         pageSize: EXAMINATION_PAGE_SIZE,
-        studentId: nextFilters.studentId,
+        studentId: apiStudentId || undefined,
         classId: nextFilters.classId,
         diseaseTypeId: nextFilters.diseaseTypeId,
         fromDate: nextFilters.fromDate,
@@ -124,7 +133,7 @@ const ExaminationLandingPage = () => {
     const timer = window.setTimeout(() => {
       if (state.openCreateExamination) {
         setPickerOpen(true);
-        const initialId = Number(state.studentId);
+        const initialId = Number(state.studentUserId ?? state.studentId);
         setPickerInitialStudentId(Number.isFinite(initialId) && initialId > 0 ? initialId : null);
         setPickerInitialStudentName(state.studentName || '');
       }
@@ -138,6 +147,44 @@ const ExaminationLandingPage = () => {
       window.clearTimeout(timer);
     };
   }, [location.pathname, location.state, navigate]);
+
+  const displayedRows = useMemo(() => {
+    const keyword = String(appliedFilters.keyword || '').trim().toLowerCase();
+    if (!keyword) {
+      return listData.rows;
+    }
+
+    return listData.rows.filter((row) => {
+      const searchable = [
+        row.id,
+        row.studentName,
+        row.studentCode,
+        row.studentRecordId,
+        row.className,
+        row.diseaseTypeName,
+        row.diagnosis,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return searchable.includes(keyword);
+    });
+  }, [appliedFilters.keyword, listData.rows]);
+
+  const effectiveStatus = status === 'success' && !displayedRows.length ? 'empty' : status;
+
+  const stats = useMemo(() => {
+    const withPrescription = displayedRows.filter((row) => row.hasPrescription).length;
+    const withDiseaseGroup = displayedRows.filter((row) => row.diseaseTypeName !== '--').length;
+    const withoutPrescription = Math.max(displayedRows.length - withPrescription, 0);
+
+    return {
+      total: listData.totalItems,
+      withPrescription,
+      withoutPrescription,
+      withDiseaseGroup,
+    };
+  }, [displayedRows, listData.totalItems]);
 
   const columns = useMemo(() => ([
     {
@@ -160,7 +207,13 @@ const ExaminationLandingPage = () => {
       render: (row) => (
         <div>
           <p className="text-[13px] font-semibold text-[#163126]">{row.studentName}</p>
-          <p className="text-[11px] text-[#5F746B]">{row.studentId} • Lớp {row.className}</p>
+          <p className="text-[11px] text-[#5F746B]">
+            {row.studentCode}
+            {' • '}
+            Mã hồ sơ {row.studentRecordId}
+            {' • '}
+            Lớp {row.className}
+          </p>
         </div>
       ),
     },
@@ -174,42 +227,26 @@ const ExaminationLandingPage = () => {
       key: 'diagnosis',
       header: 'Chẩn đoán',
       cellClassName: 'min-w-[220px] text-[12px] text-[#163126]',
+      render: (row) => <p className="line-clamp-2">{row.diagnosis}</p>,
     },
     {
       key: 'hasPrescription',
       header: 'Đơn thuốc',
-      headerClassName: 'w-[110px] text-center',
-      cellClassName: 'whitespace-nowrap text-center',
+      headerClassName: 'w-[156px] text-right',
+      cellClassName: 'whitespace-nowrap',
       render: (row) => (
-        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-[#E8F6EE] text-[#0B6F3C]' : 'bg-[#F8FAF9] text-[#5F746B]'}`}>
-          {row.hasPrescription ? 'Có' : 'Không'}
-        </span>
-      ),
-    },
-    {
-      key: 'actions',
-      header: 'Thao tác',
-      headerClassName: 'w-[112px] text-center',
-      cellClassName: 'text-center',
-      render: (row) => (
-        <div className="flex justify-center" onClick={(event) => event.stopPropagation()}>
-          <button
-            type="button"
-            onClick={() => {
-              navigate(`/nurse/examinations/${row.id}`);
-            }}
-            className="exam-btn-secondary nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg"
-            aria-label={`Xem phiếu ${row.id}`}
-          >
-            <span className="material-symbols-outlined text-[16px]">visibility</span>
-          </button>
+        <div className="flex items-center justify-end gap-2">
+          <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#F1F5F9] text-[#64748B]'}`}>
+            {row.hasPrescription ? 'Có' : 'Không'}
+          </span>
+          <span className="material-symbols-outlined text-[16px] text-[#94A3B8]" aria-hidden="true">chevron_right</span>
         </div>
       ),
     },
-  ]), [navigate]);
+  ]), []);
 
   return (
-    <div className="exam-module exam-page-bg space-y-3.5 rounded-2xl p-1.5 md:p-2">
+    <div className="space-y-3.5 text-[#0F172A]">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -222,12 +259,10 @@ const ExaminationLandingPage = () => {
         }}
       />
 
-      <section className="exam-banner rounded-2xl px-4 py-3.5 sm:px-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Khám bệnh học đường</h1>
-            <p className="exam-muted mt-1 text-sm">Theo dõi các lần khám gần đây, tra cứu nhanh và tạo phiếu khám mới theo từng học sinh.</p>
-          </div>
+      <NurseModulePageHeader
+        title="Khám bệnh học đường"
+        description="Theo dõi các lần khám gần đây, tra cứu nhanh và tạo phiếu khám mới theo từng học sinh."
+        actions={(
           <button
             type="button"
             onClick={() => {
@@ -235,80 +270,82 @@ const ExaminationLandingPage = () => {
               setPickerInitialStudentName('');
               setPickerOpen(true);
             }}
-            className="exam-btn-primary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+            className="nurse-btn-primary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             Tạo phiếu khám mới
           </button>
-        </div>
-      </section>
+        )}
+      />
 
-      <section className="exam-card rounded-xl p-4">
+      <section className="nurse-card-soft rounded-2xl px-4 py-3 sm:px-5">
         <form
           onSubmit={(event) => {
             event.preventDefault();
             setAppliedFilters(filters);
             setPage(1);
           }}
-          className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-6"
+          className="space-y-2.5"
         >
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-[#5F746B]">Mã học sinh</span>
-            <input
-              type="text"
-              value={filters.studentId}
-              onChange={(event) => setFilters((prev) => ({ ...prev, studentId: event.target.value }))}
-              placeholder="Ví dụ: STD001"
-              className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-12 lg:items-end">
+            <label className="relative lg:col-span-4">
+              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#64748B]/80">search</span>
+              <input
+                type="search"
+                value={filters.keyword}
+                onChange={(event) => setFilters((prev) => ({ ...prev, keyword: event.target.value }))}
+                placeholder="Tìm học sinh hoặc mã phiếu"
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+              />
+            </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-[#5F746B]">Mã lớp</span>
-            <input
-              type="text"
-              value={filters.classId}
-              onChange={(event) => setFilters((prev) => ({ ...prev, classId: event.target.value }))}
-              placeholder="Ví dụ: CLS001"
-              className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
-            />
-          </label>
+            <label className="flex flex-col gap-1 lg:col-span-2">
+              <span className="text-[11px] font-semibold text-[#64748B]">Lớp</span>
+              <input
+                type="text"
+                value={filters.classId}
+                onChange={(event) => setFilters((prev) => ({ ...prev, classId: event.target.value }))}
+                placeholder="Nhập lớp"
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+              />
+            </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-[#5F746B]">Mã nhóm bệnh</span>
-            <input
-              type="text"
-              value={filters.diseaseTypeId}
-              onChange={(event) => setFilters((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
-              placeholder="Ví dụ: DIS001"
-              className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
-            />
-          </label>
+            <label className="flex flex-col gap-1 lg:col-span-2">
+              <span className="text-[11px] font-semibold text-[#64748B]">Nhóm bệnh</span>
+              <input
+                type="text"
+                value={filters.diseaseTypeId}
+                onChange={(event) => setFilters((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
+                placeholder="Nhập nhóm bệnh"
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+              />
+            </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-[#5F746B]">Từ ngày</span>
-            <input
-              type="date"
-              value={filters.fromDate}
-              onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
-              className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
-            />
-          </label>
+            <label className="flex flex-col gap-1 lg:col-span-2">
+              <span className="text-[11px] font-semibold text-[#64748B]">Từ ngày</span>
+              <input
+                type="date"
+                value={filters.fromDate}
+                onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+              />
+            </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-[#5F746B]">Đến ngày</span>
-            <input
-              type="date"
-              value={filters.toDate}
-              onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
-              className="exam-input nurse-focus-ring h-10 rounded-lg px-3 text-sm"
-            />
-          </label>
+            <label className="flex flex-col gap-1 lg:col-span-2">
+              <span className="text-[11px] font-semibold text-[#64748B]">Đến ngày</span>
+              <input
+                type="date"
+                value={filters.toDate}
+                onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+              />
+            </label>
+          </div>
 
-          <div className="flex items-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               type="submit"
-              className="exam-btn-primary nurse-focus-ring h-10 rounded-lg px-3.5 text-sm font-semibold"
+              className="nurse-focus-ring nurse-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Lọc
             </button>
@@ -319,7 +356,7 @@ const ExaminationLandingPage = () => {
                 setAppliedFilters({ ...defaultFilters });
                 setPage(1);
               }}
-              className="exam-btn-secondary nurse-focus-ring h-10 rounded-lg px-3.5 text-sm font-semibold"
+              className="nurse-focus-ring nurse-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Đặt lại
             </button>
@@ -327,46 +364,83 @@ const ExaminationLandingPage = () => {
         </form>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="exam-pill-selected rounded-full px-2.5 py-1 font-semibold">
-            {listData.totalItems} phiếu khám
+          <span className="inline-flex rounded-full border border-[#BBF7D0] bg-[#DCFCE7] px-2.5 py-1 font-semibold text-[#166534]">
+            Tổng {listData.totalItems} phiếu khám
           </span>
-          <span className="rounded-full border border-[#D9E2DE] bg-white px-2.5 py-1 font-medium text-[#5F746B]">
+          <span className="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 font-medium text-[#64748B]">
             {appliedFilterCount ? `${appliedFilterCount} bộ lọc đang áp dụng` : 'Chưa áp dụng bộ lọc'}
           </span>
         </div>
       </section>
 
-      <section className="exam-card rounded-xl p-4">
+      <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tổng phiếu khám</p>
+          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#0F172A]">{stats.total}</p>
+        </article>
+        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Có đơn thuốc</p>
+          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#166534]">{stats.withPrescription}</p>
+        </article>
+        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Không có đơn thuốc</p>
+          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#B45309]">{stats.withoutPrescription}</p>
+        </article>
+        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Có nhóm bệnh</p>
+          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#B45309]">{stats.withDiseaseGroup}</p>
+        </article>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+        <div className="nurse-table-summary-strong px-3 py-2 text-[11px] sm:px-4">
+          Đang hiển thị <span className="font-semibold text-[#0F172A]">{displayedRows.length}</span> phiếu trên trang này • Tổng <span className="font-semibold text-[#0F172A]">{listData.totalItems}</span> phiếu khám
+        </div>
+
         <AdminAsyncState
-          status={status}
+          status={effectiveStatus}
           error={error}
           onRetry={() => fetchList(page, appliedFilters)}
           loadingLabel="Đang tải danh sách phiếu khám..."
-          emptyTitle="Chưa có phiếu khám"
-          emptyDescription="Không có dữ liệu phù hợp với bộ lọc hiện tại."
+          emptyTitle="Không có phiếu khám phù hợp"
+          emptyDescription="Hãy thử thay đổi từ khóa hoặc các bộ lọc để xem kết quả khác."
           containerClassName="px-0 py-2"
         >
-          <div className="space-y-3">
-            <DataTable
-              columns={columns}
-              rows={listData.rows}
-              getRowKey={(row) => row.id}
-              containerClassName="overflow-x-auto rounded-xl border border-[#D9E2DE]"
-              tableClassName="min-w-full divide-y divide-[#D9E2DE] text-sm"
-              headClassName="exam-table-head text-left"
-              bodyClassName="divide-y divide-[#D9E2DE] bg-white"
-              rowClassName="exam-row-hover"
-            />
-
-            {listData.totalPages > 1 ? (
-              <Pagination
-                page={listData.page}
-                pageSize={listData.pageSize}
-                totalItems={listData.totalItems}
-                onPageChange={(nextPage) => setPage(nextPage)}
+          {displayedRows.length ? (
+            <div className="space-y-3">
+              <DataTable
+                dense
+                columns={columns}
+                rows={displayedRows}
+                getRowKey={(row) => row.id}
+                onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
+                containerClassName="overflow-x-auto"
+                tableClassName="min-w-[940px] w-full divide-y divide-[#E2E8F0] text-[13px]"
+                headClassName="nurse-table-head-strong text-left"
+                bodyClassName="divide-y divide-[#E2E8F0] bg-white"
+                rowClassName="nurse-interactive transition-[background-color] duration-150 hover:bg-[#F0FDF4] focus-within:bg-[#F0FDF4]"
               />
-            ) : null}
-          </div>
+
+              {listData.totalPages > 1 ? (
+                <div className="border-t border-[#E2E8F0] px-3 py-2 sm:px-4">
+                  <Pagination
+                    compact
+                    page={listData.page}
+                    pageSize={listData.pageSize}
+                    totalItems={listData.totalItems}
+                    onPageChange={(nextPage) => setPage(nextPage)}
+                  />
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="px-4 py-5 sm:px-5">
+              <EmptyState
+                title="Không có phiếu khám phù hợp"
+                description="Thử điều chỉnh từ khóa, ngày khám hoặc bộ lọc lớp để xem dữ liệu khác."
+              />
+            </div>
+          )}
         </AdminAsyncState>
       </section>
 

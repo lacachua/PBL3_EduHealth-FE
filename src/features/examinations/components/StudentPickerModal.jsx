@@ -7,7 +7,6 @@ import { getStudents } from '../../students/services/getStudents';
 import { getStudentDetail } from '../../students/services/getStudentDetail';
 import { getStudentHealthProfile } from '../../students/services/getStudentHealthProfile';
 import { getStudentHealthHistory } from '../../students/services/getStudentHealthHistory';
-import '../styles/examinationUi.css';
 
 const defaultListData = {
   rows: [],
@@ -242,15 +241,15 @@ const StudentPickerModal = ({
   }
 
   return (
-    <div className="exam-module fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-4">
       <button
         type="button"
-        className="exam-modal-overlay absolute inset-0 bg-[#0F172A]/35 opacity-100 duration-[180ms]"
+        className="absolute inset-0 bg-[#0F172A]/35 opacity-100 transition-opacity duration-150"
         onClick={onClose}
         aria-label="Đóng cửa sổ"
       />
 
-      <div className="exam-modal-panel relative z-10 flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#D9E2DE] bg-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] translate-y-0 opacity-100 duration-[180ms]">
+      <div className="relative z-10 flex h-[85vh] w-full max-w-6xl translate-y-0 flex-col overflow-hidden rounded-2xl border border-[#D9E2DE] bg-white opacity-100 shadow-[0_24px_48px_rgba(15,23,42,0.18)] transition duration-150">
         <header className="shrink-0 border-b border-[#D9E2DE] bg-[#F8FAF9] px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -281,7 +280,7 @@ const StudentPickerModal = ({
                     setPage(1);
                   }}
                   placeholder="Tìm theo tên học sinh"
-                  className="exam-input nurse-focus-ring h-10 w-full rounded-lg pl-10 pr-3 text-sm"
+                  className="nurse-focus-ring nurse-input h-10 w-full rounded-lg pl-10 pr-3 text-sm"
                 />
               </label>
 
@@ -291,7 +290,7 @@ const StudentPickerModal = ({
                   setStatusFilter(event.target.value);
                   setPage(1);
                 }}
-                className="exam-input nurse-focus-ring h-10 w-full rounded-lg px-3 text-sm"
+                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-3 text-sm"
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="active">Đang hoạt động</option>
@@ -317,7 +316,7 @@ const StudentPickerModal = ({
                         <button
                           type="button"
                           onClick={() => setSelectedStudentId(row.userId)}
-                          className={`w-full px-3 py-3 text-left transition ${active ? 'exam-pill-selected' : 'hover:bg-[#F8FAF9]'}`}
+                          className={`w-full px-3 py-3 text-left transition ${active ? 'border border-[#BBF7D0] bg-[#DCFCE7]' : 'hover:bg-[#F8FAF9]'}`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
@@ -356,17 +355,17 @@ const StudentPickerModal = ({
                 ) : null}
 
                 {previewError ? (
-                  <p className="exam-error rounded-lg px-3 py-2 text-sm">{previewError}</p>
+                  <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{previewError}</p>
                 ) : null}
 
                 <div className="space-y-4">
-                  <article className="exam-card rounded-lg p-3">
+                  <article className="nurse-card-soft rounded-lg p-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <h4 className="text-sm font-bold text-[#163126]">Thông tin cơ bản</h4>
                       <button
                         type="button"
                         onClick={() => onViewProfile?.(selectedStudentId)}
-                        className="exam-btn-text nurse-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold"
+                        className="nurse-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#175CD3] hover:text-[#1248AC]"
                       >
                         Xem hồ sơ học sinh
                       </button>
@@ -400,7 +399,7 @@ const StudentPickerModal = ({
                   </article>
 
                   {hasMedicalWarning ? (
-                    <article className="exam-error rounded-lg px-3 py-2.5">
+                    <article className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2.5 text-[#B91C1C]">
                       <p className="text-xs font-semibold uppercase tracking-[0.02em]">Cảnh báo y tế</p>
                       {allergies.length ? (
                         <p className="mt-1 text-sm">Dị ứng: {allergies.map((item) => item.allergyTypeName).join(', ')}</p>
@@ -411,7 +410,7 @@ const StudentPickerModal = ({
                     </article>
                   ) : null}
 
-                  <article className="exam-card rounded-lg p-3">
+                  <article className="nurse-card-soft rounded-lg p-3">
                     <h4 className="text-sm font-bold text-[#163126]">Tóm tắt hồ sơ sức khỏe</h4>
                     <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
                       <div>
@@ -437,12 +436,12 @@ const StudentPickerModal = ({
                     </dl>
                   </article>
 
-                  <article className="exam-card rounded-lg p-3">
+                  <article className="nurse-card-soft rounded-lg p-3">
                     <h4 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h4>
                     {previewData.history.length ? (
                       <ul className="mt-2 space-y-2">
                         {previewData.history.slice(0, 3).map((item) => (
-                          <li key={item.visitId} className="exam-section-subtle rounded-md px-3 py-2">
+                          <li key={item.visitId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
                             <p className="text-xs text-[#5F746B]">{dateLabel(item.visitDate)}</p>
                             <p className="text-sm font-semibold text-[#163126]">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
                             <p className="text-xs text-[#5F746B]">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
@@ -467,7 +466,7 @@ const StudentPickerModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="exam-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
+            className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
           >
             Hủy
           </button>
@@ -484,7 +483,7 @@ const StudentPickerModal = ({
               });
             }}
             disabled={!selectedStudentId || !selectedStudent}
-            className="exam-btn-primary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-55"
+            className="nurse-btn-primary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-55"
           >
             Tiếp tục lập phiếu khám
           </button>

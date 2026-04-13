@@ -16,7 +16,7 @@ const ExportActions = ({ onExport, exporting = false }) => {
         type="button"
         disabled={exporting}
         onClick={() => onExport('xlsx')}
-        className="inline-flex items-center gap-2 rounded-r-xl border border-secondary bg-secondary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-secondary/90 disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-r-xl border border-primary bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:opacity-60"
       >
         <span className="material-symbols-outlined text-[18px]">download</span>
         Xuất Excel

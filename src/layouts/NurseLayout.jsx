@@ -40,7 +40,7 @@ const NurseLayout = () => {
   };
 
   return (
-    <div className="nurse-page-bg min-h-screen text-[#0F172A]">
+    <div className="nurse-shell nurse-page-bg min-h-screen text-[#0F172A]">
       <div
         aria-hidden="true"
         onClick={closeSidebar}

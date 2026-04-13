@@ -13,7 +13,7 @@ import RequireAuth from "../guards/RequireAuth";
 import RequireRole from "../guards/RequireRole";
 import {
   AdminDashboardPage,
-  AdminModulePlaceholder,
+  AdminSettingsPage,
   CatalogManagementPage,
   ChangePasswordPage,
   CreateExaminationPage,
@@ -32,7 +32,11 @@ import {
   ReportsPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
+  NursePendingVaccinationsPage,
+  NurseProfilePage,
   NurseStudentsPage,
+  NurseVaccinationCampaignDetailPage,
+  NurseVaccinationCampaignsPage,
   ServerErrorPage,
   StudentManagementPage,
   SystemLogsPage,
@@ -76,7 +80,7 @@ export const router = createBrowserRouter(
             <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
             <Route
               path="settings"
-              element={<Lazy><AdminModulePlaceholder moduleKey="settings" /></Lazy>}
+              element={<Lazy><AdminSettingsPage /></Lazy>}
             />
           </Route>
         </Route>
@@ -94,10 +98,12 @@ export const router = createBrowserRouter(
             <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
             <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
             <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
-            <Route path="students/:studentId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
-            <Route path="vaccinations" element={renderNurseModule(nurseModuleMeta.vaccinations)} />
+            <Route path="students/:studentUserId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
+            <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
+            <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
+            <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
             <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
-            <Route path="profile" element={renderNurseModule(nurseModuleMeta.profile)} />
+            <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
           </Route>
         </Route>
       </Route>

@@ -41,7 +41,7 @@ const AdminLayout = () => {
   const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[76px]' : 'md:ml-[264px]';
 
   return (
-    <div className="min-h-screen bg-surface-container-low text-on-surface">
+    <div className="admin-shell min-h-screen bg-background text-on-surface">
       <div
         aria-hidden="true"
         onClick={closeSidebar}
@@ -51,13 +51,13 @@ const AdminLayout = () => {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-outline-variant bg-surface-container-lowest shadow-[2px_0_10px_rgba(15,23,42,0.06)] transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-outline-variant bg-surface shadow-[2px_0_10px_rgba(15,23,42,0.04)] transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex items-center gap-2 border-b border-outline-variant/80 px-3.5 py-3.5">
           {isSidebarCollapsed ? (
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-secondary/20 bg-secondary-container text-secondary">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary-soft text-primary-hover">
               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 health_and_safety
               </span>
@@ -109,13 +109,13 @@ const AdminLayout = () => {
                       title={isSidebarCollapsed ? item.label : undefined}
                       className={({ isActive }) => `group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
                         isActive
-                          ? 'bg-secondary-container text-secondary'
+                          ? 'bg-primary-soft text-primary-hover ring-1 ring-primary/20'
                           : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
                       }`}
                     >
                       {({ isActive }) => (
                         <>
-                          {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-secondary" /> : null}
+                          {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-primary-hover" /> : null}
                           <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
                           {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
 
@@ -149,9 +149,9 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      <main className={`min-h-screen bg-surface-container md:border-l md:border-outline-variant/70 ${mainOffsetClass}`}>
-        <header className="sticky top-0 z-30 border-b border-outline-variant/80 bg-surface-container-lowest shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
-          <div className="flex h-12 items-center justify-between gap-3 px-4 sm:px-5">
+      <main className={`min-h-screen bg-background md:border-l md:border-outline-variant/70 ${mainOffsetClass}`}>
+        <header className="sticky top-0 z-30 border-b border-outline-variant/90 bg-surface shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
+          <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
@@ -162,14 +162,14 @@ const AdminLayout = () => {
                 <span className="material-symbols-outlined text-lg">menu</span>
               </button>
 
-              <label className="relative hidden w-full max-w-md items-center md:inline-flex">
+              <label className="relative hidden w-full max-w-xl items-center md:inline-flex">
                 <span className="material-symbols-outlined pointer-events-none absolute left-3 text-base text-on-surface-variant">
                   search
                 </span>
                 <input
                   type="search"
                   placeholder="Tìm học sinh, tài khoản, danh mục, báo cáo..."
-                  className="w-full rounded-xl border border-outline-variant bg-surface py-2 pl-9 pr-4 text-sm text-on-surface outline-none transition focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
+                  className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-4 pl-10 text-sm text-on-surface outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/15"
                 />
               </label>
             </div>
@@ -191,7 +191,7 @@ const AdminLayout = () => {
                   <p className="text-sm font-semibold text-on-surface">{userName}</p>
                   <p className="text-[11px] uppercase tracking-wide text-on-surface-variant">{userRoleLabel}</p>
                 </div>
-                <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-secondary/20 bg-secondary-container text-sm font-bold text-secondary">
+                <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary-soft text-sm font-bold text-primary-hover">
                   {userName.charAt(0).toUpperCase()}
                 </div>
               </div>

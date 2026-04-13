@@ -30,21 +30,21 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
   const pageTokens = buildPageTokens(page, totalPages);
 
   const rootClassName = compact
-    ? 'flex flex-col items-center justify-between gap-2 text-[11px] text-slate-500 sm:flex-row'
-    : 'mt-3 flex flex-col items-center justify-between gap-3 text-xs text-slate-500 sm:flex-row';
+    ? 'flex flex-col items-center justify-between gap-2 text-[11px] text-on-surface-variant sm:flex-row'
+    : 'mt-3 flex flex-col items-center justify-between gap-3 text-xs text-on-surface-variant sm:flex-row';
 
   const buttonClassName = compact
-    ? 'nurse-focus-ring rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40'
-    : 'nurse-focus-ring rounded border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-600 transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40';
+    ? 'rounded border border-outline-variant bg-surface-container-lowest px-2 py-1 text-[11px] font-medium text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 font-medium text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40';
 
   const pageButtonClassName = compact
-    ? 'nurse-focus-ring min-w-[24px] rounded px-1.5 py-1 text-[11px] font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out'
-    : 'nurse-focus-ring min-w-[28px] rounded px-2 py-1.5 font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out';
+    ? 'min-w-[24px] rounded px-1.5 py-1 text-[11px] font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15'
+    : 'min-w-[28px] rounded px-2 py-1.5 font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15';
 
   return (
     <div className={rootClassName}>
       <span>
-        Trang <span className="font-semibold text-slate-700">{page}</span>/{totalPages} • Tổng <span className="font-semibold text-slate-700">{totalItems}</span> bản ghi
+        Trang <span className="font-semibold text-on-surface">{page}</span>/{totalPages} • Tổng <span className="font-semibold text-on-surface">{totalItems}</span> bản ghi
       </span>
 
       <div className="flex items-center gap-1">
@@ -61,7 +61,7 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
           {pageTokens.map((token) => {
             if (typeof token !== 'number') {
               return (
-                <span key={token} className="px-1 text-[11px] text-slate-400">
+                <span key={token} className="px-1 text-[11px] text-on-surface-muted">
                   ...
                 </span>
               );
@@ -75,8 +75,8 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
                 onClick={() => onPageChange(token)}
                 className={`${pageButtonClassName} ${
                   isActive
-                    ? 'border border-[#D1FAE5] bg-[#DCFCE7] text-[#166534]'
-                    : 'border border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'border border-primary/25 bg-primary-soft text-primary'
+                    : 'border border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
                 }`}
               >
                 {token}

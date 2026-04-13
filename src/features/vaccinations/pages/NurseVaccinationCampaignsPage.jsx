@@ -1,0 +1,241 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import Pagination from '../../../shared/components/admin/Pagination';
+import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
+import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import {
+  mapCampaignListEnvelope,
+  mapCreateCampaignResponse,
+} from '../adapters/vaccinationResponseMapper';
+import VaccinationCampaignTable from '../components/VaccinationCampaignTable';
+import VaccinationCampaignToolbar from '../components/VaccinationCampaignToolbar';
+import VaccinationSummaryCards from '../components/VaccinationSummaryCards';
+import CreateVaccinationCampaignModal from '../components/CreateVaccinationCampaignModal';
+import {
+  CAMPAIGN_FILTER_DEFAULTS,
+} from '../schemas/vaccinationSchema';
+import {
+  createVaccinationCampaignApi,
+  getVaccinationCampaignsApi,
+} from '../services/nurseVaccinationsApi';
+
+const EMPTY_LIST = {
+  rows: [],
+  page: 1,
+  pageSize: 10,
+  totalItems: 0,
+  totalPages: 0,
+};
+
+const NurseVaccinationCampaignsPage = () => {
+  const navigate = useNavigate();
+
+  const [unauthorized, setUnauthorized] = useState(false);
+  const [forbidden, setForbidden] = useState(false);
+
+  const [draftFilters, setDraftFilters] = useState(CAMPAIGN_FILTER_DEFAULTS);
+  const [appliedFilters, setAppliedFilters] = useState(CAMPAIGN_FILTER_DEFAULTS);
+  const [page, setPage] = useState(1);
+
+  const [listStatus, setListStatus] = useState('loading');
+  const [listError, setListError] = useState('');
+  const [campaignData, setCampaignData] = useState(EMPTY_LIST);
+
+  const [feedback, setFeedback] = useState(null);
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createSubmitting, setCreateSubmitting] = useState(false);
+  const [createError, setCreateError] = useState('');
+
+  const resolveApiError = useCallback((error) => {
+    const statusCode = Number(error?.response?.status || 0);
+    if (statusCode === 401) {
+      setUnauthorized(true);
+    }
+
+    if (statusCode === 403) {
+      setForbidden(true);
+    }
+
+    return normalizeApiMessage(error);
+  }, []);
+
+  const fetchCampaigns = useCallback(async (nextPage = page, nextFilters = appliedFilters) => {
+    setListStatus('loading');
+    setListError('');
+
+    try {
+      const response = await getVaccinationCampaignsApi({
+        ...nextFilters,
+        page: nextPage,
+      });
+
+      const mapped = mapCampaignListEnvelope(response);
+      setCampaignData(mapped);
+      setListStatus(mapped.rows.length ? 'success' : 'empty');
+    } catch (error) {
+      setCampaignData(EMPTY_LIST);
+      setListStatus('error');
+      setListError(resolveApiError(error));
+    }
+  }, [appliedFilters, page, resolveApiError]);
+
+  useEffect(() => {
+    fetchCampaigns(page, appliedFilters);
+  }, [appliedFilters, fetchCampaigns, page]);
+
+  const summary = useMemo(() => {
+    const totalCampaigns = campaignData.totalItems || campaignData.rows.length;
+
+    const aggregate = campaignData.rows.reduce((acc, item) => {
+      acc.activeCampaigns += item.status === 'ACTIVE' ? 1 : 0;
+      acc.totalStudents += item.statistics.totalStudents || 0;
+      acc.doneStudents += item.statistics.doneCount || 0;
+      acc.pendingStudents += item.statistics.pendingCount || 0;
+      return acc;
+    }, {
+      activeCampaigns: 0,
+      totalStudents: 0,
+      doneStudents: 0,
+      pendingStudents: 0,
+    });
+
+    return {
+      totalCampaigns,
+      activeCampaigns: aggregate.activeCampaigns,
+      pendingStudents: aggregate.pendingStudents,
+      completionRate: aggregate.totalStudents
+        ? Math.round((aggregate.doneStudents / aggregate.totalStudents) * 100)
+        : 0,
+    };
+  }, [campaignData.rows, campaignData.totalItems]);
+
+  const visibleRows = useMemo(() => {
+    if (!appliedFilters.incompleteOnly) {
+      return campaignData.rows;
+    }
+
+    return campaignData.rows.filter((item) => Number(item?.statistics?.pendingCount || 0) > 0);
+  }, [appliedFilters.incompleteOnly, campaignData.rows]);
+
+  const handleCreateCampaign = async (values) => {
+    setCreateSubmitting(true);
+    setCreateError('');
+
+    try {
+      const response = await createVaccinationCampaignApi(values);
+      const created = mapCreateCampaignResponse(response);
+
+      setCreateOpen(false);
+      setFeedback({
+        type: 'success',
+        message: response?.message || 'Tạo đợt tiêm thành công.',
+      });
+
+      if (created?.id) {
+        navigate(`/nurse/vaccinations/${created.id}`);
+        return;
+      }
+
+      await fetchCampaigns(1, appliedFilters);
+      setPage(1);
+    } catch (error) {
+      setCreateError(resolveApiError(error));
+    } finally {
+      setCreateSubmitting(false);
+    }
+  };
+
+  if (unauthorized) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <div className="space-y-3">
+      <AdminFeedbackToast
+        feedback={feedback}
+        onClose={() => setFeedback(null)}
+        closeAriaLabel="Đóng thông báo"
+        closeLabel="Đóng"
+        fallbackClassName="border-[#86EFAC] bg-[#DCFCE7] text-[#166534]"
+        classMap={{
+          error: 'border-[#FECACA] bg-[#FEE2E2] text-[#B91C1C]',
+          success: 'border-[#86EFAC] bg-[#DCFCE7] text-[#166534]',
+        }}
+      />
+
+      <NurseModulePageHeader
+        title="Quản lý tiêm chủng"
+        description="Theo dõi các đợt tiêm và cập nhật kết quả tiêm cho học sinh."
+      />
+
+      <VaccinationCampaignToolbar
+        value={draftFilters}
+        onChange={setDraftFilters}
+        onApply={() => {
+          setAppliedFilters(draftFilters);
+          setPage(1);
+        }}
+        onReset={() => {
+          setDraftFilters(CAMPAIGN_FILTER_DEFAULTS);
+          setAppliedFilters(CAMPAIGN_FILTER_DEFAULTS);
+          setPage(1);
+        }}
+        onOpenCreate={() => {
+          setCreateError('');
+          setCreateOpen(true);
+        }}
+      />
+
+      <VaccinationSummaryCards summary={summary} loading={listStatus === 'loading'} />
+
+      {forbidden ? (
+        <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+          Bạn không có quyền truy cập trang này.
+        </section>
+      ) : null}
+
+      {!forbidden ? (
+        <section className="space-y-2 rounded-2xl border border-[#D7ECDD] bg-white p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:p-5">
+          <h2 className="text-lg font-bold text-[#0F172A]">Danh sách đợt tiêm</h2>
+
+          <VaccinationCampaignTable
+            rows={visibleRows}
+            loading={listStatus === 'loading'}
+            error={listStatus === 'error' ? listError : ''}
+            onRetry={() => fetchCampaigns(page, appliedFilters)}
+            onViewDetail={(item) => navigate(`/nurse/vaccinations/${item.id}`)}
+          />
+
+          {(listStatus === 'success' || listStatus === 'empty') && campaignData.totalPages > 1 ? (
+            <Pagination
+              page={campaignData.page}
+              pageSize={campaignData.pageSize}
+              totalItems={campaignData.totalItems}
+              onPageChange={(nextPage) => setPage(nextPage)}
+            />
+          ) : null}
+        </section>
+      ) : null}
+
+      {createOpen ? (
+        <CreateVaccinationCampaignModal
+          key="create-vaccination-campaign"
+          open={createOpen}
+          onClose={() => {
+            if (createSubmitting) {
+              return;
+            }
+            setCreateOpen(false);
+          }}
+          onSubmit={handleCreateCampaign}
+          submitting={createSubmitting}
+          submitError={createError}
+        />
+      ) : null}
+    </div>
+  );
+};
+
+export default NurseVaccinationCampaignsPage;

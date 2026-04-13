@@ -1,6 +1,5 @@
 import React from 'react';
 import DataTable from '../../../shared/components/admin/DataTable';
-import StudentActionsMenu from './StudentActionsMenu';
 import {
   STUDENT_BADGE_BASE_CLASS,
   STUDENT_HEALTH_BADGE_CLASS_MAP,
@@ -53,7 +52,7 @@ const StudentTable = ({ rows, onViewDetail }) => {
       render: (row) => (
         <div>
           <p className="text-sm font-semibold text-on-surface">{withFallback(row.fullName, '--')}</p>
-          <p className="mt-0.5 text-xs text-on-surface-muted">{withFallback(row.dateOfBirth, '--')}</p>
+          <p className="mt-0.5 text-xs text-on-surface-variant">{withFallback(row.dateOfBirth, '--')}</p>
         </div>
       ),
     },
@@ -71,7 +70,7 @@ const StudentTable = ({ rows, onViewDetail }) => {
       render: (row) => (
         <div>
           <p className="text-sm text-on-surface">{withFallback(row.username, '--')}</p>
-          <p className="mt-0.5 text-xs text-on-surface-muted">{withFallback(row.email, 'Chưa có email')}</p>
+          <p className="mt-0.5 text-xs text-on-surface-variant">{withFallback(row.email, 'Chưa có email')}</p>
           <div className="mt-1">
             <span className={`${STUDENT_BADGE_BASE_CLASS} ${STUDENT_STATUS_BADGE_CLASS_MAP[row.status] || 'border-outline-variant bg-surface-container-low text-on-surface-variant'}`}>
               {row.statusLabel}
@@ -86,24 +85,9 @@ const StudentTable = ({ rows, onViewDetail }) => {
       cellClassName: 'min-w-[190px]',
       render: (row) => renderHealthSummary(row),
     },
-    {
-      key: 'actions',
-      header: 'Thao tác',
-      headerClassName: 'text-right',
-      cellClassName: 'text-right',
-      render: (row) => (
-        <div className="flex justify-end">
-          <StudentActionsMenu
-            items={[
-              { id: 'view-detail', label: 'Xem chi tiết', icon: 'visibility', onClick: () => onViewDetail(row) },
-            ]}
-          />
-        </div>
-      ),
-    },
   ];
 
-  return <DataTable columns={columns} rows={rows} getRowKey={(row) => row.id} />;
+  return <DataTable columns={columns} rows={rows} getRowKey={(row) => row.id} onRowClick={onViewDetail} />;
 };
 
 export default StudentTable;

@@ -75,7 +75,7 @@ const StudentDetailDrawer = ({
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   {student.statusLabel ? <StatusBadge tone={student.statusTone}>{student.statusLabel}</StatusBadge> : null}
-                  <span className="rounded-md border border-[var(--color-role-student-soft)] bg-[var(--color-role-student-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-role-student-text)]">
+                  <span className="rounded-md border border-primary/25 bg-primary-soft px-2 py-0.5 text-[11px] font-semibold text-primary">
                     Học sinh
                   </span>
                 </div>
@@ -105,7 +105,7 @@ const StudentDetailDrawer = ({
               {allergyItems.length ? (
                 <div className="flex flex-wrap gap-1.5">
                   {allergyItems.map((item) => (
-                    <span key={item} className="rounded-md border border-[var(--color-health-warning-soft)] bg-[var(--color-health-warning-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-health-warning-text)]">
+                    <span key={item} className="rounded-md border border-warning/25 bg-warning-soft px-2 py-0.5 text-[11px] font-semibold text-warning">
                       {item}
                     </span>
                   ))}

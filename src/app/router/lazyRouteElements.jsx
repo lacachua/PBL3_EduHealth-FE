@@ -18,12 +18,16 @@ export const ForbiddenPage = React.lazy(() => import("../../pages/ForbiddenPage"
 export const ServerErrorPage = React.lazy(() => import("../../pages/ServerErrorPage"));
 
 export const AdminDashboardPage = React.lazy(() => import("../../features/dashboard/admin/pages/AdminDashboardPage"));
-export const AdminModulePlaceholder = React.lazy(() => import("../../features/dashboard/admin/components/AdminModulePlaceholder"));
+export const AdminSettingsPage = React.lazy(() => import('../../features/dashboard/admin/pages/AdminSettingsPage'));
 export const ModulePlaceholderPage = React.lazy(() => import("../../features/nurse/components/ModulePlaceholderPage"));
+export const NurseProfilePage = React.lazy(() => import('../../features/nurse/pages/NurseProfilePage'));
 export const NurseStudentsPage = React.lazy(() => import("../../features/nurse/pages/NurseStudentsPage"));
 export const NurseHealthProfilesPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfilesPage"));
 export const NurseHealthProfileDetailPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfileDetailPage"));
 export const NurseMedicinesPage = React.lazy(() => import("../../features/nurse/pages/NurseMedicinesPage"));
+export const NurseVaccinationCampaignsPage = React.lazy(() => import("../../features/vaccinations/pages/NurseVaccinationCampaignsPage"));
+export const NurseVaccinationCampaignDetailPage = React.lazy(() => import("../../features/vaccinations/pages/NurseVaccinationCampaignDetailPage"));
+export const NursePendingVaccinationsPage = React.lazy(() => import("../../features/vaccinations/pages/NursePendingVaccinationsPage"));
 export const ExaminationLandingPage = React.lazy(() => import("../../features/examinations/pages/ExaminationLandingPage"));
 export const CreateExaminationPage = React.lazy(() => import("../../features/examinations/pages/CreateExaminationPage"));
 export const ExaminationDetailPage = React.lazy(() => import("../../features/examinations/pages/ExaminationDetailPage"));

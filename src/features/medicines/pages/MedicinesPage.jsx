@@ -59,9 +59,7 @@ const MedicinesPage = () => {
       <PageHeader
         title="Giám sát thuốc"
         description="Theo dõi danh mục thuốc, tồn kho hiện tại, cảnh báo sắp hết và sắp hết hạn."
-        actions={(
-          <span className="rounded-full border border-outline-variant bg-surface px-3 py-1 text-xs font-semibold text-on-surface-variant">Admin monitoring</span>
-        )}
+        actions={null}
       />
 
       <MedicinesAlertsOverview

@@ -8,10 +8,11 @@ const CatalogGroupTabs = ({ activeGroup, onChange }) => (
         key={group.value}
         type="button"
         onClick={() => onChange(group.value)}
-        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+        aria-pressed={activeGroup === group.value}
+        className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${
           activeGroup === group.value
-            ? 'border-secondary/35 bg-secondary-container/25 text-secondary'
-            : 'border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-low'
+            ? 'border-primary/30 bg-primary-soft text-primary-hover'
+            : 'border-outline-variant bg-surface text-on-surface-variant hover:border-primary/20 hover:bg-surface-container-low'
         }`}
       >
         {group.label}

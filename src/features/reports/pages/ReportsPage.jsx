@@ -2,10 +2,9 @@ import React, { useMemo, useState } from 'react';
 import EmptyState from '../../../shared/components/admin/EmptyState';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
-import MockScopeNotice from '../../../shared/components/admin/MockScopeNotice';
+import PageHeader from '../../../shared/components/admin/PageHeader';
 import AdminReportDetailDrawer from '../components/AdminReportDetailDrawer';
 import AdminReportFilters from '../components/AdminReportFilters';
-import AdminReportHeader from '../components/AdminReportHeader';
 import AdminReportMainChart from '../components/AdminReportMainChart';
 import AdminReportSidePanel from '../components/AdminReportSidePanel';
 import AdminReportSummaryCards from '../components/AdminReportSummaryCards';
@@ -93,17 +92,26 @@ const ReportsPage = () => {
   }), [dashboard.header?.description, dashboard.header?.title]);
 
   return (
-    <div className="admin-page-bg relative space-y-6 rounded-3xl p-5 sm:p-6">
-      <AdminReportHeader
+    <div className="admin-page-bg relative space-y-4 rounded-xl p-4 sm:p-5">
+      <PageHeader
         title={safeHeader.title}
         description={safeHeader.description}
-        onRefresh={handleRefreshData}
+        actions={(
+          <button
+            type="button"
+            onClick={handleRefreshData}
+            className="inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-low"
+          >
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            Làm mới dữ liệu
+          </button>
+        )}
       />
 
-      <MockScopeNotice
-        moduleLabel="Reports"
-        message="Reports hiện đang ở chế độ demo (mock-only), thuộc phạm vi deferred và chờ backend chính thức. Các thao tác ghi/gửi đã được tạm khóa để tránh hiểu nhầm là đang submit BE thật."
-      />
+      <div className="inline-flex items-center gap-1.5 rounded-lg border border-info/20 bg-info-soft px-3 py-1.5 text-xs font-medium text-info">
+        <span className="material-symbols-outlined text-[15px]">info</span>
+        Dữ liệu báo cáo hiện chạy ở chế độ mô phỏng, thao tác ghi đã tạm khóa.
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="text-xs font-semibold uppercase tracking-wider text-on-surface-muted">

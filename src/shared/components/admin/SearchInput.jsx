@@ -9,7 +9,7 @@ const SearchInput = ({ value, onChange, placeholder = 'Tìm kiếm...', classNam
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-outline-variant bg-surface py-2.5 pl-9 pr-3 text-sm text-on-surface outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
+        className="h-11 w-full rounded-lg border border-[var(--field-border)] bg-[var(--field-bg)] px-3 pl-9 text-sm text-on-surface outline-none transition placeholder:text-[var(--field-placeholder)] focus:border-[var(--field-focus)] focus:ring-2 focus:ring-primary/15"
       />
     </label>
   );

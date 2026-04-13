@@ -8,6 +8,7 @@ export const DATA_MODES = Object.freeze({
 
 export const DATA_MODULES = Object.freeze({
   AUTH: 'auth',
+  CURRENT_USER_ACCOUNT: 'currentUserAccount',
 
   ADMIN_USERS: 'adminUsers',
   ADMIN_STUDENTS: 'adminStudents',
@@ -29,6 +30,7 @@ export const DATA_MODULES = Object.freeze({
 
 const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.AUTH]: { supportsLive: true },
+  [DATA_MODULES.CURRENT_USER_ACCOUNT]: { supportsLive: true },
 
   [DATA_MODULES.ADMIN_USERS]: { supportsLive: true },
   [DATA_MODULES.ADMIN_STUDENTS]: { supportsLive: true },

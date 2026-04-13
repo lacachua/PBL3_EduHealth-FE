@@ -89,8 +89,8 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
-      <button type="button" aria-label="Đóng" className="absolute inset-0 bg-[#0F172A]/38" onClick={onCancel} />
-      <div className={`relative w-full max-w-lg rounded-xl border bg-[#FBFCFB] p-5 shadow-[0_16px_34px_rgba(15,23,42,0.16)] ${ACCOUNT_BASE_CLASS.border}`}>
+      <button type="button" aria-label="Đóng" className="absolute inset-0 bg-on-surface/38" onClick={onCancel} />
+      <div className={`relative w-full max-w-lg rounded-xl border bg-surface-container-lowest p-5 shadow-[0_16px_34px_rgba(15,23,42,0.16)] ${ACCOUNT_BASE_CLASS.border}`}>
         <div className={`border-b pb-3 ${ACCOUNT_BASE_CLASS.border}`}>
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -102,7 +102,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
             <button
               type="button"
               onClick={onCancel}
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-md border bg-[#FBFCFB] transition hover:bg-[#F3F8F6] ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -110,7 +110,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
           </div>
         </div>
 
-        <div className={`mt-3 rounded-lg border bg-[#F7FAF8] p-3 ${ACCOUNT_BASE_CLASS.border}`}>
+        <div className={`mt-3 rounded-lg border bg-surface-container-low p-3 ${ACCOUNT_BASE_CLASS.border}`}>
           <div className={infoRowClass}>
             {userInfoRows.map((item) => (
               <InfoRow key={item.label} label={item.label}>{item.render()}</InfoRow>
@@ -150,19 +150,19 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
                     if (fieldError) setFieldError('');
                   }}
                   placeholder="Tối thiểu 6 ký tự"
-                  className={`w-full rounded-lg border bg-[#FBFCFB] px-3 py-2 text-sm outline-none transition ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.headingText} ${ACCOUNT_BASE_CLASS.focusRing}`}
+                  className={`w-full rounded-lg border bg-surface px-3 py-2 text-sm outline-none transition ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.headingText} ${ACCOUNT_BASE_CLASS.focusRing}`}
                 />
-                {fieldError ? <p className="mt-1 text-xs font-medium text-[#B85C57]">{fieldError}</p> : null}
+                {fieldError ? <p className="mt-1 text-xs font-medium text-danger">{fieldError}</p> : null}
               </div>
             ) : null}
           </div>
         ) : null}
 
         {result ? (
-          <div className="mt-3 rounded-lg border border-[#D6E7DF] bg-[#EAF6EF] p-3">
-            <p className="text-xs font-semibold text-[#2E7D57]">Mật khẩu tạm</p>
+          <div className="mt-3 rounded-lg border border-success/25 bg-success-soft p-3">
+            <p className="text-xs font-semibold text-success">Mật khẩu tạm</p>
             <div className="mt-1 flex items-center justify-between gap-2">
-              <code className="rounded bg-white px-2 py-1 text-sm font-semibold text-[#1F2A27]">{result}</code>
+              <code className="rounded bg-surface-container-lowest px-2 py-1 text-sm font-semibold text-on-surface">{result}</code>
               <button
                 type="button"
                 onClick={handleCopy}
@@ -171,7 +171,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
                 {copied ? 'Đã copy' : 'Copy'}
               </button>
             </div>
-            <p className="mt-2 text-xs text-[#2E7D57]">
+            <p className="mt-2 text-xs text-success">
               Vui lòng gửi an toàn cho người dùng và yêu cầu đổi mật khẩu sau khi đăng nhập.
             </p>
           </div>

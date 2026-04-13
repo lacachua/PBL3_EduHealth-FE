@@ -6,7 +6,7 @@ import {
 } from '../schemas/userManagementSchema';
 import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
 
-const controlClass = `h-10 rounded-lg border bg-[#FBFCFB] px-3 text-sm outline-none transition ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.bodyText} ${ACCOUNT_BASE_CLASS.focusRing}`;
+const controlClass = `h-11 rounded-xl border bg-surface px-3 text-sm outline-none transition ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.bodyText} ${ACCOUNT_BASE_CLASS.focusRing}`;
 
 const UserFilters = ({ initialValue, onApply, onReset }) => {
   const [draft, setDraft] = useState(initialValue);
@@ -61,7 +61,7 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
 
       <button
         type="submit"
-        className={`inline-flex h-10 items-center justify-center rounded-lg px-3.5 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.primaryButton}`}
+        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.primaryButton}`}
       >
         Lọc
       </button>
@@ -69,7 +69,7 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
       <button
         type="button"
         onClick={handleReset}
-        className="inline-flex h-10 items-center justify-center rounded-lg border border-[#D8E3DE] bg-transparent px-3.5 text-sm font-semibold text-[#42534D] transition hover:bg-[#F3F8F6]"
+        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.secondaryButton}`}
       >
         Đặt lại
       </button>
