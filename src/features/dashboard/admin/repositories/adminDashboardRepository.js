@@ -10,9 +10,9 @@ const getOverviewFromApi = async (params) => {
   return apiGetEnvelope(ADMIN_DASHBOARD_ENDPOINTS.overview, { params });
 };
 
-const getOverviewFromMock = async (params) => {
+const getOverviewFromMock = async () => {
   await waitForMock('adminDashboard');
-  return getAdminDashboardMockEnvelope(params);
+  return getAdminDashboardMockEnvelope();
 };
 
 export const adminDashboardRepository = {

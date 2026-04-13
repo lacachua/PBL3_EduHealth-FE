@@ -52,6 +52,7 @@ const ENV_SINGLETON = Object.freeze({
     nurseDashboard: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_DASHBOARD_MOCK, legacyEnableMockHealthProfiles),
 
     auth: parseBoolean(import.meta.env.VITE_ENABLE_AUTH_MOCK, legacyEnableMockAuth),
+    currentUserAccount: parseBoolean(import.meta.env.VITE_ENABLE_CURRENT_USER_ACCOUNT_MOCK, false),
   }),
 });
 

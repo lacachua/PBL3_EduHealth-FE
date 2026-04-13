@@ -12,26 +12,26 @@
   --color-secondary: #2f6fa3;
   --color-secondary-container: #e7f0f8;
   --color-on-secondary-container: #2f6fa3;
-  --color-background: #f3f7f6;
-  --color-surface: #f8fbfa;
-  --color-on-surface: #1b2c3a;
-  --color-on-surface-variant: #4f6474;
-  --color-on-surface-muted: #7a8996;
-  --color-outline: #93a1ad;
-  --color-outline-variant: #d4dfe5;
-  --color-surface-container-low: #edf3f2;
+  --color-background: #f2f5f9;
+  --color-surface: #f8fafd;
+  --color-on-surface: #0f172a;
+  --color-on-surface-variant: #475569;
+  --color-on-surface-muted: #64748b;
+  --color-outline: #9aa9ba;
+  --color-outline-variant: #d3dce7;
+  --color-surface-container-low: #eef2f7;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #f3f8f7;
-  --color-surface-container-highest: #eaf1f0;
+  --color-surface-container-high: #f4f7fb;
+  --color-surface-container-highest: #ecf1f7;
   --color-surface-bright: #ffffff;
-  --color-surface-dim: #e8efee;
+  --color-surface-dim: #e6ecf3;
 
-  --color-field-readonly-bg: #eef4f3;
-  --color-field-readonly-border: #d2e0de;
+  --color-field-readonly-bg: #f1f5f9;
+  --color-field-readonly-border: #d4dde8;
   --color-field-editable-bg: #ffffff;
-  --color-field-editable-border: #c7d6dd;
-  --color-field-focus: #2e7b66;
-  --color-field-placeholder: #8a97a3;
+  --color-field-editable-border: #c6d1df;
+  --color-field-focus: #2f6fa3;
+  --color-field-placeholder: #8b98a8;
 
   --color-warning: #c58a2b;
   --color-warning-soft: #f8f0df;
@@ -43,7 +43,7 @@
   --color-info-soft: #eaf1f7;
   --color-sage: #a8bdae;
   --color-sage-soft: #f1f5f1;
-  --color-primary-soft: #e5f0ea;
+  --color-primary-soft: #e7f1ec;
 
   --color-role-admin-soft: #f4ebef;
   --color-role-admin-text: #7a4f62;
@@ -156,28 +156,28 @@
 
   .admin-page-bg {
     background:
-      radial-gradient(760px 420px at 102% -4%, rgba(46, 123, 102, 0.08), transparent 60%),
-      radial-gradient(640px 360px at -10% 14%, rgba(63, 111, 152, 0.08), transparent 64%),
-      linear-gradient(180deg, #f4f8f7 0%, #f1f6f5 100%);
+      radial-gradient(760px 420px at 102% -4%, rgba(47, 111, 163, 0.08), transparent 60%),
+      radial-gradient(640px 360px at -10% 14%, rgba(71, 85, 105, 0.07), transparent 64%),
+      linear-gradient(180deg, #f4f7fb 0%, #f0f4f9 100%);
   }
 
   .nurse-page-bg {
     --nurse-primary-main: #15803d;
     --nurse-primary-hover: #166534;
-    --nurse-primary-soft: #ecfdf3;
-    --nurse-background: #f8fafc;
+    --nurse-primary-soft: #eaf6ef;
+    --nurse-background: #f4f7fb;
     --nurse-surface: #ffffff;
     --nurse-text-primary: #0f172a;
     --nurse-text-secondary: #64748b;
-    --nurse-border: #e2e8f0;
-    --nurse-banner-soft: #e8f7ee;
-    --nurse-table-header-soft: #edf7f1;
-    --nurse-soft-border: #d7ecdd;
-    --nurse-soft-title: #14532d;
+    --nurse-border: #d5dfeb;
+    --nurse-banner-soft: #eef4fb;
+    --nurse-table-header-soft: #f2f6fb;
+    --nurse-soft-border: #dce5ef;
+    --nurse-soft-title: #1e3a5f;
 
     background:
-      radial-gradient(760px 420px at 100% -6%, rgba(21, 128, 61, 0.05), transparent 62%),
-      radial-gradient(620px 340px at -10% 14%, rgba(22, 101, 52, 0.05), transparent 64%),
+      radial-gradient(760px 420px at 100% -6%, rgba(47, 111, 163, 0.07), transparent 62%),
+      radial-gradient(620px 340px at -10% 14%, rgba(21, 128, 61, 0.04), transparent 64%),
       linear-gradient(180deg, var(--nurse-background) 0%, var(--nurse-background) 100%);
   }
 

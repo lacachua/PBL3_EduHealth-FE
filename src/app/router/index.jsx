@@ -13,7 +13,7 @@ import RequireAuth from "../guards/RequireAuth";
 import RequireRole from "../guards/RequireRole";
 import {
   AdminDashboardPage,
-  AdminModulePlaceholder,
+  AdminSettingsPage,
   CatalogManagementPage,
   ChangePasswordPage,
   CreateExaminationPage,
@@ -33,6 +33,7 @@ import {
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
   NursePendingVaccinationsPage,
+  NurseProfilePage,
   NurseStudentsPage,
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
@@ -79,7 +80,7 @@ export const router = createBrowserRouter(
             <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
             <Route
               path="settings"
-              element={<Lazy><AdminModulePlaceholder moduleKey="settings" /></Lazy>}
+              element={<Lazy><AdminSettingsPage /></Lazy>}
             />
           </Route>
         </Route>
@@ -102,7 +103,7 @@ export const router = createBrowserRouter(
             <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
             <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
             <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
-            <Route path="profile" element={renderNurseModule(nurseModuleMeta.profile)} />
+            <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
           </Route>
         </Route>
       </Route>

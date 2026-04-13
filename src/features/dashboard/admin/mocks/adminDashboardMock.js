@@ -1,113 +1,175 @@
-const NOW = new Date('2026-03-28T09:40:00.000Z');
+const NOW = new Date('2026-04-13T08:40:00.000Z');
 
-const users = [
-  { id: 'USR-201', username: 'admin.trancaovan', fullName: 'Trần Cao Vân Admin', status: 'active' },
-  { id: 'USR-202', username: 'nurse.huong', fullName: 'Nguyễn Thị Hương', status: 'active' },
-  { id: 'USR-203', username: 'staff.minh', fullName: 'Phạm Đức Minh', status: 'locked' },
-  { id: 'USR-204', username: 'parent.loan', fullName: 'Lê Thanh Loan', status: 'pending' },
-  { id: 'USR-205', username: 'staff.mai', fullName: 'Trần Thị Mai', status: 'active' },
-  { id: 'USR-206', username: 'parent.hanh', fullName: 'Lê Thị Hạnh', status: 'active' },
+const schoolOverview = {
+  totalStudents: 1240,
+  totalClasses: 42,
+  totalUsers: 128,
+};
+
+const medicineInventory = [
+  { id: 'MED-001', name: 'Paracetamol 500mg', remaining: 45, reorderLevel: 60 },
+  { id: 'MED-002', name: 'ORS', remaining: 35, reorderLevel: 50 },
+  { id: 'MED-003', name: 'Bông y tế', remaining: 72, reorderLevel: 40 },
+  { id: 'MED-004', name: 'Povidine', remaining: 18, reorderLevel: 25 },
+  { id: 'MED-005', name: 'Nước muối sinh lý', remaining: 28, reorderLevel: 30 },
+  { id: 'MED-006', name: 'Gạc vô trùng', remaining: 20, reorderLevel: 24 },
+  { id: 'MED-007', name: 'Thuốc hạ sốt trẻ em', remaining: 16, reorderLevel: 20 },
 ];
 
-const students = [
-  { id: 'HS-1001', fullName: 'Nguyễn Minh Châu', className: '1A', status: 'active' },
-  { id: 'HS-1002', fullName: 'Trần Gia Hân', className: '2B', status: 'active' },
-  { id: 'HS-1003', fullName: 'Lê Quốc Bảo', className: '3C', status: 'active' },
-  { id: 'HS-1004', fullName: 'Phạm Khánh Linh', className: '4A', status: 'active' },
-  { id: 'HS-1005', fullName: 'Đoàn Tuấn Kiệt', className: '5B', status: 'active' },
-  { id: 'HS-1006', fullName: 'Võ Bảo Ngân', className: '1B', status: 'active' },
+const visitTrend = [
+  { id: 'trend-1', label: '01 THG 04', value: 6 },
+  { id: 'trend-2', label: '04 THG 04', value: 9 },
+  { id: 'trend-3', label: '07 THG 04', value: 7 },
+  { id: 'trend-4', label: '10 THG 04', value: 11 },
+  { id: 'trend-5', label: '13 THG 04', value: 8 },
+  { id: 'trend-6', label: '16 THG 04', value: 13 },
+  { id: 'trend-7', label: '19 THG 04', value: 10 },
+  { id: 'trend-8', label: '22 THG 04', value: 7 },
+  { id: 'trend-9', label: '25 THG 04', value: 9 },
+  { id: 'trend-10', label: '30 THG 04', value: 12 },
 ];
 
-const catalogItems = [
-  { id: 'VAC-001', type: 'vaccine', status: 'active' },
-  { id: 'VAC-002', type: 'vaccine', status: 'active' },
-  { id: 'DIS-001', type: 'disease', status: 'active' },
-  { id: 'DIS-002', type: 'disease', status: 'inactive' },
-  { id: 'ALL-001', type: 'allergy', status: 'active' },
-  { id: 'ALL-002', type: 'allergy', status: 'active' },
-];
-
-const systemLogs = [
+const systemActivities = [
   {
     id: 'LOG-001',
-    occurredAt: '2026-03-28T09:25:00.000Z',
-    actorName: 'Nguyễn Thị Mai',
-    module: 'students',
-    action: 'CREATE_STUDENT',
-    targetType: 'Student',
-    description: 'Thêm mới hồ sơ học sinh HS-1201',
+    title: 'Cập nhật danh mục vaccine khối 1',
+    metadata: 'Admin School • Danh mục',
+    occurredAt: '2026-04-13T10:45:00.000Z',
+    icon: 'edit_note',
+    tone: 'info',
+    to: '/admin/catalogs',
   },
   {
     id: 'LOG-002',
-    occurredAt: '2026-03-28T08:40:00.000Z',
-    actorName: 'Lê Thanh Quân',
-    module: 'users',
-    action: 'UPDATE_ROLE',
-    targetType: 'User',
-    description: 'Cập nhật vai trò 5 tài khoản nhân sự',
+    title: 'Đồng bộ dữ liệu tài khoản định kỳ',
+    metadata: 'Hệ thống • Người dùng',
+    occurredAt: '2026-04-13T00:00:00.000Z',
+    icon: 'cloud_done',
+    tone: 'success',
+    to: '/admin/users',
   },
   {
     id: 'LOG-003',
-    occurredAt: '2026-03-28T08:12:00.000Z',
-    actorName: 'Trần Cao Vân Admin',
-    module: 'catalogs',
-    action: 'UPDATE_CATALOG_ITEM',
-    targetType: 'CatalogItem',
-    description: 'Rà soát danh mục bệnh lý học đường',
+    title: 'Y tá Minh Hạnh hoàn tất báo cáo tuần',
+    metadata: 'Y tá Minh Hạnh • Báo cáo',
+    occurredAt: '2026-04-12T16:20:00.000Z',
+    icon: 'assignment_turned_in',
+    tone: 'neutral',
+    to: '/admin/reports',
   },
   {
     id: 'LOG-004',
-    occurredAt: '2026-03-28T07:30:00.000Z',
-    actorName: 'Trần Cao Vân Admin',
-    module: 'reports',
-    action: 'EXPORT_REPORT',
-    targetType: 'Report',
-    description: 'Xuất báo cáo khám sức khỏe tuần 12',
+    title: 'Phát hiện 2 thuốc dưới ngưỡng an toàn',
+    metadata: 'Hệ thống • Kho thuốc',
+    occurredAt: '2026-04-12T14:00:00.000Z',
+    icon: 'medication_liquid',
+    tone: 'warning',
+    to: '/admin/medicines',
   },
   {
     id: 'LOG-005',
-    occurredAt: '2026-03-28T07:15:00.000Z',
-    actorName: 'Nguyễn Thị Hương',
-    module: 'vaccinations',
-    action: 'UPDATE_VACCINATION_STATUS',
-    targetType: 'StudentVaccination',
-    description: 'Cập nhật trạng thái tiêm chủng lớp 2B',
+    title: 'Làm mới dữ liệu tổng quan tháng',
+    metadata: 'Admin School • Dashboard',
+    occurredAt: '2026-04-12T09:30:00.000Z',
+    icon: 'monitoring',
+    tone: 'info',
+    to: '/admin/dashboard',
   },
 ];
 
-const formatDateTime = (iso) =>
-  new Date(iso).toLocaleString('vi-VN', {
+const formatDateTime = (value) => {
+  return new Date(value).toLocaleString('vi-VN', {
     hour: '2-digit',
     minute: '2-digit',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
+};
 
 const deriveOverview = () => {
-  const recentActivities = [...systemLogs]
-    .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime())
-    .slice(0, 3)
-    .map((item) => ({
-      id: item.id,
-      occurredAt: formatDateTime(item.occurredAt),
-      actorName: item.actorName,
-      module: item.module,
-      action: item.action,
-      targetType: item.targetType,
-      description: item.description,
-    }));
+  const lowStockMedicines = medicineInventory.filter((item) => item.remaining <= item.reorderLevel).length;
+  const totalVisitsToday = visitTrend[visitTrend.length - 1]?.value || 0;
+  const totalVisitsThisMonth = visitTrend.reduce((sum, item) => sum + item.value, 0) * 3;
 
-  const activeCatalogItems = catalogItems.filter((item) => item.status === 'active').length;
   return {
-    schoolName: 'Trường Tiểu học Trần Cao Vân',
     generatedAt: NOW.toISOString(),
-    kpis: {
-      totalStudents: students.length,
-      activeUsers: users.filter((item) => item.status === 'active').length,
-      activeCatalogEntries: activeCatalogItems,
+    overview: {
+      totalStudents: schoolOverview.totalStudents,
+      totalClasses: schoolOverview.totalClasses,
+      totalUsers: schoolOverview.totalUsers,
+      lowStockMedicines,
+      totalVisitsToday,
+      totalVisitsThisMonth,
     },
-    recentActivities,
+    shortcuts: [
+      {
+        id: 'shortcut-students',
+        label: 'Quản lý học sinh',
+        description: 'Hồ sơ và thông tin học sinh',
+        to: '/admin/students',
+        icon: 'school',
+      },
+      {
+        id: 'shortcut-users',
+        label: 'Người dùng',
+        description: 'Tài khoản hệ thống',
+        to: '/admin/users',
+        icon: 'group',
+      },
+      {
+        id: 'shortcut-reports',
+        label: 'Báo cáo',
+        description: 'Theo dõi chỉ số tổng hợp',
+        to: '/admin/reports',
+        icon: 'assessment',
+      },
+      {
+        id: 'shortcut-medicines',
+        label: 'Kho thuốc',
+        description: 'Tồn kho và cảnh báo thuốc',
+        to: '/admin/medicines',
+        icon: 'medication',
+      },
+      {
+        id: 'shortcut-catalogs',
+        label: 'Danh mục',
+        description: 'Danh mục dùng chung',
+        to: '/admin/catalogs',
+        icon: 'category',
+      },
+    ],
+    trends: visitTrend,
+    managementAlerts: [
+      {
+        id: 'alert-medicine-stock',
+        title: 'Thuốc dưới ngưỡng an toàn',
+        description: 'Có thuốc tồn kho dưới mức khuyến nghị, cần ưu tiên bổ sung.',
+        metric: `${lowStockMedicines} thuốc`,
+        severity: 'critical',
+        to: '/admin/medicines',
+      },
+      {
+        id: 'alert-grade-4a2',
+        title: 'Lớp 4A2 hoàn tất khám thấp',
+        description: '8 học sinh chưa hoàn thành khám định kỳ trong tháng.',
+        metric: '8 học sinh',
+        severity: 'warning',
+        to: '/admin/reports',
+      },
+      {
+        id: 'alert-block-k1',
+        title: 'Khối 1 cần tăng tỷ lệ tiêm',
+        description: 'Tỷ lệ hoàn thành hiện tại là 78%, thấp hơn mục tiêu quản trị.',
+        metric: '78%',
+        severity: 'info',
+        to: '/admin/reports',
+      },
+    ],
+    recentActivities: systemActivities.map((item) => ({
+      ...item,
+      timeLabel: formatDateTime(item.occurredAt),
+    })),
   };
 };
 
