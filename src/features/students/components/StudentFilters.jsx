@@ -7,7 +7,7 @@ import {
 const StudentFilters = ({ initialValue, onApply }) => {
   const [draft, setDraft] = useState(initialValue);
 
-  const controlClass = `h-10 rounded-lg border bg-[#FBFCFB] px-3 text-sm outline-none transition ${STUDENT_BASE_CLASS.border} ${STUDENT_BASE_CLASS.bodyText} ${STUDENT_BASE_CLASS.focusRing}`;
+  const controlClass = `h-11 rounded-xl border bg-surface px-3 text-sm outline-none transition ${STUDENT_BASE_CLASS.border} ${STUDENT_BASE_CLASS.bodyText} ${STUDENT_BASE_CLASS.focusRing}`;
 
   useEffect(() => {
     setDraft(initialValue);
@@ -59,7 +59,7 @@ const StudentFilters = ({ initialValue, onApply }) => {
 
       <button
         type="submit"
-        className={`inline-flex h-10 items-center justify-center rounded-lg px-3.5 text-sm font-semibold transition ${STUDENT_BASE_CLASS.primaryButton}`}
+        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${STUDENT_BASE_CLASS.primaryButton}`}
       >
         Lọc
       </button>
@@ -67,7 +67,7 @@ const StudentFilters = ({ initialValue, onApply }) => {
       <button
         type="button"
         onClick={handleReset}
-        className="inline-flex h-10 items-center justify-center rounded-lg border border-[#D8E3DE] bg-transparent px-3.5 text-sm font-semibold text-[#42534D] transition hover:bg-[#F3F8F6]"
+        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${STUDENT_BASE_CLASS.secondaryButton}`}
       >
         Đặt lại
       </button>

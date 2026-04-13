@@ -29,7 +29,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
         <select
           value={draft.status}
           onChange={(event) => setDraft((prev) => ({ ...prev, status: event.target.value }))}
-          className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 md:w-[200px]"
+          className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface-variant outline-none focus:border-primary/45 focus:ring-2 focus:ring-primary/15 md:w-[200px]"
         >
           {CATALOG_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -38,7 +38,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
 
         <button
           type="submit"
-          className="w-full rounded-xl border border-outline-variant bg-surface px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low md:w-auto"
+          className="h-11 w-full rounded-xl bg-primary px-3.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover md:w-auto"
         >
           Áp dụng
         </button>
@@ -49,7 +49,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
             setDraft({ keyword: '', status: 'all' });
             onReset();
           }}
-          className="w-full rounded-xl border border-outline-variant/70 bg-transparent px-3.5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low md:w-auto"
+          className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-3.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low md:w-auto"
         >
           Đặt lại
         </button>

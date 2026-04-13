@@ -32,7 +32,7 @@ const UserDetailDrawer = ({
   const statusBadgeClass = ACCOUNT_STATUS_BADGE_CLASS_MAP[user?.status]
     || 'border-outline-variant bg-surface-container-low text-on-surface-variant';
 
-  const actionButtonClass = 'rounded-md border border-outline-variant bg-white px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low';
+  const actionButtonClass = 'rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low';
 
   return (
     <RightDrawer

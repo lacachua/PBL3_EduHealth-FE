@@ -6,12 +6,12 @@ import ProfileField from './ProfileField';
 
 const variantClassMap = {
   admin: {
-    card: 'h-full rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-[0_6px_18px_rgba(15,23,42,0.06)] flex flex-col',
+    card: 'h-full rounded-xl border border-outline-variant bg-surface p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col',
     title: 'text-[1.06rem] font-bold text-on-surface',
-    headerRow: 'mb-3 flex items-center gap-2.5',
+    headerRow: 'mb-2.5 flex items-center gap-2.5',
     headerIconWrap: 'inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary',
     headerIcon: 'material-symbols-outlined text-[16px]',
-    formGrid: 'mt-4 grid gap-3 sm:grid-cols-2',
+    formGrid: 'mt-3 grid gap-3 sm:grid-cols-2',
     actionsRow: 'mt-auto flex flex-wrap items-center gap-2 pt-1',
     saveButton: 'inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-xs font-semibold text-on-primary transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-65',
     cancelButton: 'inline-flex h-9 items-center justify-center rounded-lg border border-outline-variant bg-surface-bright px-3.5 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-container-low',

@@ -1,24 +1,24 @@
 ﻿import React from 'react';
 
 const roleToneClass = {
-  admin: 'bg-emerald-100 text-emerald-800',
-  nurse: 'bg-blue-100 text-blue-800',
-  student: 'bg-amber-100 text-amber-800',
-  system: 'bg-slate-200 text-slate-800',
+  admin: 'border border-info/25 bg-info-soft text-info',
+  nurse: 'border border-success/25 bg-success-soft text-success',
+  student: 'border border-primary/25 bg-primary-soft text-primary',
+  system: 'border border-outline-variant bg-surface-container-high text-on-surface-variant',
 };
 
 const actionToneClass = {
-  create_user: 'text-emerald-700',
-  lock_user: 'text-amber-700',
-  update_health_profile: 'text-sky-700',
-  create_examination: 'text-cyan-700',
-  stock_in_medicine: 'text-indigo-700',
-  update_vaccination_status: 'text-blue-700',
-  sync_system_data: 'text-orange-700',
-  create: 'text-emerald-700',
-  update: 'text-blue-700',
-  delete: 'text-red-700',
-  sync: 'text-orange-700',
+  create_user: 'text-success',
+  lock_user: 'text-warning',
+  update_health_profile: 'text-info',
+  create_examination: 'text-info',
+  stock_in_medicine: 'text-info',
+  update_vaccination_status: 'text-info',
+  sync_system_data: 'text-warning',
+  create: 'text-success',
+  update: 'text-info',
+  delete: 'text-danger',
+  sync: 'text-warning',
 };
 
 const formatDateParts = (value) => {
@@ -31,9 +31,9 @@ const formatDateParts = (value) => {
 
 const SystemLogsTable = ({ rows, onSelect }) => {
   return (
-    <div className="overflow-x-auto bg-white">
-      <table className="w-full text-left text-sm text-slate-600">
-        <thead className="bg-[#f8fafc] text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+    <div className="overflow-x-auto bg-surface">
+      <table className="w-full text-left text-sm text-on-surface-variant">
+        <thead className="border-b border-outline-variant bg-surface-container-low text-[11px] font-semibold uppercase tracking-wider text-on-surface-muted">
           <tr>
             <th className="px-5 py-3.5 whitespace-nowrap">Thời gian</th>
             <th className="px-5 py-3.5 whitespace-nowrap">Người dùng</th>
@@ -43,11 +43,11 @@ const SystemLogsTable = ({ rows, onSelect }) => {
             <th className="px-5 py-3.5">Chi tiết</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-outline-variant/60">
           {rows.map((row) => {
             const { dateLabel, timeLabel } = formatDateParts(row.createdAt);
-            const roleClass = roleToneClass[row.actorRole] || 'bg-slate-100 text-slate-600';
-            const actionClass = actionToneClass[row.action] || 'text-slate-700';
+            const roleClass = roleToneClass[row.actorRole] || 'border border-outline-variant bg-surface-container-high text-on-surface-variant';
+            const actionClass = actionToneClass[row.action] || 'text-on-surface-variant';
 
             return (
               <tr
@@ -61,32 +61,32 @@ const SystemLogsTable = ({ rows, onSelect }) => {
                 }}
                 role="button"
                 tabIndex={0}
-                className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50/80 focus:outline-none"
+                className="cursor-pointer transition-colors hover:bg-surface-container-low focus:bg-surface-container-low focus:outline-none"
               >
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="font-medium text-slate-800 text-[13px]">{dateLabel}</div>
-                  <div className="text-[11px] text-slate-500">{timeLabel}</div>
+                  <div className="text-[13px] font-medium text-on-surface">{dateLabel}</div>
+                  <div className="text-[11px] text-on-surface-muted">{timeLabel}</div>
                 </td>
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="font-medium text-slate-800 text-[13px]">{row.actorName || '--'}</div>
+                  <div className="text-[13px] font-medium text-on-surface">{row.actorName || '--'}</div>
                   {row.actorUsername && (
-                    <div className="text-[11px] text-slate-500">@{row.actorUsername}</div>
+                    <div className="text-[11px] text-on-surface-muted">@{row.actorUsername}</div>
                   )}
                 </td>
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <span className={`inline-flex rounded border border-transparent px-2.5 py-0.5 text-[10px] font-semibold ${roleClass}`}>
+                  <span className={`inline-flex rounded px-2.5 py-0.5 text-[10px] font-semibold ${roleClass}`}>
                     {row.roleLabel || '--'}
                   </span>
                 </td>
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
                   <div className={`font-semibold text-[13px] ${actionClass}`}>{row.actionLabel || '--'}</div>
-                  <div className="text-[11px] text-slate-500">{row.moduleLabel || '--'}</div>
+                  <div className="text-[11px] text-on-surface-muted">{row.moduleLabel || '--'}</div>
                 </td>
                 <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="font-medium text-slate-800 text-[13px]">{row.targetLabel || row.targetTypeLabel || '--'}</div>
-                  <div className="text-[11px] text-slate-500">{row.targetTypeLabel || '--'}</div>
+                  <div className="text-[13px] font-medium text-on-surface">{row.targetLabel || row.targetTypeLabel || '--'}</div>
+                  <div className="text-[11px] text-on-surface-muted">{row.targetTypeLabel || '--'}</div>
                 </td>
-                <td className="px-5 py-3.5 align-middle max-w-[220px] 2xl:max-w-[360px] text-[13px] text-slate-600">
+                <td className="max-w-[220px] px-5 py-3.5 align-middle text-[13px] text-on-surface-variant 2xl:max-w-[360px]">
                   <p className="line-clamp-2" title={row.description}>{row.description}</p>
                 </td>
               </tr>

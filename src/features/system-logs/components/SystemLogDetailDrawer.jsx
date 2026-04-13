@@ -9,18 +9,18 @@ const formatFullDateTime = (value) => {
 
 const MinimalRow = ({ label, value, subtext }) => (
   <div className="flex flex-col space-y-1">
-    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+    <p className="text-xs font-semibold uppercase tracking-wider text-on-surface-muted">{label}</p>
     <div className="flex flex-col">
-      <span className="text-sm font-medium text-slate-800">{value || '--'}</span>
-      {subtext && <span className="text-xs text-slate-500 mt-0.5">{subtext}</span>}
+      <span className="text-sm font-medium text-on-surface">{value || '--'}</span>
+      {subtext && <span className="mt-0.5 text-xs text-on-surface-variant">{subtext}</span>}
     </div>
   </div>
 );
 
 const SectionHeader = ({ title }) => (
   <div className="mb-4 flex items-center">
-    <h4 className="text-sm font-bold text-slate-700">{title}</h4>
-    <div className="ml-4 flex-1 border-t border-slate-100"></div>
+    <h4 className="text-sm font-bold text-on-surface-variant">{title}</h4>
+    <div className="ml-4 flex-1 border-t border-outline-variant/70"></div>
   </div>
 );
 
@@ -53,14 +53,14 @@ const SystemLogDetailDrawer = ({ log, open, onClose }) => {
     ? Object.entries(log.metadata)
     : [];
   const statusClassName = log.statusTone === 'success'
-    ? 'bg-emerald-100 text-emerald-800'
+    ? 'border border-success/20 bg-success-soft text-success'
     : log.statusTone === 'warning'
-      ? 'bg-amber-100 text-amber-800'
+      ? 'border border-warning/25 bg-warning-soft text-warning'
       : log.statusTone === 'info'
-        ? 'bg-sky-100 text-sky-800'
+        ? 'border border-secondary/20 bg-secondary-container text-secondary'
         : log.statusTone === 'neutral'
-          ? 'bg-slate-100 text-slate-700'
-          : 'bg-red-100 text-red-800';
+          ? 'border border-outline-variant bg-surface-container-high text-on-surface-variant'
+          : 'border border-danger/20 bg-danger-soft text-danger';
 
   return (
     <RightDrawer
@@ -70,7 +70,7 @@ const SystemLogDetailDrawer = ({ log, open, onClose }) => {
       subtitle={`Mã nhật ký: ${log.id}`}
       widthClass="max-w-[640px]"
     >
-      <div className="p-6 text-slate-700 flex flex-col gap-8">
+      <div className="flex flex-col gap-8 p-6 text-on-surface-variant">
 
         <section>
           <SectionHeader title="Trạng thái hệ thống" />
@@ -108,17 +108,17 @@ const SystemLogDetailDrawer = ({ log, open, onClose }) => {
 
         <section>
           <SectionHeader title="Nội dung chi tiết" />
-          <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
-            <p className="text-sm leading-loose text-slate-700 whitespace-pre-wrap">
+          <div className="rounded-xl border border-outline-variant/80 bg-surface-container-low p-5">
+            <p className="whitespace-pre-wrap text-sm leading-loose text-on-surface-variant">
               {log.description}
             </p>
 
             {metadataEntries.length ? (
-              <div className="mt-4 space-y-2 border-t border-slate-200 pt-3">
+              <div className="mt-4 space-y-2 border-t border-outline-variant pt-3">
                 {metadataEntries.map(([key, value]) => (
                   <div key={key} className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:gap-3">
-                    <p className="w-[160px] text-xs font-semibold text-slate-500">{prettyMetadataLabel(key)}</p>
-                    <p className="text-xs text-slate-700">{renderMetadataValue(value)}</p>
+                    <p className="w-[160px] text-xs font-semibold text-on-surface-muted">{prettyMetadataLabel(key)}</p>
+                    <p className="text-xs text-on-surface-variant">{renderMetadataValue(value)}</p>
                   </div>
                 ))}
               </div>

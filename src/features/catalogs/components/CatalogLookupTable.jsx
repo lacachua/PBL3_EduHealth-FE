@@ -25,7 +25,7 @@ const CatalogLookupTable = ({ rows, onViewDetail }) => {
         dense
         getRowKey={(row) => row.id}
         onRowClick={onViewDetail}
-        rowClassName="transition-colors duration-150 hover:bg-secondary-container/15 focus-within:bg-secondary-container/20"
+        rowClassName="transition-colors duration-150 hover:bg-primary-soft/40 focus-within:bg-primary-soft/50"
       />
     </div>
   );

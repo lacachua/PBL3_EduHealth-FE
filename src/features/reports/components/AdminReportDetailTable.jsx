@@ -42,7 +42,6 @@ const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
               <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-warning">Theo dõi</th>
               <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-danger">Nguy cơ cao</th>
               <th className="px-6 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Mức độ rủi ro</th>
-              <th className="px-6 py-3 text-right text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Thao tác</th>
             </tr>
           </thead>
 
@@ -52,6 +51,14 @@ const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
                 key={row.id}
                 className={`cursor-pointer transition-colors ${rowHoverClassMap[row.rowTone] || rowHoverClassMap.default}`}
                 onClick={() => onAnalyzeClass(row.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onAnalyzeClass(row.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
               >
                 <td className="relative px-6 py-3.5 font-bold text-on-surface">
                   <span className={`absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded ${riskAccentClassMap[row.riskTone] || riskAccentClassMap.success}`} />
@@ -65,19 +72,6 @@ const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
                   <span className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-[10px] font-bold ${riskPillClassMap[row.riskTone]}`}>
                     {riskLabelMap[row.riskTone] || row.riskLabel}
                   </span>
-                </td>
-                <td className="px-6 py-3.5 text-right">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-secondary transition-all hover:border-secondary/25 hover:bg-secondary-container"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onAnalyzeClass(row.id);
-                    }}
-                  >
-                    Mở chi tiết
-                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                  </button>
                 </td>
               </tr>
             ))}

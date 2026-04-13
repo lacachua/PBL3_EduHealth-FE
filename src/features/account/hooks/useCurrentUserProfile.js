@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 
@@ -28,18 +28,10 @@ export const useCurrentUserProfile = () => {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
 
-  const status = useMemo(() => {
-    if (loading) return 'loading';
-    if (error) return 'error';
-    if (!currentUser) return 'empty';
-    return 'success';
-  }, [currentUser, error, loading]);
-
   return {
     currentUser,
     loading,
     error,
-    status,
     fetchCurrentUser,
   };
 };

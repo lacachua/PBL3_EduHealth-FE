@@ -14,12 +14,12 @@ const feedbackClassMap = {
 
 const variantClassMap = {
   admin: {
-    wrapper: 'space-y-4',
-    loadingCard: 'rounded-xl border border-outline-variant bg-surface-container-low p-4 text-sm text-on-surface-variant',
+    wrapper: 'space-y-4 admin-page-bg',
+    loadingCard: 'rounded-xl border border-outline-variant bg-surface p-4 text-sm text-on-surface-variant',
     errorCard: 'rounded-xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger',
     retryButton: 'mt-2 inline-flex items-center rounded-lg border border-danger/35 bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft/50',
-    topGrid: 'grid gap-6 lg:gap-7 xl:grid-cols-[minmax(320px,360px)_minmax(0,1fr)] xl:items-stretch',
-    passwordRow: 'mt-1',
+    topGrid: 'grid gap-4 lg:gap-5 xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)] xl:items-stretch',
+    passwordRow: 'mt-0',
   },
   nurse: {
     wrapper: 'space-y-4',
@@ -43,7 +43,7 @@ const headerContentMap = {
 };
 
 const CurrentUserAccountPage = ({ variant = 'admin' }) => {
-  const classes = variantClassMap[variant] || variantClassMap.admin;
+  const layoutClasses = variantClassMap[variant] || variantClassMap.admin;
   const headerContent = headerContentMap[variant] || headerContentMap.admin;
   const { currentUser, loading, error, fetchCurrentUser } = useCurrentUserProfile();
 
@@ -65,7 +65,7 @@ const CurrentUserAccountPage = ({ variant = 'admin' }) => {
   };
 
   return (
-    <div className={classes.wrapper}>
+    <div className={layoutClasses.wrapper}>
       {variant === 'nurse' ? (
         <NurseModulePageHeader
           title={headerContent.title}
@@ -80,14 +80,14 @@ const CurrentUserAccountPage = ({ variant = 'admin' }) => {
       )}
 
       {loading && !currentUser ? (
-        <section className={classes.loadingCard}>Đang tải thông tin tài khoản...</section>
+        <section className={layoutClasses.loadingCard}>Đang tải thông tin tài khoản...</section>
       ) : null}
 
       {error ? (
-        <section className={classes.errorCard}>
+        <section className={layoutClasses.errorCard}>
           {error}
           <div>
-            <button type="button" className={classes.retryButton} onClick={fetchCurrentUser}>
+            <button type="button" className={layoutClasses.retryButton} onClick={fetchCurrentUser}>
               Tải lại
             </button>
           </div>
@@ -96,7 +96,7 @@ const CurrentUserAccountPage = ({ variant = 'admin' }) => {
 
       {currentUser ? (
         <>
-          <section className={classes.topGrid}>
+          <section className={layoutClasses.topGrid}>
             <div className="h-full">
               <AccountProfilePanel
                 variant={variant}
@@ -116,7 +116,7 @@ const CurrentUserAccountPage = ({ variant = 'admin' }) => {
             </div>
           </section>
 
-          <section className={classes.passwordRow}>
+          <section className={layoutClasses.passwordRow}>
             <ChangePasswordCard variant={variant} onFeedback={showFeedback} />
           </section>
         </>

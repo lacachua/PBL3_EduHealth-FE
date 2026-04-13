@@ -28,14 +28,14 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
         <select
           value={draft.status}
           onChange={(event) => setDraft((prev) => ({ ...prev, status: event.target.value }))}
-          className="min-w-[168px] rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
+          className="h-11 min-w-[168px] rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface-variant outline-none focus:border-primary/45 focus:ring-2 focus:ring-primary/15"
         >
           {MEDICINE_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
 
-        <label className="inline-flex whitespace-nowrap items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant">
+        <label className="inline-flex h-11 whitespace-nowrap items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface-variant">
           <input
             type="checkbox"
             checked={draft.lowStock}
@@ -44,7 +44,7 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
           Sắp hết
         </label>
 
-        <label className="inline-flex whitespace-nowrap items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant">
+        <label className="inline-flex h-11 whitespace-nowrap items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface-variant">
           <input
             type="checkbox"
             checked={draft.expiring}
@@ -61,7 +61,7 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
           <button
             type="button"
             onClick={onRefresh}
-            className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-xl border border-secondary/35 bg-secondary-container/30 px-3.5 py-2.5 text-sm font-semibold text-secondary hover:bg-secondary-container/45"
+            className="inline-flex h-11 whitespace-nowrap items-center gap-1.5 rounded-xl border border-outline-variant bg-surface px-3.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
           >
             <span className="material-symbols-outlined text-[16px]">refresh</span>
             Làm mới
@@ -70,14 +70,14 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
           <button
             type="button"
             onClick={onReset}
-            className="whitespace-nowrap rounded-xl border border-outline-variant bg-surface px-3.5 py-2.5 text-sm font-semibold text-on-surface hover:bg-surface-container-low"
+            className="h-11 whitespace-nowrap rounded-xl border border-outline-variant bg-surface px-3.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
           >
             Đặt lại
           </button>
 
           <button
             type="submit"
-            className="whitespace-nowrap rounded-xl bg-secondary px-3.5 py-2.5 text-sm font-semibold text-white hover:bg-secondary/90"
+            className="h-11 whitespace-nowrap rounded-xl bg-primary px-3.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
           >
             Áp dụng
           </button>

@@ -72,7 +72,7 @@ const AccountTypeSelectorModal = ({
             <button
               type="button"
               onClick={onSelectStudent}
-              className="mt-3 rounded-md border border-outline-variant bg-white px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+              className="mt-3 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
             >
               Đi đến Quản lý học sinh
             </button>

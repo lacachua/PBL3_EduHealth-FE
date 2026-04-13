@@ -3,9 +3,9 @@ import React from 'react';
 const variantClassMap = {
   admin: {
     label: 'text-[11px] font-semibold uppercase tracking-[0.05em] text-on-surface-variant',
-    input: 'w-full rounded-lg border border-field-editable-border bg-field-editable-bg px-3 py-2 text-sm text-on-surface outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/12',
-    disabledInput: 'w-full rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 py-2 text-sm text-on-surface-variant cursor-not-allowed',
-    readonly: 'flex min-h-10 items-center rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 text-sm font-medium text-[#334155]',
+    input: 'w-full rounded-lg border border-field-editable-border bg-field-editable-bg px-3 py-2 text-sm text-on-surface outline-none transition placeholder:text-on-surface-muted focus:border-[var(--color-field-focus)] focus:ring-2 focus:ring-primary/18',
+    disabledInput: 'w-full rounded-lg border border-outline-variant bg-surface-container-high px-3 py-2 text-sm text-on-surface-muted cursor-not-allowed',
+    readonly: 'flex min-h-10 items-center rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 text-sm font-medium text-on-surface',
     error: 'mt-1 text-xs font-medium text-danger',
   },
   nurse: {

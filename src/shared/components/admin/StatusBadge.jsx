@@ -2,8 +2,8 @@ import React from 'react';
 
 const toneClassMap = {
   neutral: 'border-outline-variant bg-surface text-on-surface-variant',
-  info: 'border-secondary/25 bg-secondary-container/35 text-secondary',
-  success: 'border-success/25 bg-success/10 text-success',
+  info: 'border-info/25 bg-info-soft text-info',
+  success: 'border-success/25 bg-success-soft text-success',
   warning: 'border-warning/25 bg-warning-soft text-warning',
   danger: 'border-danger/25 bg-danger-soft text-danger',
 };

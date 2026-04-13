@@ -5,11 +5,11 @@ import { currentUserRepository } from '../repositories/currentUserRepository';
 
 const variantClassMap = {
   admin: {
-    card: 'h-full rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] flex flex-col',
-    avatarFrame: 'group relative inline-flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-2 border-outline-variant bg-surface-bright text-on-surface shadow-[0_4px_14px_rgba(15,23,42,0.08)] md:h-32 md:w-32',
+    card: 'h-full rounded-xl border border-outline-variant bg-surface p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col',
+    avatarFrame: 'group relative inline-flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-outline-variant bg-surface-bright text-on-surface shadow-[0_3px_10px_rgba(15,23,42,0.06)] md:h-28 md:w-28',
     avatarInitials: 'text-[1.5rem] font-bold tracking-[0.01em]',
     avatarOverlayButton: 'absolute bottom-0 right-0 inline-flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant bg-surface-bright text-primary shadow-[0_3px_8px_rgba(15,23,42,0.14)] transition hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-55',
-    name: 'mt-4 text-[1.1rem] font-bold leading-6 text-on-surface',
+    name: 'mt-3 text-[1.05rem] font-bold leading-6 text-on-surface',
     role: 'mt-1 text-sm font-semibold text-on-surface-variant',
     email: 'mt-1 text-xs text-on-surface-muted truncate',
     avatarActionRow: 'mt-3 flex items-center justify-center gap-2',

@@ -3,12 +3,12 @@ import { useChangeCurrentUserPassword } from '../hooks/useChangeCurrentUserPassw
 
 const variantClassMap = {
   admin: {
-    card: 'rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-[0_6px_18px_rgba(15,23,42,0.06)]',
+    card: 'rounded-xl border border-outline-variant bg-surface p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03)]',
     title: 'text-[1.06rem] font-bold text-on-surface',
-    headerRow: 'mb-3 flex items-center gap-2.5',
+    headerRow: 'mb-2.5 flex items-center gap-2.5',
     headerIconWrap: 'inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary',
     headerIcon: 'material-symbols-outlined text-[16px]',
-    fieldGrid: 'mt-4 grid gap-3 md:grid-cols-2',
+    fieldGrid: 'mt-3 grid gap-3 md:grid-cols-2',
     label: 'text-[11px] font-semibold uppercase tracking-[0.05em] text-on-surface-variant',
     input: 'h-10 w-full rounded-lg border border-field-editable-border bg-field-editable-bg px-3 pr-10 text-sm text-on-surface outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/12',
     visibilityButton: 'absolute inset-y-0 right-1 inline-flex w-8 items-center justify-center rounded-md text-on-surface-variant transition hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15',

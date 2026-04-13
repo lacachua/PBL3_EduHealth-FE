@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen bg-auth-bg-main text-auth-text-strong">
+    <div className="auth-shell min-h-screen bg-auth-bg-main text-auth-text-strong">
       <Outlet />
     </div>
   );

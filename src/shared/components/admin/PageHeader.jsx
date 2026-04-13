@@ -2,7 +2,7 @@ import React from 'react';
 
 const PageHeader = ({ title, description, actions }) => {
   return (
-    <header className="rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+    <header className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-3.5 shadow-[var(--fd-shadow-card)]">
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="font-headline text-[1.42rem] font-bold leading-tight tracking-[-0.01em] text-on-surface md:text-[1.54rem]">{title}</h1>
