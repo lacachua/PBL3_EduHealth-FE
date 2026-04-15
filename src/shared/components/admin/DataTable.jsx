@@ -5,6 +5,8 @@ const DataTable = ({
   rows,
   getRowKey,
   dense = false,
+  headCellPaddingClassName,
+  bodyCellPaddingClassName,
   containerClassName,
   tableClassName,
   headClassName,
@@ -12,8 +14,8 @@ const DataTable = ({
   rowClassName,
   onRowClick,
 }) => {
-  const headCellPaddingClass = dense ? 'px-3 py-2' : 'px-4 py-2.5';
-  const bodyCellPaddingClass = dense ? 'px-3 py-2.5' : 'px-4 py-3.5';
+  const headCellPaddingClass = headCellPaddingClassName || (dense ? 'px-3 py-2' : 'px-4 py-2.5');
+  const bodyCellPaddingClass = bodyCellPaddingClassName || (dense ? 'px-3 py-2.5' : 'px-4 py-3.5');
 
   const shouldIgnoreRowClick = (event) => {
     if (event.defaultPrevented) {

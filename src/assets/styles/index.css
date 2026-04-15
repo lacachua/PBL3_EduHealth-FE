@@ -237,14 +237,14 @@
   }
 
   .nurse-shell {
-    --app-bg: #f4f7fb;
+    --app-bg: #f1f5fa;
     --app-surface: #ffffff;
-    --app-surface-soft: #f2f6fb;
-    --app-border: #d5dfeb;
-    --app-border-strong: #c8d4e3;
+    --app-surface-soft: #edf3f9;
+    --app-border: #c9d6e5;
+    --app-border-strong: #b8c9dd;
     --app-text: #0f172a;
-    --app-text-muted: #64748b;
-    --app-text-soft: #8190a0;
+    --app-text-muted: #546579;
+    --app-text-soft: #74859a;
     --app-primary: #15803d;
     --app-primary-hover: #166534;
     --app-primary-soft: #eaf6ef;
@@ -258,16 +258,16 @@
     --app-info-soft: #eaf2fd;
 
     --field-bg: #ffffff;
-    --field-border: #cbd5e1;
+    --field-border: #bfd0e2;
     --field-readonly-bg: #f8fafc;
-    --field-readonly-border: #e2e8f0;
+    --field-readonly-border: #d6e1ed;
     --field-focus: #15803d;
     --field-placeholder: #94a3b8;
 
     --card-bg: #ffffff;
-    --card-border: #d5dfeb;
-    --table-header-bg: #f2f6fb;
-    --table-row-hover-bg: #eef4fb;
+    --card-border: #c9d6e5;
+    --table-header-bg: #e8eff7;
+    --table-row-hover-bg: #e6eef8;
   }
 
   .auth-shell {
@@ -346,8 +346,8 @@
 
   .nurse-page-bg {
     background:
-      radial-gradient(760px 420px at 100% -6%, rgba(47, 111, 163, 0.07), transparent 62%),
-      radial-gradient(620px 340px at -10% 14%, rgba(21, 128, 61, 0.04), transparent 64%),
+      radial-gradient(760px 420px at 100% -6%, rgba(47, 111, 163, 0.09), transparent 62%),
+      radial-gradient(620px 340px at -10% 14%, rgba(21, 128, 61, 0.06), transparent 64%),
       linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg) 100%);
   }
 
@@ -367,13 +367,13 @@
   .nurse-card-soft {
     border: 1px solid var(--app-border);
     background: var(--app-surface);
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.045);
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
   }
 
   .nurse-card-soft:hover {
     border-color: var(--app-border-strong);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
     transform: translateY(-1px);
   }
 
@@ -439,19 +439,19 @@
   }
 
   .nurse-table-head-strong {
-    border-bottom: 1px solid var(--app-border);
+    border-bottom: 1px solid var(--app-border-strong);
     background: var(--table-header-bg);
     color: var(--app-text-muted);
   }
 
   .nurse-table-summary-strong {
-    border-bottom: 1px solid var(--app-border);
+    border-bottom: 1px solid var(--app-border-strong);
     background: var(--table-header-bg);
     color: var(--app-text-muted);
   }
 
   .nurse-section-header-strong {
-    border-bottom: 1px solid var(--app-border);
+    border-bottom: 1px solid var(--app-border-strong);
     background: var(--table-header-bg);
     color: var(--app-text-muted);
   }

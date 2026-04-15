@@ -30,6 +30,7 @@ import {
   ModulePlaceholderPage,
   NurseHealthProfilesPage,
   ReportsPage,
+  NurseDashboardPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
   NursePendingVaccinationsPage,
@@ -95,7 +96,7 @@ export const router = createBrowserRouter(
         <Route element={<RequireRole allowedRoles={["nurse"]} />}>
           <Route path="/nurse" element={<NurseLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={renderNurseModule(nurseModuleMeta.dashboard)} />
+            <Route path="dashboard" element={<Lazy><NurseDashboardPage /></Lazy>} />
             <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
             <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
             <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />

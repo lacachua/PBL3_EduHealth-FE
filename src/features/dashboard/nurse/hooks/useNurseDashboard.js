@@ -1,0 +1,53 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
+import { adaptNurseDashboardSnapshot } from '../adapters/nurseDashboardAdapter';
+import { nurseDashboardRepository } from '../repositories/nurseDashboardRepository';
+
+export const useNurseDashboard = () => {
+  const fallbackData = useMemo(() => adaptNurseDashboardSnapshot(null), []);
+
+  const [dashboardData, setDashboardData] = useState(fallbackData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchDashboard = useCallback(async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const snapshot = await nurseDashboardRepository.fetchSnapshot();
+      const viewModel = adaptNurseDashboardSnapshot(snapshot);
+      setDashboardData(viewModel);
+      return viewModel;
+    } catch (apiError) {
+      setError(normalizeApiMessage(apiError));
+      setDashboardData((prev) => prev || fallbackData);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [fallbackData]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const status = useMemo(() => {
+    if (loading) {
+      return 'loading';
+    }
+
+    if (error) {
+      return 'error';
+    }
+
+    return 'success';
+  }, [error, loading]);
+
+  return {
+    dashboardData,
+    error,
+    status,
+    fetchDashboard,
+  };
+};

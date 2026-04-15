@@ -50,7 +50,7 @@ const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.NURSE_EXAMINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_VACCINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_NOTIFICATIONS]: { supportsLive: false },
-  [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: false },
+  [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: true },
 });
 
 const getDataMode = () => {
