@@ -32,6 +32,7 @@ export const DATA_MODULES = Object.freeze({
 const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.AUTH]: { supportsLive: true },
   [DATA_MODULES.CURRENT_USER_ACCOUNT]: { supportsLive: true },
+  // Student portal read APIs are still pending on backend; keep mock source by default.
   [DATA_MODULES.STUDENT_PORTAL]: { supportsLive: false },
 
   [DATA_MODULES.ADMIN_USERS]: { supportsLive: true },

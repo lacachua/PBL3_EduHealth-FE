@@ -125,14 +125,6 @@ export const router = createBrowserRouter(
             {/* Compatibility alias */}
             <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
           </Route>
-
-          {/* Compatibility aliases */}
-          <Route path="/parent" element={<Navigate to="/student/overview" replace />} />
-          <Route path="/parent/dashboard" element={<Navigate to="/student/overview" replace />} />
-          <Route path="/parent/overview" element={<Navigate to="/student/overview" replace />} />
-          <Route path="/parent/care-history" element={<Navigate to="/student/care-history" replace />} />
-          <Route path="/parent/vaccinations" element={<Navigate to="/student/vaccinations" replace />} />
-          <Route path="/parent/account" element={<Navigate to="/student/account" replace />} />
         </Route>
       </Route>
 

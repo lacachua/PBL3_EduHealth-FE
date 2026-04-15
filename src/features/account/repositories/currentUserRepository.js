@@ -18,7 +18,6 @@ const ROLE_LABELS = {
   ADMIN: 'Quản trị viên',
   NURSE: 'Nhân viên y tế',
   STUDENT: 'Học sinh',
-  PARENT: 'Phụ huynh',
 };
 
 const toStringOrEmpty = (value) => {

@@ -31,7 +31,6 @@ export const NursePendingVaccinationsPage = React.lazy(() => import("../../featu
 export const ExaminationLandingPage = React.lazy(() => import("../../features/examinations/pages/ExaminationLandingPage"));
 export const CreateExaminationPage = React.lazy(() => import("../../features/examinations/pages/CreateExaminationPage"));
 export const ExaminationDetailPage = React.lazy(() => import("../../features/examinations/pages/ExaminationDetailPage"));
-export const ParentDashboard = React.lazy(() => import("../../features/dashboard/parent/ParentDashboard"));
 export const StudentOverviewPage = React.lazy(() => import('../../features/student/pages/StudentOverviewPage'));
 export const StudentCareHistoryPage = React.lazy(() => import('../../features/student/pages/StudentCareHistoryPage'));
 export const StudentVaccinationsPage = React.lazy(() => import('../../features/student/pages/StudentVaccinationsPage'));

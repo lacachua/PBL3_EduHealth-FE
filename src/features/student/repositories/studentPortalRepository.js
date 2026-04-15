@@ -17,8 +17,18 @@ const ROLE_LABELS = {
   ADMIN: 'Quản trị viên',
   NURSE: 'Nhân viên y tế',
   STUDENT: 'Học sinh',
-  PARENT: 'Phụ huynh',
 };
+
+// Read endpoints for student portal are pending backend delivery.
+// Keep these definitions centralized so BE integration later only updates this object
+// and the read methods below in this repository.
+export const STUDENT_PORTAL_READ_API_PENDING = Object.freeze({
+  identity: 'GET /api/v1/student/me/identity',
+  overview: 'GET /api/v1/student/me/overview',
+  careHistory: 'GET /api/v1/student/me/care-history',
+  vaccinations: 'GET /api/v1/student/me/vaccinations',
+  account: 'GET /api/v1/student/me/account',
+});
 
 const safeGetCurrentUser = async () => {
   try {
