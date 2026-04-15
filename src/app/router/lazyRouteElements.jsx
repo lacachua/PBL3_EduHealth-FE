@@ -32,6 +32,10 @@ export const ExaminationLandingPage = React.lazy(() => import("../../features/ex
 export const CreateExaminationPage = React.lazy(() => import("../../features/examinations/pages/CreateExaminationPage"));
 export const ExaminationDetailPage = React.lazy(() => import("../../features/examinations/pages/ExaminationDetailPage"));
 export const ParentDashboard = React.lazy(() => import("../../features/dashboard/parent/ParentDashboard"));
+export const StudentOverviewPage = React.lazy(() => import('../../features/student/pages/StudentOverviewPage'));
+export const StudentCareHistoryPage = React.lazy(() => import('../../features/student/pages/StudentCareHistoryPage'));
+export const StudentVaccinationsPage = React.lazy(() => import('../../features/student/pages/StudentVaccinationsPage'));
+export const StudentAccountPage = React.lazy(() => import('../../features/student/pages/StudentAccountPage'));
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));
 export const CatalogManagementPage = React.lazy(() => import("../../features/catalogs/pages/CatalogManagementPage"));

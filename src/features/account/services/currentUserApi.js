@@ -1,4 +1,4 @@
-import { apiGetData, apiPostData } from '../../../shared/api/apiClient';
+import { apiGetData, apiPatchData, apiPostData } from '../../../shared/api/apiClient';
 
 export const CURRENT_USER_API_ENDPOINTS = Object.freeze({
   me: '/api/v1/auth/me',
@@ -21,8 +21,8 @@ export const changeCurrentUserPasswordRequest = async (payload) => {
   return apiPostData(CURRENT_USER_API_ENDPOINTS.changePassword, payload);
 };
 
-export const updateCurrentUserProfileRequest = async () => {
-  throw createPendingBackendError('updateCurrentUserProfile');
+export const updateCurrentUserProfileRequest = async (payload) => {
+  return apiPatchData(CURRENT_USER_API_ENDPOINTS.me, payload);
 };
 
 export const uploadCurrentUserAvatarRequest = async () => {

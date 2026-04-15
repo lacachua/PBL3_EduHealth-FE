@@ -6,6 +6,7 @@ import SiteLayout from "../../layouts/SiteLayout";
 import AdminLayout from "../../layouts/AdminLayout";
 import AuthLayout from "../../layouts/AuthLayout";
 import NurseLayout from "../../layouts/NurseLayout";
+import StudentLayout from "../../layouts/StudentLayout";
 import { nurseModuleMeta } from "../../features/nurse/config/nurseModuleMeta";
 
 // Guards
@@ -28,7 +29,6 @@ import {
   NotFoundPage,
   ModulePlaceholderPage,
   NurseHealthProfilesPage,
-  ParentDashboard,
   ReportsPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
@@ -38,7 +38,11 @@ import {
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
   ServerErrorPage,
+  StudentAccountPage,
+  StudentCareHistoryPage,
   StudentManagementPage,
+  StudentOverviewPage,
+  StudentVaccinationsPage,
   SystemLogsPage,
   UserManagementPage,
   VerifyOtpPage,
@@ -111,8 +115,24 @@ export const router = createBrowserRouter(
       {/* Protected Student Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["student"]} />}>
-          <Route path="/student/dashboard" element={<Lazy><ParentDashboard /></Lazy>} />
-          <Route path="/parent/dashboard" element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="/student" element={<StudentLayout />}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<Lazy><StudentOverviewPage /></Lazy>} />
+            <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
+            <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
+            <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
+
+            {/* Compatibility alias */}
+            <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
+          </Route>
+
+          {/* Compatibility aliases */}
+          <Route path="/parent" element={<Navigate to="/student/overview" replace />} />
+          <Route path="/parent/dashboard" element={<Navigate to="/student/overview" replace />} />
+          <Route path="/parent/overview" element={<Navigate to="/student/overview" replace />} />
+          <Route path="/parent/care-history" element={<Navigate to="/student/care-history" replace />} />
+          <Route path="/parent/vaccinations" element={<Navigate to="/student/vaccinations" replace />} />
+          <Route path="/parent/account" element={<Navigate to="/student/account" replace />} />
         </Route>
       </Route>
 

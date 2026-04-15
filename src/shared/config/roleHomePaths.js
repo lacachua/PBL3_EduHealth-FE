@@ -1,7 +1,7 @@
 export const ROLE_HOME_PATHS = {
   ADMIN: '/admin/dashboard',
   NURSE: '/nurse/dashboard',
-  STUDENT: '/student/dashboard',
+  STUDENT: '/student/overview',
 };
 
 const LEGACY_ROLE_ALIASES = {
