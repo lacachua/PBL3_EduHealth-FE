@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
-import StudentSidebar from '../features/student/components/layout/StudentSidebar';
-import StudentTopbar from '../features/student/components/layout/StudentTopbar';
-import StudentMobileBottomNav from '../features/student/components/layout/StudentMobileBottomNav';
-import { studentPortalService } from '../features/student/services/studentPortalService';
-import '../features/student/styles/student-portal.css';
+import StudentSidebar from '../features/student-portal/components/layout/StudentSidebar';
+import StudentTopbar from '../features/student-portal/components/layout/StudentTopbar';
+import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
+import { studentPortalService } from '../features/student-portal/services/studentPortalService';
+import '../features/student-portal/styles/student-portal.css';
 
 const resolveFallbackIdentity = (user) => {
   const rawName = user?.fullName || user?.name || 'Học sinh';
