@@ -1,4 +1,4 @@
-import { getNurseStudentsLookupApi } from '../../nurse/services/nurseStudentsApi';
+import { getNurseStudentsLookupApi } from '../../health-profiles/services/healthProfilesApi';
 
 const userIdCache = new Map();
 

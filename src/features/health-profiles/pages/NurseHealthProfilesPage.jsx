@@ -11,10 +11,10 @@ import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
   resolveNurseStudentRouteId,
   resolveNurseStudentRouteIdFromRow,
-} from '../adapters/nurseStudentIdentifierAdapter';
+} from '../../students/adapters/nurseStudentIdentifierAdapter';
 import { adaptStudentHealthProfileResponse } from '../../students/adapters/studentManagementAdapter';
 import { useStudentManagement } from '../../students/hooks/useStudentManagement';
-import { getNurseStudentHealthProfileApi } from '../services/nurseStudentsApi';
+import { getNurseStudentHealthProfileApi } from '../services/healthProfilesApi';
 
 const DEFAULT_FILTERS = {
   keyword: '',

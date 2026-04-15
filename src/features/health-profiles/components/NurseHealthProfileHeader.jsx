@@ -1,6 +1,6 @@
 import React from 'react';
-import EntityAvatar from '../../../../shared/components/admin/EntityAvatar';
-import SectionAlert from '../../../../shared/components/form/SectionAlert';
+import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
+import SectionAlert from '../../../shared/components/form/SectionAlert';
 
 const metaItemClass = 'inline-flex items-center gap-1.5 text-[12px] text-[#64748B]';
 

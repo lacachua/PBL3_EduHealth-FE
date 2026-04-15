@@ -16,25 +16,25 @@ import {
   MOVEMENT_PAGE_SIZE,
   PAGE_SIZE,
 } from '../constants/nurseMedicineConstants';
-import CreateMedicineModal from '../components/medicines/CreateMedicineModal';
-import DisposeMedicineModal from '../components/medicines/DisposeMedicineModal';
-import MedicineDetailDrawer from '../components/medicines/MedicineDetailDrawer';
-import MedicinesAlertsPanel from '../components/medicines/MedicinesAlertsPanel';
-import MedicinesSummaryCards from '../components/medicines/MedicinesSummaryCards';
-import MedicinesTable from '../components/medicines/MedicinesTable';
-import MedicinesToolbar from '../components/medicines/MedicinesToolbar';
-import StockInMedicineModal from '../components/medicines/StockInMedicineModal';
-import UpdateMedicineModal from '../components/medicines/UpdateMedicineModal';
-import UpdateMedicineStatusModal from '../components/medicines/UpdateMedicineStatusModal';
-import { createMedicine } from '../../medicines/services/createMedicine';
-import { disposeMedicine } from '../../medicines/services/disposeMedicine';
-import { getMedicineAlerts } from '../../medicines/services/getMedicineAlerts';
-import { getMedicineById } from '../../medicines/services/getMedicineById';
-import { getMedicineMovements } from '../../medicines/services/getMedicineMovements';
-import { getMedicines } from '../../medicines/services/getMedicines';
-import { stockInMedicine } from '../../medicines/services/stockInMedicine';
-import { updateMedicine } from '../../medicines/services/updateMedicine';
-import { updateMedicineStatus } from '../../medicines/services/updateMedicineStatus';
+import CreateMedicineModal from '../components/nurse/CreateMedicineModal';
+import DisposeMedicineModal from '../components/nurse/DisposeMedicineModal';
+import MedicineDetailDrawer from '../components/nurse/MedicineDetailDrawer';
+import MedicinesAlertsPanel from '../components/nurse/MedicinesAlertsPanel';
+import MedicinesSummaryCards from '../components/nurse/MedicinesSummaryCards';
+import MedicinesTable from '../components/nurse/MedicinesTable';
+import MedicinesToolbar from '../components/nurse/MedicinesToolbar';
+import StockInMedicineModal from '../components/nurse/StockInMedicineModal';
+import UpdateMedicineModal from '../components/nurse/UpdateMedicineModal';
+import UpdateMedicineStatusModal from '../components/nurse/UpdateMedicineStatusModal';
+import { createMedicine } from '../services/createMedicine';
+import { disposeMedicine } from '../services/disposeMedicine';
+import { getMedicineAlerts } from '../services/getMedicineAlerts';
+import { getMedicineById } from '../services/getMedicineById';
+import { getMedicineMovements } from '../services/getMedicineMovements';
+import { getMedicines } from '../services/getMedicines';
+import { stockInMedicine } from '../services/stockInMedicine';
+import { updateMedicine } from '../services/updateMedicine';
+import { updateMedicineStatus } from '../services/updateMedicineStatus';
 
 const NURSE_MEDICINES_OPTIONS = { moduleKey: DATA_MODULES.NURSE_MEDICINES };
 

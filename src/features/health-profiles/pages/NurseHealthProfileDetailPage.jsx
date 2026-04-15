@@ -3,12 +3,12 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import SectionCard from '../../../shared/components/admin/SectionCard';
-import { resolveNurseStudentRouteId } from '../adapters/nurseStudentIdentifierAdapter';
-import NurseHealthProfileHeader from '../components/health-profile/NurseHealthProfileHeader';
-import NurseHealthProfileEditDrawer from '../components/health-profile/NurseHealthProfileEditDrawer';
-import NurseHealthMetricCards from '../components/health-profile/NurseHealthMetricCards';
-import NurseHealthOverviewPanels from '../components/health-profile/NurseHealthOverviewPanels';
-import NurseHealthProfileTabs from '../components/health-profile/NurseHealthProfileTabs';
+import { resolveNurseStudentRouteId } from '../../students/adapters/nurseStudentIdentifierAdapter';
+import NurseHealthProfileHeader from '../components/NurseHealthProfileHeader';
+import NurseHealthProfileEditDrawer from '../components/NurseHealthProfileEditDrawer';
+import NurseHealthMetricCards from '../components/NurseHealthMetricCards';
+import NurseHealthOverviewPanels from '../components/NurseHealthOverviewPanels';
+import NurseHealthProfileTabs from '../components/NurseHealthProfileTabs';
 import { useNurseHealthProfileDetail } from '../hooks/useNurseHealthProfileDetail';
 
 const historyCardClass = 'rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3';

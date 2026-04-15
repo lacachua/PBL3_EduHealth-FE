@@ -1,5 +1,5 @@
 import React from 'react';
-import CurrentUserAccountPage from '../../account/pages/CurrentUserAccountPage';
+import CurrentUserAccountPage from './CurrentUserAccountPage';
 
 const NurseProfilePage = () => {
   return <CurrentUserAccountPage variant="nurse" />;

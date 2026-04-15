@@ -3,10 +3,12 @@ import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import Pagination from '../../../shared/components/admin/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
-import { getStudents } from '../../students/services/getStudents';
-import { getStudentDetail } from '../../students/services/getStudentDetail';
-import { getStudentHealthProfile } from '../../students/services/getStudentHealthProfile';
-import { getStudentHealthHistory } from '../../students/services/getStudentHealthHistory';
+import {
+  getNurseStudentDetailApi,
+  getNurseStudentHealthHistoryApi,
+  getNurseStudentHealthProfileApi,
+  getNurseStudentsLookupApi,
+} from '../../health-profiles/services/healthProfilesApi';
 
 const defaultListData = {
   rows: [],
@@ -128,7 +130,7 @@ const StudentPickerModal = ({
       setListError('');
 
       try {
-        const response = await getStudents({
+        const response = await getNurseStudentsLookupApi({
           page,
           pageSize: STUDENT_PICKER_PAGE_SIZE,
           search,
@@ -180,9 +182,9 @@ const StudentPickerModal = ({
       setPreviewError('');
 
       const [detailResult, profileResult, historyResult] = await Promise.allSettled([
-        getStudentDetail(selectedStudentId),
-        getStudentHealthProfile(selectedStudentId),
-        getStudentHealthHistory(selectedStudentId, { page: 1, pageSize: 5 }),
+        getNurseStudentDetailApi(selectedStudentId),
+        getNurseStudentHealthProfileApi(selectedStudentId),
+        getNurseStudentHealthHistoryApi(selectedStudentId, { page: 1, pageSize: 5 }),
       ]);
 
       if (!isMounted) {

@@ -118,7 +118,7 @@ const getStudentsLookupMock = async (params) => {
   });
 };
 
-export const nurseStudentsRepository = {
+export const healthProfilesRepository = {
   getStudentHealthProfile: async (studentId) => {
     return shouldUseMock(DATA_MODULES.NURSE_HEALTH_PROFILE)
       ? getHealthProfileMock(studentId)

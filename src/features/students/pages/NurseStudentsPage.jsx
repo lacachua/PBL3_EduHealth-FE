@@ -17,12 +17,12 @@ import {
 import {
   adaptStudentDetailResponse,
   adaptStudentHealthProfileResponse,
-} from '../../students/adapters/studentManagementAdapter';
-import { useStudentManagement } from '../../students/hooks/useStudentManagement';
+} from '../adapters/studentManagementAdapter';
+import { useStudentManagement } from '../hooks/useStudentManagement';
 import {
   getNurseStudentDetailApi,
   getNurseStudentHealthProfileApi,
-} from '../services/nurseStudentsApi';
+} from '../../health-profiles/services/healthProfilesApi';
 
 const DEFAULT_FILTERS = {
   keyword: '',

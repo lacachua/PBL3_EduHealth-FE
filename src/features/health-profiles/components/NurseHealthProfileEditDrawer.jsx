@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import EntityAvatar from '../../../../shared/components/admin/EntityAvatar';
-import RightDrawer from '../../../../shared/components/admin/RightDrawer';
-import EditableField from '../../../../shared/components/form/EditableField';
-import ReadonlyField from '../../../../shared/components/form/ReadonlyField';
-import StatusBadge from '../../../../shared/components/admin/StatusBadge';
-import InlineError from '../../../../shared/components/form/InlineError';
-import { validateStudentHealthForm } from '../../../students/schemas/studentManagementSchema';
+import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
+import RightDrawer from '../../../shared/components/admin/RightDrawer';
+import EditableField from '../../../shared/components/form/EditableField';
+import ReadonlyField from '../../../shared/components/form/ReadonlyField';
+import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import InlineError from '../../../shared/components/form/InlineError';
+import { validateStudentHealthForm } from '../../students/schemas/studentManagementSchema';
 
 const editableInputClass = 'w-full rounded-lg border border-[var(--color-field-editable-border)] bg-[var(--color-field-editable-bg)] px-3 py-2 text-sm text-on-surface outline-none transition placeholder:text-[var(--color-field-placeholder)] hover:border-outline focus:border-[var(--color-field-focus)] focus:ring-2 focus:ring-[var(--color-field-focus)]/20';
 

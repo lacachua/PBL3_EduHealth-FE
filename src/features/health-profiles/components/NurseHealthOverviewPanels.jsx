@@ -1,5 +1,5 @@
 import React from 'react';
-import SectionCard from '../../../../shared/components/admin/SectionCard';
+import SectionCard from '../../../shared/components/admin/SectionCard';
 
 const sectionCardClass = 'nurse-card-soft rounded-xl p-4';
 const sectionHeaderClass = 'nurse-section-header-strong -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';

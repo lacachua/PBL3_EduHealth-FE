@@ -1,6 +1,5 @@
-import { apiGetEnvelope, apiPostEnvelope } from '../../../shared/api/apiClient';
+import { apiGetEnvelope, apiPostEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
-import axiosClient from '../../../shared/api/axiosClient';
 import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import {
@@ -98,7 +97,7 @@ export const adminReportsRepository = {
       };
     }
 
-    const response = await axiosClient.request({
+    const response = await apiRequestRaw({
       method: 'get',
       url: ADMIN_REPORT_ENDPOINTS.export,
       params: payload,

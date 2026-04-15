@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
-import NurseSidebar from '../features/nurse/components/NurseSidebar';
-import NurseTopbar from '../features/nurse/components/NurseTopbar';
+import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
+import NurseTopbar from '../features/nurse-shell/components/NurseTopbar';
 
 const getUserName = (user) => {
   const rawName = user?.fullName || user?.name || 'Nhân viên y tế';

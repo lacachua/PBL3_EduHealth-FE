@@ -7,7 +7,7 @@ import AdminLayout from "../../layouts/AdminLayout";
 import AuthLayout from "../../layouts/AuthLayout";
 import NurseLayout from "../../layouts/NurseLayout";
 import StudentLayout from "../../layouts/StudentLayout";
-import { nurseModuleMeta } from "../../features/nurse/config/nurseModuleMeta";
+import { nurseModuleMeta } from "../../features/nurse-shell/config/nurseModuleMeta";
 
 // Guards
 import RequireAuth from "../guards/RequireAuth";

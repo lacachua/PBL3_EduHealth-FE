@@ -4,7 +4,7 @@ import {
   validateCreateCampaignValues,
 } from '../schemas/vaccinationSchema';
 import { VACCINATION_TARGET_TYPE_OPTIONS } from '../constants/vaccinationConstants';
-import { getNurseStudentsLookupApi } from '../../nurse/services/nurseStudentsApi';
+import { getNurseStudentsLookupApi } from '../../health-profiles/services/healthProfilesApi';
 import NurseModalShell from '../../../shared/components/nurse/NurseModalShell';
 
 const normalizeClassCode = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');

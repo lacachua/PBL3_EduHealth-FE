@@ -5,9 +5,11 @@ import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { getMedicines } from '../../medicines/services/getMedicines';
-import { getStudentDetail } from '../../students/services/getStudentDetail';
-import { getStudentHealthHistory } from '../../students/services/getStudentHealthHistory';
-import { getStudentHealthProfile } from '../../students/services/getStudentHealthProfile';
+import {
+  getNurseStudentDetailApi,
+  getNurseStudentHealthHistoryApi,
+  getNurseStudentHealthProfileApi,
+} from '../../health-profiles/services/healthProfilesApi';
 import { MEDICINE_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
 import { createExamination } from '../services/createExamination';
 
@@ -108,9 +110,9 @@ const CreateExaminationPage = () => {
       setMedicineLoadError('');
 
       const [detailResult, profileResult, historyResult, medicinesResult] = await Promise.allSettled([
-        getStudentDetail(studentUserId),
-        getStudentHealthProfile(studentUserId),
-        getStudentHealthHistory(studentUserId, { page: 1, pageSize: 5 }),
+        getNurseStudentDetailApi(studentUserId),
+        getNurseStudentHealthProfileApi(studentUserId),
+        getNurseStudentHealthHistoryApi(studentUserId, { page: 1, pageSize: 5 }),
         getMedicines({ page: 1, pageSize: MEDICINE_PICKER_PAGE_SIZE, status: 'ACTIVE' }, NURSE_MEDICINES_OPTIONS),
       ]);
 

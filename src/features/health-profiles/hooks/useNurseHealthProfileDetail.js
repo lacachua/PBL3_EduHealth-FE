@@ -3,7 +3,7 @@ import {
   mapApiFieldErrors,
   normalizeApiMessage,
 } from '../../../shared/api/normalizeResponse';
-import { resolveNurseStudentRouteId } from '../adapters/nurseStudentIdentifierAdapter';
+import { resolveNurseStudentRouteId } from '../../students/adapters/nurseStudentIdentifierAdapter';
 import {
   buildNurseHealthProfileUpdatePayload,
   buildNurseHealthProfileViewModel,
@@ -16,7 +16,7 @@ import {
   getNurseStudentVaccinationsApi,
   getNurseStudentsLookupApi,
   updateNurseStudentHealthProfileApi,
-} from '../services/nurseStudentsApi';
+} from '../services/healthProfilesApi';
 
 const autoDismissMs = 2800;
 
