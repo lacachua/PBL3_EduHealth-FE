@@ -7,7 +7,6 @@ import AdminLayout from "../../layouts/AdminLayout";
 import AuthLayout from "../../layouts/AuthLayout";
 import NurseLayout from "../../layouts/NurseLayout";
 import StudentLayout from "../../layouts/StudentLayout";
-import { nurseModuleMeta } from "../../features/nurse-shell/config/nurseModuleMeta";
 
 // Guards
 import RequireAuth from "../guards/RequireAuth";
@@ -27,7 +26,6 @@ import {
   LoginPage,
   MedicinesPage,
   NotFoundPage,
-  ModulePlaceholderPage,
   NurseHealthProfilesPage,
   ReportsPage,
   NurseDashboardPage,
@@ -35,6 +33,7 @@ import {
   NurseMedicinesPage,
   NursePendingVaccinationsPage,
   NurseProfilePage,
+  NurseReportsPage,
   NurseStudentsPage,
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
@@ -48,12 +47,6 @@ import {
   UserManagementPage,
   VerifyOtpPage,
 } from "./lazyRouteElements";
-
-const renderNurseModule = ({ title, description, moduleName }) => (
-  <Lazy>
-    <ModulePlaceholderPage title={title} description={description} moduleName={moduleName} />
-  </Lazy>
-);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -107,7 +100,7 @@ export const router = createBrowserRouter(
             <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
             <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
             <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
-            <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
+            <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
             <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
           </Route>
         </Route>

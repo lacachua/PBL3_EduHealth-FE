@@ -26,6 +26,7 @@ export const DATA_MODULES = Object.freeze({
   NURSE_EXAMINATIONS: 'nurseExaminations',
   NURSE_VACCINATIONS: 'nurseVaccinations',
   NURSE_NOTIFICATIONS: 'nurseNotifications',
+  NURSE_REPORTS: 'nurseReports',
   NURSE_DASHBOARD: 'nurseDashboard',
 });
 
@@ -50,6 +51,7 @@ const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.NURSE_EXAMINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_VACCINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_NOTIFICATIONS]: { supportsLive: false },
+  [DATA_MODULES.NURSE_REPORTS]: { supportsLive: false },
   [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: true },
 });
 
