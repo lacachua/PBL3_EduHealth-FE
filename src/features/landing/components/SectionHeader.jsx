@@ -21,13 +21,13 @@ const SectionHeader = ({
       >
         <div className={`max-w-3xl ${isCentered ? "text-center" : "text-left"}`}>
           {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/75">{eyebrow}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/85">{eyebrow}</p>
           ) : null}
-          <h2 className="font-headline text-3xl font-semibold tracking-tight text-primary-container md:text-[2rem]">
+          <h2 className="font-headline text-[clamp(1.8rem,1.55rem+0.9vw,2.2rem)] font-semibold tracking-tight text-on-surface">
             {title}
           </h2>
           {description ? (
-            <p className="mt-1.5 text-sm leading-6 text-on-surface-variant md:text-base">{description}</p>
+            <p className="mt-1.5 text-[14px] leading-6 text-on-surface-variant md:text-[15px]">{description}</p>
           ) : null}
         </div>
 

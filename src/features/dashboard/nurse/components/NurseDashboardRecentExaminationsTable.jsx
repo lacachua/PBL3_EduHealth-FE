@@ -17,8 +17,8 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
       headerClassName: 'w-[118px]',
       render: (row) => (
         <div>
-          <p className="text-[11px] font-semibold text-on-surface">{row.visitDateLabel}</p>
-          <p className="text-[10px] text-on-surface-variant">{row.visitTimeLabel}</p>
+          <p className="text-[12px] font-semibold text-on-surface">{row.visitDateLabel}</p>
+          <p className="text-[11px] text-on-surface-variant">{row.visitTimeLabel}</p>
         </div>
       ),
     },
@@ -28,8 +28,8 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
       headerClassName: 'w-[220px]',
       render: (row) => (
         <div className="min-w-0">
-          <p className="truncate text-[12px] font-semibold text-on-surface">{row.studentName}</p>
-          <p className="truncate text-[10px] text-on-surface-variant">{row.studentCode}</p>
+          <p className="truncate text-[13px] font-semibold text-on-surface">{row.studentName}</p>
+          <p className="truncate text-[11px] text-on-surface-variant">{row.studentCode}</p>
         </div>
       ),
     },
@@ -37,27 +37,28 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
       key: 'className',
       header: 'Lớp',
       headerClassName: 'w-[90px]',
-      cellClassName: 'text-[11px] text-on-surface-variant',
+      cellClassName: 'text-[12px] text-on-surface-variant',
       render: (row) => row.className,
     },
     {
       key: 'diagnosis',
       header: 'Chẩn đoán',
-      cellClassName: 'text-[11px] text-on-surface-variant',
+      cellClassName: 'text-[12px] text-on-surface-variant',
       render: (row) => <p className="line-clamp-1">{row.diagnosis}</p>,
     },
   ]), []);
 
   return (
-    <section className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_1px_4px_rgba(15,23,42,0.045)]">
+    <section className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_12px_24px_-20px_rgba(15,23,42,0.52)]">
       <div className="app-section-header flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div>
-          <h2 className="text-base font-bold text-on-surface">Danh sách khám gần đây</h2>
-          <p className="mt-0.5 text-xs text-on-surface-variant">Hiển thị 6 lượt gần nhất. Chọn một dòng để mở chi tiết phiếu khám.</p>
+          <p className="app-overline mb-1">Xử lý hồ sơ trong ngày</p>
+          <h2 className="app-section-title">Danh sách khám gần đây</h2>
+          <p className="app-meta-text mt-0.5">Hiển thị 6 lượt gần nhất. Chọn một dòng để mở chi tiết phiếu khám.</p>
         </div>
         <Link
           to={recentExaminations?.to || '/nurse/examinations'}
-          className="app-focus-ring rounded-lg border border-outline-variant bg-surface px-2.5 py-1 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low"
+          className="app-focus-ring app-btn-secondary px-2.5"
         >
           Mở danh sách khám
         </Link>
@@ -93,7 +94,7 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
           headCellPaddingClassName="px-2.5 py-1.5"
           bodyCellPaddingClassName="px-2.5 py-2"
           containerClassName="flex-1 overflow-x-auto"
-          tableClassName="w-full table-fixed divide-y divide-outline-variant text-[12px]"
+          tableClassName="w-full table-fixed divide-y divide-outline-variant text-[13px]"
           headClassName="app-table-head text-left"
           bodyClassName="divide-y divide-outline-variant bg-surface"
           rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low"

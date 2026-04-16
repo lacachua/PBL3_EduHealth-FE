@@ -66,7 +66,7 @@ const UserEditDrawerContent = ({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-md border border-outline-variant bg-surface-container-lowest px-3.5 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+        className="app-focus-ring rounded-md border border-outline-variant bg-surface-container-lowest px-3.5 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
       >
         Hủy
       </button>
@@ -82,7 +82,7 @@ const UserEditDrawerContent = ({
           await onSubmit(form);
           onClose();
         }}
-        className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
+        className="app-focus-ring rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
       >
         {submitting ? 'Đang xử lý...' : 'Lưu thay đổi'}
       </button>
@@ -94,7 +94,7 @@ const UserEditDrawerContent = ({
       open
       onClose={onClose}
       title="Chỉnh sửa tài khoản"
-      subtitle="Chỉ cập nhật các trường API cho phép"
+      subtitle="Chỉ cập nhật các thông tin có thể chỉnh sửa"
       footer={footer}
     >
       <div className="space-y-4">
@@ -152,14 +152,14 @@ const UserEditDrawerContent = ({
           <button
             type="button"
             onClick={() => onResetPassword(user)}
-            className="rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80"
+            className="app-focus-ring rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80"
           >
-            Reset mật khẩu
+            Đặt lại mật khẩu
           </button>
           <button
             type="button"
             onClick={() => onToggleStatus(user)}
-            className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+            className="app-focus-ring rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
           >
             {user?.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
           </button>

@@ -6,9 +6,9 @@ import UserActionsMenu from './UserActionsMenu';
 
 const UserTable = ({ rows, onView, onEdit, onToggleStatus, onResetPassword }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
-        <thead className={`border-b bg-surface-container-low text-left text-xs font-semibold uppercase tracking-[0.01em] ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}>
+    <div className="overflow-x-auto rounded-xl border border-outline-variant bg-surface shadow-[0_10px_22px_-18px_rgba(15,23,42,0.48)]">
+      <table className="min-w-full text-[13px] text-on-surface">
+        <thead className={`app-table-head text-left ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}>
           <tr>
             <th className="px-4 py-2.5">Tài khoản</th>
             <th className="px-4 py-2.5">Liên hệ</th>
@@ -20,25 +20,25 @@ const UserTable = ({ rows, onView, onEdit, onToggleStatus, onResetPassword }) =>
         </thead>
         <tbody className="divide-y divide-outline-variant bg-surface-container-lowest">
           {rows.map((row) => (
-            <tr key={row.id} className="transition hover:bg-surface-container-low">
-              <td className="px-4 py-3.5">
-                <p className={`font-semibold ${ACCOUNT_BASE_CLASS.headingText}`}>{row.fullName}</p>
+            <tr key={row.id} className="app-interactive transition hover:bg-surface-container-low">
+              <td className="px-4 py-3">
+                <p className={`text-[14px] font-semibold ${ACCOUNT_BASE_CLASS.headingText}`}>{row.fullName}</p>
                 <p className={`mt-0.5 text-xs ${ACCOUNT_BASE_CLASS.mutedText}`}>{row.username || row.email || '--'}</p>
               </td>
-              <td className="px-4 py-3.5">
-                <p className={`text-sm ${ACCOUNT_BASE_CLASS.bodyText}`}>{row.email || '--'}</p>
+              <td className="px-4 py-3">
+                <p className={`text-[13px] ${ACCOUNT_BASE_CLASS.bodyText}`}>{row.email || '--'}</p>
                 <p className={`mt-0.5 text-xs ${ACCOUNT_BASE_CLASS.mutedText}`}>{row.phoneNumber || 'Chưa cập nhật số điện thoại'}</p>
               </td>
-              <td className="px-4 py-3.5">
+              <td className="px-4 py-3">
                 <RoleBadge role={row.role} label={row.roleLabel} />
               </td>
-              <td className="px-4 py-3.5">
+              <td className="px-4 py-3">
                 <AccountPill className={ACCOUNT_STATUS_BADGE_CLASS_MAP[row.status] || 'border-outline-variant bg-surface-container-low text-on-surface-variant'}>
                   {row.statusLabel}
                 </AccountPill>
               </td>
-              <td className={`px-4 py-3.5 text-sm ${ACCOUNT_BASE_CLASS.bodyText}`}>{row.lastLoginAt || '--'}</td>
-              <td className="px-4 py-3.5 text-right">
+              <td className={`px-4 py-3 text-[13px] ${ACCOUNT_BASE_CLASS.bodyText}`}>{row.lastLoginAt || '--'}</td>
+              <td className="px-4 py-3 text-right">
                 <div className="flex justify-end">
                   <UserActionsMenu
                     row={row}

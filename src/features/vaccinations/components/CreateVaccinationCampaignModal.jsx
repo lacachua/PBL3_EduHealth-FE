@@ -94,6 +94,9 @@ const toLookupStudent = (item = {}) => {
   };
 };
 
+const CLASS_LOOKUP_ERROR_MESSAGE = 'Không tải được danh sách lớp. Bạn có thể nhập mã lớp thủ công ở phần mở rộng bên dưới.';
+const INITIAL_CLASS_LOOKUP_STATUS = CREATE_CAMPAIGN_INITIAL_VALUES.targetType === 'CLASS' ? 'loading' : 'idle';
+
 const CreateVaccinationCampaignModal = ({
   open,
   onClose,
@@ -105,7 +108,7 @@ const CreateVaccinationCampaignModal = ({
   const [fieldErrors, setFieldErrors] = useState({});
 
   const [classBatchInput, setClassBatchInput] = useState('');
-  const [classLookupStatus, setClassLookupStatus] = useState('idle');
+  const [classLookupStatus, setClassLookupStatus] = useState(INITIAL_CLASS_LOOKUP_STATUS);
   const [classLookupError, setClassLookupError] = useState('');
   const [classOptions, setClassOptions] = useState([]);
   const [gradeFilter, setGradeFilter] = useState('all');
@@ -161,90 +164,81 @@ const CreateVaccinationCampaignModal = ({
     });
   }, [selectedStudentMap, values.targetStudentIds]);
 
-  const loadClassOptions = useCallback(async () => {
-    setClassLookupStatus('loading');
-    setClassLookupError('');
+  const fetchClassOptions = useCallback(async () => {
+    const rows = [];
+    let page = 1;
+    let totalPages = 1;
 
-    try {
-      const rows = [];
-      let page = 1;
-      let totalPages = 1;
-
-      do {
-        const response = await getNurseStudentsLookupApi({
-          page,
-          pageSize: 100,
-          isActive: true,
-        });
-
-        rows.push(...extractLookupRows(response));
-
-        const nextTotalPages = Number(response?.meta?.totalPages || response?.meta?.total_pages || 1);
-        totalPages = Number.isFinite(nextTotalPages) && nextTotalPages > 0
-          ? Math.min(nextTotalPages, 12)
-          : 1;
-
-        page += 1;
-      } while (page <= totalPages);
-
-      const optionMap = new Map();
-      rows.forEach((item) => {
-        const option = toClassOption(item);
-        if (!option) {
-          return;
-        }
-        if (!optionMap.has(option.value)) {
-          optionMap.set(option.value, option);
-        }
+    do {
+      const response = await getNurseStudentsLookupApi({
+        page,
+        pageSize: 100,
+        isActive: true,
       });
 
-      const resolved = Array.from(optionMap.values())
-        .sort((left, right) => {
-          const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
-          if (byGrade !== 0) {
-            return byGrade;
-          }
-          return left.label.localeCompare(right.label, 'vi');
-        });
+      rows.push(...extractLookupRows(response));
 
-      setClassOptions(resolved);
-      setClassLookupStatus('success');
-    } catch {
-      setClassOptions([]);
-      setClassLookupStatus('error');
-      setClassLookupError('Không tải được danh sách lớp. Bạn có thể nhập mã lớp thủ công ở phần mở rộng bên dưới.');
-    }
+      const nextTotalPages = Number(response?.meta?.totalPages || response?.meta?.total_pages || 1);
+      totalPages = Number.isFinite(nextTotalPages) && nextTotalPages > 0
+        ? Math.min(nextTotalPages, 12)
+        : 1;
+
+      page += 1;
+    } while (page <= totalPages);
+
+    const optionMap = new Map();
+    rows.forEach((item) => {
+      const option = toClassOption(item);
+      if (!option) {
+        return;
+      }
+      if (!optionMap.has(option.value)) {
+        optionMap.set(option.value, option);
+      }
+    });
+
+    return Array.from(optionMap.values())
+      .sort((left, right) => {
+        const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
+        if (byGrade !== 0) {
+          return byGrade;
+        }
+        return left.label.localeCompare(right.label, 'vi');
+      });
   }, []);
 
   useEffect(() => {
-    if (!open) {
+    if (!open || values.targetType !== 'CLASS' || classLookupStatus !== 'loading') {
       return;
     }
 
-    setValues({ ...CREATE_CAMPAIGN_INITIAL_VALUES });
-    setFieldErrors({});
+    let active = true;
 
-    setClassBatchInput('');
-    setClassLookupStatus('idle');
-    setClassLookupError('');
-    setClassOptions([]);
-    setGradeFilter('all');
+    const runLookup = async () => {
+      try {
+        const resolved = await fetchClassOptions();
+        if (!active) {
+          return;
+        }
+        setClassOptions(resolved);
+        setClassLookupStatus('success');
+        setClassLookupError('');
+      } catch {
+        if (!active) {
+          return;
+        }
+        setClassOptions([]);
+        setClassLookupStatus('error');
+        setClassLookupError(CLASS_LOOKUP_ERROR_MESSAGE);
+      }
+    };
 
-    setStudentKeyword('');
-    setLookupStatus('idle');
-    setLookupError('');
-    setLookupRows([]);
-    setManualStudentInput('');
-    setSelectedStudentMap({});
-  }, [open]);
+    void runLookup();
 
-  useEffect(() => {
-    if (!open || values.targetType !== 'CLASS' || classLookupStatus === 'success') {
-      return;
-    }
-
-    loadClassOptions();
-  }, [classLookupStatus, loadClassOptions, open, values.targetType]);
+    return () => {
+      active = false;
+    };
+  }, [classLookupStatus, fetchClassOptions, open, values.targetType]);
 
   const updateField = (field, fieldValue) => {
     setValues((prev) => ({
@@ -263,9 +257,18 @@ const CreateVaccinationCampaignModal = ({
     });
 
     if (field === 'targetType') {
+      const nextTargetType = String(fieldValue || '').toUpperCase();
       setLookupError('');
       setLookupRows([]);
       setGradeFilter('all');
+
+      if (nextTargetType === 'CLASS') {
+        setClassLookupError('');
+        setClassLookupStatus(classOptions.length ? 'success' : 'loading');
+      } else {
+        setClassLookupError('');
+        setClassLookupStatus('idle');
+      }
     }
   };
 

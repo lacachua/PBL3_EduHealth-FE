@@ -24,12 +24,12 @@ const renderMedicineAlertItem = (item) => {
   return (
     <div className="min-w-0 flex-1">
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-[12px] font-semibold text-on-surface">{item.medicineName}</p>
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.alertType === 'EXPIRING' ? 'bg-danger-soft text-danger' : 'bg-warning-soft text-warning'}`}>
+        <p className="truncate text-[13px] font-semibold text-on-surface">{item.medicineName}</p>
+        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.alertType === 'EXPIRING' ? 'bg-danger-soft text-danger' : 'bg-warning-soft text-warning'}`}>
           {item.alertTypeLabel}
         </span>
       </div>
-      <p className="mt-0.5 text-[10px] text-on-surface-variant">Tồn kho {stockLabel} / Ngưỡng {thresholdLabel} • Hạn {item.nearestExpiryDateLabel}</p>
+      <p className="mt-0.5 text-[11px] text-on-surface-variant">Tồn kho {stockLabel} / Ngưỡng {thresholdLabel} • Hạn {item.nearestExpiryDateLabel}</p>
     </div>
   );
 };
@@ -37,13 +37,13 @@ const renderMedicineAlertItem = (item) => {
 const renderPendingVaccinationItem = (item) => {
   return (
     <div className="min-w-0 flex-1">
-      <p className="truncate text-[12px] font-semibold text-on-surface">{item.studentName}</p>
-      <p className="mt-0.5 truncate text-[10px] text-on-surface-variant">{item.studentCode} • Lớp {item.className} • {item.campaignName}</p>
+      <p className="truncate text-[13px] font-semibold text-on-surface">{item.studentName}</p>
+      <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">{item.studentCode} • Lớp {item.className} • {item.campaignName}</p>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.statusBadgeClassName}`}>
+        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.statusBadgeClassName}`}>
           {item.statusLabel}
         </span>
-        <span className="text-[10px] text-on-surface-variant">{item.scheduledDateLabel}</span>
+        <span className="text-[11px] text-on-surface-variant">{item.scheduledDateLabel}</span>
       </div>
     </div>
   );
@@ -87,12 +87,13 @@ const NurseDashboardSidePanels = ({
           <section key={panelKey} className={`app-card-shell rounded-2xl p-3 ${isSinglePanelLayout ? 'h-full flex flex-col' : ''}`}>
             <div className="mb-2 flex items-start justify-between gap-2">
               <div>
-                <h3 className="text-sm font-bold text-on-surface">{metadata.title}</h3>
-                <p className="mt-0.5 text-[11px] text-on-surface-variant">{metadata.subtitle}</p>
+                <p className="app-overline mb-1">Danh sách ưu tiên</p>
+                <h3 className="app-card-title">{metadata.title}</h3>
+                <p className="app-meta-text mt-0.5">{metadata.subtitle}</p>
               </div>
               <Link
                 to={panel.to}
-                className="app-focus-ring rounded-lg border border-outline-variant bg-surface px-2 py-1 text-[11px] font-semibold text-on-surface-variant hover:bg-surface-container-low"
+                className="app-focus-ring app-btn-secondary px-2"
               >
                 {metadata.cta}
               </Link>
@@ -120,7 +121,7 @@ const NurseDashboardSidePanels = ({
                   <Link
                     key={item.id}
                     to={panel.to}
-                    className="app-focus-ring app-interactive flex items-start gap-2 rounded-lg border border-outline-variant bg-surface px-2 py-1.5 hover:bg-primary-soft/35"
+                    className="app-focus-ring app-interactive flex items-start gap-2 rounded-lg border border-outline-variant bg-surface px-2 py-1.5 hover:border-primary/25 hover:bg-primary-soft/35"
                   >
                     <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                     {renderPanelItem(panelKey, item)}

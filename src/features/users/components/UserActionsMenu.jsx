@@ -18,7 +18,7 @@ const UserActionsMenu = ({ row, onView, onEdit, onToggleStatus, onResetPassword 
         },
         {
           id: 'reset-password',
-          label: 'Reset mật khẩu',
+          label: 'Đặt lại mật khẩu',
           icon: 'password',
           tone: 'warning',
           onClick: () => onResetPassword(row),

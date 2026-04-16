@@ -32,7 +32,7 @@ const UserDetailDrawer = ({
   const statusBadgeClass = ACCOUNT_STATUS_BADGE_CLASS_MAP[user?.status]
     || 'border-outline-variant bg-surface-container-low text-on-surface-variant';
 
-  const actionButtonClass = 'rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low';
+  const actionButtonClass = 'app-focus-ring rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low';
 
   return (
     <RightDrawer
@@ -86,14 +86,14 @@ const UserDetailDrawer = ({
           </div>
 
           <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
-            <button type="button" className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]" onClick={() => onEdit(user)}>
+            <button type="button" className="app-focus-ring rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]" onClick={() => onEdit(user)}>
               Chỉnh sửa
             </button>
             <button type="button" className={actionButtonClass} onClick={() => onToggleStatus(user)}>
               {user.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
             </button>
-            <button type="button" className="rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80" onClick={() => onResetPassword(user)}>
-              Reset mật khẩu
+            <button type="button" className="app-focus-ring rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80" onClick={() => onResetPassword(user)}>
+              Đặt lại mật khẩu
             </button>
           </div>
         </div>

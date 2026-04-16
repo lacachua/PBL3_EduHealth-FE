@@ -26,14 +26,14 @@ const LandingNewsSection = () => {
   const action = (
     <button
       type="button"
-      className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-3 text-sm font-semibold text-on-surface shadow-sm transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-surface hover:shadow-md"
+      className="app-focus-ring app-btn-secondary px-5"
     >
       Xem tất cả bản tin
     </button>
   );
 
   return (
-    <section id="ban-tin-y-te" className="bg-[#f2f7f3] py-10 md:py-11">
+    <section id="ban-tin-y-te" className="bg-[#f2f7f3] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Bản tin y tế học đường"
@@ -42,12 +42,12 @@ const LandingNewsSection = () => {
           align="center"
         />
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3 lg:gap-4.5">
           {newsItems.map((item) => (
-            <article key={item.title} className="flex h-full flex-col rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-black/[0.03] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-primary">{item.date}</p>
-              <h3 className="mb-3 font-headline text-xl font-bold leading-snug text-on-surface">{item.title}</h3>
-              <p className="flex-1 text-sm leading-relaxed text-on-surface-variant">{item.summary}</p>
+            <article key={item.title} className="flex h-full flex-col rounded-2xl border border-outline-variant/75 bg-white p-5 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.38)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_18px_30px_-18px_rgba(15,23,42,0.5)]">
+              <p className="mb-3 inline-flex w-fit items-center rounded-full border border-primary/18 bg-primary-soft/60 px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.04em] text-primary">{item.date}</p>
+              <h3 className="mb-3 font-headline text-[1.24rem] font-bold leading-snug text-on-surface">{item.title}</h3>
+              <p className="flex-1 text-[14px] leading-relaxed text-on-surface-muted">{item.summary}</p>
             </article>
           ))}
         </div>

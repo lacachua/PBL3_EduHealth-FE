@@ -40,29 +40,29 @@ const bottomRowItems = [
 
 const FeatureCard = ({ title, description, icon, highlighted = false }) => {
   const cardClassName = highlighted
-    ? "flex h-full flex-col rounded-[1.75rem] bg-primary p-5 text-white shadow-md shadow-primary/18 ring-1 ring-white/15 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/25 lg:p-6"
-    : "flex h-full flex-col rounded-[1.75rem] bg-surface-container-lowest p-5 text-on-surface shadow-sm ring-1 ring-black/[0.03] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8 lg:p-6";
+    ? "flex h-full flex-col rounded-[1.75rem] border border-primary/28 bg-[linear-gradient(135deg,#2f8d68_0%,#267257_100%)] p-5 text-white shadow-[0_14px_30px_-18px_rgba(26,91,67,0.7)] ring-1 ring-white/18 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_34px_-20px_rgba(26,91,67,0.75)] lg:p-6"
+    : "flex h-full flex-col rounded-[1.75rem] border border-outline-variant/75 bg-white p-5 text-on-surface shadow-[0_10px_22px_-16px_rgba(15,23,42,0.36)] ring-1 ring-black/[0.02] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_18px_28px_-18px_rgba(15,23,42,0.48)] lg:p-6";
 
   const iconClassName = highlighted
-    ? "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20"
-    : "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary";
+    ? "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/24 bg-white/18"
+    : "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary";
 
-  const textClassName = highlighted ? "text-white/90" : "text-on-surface-variant";
+  const textClassName = highlighted ? "text-white/90" : "text-on-surface-muted";
 
   return (
     <article className={cardClassName}>
       <div className={iconClassName}>
         <span className="material-symbols-outlined text-3xl">{icon}</span>
       </div>
-      <h3 className="mb-2 font-headline text-2xl font-bold leading-snug">{title}</h3>
-      <p className={`${textClassName} flex-1 text-sm leading-relaxed`}>{description}</p>
+      <h3 className="mb-2 font-headline text-[1.36rem] font-bold leading-snug">{title}</h3>
+      <p className={`${textClassName} flex-1 text-[14px] leading-relaxed`}>{description}</p>
     </article>
   );
 };
 
 const LandingFeatureSection = () => {
   return (
-    <section id="tinh-nang" className="bg-[#f2f7f3] py-10 md:py-11">
+    <section id="tinh-nang" className="bg-[#f2f7f3] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Khối nghiệp vụ cốt lõi"
@@ -71,7 +71,7 @@ const LandingFeatureSection = () => {
           eyebrow="Nghiệp vụ hệ thống"
         />
 
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-3.5 md:space-y-4.5">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5">
             {topRowItems.map((feature) => (
               <FeatureCard

@@ -9,19 +9,19 @@
 
 .student-hero-gradient {
   background:
-    radial-gradient(560px 220px at 14% -12%, color-mix(in srgb, var(--app-surface) 58%, transparent), transparent 72%),
-    radial-gradient(460px 250px at 108% 0%, color-mix(in srgb, var(--app-info) 18%, transparent), transparent 62%),
+    radial-gradient(560px 220px at 14% -12%, color-mix(in srgb, var(--app-surface) 54%, transparent), transparent 72%),
+    radial-gradient(460px 250px at 108% 0%, color-mix(in srgb, var(--app-info) 13%, transparent), transparent 62%),
     linear-gradient(
       126deg,
-      color-mix(in srgb, var(--app-primary-soft) 78%, var(--app-surface)) 0%,
-      color-mix(in srgb, var(--app-info-soft) 76%, var(--app-surface)) 47%,
-      color-mix(in srgb, var(--app-warning-soft) 72%, var(--app-surface)) 100%
+      color-mix(in srgb, var(--app-primary-soft) 66%, var(--app-surface)) 0%,
+      color-mix(in srgb, var(--app-info-soft) 62%, var(--app-surface)) 47%,
+      color-mix(in srgb, var(--app-warning-soft) 58%, var(--app-surface)) 100%
     );
 }
 
 .student-overview-hero {
-  border: 1px solid color-mix(in srgb, var(--app-primary) 24%, var(--app-border));
-  box-shadow: var(--sys-shadow-card);
+  border: 1px solid color-mix(in srgb, var(--app-primary) 30%, var(--app-border));
+  box-shadow: var(--sys-shadow-soft);
 }
 
 .student-overview-hero::after {
@@ -39,7 +39,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: color-mix(in srgb, var(--app-surface) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-border-strong) 78%, var(--app-border));
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   color: var(--app-text-muted);
   font-size: 12px;
   font-weight: 600;
@@ -54,9 +55,10 @@
 .student-summary-card {
   position: relative;
   overflow: hidden;
-  min-height: 126px;
+  min-height: 130px;
+  border: 1px solid color-mix(in srgb, var(--app-border-strong) 68%, var(--app-border));
   border-radius: 1rem;
-  padding: 0.9rem;
+  padding: 0.95rem;
   box-shadow: var(--sys-shadow-card);
 }
 
@@ -72,25 +74,25 @@
 }
 
 .student-summary-label {
-  color: var(--app-text-soft);
+  color: var(--app-text-muted);
   letter-spacing: 0.08em;
 }
 
 .student-summary-value {
   color: var(--app-text);
-  font-size: 1.25rem;
+  font-size: 1.34rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .student-summary-note {
-  color: var(--app-text-muted);
+  color: color-mix(in srgb, var(--app-text-muted) 82%, var(--app-text));
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .student-growth-card {
-  border-color: color-mix(in srgb, var(--app-primary) 20%, var(--app-border));
+  border-color: color-mix(in srgb, var(--app-primary) 24%, var(--app-border));
 }
 
 .student-overview-meta-chip,
@@ -114,7 +116,7 @@
 }
 
 .student-growth-toggle {
-  background: color-mix(in srgb, var(--app-surface) 86%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 90%, transparent);
   color: var(--app-text-muted);
   font-size: 12px;
   font-weight: 700;
@@ -135,24 +137,24 @@
 
 .student-growth-meta-pill {
   padding: 0.28rem 0.7rem;
-  background: color-mix(in srgb, var(--app-surface) 84%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 90%, transparent);
   color: var(--app-text-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .student-chart-shell {
-  border: 1px solid var(--app-border);
+  border: 1px solid color-mix(in srgb, var(--app-border-strong) 68%, var(--app-border));
   border-radius: 1rem;
-  background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+  background: linear-gradient(180deg, var(--app-surface) 0%, color-mix(in srgb, var(--app-surface-soft) 70%, var(--app-surface)) 100%);
 }
 
 .student-chart-gridline {
-  stroke: color-mix(in srgb, var(--app-text-muted) 22%, transparent);
+  stroke: color-mix(in srgb, var(--app-text-muted) 30%, transparent);
 }
 
 .student-chart-axis-line {
-  stroke: color-mix(in srgb, var(--app-text-muted) 28%, transparent);
+  stroke: color-mix(in srgb, var(--app-text-muted) 36%, transparent);
 }
 
 .student-chart-gridline,
@@ -161,7 +163,7 @@
 }
 
 .student-chart-axis-label {
-  fill: var(--app-text-soft);
+  fill: var(--app-text-muted);
   font-size: 11px;
   font-weight: 700;
 }
@@ -193,24 +195,25 @@
 }
 
 .student-health-pill {
-  border: 1px solid var(--app-border);
+  border: 1px solid color-mix(in srgb, var(--app-border-strong) 64%, var(--app-border));
   border-radius: 0.8rem;
-  background: color-mix(in srgb, var(--app-surface) 86%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 90%, transparent);
   padding: 0.5rem 0.72rem;
 }
 
 .student-health-pill-label {
-  color: var(--app-text-soft);
+  color: var(--app-text-muted);
   letter-spacing: 0.06em;
 }
 
 .student-health-pill-value {
   color: var(--app-text);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .student-reminder-card {
+  border: 1px solid color-mix(in srgb, var(--app-border-strong) 66%, var(--app-border));
   border-radius: 1rem;
   padding: 0.78rem 0.88rem;
 }
@@ -220,12 +223,12 @@
 }
 
 .student-activity-item:hover {
-  background: color-mix(in srgb, var(--app-surface-soft) 72%, transparent);
+  background: color-mix(in srgb, var(--app-surface-soft) 82%, transparent);
 }
 
 .student-activity-tag {
   padding: 0.16rem 0.58rem;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 

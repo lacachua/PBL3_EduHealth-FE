@@ -21,7 +21,7 @@ const NurseDashboardPage = () => {
   const loading = status === 'loading';
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5">
       <NurseModulePageHeader
         title={dashboardData.title}
         description={dashboardData.description}
@@ -32,10 +32,10 @@ const NurseDashboardPage = () => {
               onClick={() => {
                 fetchDashboard();
               }}
-              className="app-focus-ring app-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary px-3.5"
             >
               <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>refresh</span>
-              Refresh
+              Làm mới
             </button>
 
             <button
@@ -47,7 +47,7 @@ const NurseDashboardPage = () => {
                   },
                 });
               }}
-              className="app-focus-ring app-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+              className="app-focus-ring app-btn-primary px-4"
             >
               <span className="material-symbols-outlined text-[18px]">add_circle</span>
               Lập phiếu khám
@@ -56,15 +56,21 @@ const NurseDashboardPage = () => {
         )}
       />
 
-      {dashboardData.generatedAtLabel ? (
-        <p className="px-1 text-xs font-medium text-on-surface-muted">
-          Dữ liệu cập nhật lúc: {dashboardData.generatedAtLabel}
-        </p>
-      ) : null}
+      <section className="app-panel-shell app-filter-toolbar flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="app-overline">Điều phối ca trực</p>
+          <p className="app-meta-text mt-0.5">Ưu tiên thao tác trực tiếp trên khám bệnh, kho thuốc và tiêm chủng.</p>
+        </div>
+        {dashboardData.generatedAtLabel ? (
+          <span className="inline-flex items-center rounded-full border border-outline-variant bg-surface px-2.5 py-1 text-[11px] font-semibold text-on-surface-muted">
+            Cập nhật: {dashboardData.generatedAtLabel}
+          </span>
+        ) : null}
+      </section>
 
       {error ? (
         <ErrorState
-          message={`Không thể làm mới toàn bộ dữ liệu dashboard: ${error}`}
+          message={`Không thể làm mới toàn bộ dữ liệu bảng điều phối: ${error}`}
           onRetry={fetchDashboard}
         />
       ) : null}

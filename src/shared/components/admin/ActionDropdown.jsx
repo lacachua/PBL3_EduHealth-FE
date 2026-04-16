@@ -86,7 +86,7 @@ const ActionDropdown = ({ items, menuWidth = 176 }) => {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="app-focus-ring inline-flex items-center gap-1 rounded-lg border border-outline-variant bg-surface px-2 py-1.5 text-xs font-semibold text-on-surface-variant transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:bg-surface-container-low hover:shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+        className="app-focus-ring app-btn-secondary gap-1 px-2.5 text-[12px]"
         aria-label="Mở menu hành động"
         aria-expanded={open}
       >
@@ -114,7 +114,7 @@ const ActionDropdown = ({ items, menuWidth = 176 }) => {
                   setOpen(false);
                   item.onClick?.();
                 }}
-                className="app-focus-ring flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs font-medium text-on-surface-variant transition-[background-color,color] duration-150 ease-out hover:bg-surface-container-low focus-visible:bg-surface-container-low"
+                className="app-focus-ring flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] font-medium text-on-surface-variant transition-[background-color,color] duration-150 ease-out hover:bg-surface-container-low focus-visible:bg-surface-container-low"
               >
                 {item.icon ? <span className="material-symbols-outlined text-sm">{item.icon}</span> : null}
                 {item.label}

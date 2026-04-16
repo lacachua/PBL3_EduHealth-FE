@@ -21,7 +21,7 @@ const AdminManagementListSection = ({
     <section className={sectionClassName}>
       <div className={panelClassName}>
         {filters}
-        {summary ? <p className="mt-2 text-xs">{summary}</p> : null}
+        {summary ? <p className="app-table-summary mt-2">{summary}</p> : null}
       </div>
 
       <AdminAsyncState

@@ -11,7 +11,7 @@ const renderProgress = (value = 0) => {
 
   return (
     <div className="mt-2.5">
-      <div className="h-1.5 rounded-full bg-outline-variant/70">
+      <div className="h-2 rounded-full bg-outline-variant/70">
         <div
           className="h-full rounded-full bg-info transition-[width,background-color] duration-300"
           style={{ width: `${safeValue}%` }}
@@ -33,11 +33,11 @@ const NurseReportsSummaryCards = ({ cards = [] }) => {
         const badgeClassName = BADGE_CLASS_MAP[card.badgeTone] || BADGE_CLASS_MAP.neutral;
 
         return (
-          <article key={card.id} className="app-kpi-card">
+          <article key={card.id} className="app-kpi-card rounded-xl">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="app-kpi-label">{card.title}</p>
-                <p className={`app-kpi-value text-[1.52rem] ${card.valueClassName || 'text-on-surface'}`}>
+                <p className={`app-kpi-value ${card.valueClassName || 'text-on-surface'}`}>
                   {card.value}
                 </p>
               </div>
@@ -47,9 +47,9 @@ const NurseReportsSummaryCards = ({ cards = [] }) => {
             </div>
 
             <div className="mt-1.5 flex items-start justify-between gap-2">
-              <p className="min-h-[28px] text-[11px] leading-[1.2rem] text-on-surface-variant">{card.hint || '--'}</p>
+              <p className="min-h-[30px] text-[12px] leading-[1.2rem] text-on-surface-variant">{card.hint || '--'}</p>
               {card.badge ? (
-                <span className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${badgeClassName}`}>
+                <span className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${badgeClassName}`}>
                   {card.badge}
                 </span>
               ) : null}

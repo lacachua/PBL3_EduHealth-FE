@@ -51,7 +51,7 @@ const CreateNurseAccountModalContent = ({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition hover:bg-surface-container-low"
+              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition hover:bg-surface-container-low"
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -60,7 +60,7 @@ const CreateNurseAccountModalContent = ({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 md:px-5 md:py-4">
-          <p className="mb-3 text-xs text-on-surface-muted">Các trường có dấu * là bắt buộc theo contract backend.</p>
+          <p className="mb-3 text-xs text-on-surface-muted">Các trường có dấu * là bắt buộc.</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <EditableField
               label="Tên đăng nhập *"
@@ -108,7 +108,7 @@ const CreateNurseAccountModalContent = ({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-outline-variant bg-surface-container-lowest px-3.5 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+              className="app-focus-ring rounded-md border border-outline-variant bg-surface-container-lowest px-3.5 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
             >
               Hủy
             </button>
@@ -124,7 +124,7 @@ const CreateNurseAccountModalContent = ({
                 await onSubmit(form);
                 onClose();
               }}
-              className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
+              className="app-focus-ring rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
             >
               {submitting ? 'Đang xử lý...' : 'Tạo tài khoản'}
             </button>

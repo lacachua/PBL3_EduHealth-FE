@@ -94,7 +94,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
         <div className={`border-b pb-3 ${ACCOUNT_BASE_CLASS.border}`}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className={`text-lg font-semibold ${ACCOUNT_BASE_CLASS.headingText}`}>Reset mật khẩu</h3>
+              <h3 className={`text-lg font-semibold ${ACCOUNT_BASE_CLASS.headingText}`}>Đặt lại mật khẩu</h3>
               <p className={`mt-1 text-sm leading-relaxed ${ACCOUNT_BASE_CLASS.mutedText}`}>
                 Hệ thống sẽ tạo mật khẩu tạm mới cho tài khoản này.
               </p>
@@ -102,7 +102,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
             <button
               type="button"
               onClick={onCancel}
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
+              className={`app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -120,7 +120,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
 
         {!result ? (
           <div className="mt-3 space-y-2.5">
-            <p className={`text-xs font-semibold ${ACCOUNT_BASE_CLASS.bodyText}`}>Chế độ reset</p>
+            <p className={`text-xs font-semibold ${ACCOUNT_BASE_CLASS.bodyText}`}>Chế độ đặt lại</p>
             <div className="flex items-center gap-4 text-sm">
               {MODE_OPTIONS.map((item) => (
                 <label key={item.value} className={`inline-flex cursor-pointer items-center gap-2 ${ACCOUNT_BASE_CLASS.bodyText}`}>
@@ -168,7 +168,7 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
                 onClick={handleCopy}
                 className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${ACCOUNT_BASE_CLASS.secondaryButton}`}
               >
-                {copied ? 'Đã copy' : 'Copy'}
+                {copied ? 'Đã sao chép' : 'Sao chép'}
               </button>
             </div>
             <p className="mt-2 text-xs text-success">
@@ -192,18 +192,18 @@ const ResetPasswordModalContent = ({ user, submitting, onCancel, onConfirm }) =>
               onClick={handleAskConfirm}
               className={`rounded-md px-3.5 py-1.5 text-sm font-semibold transition disabled:opacity-60 ${ACCOUNT_BASE_CLASS.primaryButton}`}
             >
-              {submitting ? 'Đang xử lý...' : 'Xác nhận reset'}
+              {submitting ? 'Đang xử lý...' : 'Xác nhận đặt lại'}
             </button>
           ) : null}
         </div>
 
         <ConfirmDialog
           open={confirmOpen}
-          title="Xác nhận reset mật khẩu"
+          title="Xác nhận đặt lại mật khẩu"
           message={mode === 'CUSTOM'
             ? 'Mật khẩu mới bạn đã nhập sẽ ghi đè mật khẩu hiện tại của tài khoản này.'
             : 'Hệ thống sẽ tạo mật khẩu tạm mới và vô hiệu hóa mật khẩu hiện tại của tài khoản này.'}
-          confirmLabel="Thực hiện reset"
+          confirmLabel="Thực hiện đặt lại"
           onCancel={() => setConfirmOpen(false)}
           onConfirm={handleConfirmReset}
         />

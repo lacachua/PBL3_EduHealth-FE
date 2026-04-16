@@ -122,14 +122,14 @@ const NurseReportsClassTable = ({
       subtitle="Tra cứu nhanh theo lớp, trạng thái và xuất báo cáo Excel"
       className="app-card-shell rounded-xl p-0"
       headerClassName="mb-0 flex flex-col gap-2 px-4 pt-3.5 md:flex-row md:items-center md:justify-between"
-      titleClassName="text-[15px] font-bold text-on-surface"
-      subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
+      titleClassName="app-section-title"
+      subtitleClassName="app-meta-text mt-0.5"
       actions={(
         <button
           type="button"
           onClick={() => onExport(filteredRows)}
           disabled={exporting || !filteredRows.length}
-          className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          className="app-focus-ring app-btn-primary px-3 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="material-symbols-outlined text-[17px]">file_download</span>
           Xuất Excel
@@ -137,6 +137,7 @@ const NurseReportsClassTable = ({
       )}
     >
       <div className="space-y-2.5 p-4 pt-3">
+        <p className="app-overline">Bảng dữ liệu chốt báo cáo</p>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex w-full flex-col gap-2 md:flex-row md:items-center">
             <label className="relative w-full md:max-w-[360px]">
@@ -146,13 +147,13 @@ const NurseReportsClassTable = ({
                 value={searchValue}
                 onChange={(event) => onSearchValueChange(event.target.value)}
                 placeholder="Tìm theo lớp hoặc khối"
-                className="app-focus-ring app-input h-11 w-full rounded-lg pl-9 pr-3 text-sm"
+                className="app-focus-ring app-input h-10 w-full rounded-xl pl-9 pr-3"
               />
             </label>
             <select
               value={statusFilter}
               onChange={(event) => onStatusFilterChange(event.target.value)}
-              className="app-input app-focus-ring h-11 rounded-lg px-3 text-sm md:w-[200px]"
+              className="app-input app-focus-ring h-10 rounded-xl px-3 md:w-[210px]"
             >
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -162,7 +163,7 @@ const NurseReportsClassTable = ({
             </select>
           </div>
 
-          <p className="text-xs font-semibold text-on-surface-variant">
+          <p className="text-[12px] font-semibold text-on-surface-variant">
             Hiển thị {pagedRows.length}/{totalItems} lớp
           </p>
         </div>
@@ -181,8 +182,8 @@ const NurseReportsClassTable = ({
               getRowKey={(row) => row.id}
               headCellPaddingClassName="px-2.5 py-2"
               bodyCellPaddingClassName="px-2.5 py-2"
-              containerClassName="overflow-x-auto rounded-xl border border-outline-variant bg-surface"
-              tableClassName="w-full table-fixed divide-y divide-outline-variant text-[12px]"
+              containerClassName="overflow-x-auto rounded-xl border border-outline-variant bg-surface shadow-[0_10px_22px_-18px_rgba(15,23,42,0.5)]"
+              tableClassName="w-full table-fixed divide-y divide-outline-variant text-[13px]"
               headClassName="app-table-head text-left"
               bodyClassName="divide-y divide-outline-variant bg-surface"
               rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"

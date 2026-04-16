@@ -60,15 +60,15 @@ const NurseReportsPage = () => {
     if (source === 'mock') {
       return {
         badgeClassName: 'border-info/20 bg-info-soft text-info',
-        label: 'Nguồn dữ liệu: Mock-only (backend pending)',
-        note: viewModel.sourceNote || 'Backend chưa hỗ trợ live cho báo cáo nurse',
+        label: 'Nguồn dữ liệu: Mô phỏng (chờ dữ liệu thật)',
+        note: viewModel.sourceNote || 'Nguồn dữ liệu thật cho báo cáo điều dưỡng chưa sẵn sàng',
       };
     }
 
     return {
       badgeClassName: 'border-success/20 bg-success-soft text-success',
-      label: 'Nguồn dữ liệu: Đồng bộ',
-      note: 'Đang dùng dữ liệu hệ thống',
+      label: 'Nguồn dữ liệu: Đồng bộ hệ thống',
+      note: 'Dữ liệu đang được đồng bộ từ hệ thống',
     };
   }, [viewModel.source, viewModel.sourceNote]);
 
@@ -112,7 +112,7 @@ const NurseReportsPage = () => {
   };
 
   return (
-    <div className="space-y-3.5 text-on-surface">
+    <div className="space-y-4 text-on-surface">
       <NurseModulePageHeader
         title={viewModel.header.title}
         description={viewModel.header.description}
@@ -121,7 +121,7 @@ const NurseReportsPage = () => {
             <button
               type="button"
               onClick={handleViewReport}
-              className="app-focus-ring app-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary px-3"
             >
               <span className="material-symbols-outlined text-[18px]">visibility</span>
               Xem báo cáo
@@ -131,7 +131,7 @@ const NurseReportsPage = () => {
               type="button"
               onClick={() => handleExportRows(viewModel.classRows)}
               disabled={exporting || !viewModel.classRows.length}
-              className="app-focus-ring app-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+              className="app-focus-ring app-btn-primary px-3.5 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span className={`material-symbols-outlined text-[18px] ${exporting ? 'animate-spin' : ''}`}>
                 {exporting ? 'progress_activity' : 'table_view'}
@@ -142,19 +142,22 @@ const NurseReportsPage = () => {
         )}
       />
 
-      <div className="flex flex-wrap items-center gap-2 px-1 text-xs text-on-surface-muted">
-        <span className="font-medium">Cập nhật lúc: {viewModel.generatedAtLabel}</span>
+      <section className="app-panel-shell app-filter-toolbar flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="app-overline">Phiên dữ liệu báo cáo</p>
+          <p className="app-meta-text mt-0.5">Cập nhật lúc: {viewModel.generatedAtLabel}</p>
+        </div>
         <span
           title={sourceTag.note}
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sourceTag.badgeClassName}`}
+          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${sourceTag.badgeClassName}`}
         >
           {sourceTag.label}
         </span>
-      </div>
+      </section>
 
       {String(viewModel.source || '').toLowerCase() === 'mock' ? (
         <section className="rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
-          Module báo cáo nurse hiện chỉ chạy mock-only. Dữ liệu live sẽ khả dụng khi backend bổ sung endpoint reports.
+          Báo cáo điều dưỡng hiện đang dùng dữ liệu mô phỏng. Dữ liệu thật sẽ tự động thay thế khi tích hợp hoàn tất.
         </section>
       ) : null}
 

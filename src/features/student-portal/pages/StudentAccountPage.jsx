@@ -25,12 +25,12 @@ const validateProfileForm = (values) => {
   const nextErrors = {};
 
   if (!String(values.fullName || '').trim()) {
-    nextErrors.fullName = 'Vui long nhap ho va ten.';
+    nextErrors.fullName = 'Vui lòng nhập họ và tên.';
   }
 
   const phoneValue = String(values.phone || '').trim();
   if (phoneValue && !PHONE_PATTERN.test(phoneValue)) {
-    nextErrors.phone = 'So dien thoai khong hop le.';
+    nextErrors.phone = 'Số điện thoại không hợp lệ.';
   }
 
   return nextErrors;
@@ -40,24 +40,24 @@ const validatePasswordForm = (values) => {
   const nextErrors = {};
 
   if (!String(values.oldPassword || '').trim()) {
-    nextErrors.oldPassword = 'Vui long nhap mat khau hien tai.';
+    nextErrors.oldPassword = 'Vui lòng nhập mật khẩu hiện tại.';
   }
 
   const newPassword = String(values.newPassword || '').trim();
   const confirmPassword = String(values.confirmPassword || '').trim();
 
   if (!newPassword) {
-    nextErrors.newPassword = 'Vui long nhap mat khau moi.';
+    nextErrors.newPassword = 'Vui lòng nhập mật khẩu mới.';
   } else if (newPassword.length < 8) {
-    nextErrors.newPassword = 'Mat khau moi phai co it nhat 8 ky tu.';
+    nextErrors.newPassword = 'Mật khẩu mới phải có ít nhất 8 ký tự.';
   } else if (newPassword === values.oldPassword) {
-    nextErrors.newPassword = 'Mat khau moi phai khac mat khau hien tai.';
+    nextErrors.newPassword = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
   }
 
   if (!confirmPassword) {
-    nextErrors.confirmPassword = 'Vui long xac nhan mat khau moi.';
+    nextErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới.';
   } else if (newPassword !== confirmPassword) {
-    nextErrors.confirmPassword = 'Xac nhan mat khau chua khop.';
+    nextErrors.confirmPassword = 'Xác nhận mật khẩu chưa khớp.';
   }
 
   return nextErrors;
@@ -94,7 +94,7 @@ const StudentAccountPage = () => {
       setAccountData(response.data);
       setProfileValues(createProfileFormState(response.data.profile));
     } catch (apiError) {
-      setError(normalizeApiMessage(apiError, 'Khong the tai thong tin tai khoan.'));
+      setError(normalizeApiMessage(apiError, 'Không thể tải thông tin tài khoản.'));
     } finally {
       setLoading(false);
     }
@@ -168,13 +168,13 @@ const StudentAccountPage = () => {
         fullName: String(response.data?.profile?.fullName || prevValues.fullName || ''),
         phone: String(response.data?.profile?.phone || prevValues.phone || ''),
       }));
-      setFeedback({ type: 'success', message: response?.message || 'Cap nhat thong tin thanh cong.' });
+      setFeedback({ type: 'success', message: response?.message || 'Cập nhật thông tin thành công.' });
     } catch (apiError) {
       setProfileErrors((prev) => ({
         ...prev,
         ...mapApiFieldErrors(apiError),
       }));
-      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Khong the cap nhat thong tin.') });
+      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Không thể cập nhật thông tin.') });
     } finally {
       setIsSavingProfile(false);
     }
@@ -201,9 +201,9 @@ const StudentAccountPage = () => {
           ...(response.data?.capabilities || {}),
         },
       }));
-      setFeedback({ type: 'success', message: response?.message || 'Cap nhat anh dai dien thanh cong.' });
+      setFeedback({ type: 'success', message: response?.message || 'Cập nhật ảnh đại diện thành công.' });
     } catch (apiError) {
-      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Khong the cap nhat anh dai dien.') });
+      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Không thể cập nhật ảnh đại diện.') });
     } finally {
       setIsUploadingAvatar(false);
     }
@@ -261,22 +261,22 @@ const StudentAccountPage = () => {
     try {
       const response = await studentPortalService.changePassword(passwordValues);
       resetPasswordForm();
-      setFeedback({ type: 'success', message: response?.message || 'Doi mat khau thanh cong.' });
+      setFeedback({ type: 'success', message: response?.message || 'Đổi mật khẩu thành công.' });
     } catch (apiError) {
       const mappedFieldErrors = mapApiFieldErrors(apiError);
       setPasswordErrors((prev) => ({
         ...prev,
         ...mappedFieldErrors,
       }));
-      setPasswordSubmitError(normalizeApiMessage(apiError, 'Khong the doi mat khau.'));
-      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Khong the doi mat khau.') });
+      setPasswordSubmitError(normalizeApiMessage(apiError, 'Không thể đổi mật khẩu.'));
+      setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Không thể đổi mật khẩu.') });
     } finally {
       setIsSubmittingPassword(false);
     }
   };
 
   if (loading && !accountData) {
-    return <StudentLoadingState label="Dang tai thong tin tai khoan..." />;
+    return <StudentLoadingState label="Đang tải thông tin tài khoản..." />;
   }
 
   if (error && !accountData) {
@@ -316,7 +316,7 @@ const StudentAccountPage = () => {
             />
           ) : (
             <section className="app-panel-shell rounded-3xl p-4 text-sm text-on-surface-variant">
-              Tinh nang doi mat khau tam thoi chua kha dung cho tai khoan nay.
+              Tính năng đổi mật khẩu tạm thời chưa khả dụng cho tài khoản này.
             </section>
           )}
         </div>

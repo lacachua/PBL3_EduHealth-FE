@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 
 const PageFallback = () => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-    <span style={{ fontSize: "1rem", color: "#888" }}>Dang tai...</span>
+    <span style={{ fontSize: "1rem", color: "#516C77", fontWeight: 600 }}>Đang tải...</span>
   </div>
 );
 

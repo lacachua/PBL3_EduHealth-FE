@@ -10,7 +10,7 @@ const LoadingSpinner = ({ label = 'Đang tải dữ liệu...', size = 'md' }) =
   const sizeClass = sizeMap[size] || sizeMap.md;
 
   return (
-    <div className="flex items-center justify-center gap-2 py-6 text-sm text-on-surface-variant" role="status" aria-live="polite">
+    <div className="flex items-center justify-center gap-2 py-6 text-[13px] font-medium text-on-surface-variant" role="status" aria-live="polite">
       <span className={`inline-block animate-spin rounded-full border-outline-variant border-t-secondary ${sizeClass}`} />
       <span>{label}</span>
     </div>

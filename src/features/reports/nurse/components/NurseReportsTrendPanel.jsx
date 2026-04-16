@@ -13,15 +13,16 @@ const NurseReportsTrendPanel = ({ trend }) => {
       subtitle="Theo dõi số ca y tế theo bộ lọc đã chọn"
       className="app-card-shell h-full rounded-xl p-0"
       headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
-      titleClassName="text-[15px] font-bold text-on-surface"
-      subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
+      titleClassName="app-section-title"
+      subtitleClassName="app-meta-text mt-0.5 leading-4"
       actions={(
-        <span className="rounded-full border border-outline-variant bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+        <span className="rounded-full border border-outline-variant bg-surface-container-low px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
           Tổng {totalValue}
         </span>
       )}
     >
       <div className="p-4 pt-3">
+        <p className="app-overline mb-2">Dòng thời gian nghiệp vụ</p>
         {!items.length ? (
           <EmptyState
             title="Chưa có dữ liệu xu hướng"
@@ -38,7 +39,7 @@ const NurseReportsTrendPanel = ({ trend }) => {
 
                 return (
                   <div key={item.id} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
-                    <p className="text-[10px] font-semibold text-on-surface-variant">{item.value}</p>
+                    <p className="text-[11px] font-semibold text-on-surface-variant">{item.value}</p>
                     <div className="relative h-full w-full max-w-[60px] rounded-t-md bg-outline-variant/50">
                       <div
                         className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-[height,background-color] duration-300 ${isPeak || isLast ? 'bg-primary' : 'bg-success'}`}
@@ -51,7 +52,7 @@ const NurseReportsTrendPanel = ({ trend }) => {
               })}
               </div>
 
-              <div className="mt-2 grid gap-1 text-center text-[10px] font-semibold text-on-surface-variant" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+              <div className="mt-2 grid gap-1 text-center text-[11px] font-semibold text-on-surface-variant" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
                 {items.map((item) => (
                   <p key={`${item.id}-label`} className="truncate">{item.label}</p>
                 ))}

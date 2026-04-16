@@ -12,12 +12,12 @@ const SectionCard = ({
   actionsClassName,
 }) => {
   return (
-    <section className={className || 'rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--sys-shadow-card)]'}>
+    <section className={className || 'app-card-shell rounded-xl p-4'}>
       {(title || actions) && (
         <div className={headerClassName || 'mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between'}>
           <div>
-            {title ? <h2 className={titleClassName || 'font-headline text-[1.02rem] font-semibold text-on-surface'}>{title}</h2> : null}
-            {subtitle ? <p className={subtitleClassName || 'mt-0.5 text-xs text-on-surface-variant'}>{subtitle}</p> : null}
+            {title ? <h2 className={titleClassName || 'app-section-title'}>{title}</h2> : null}
+            {subtitle ? <p className={subtitleClassName || 'app-meta-text mt-0.5'}>{subtitle}</p> : null}
           </div>
           {actions ? <div className={actionsClassName || 'flex items-center gap-2'}>{actions}</div> : null}
         </div>

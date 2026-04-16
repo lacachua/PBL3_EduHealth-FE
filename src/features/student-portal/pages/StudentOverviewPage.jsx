@@ -66,6 +66,8 @@ const growthMetricOptions = {
   },
 };
 
+const growthMetricToggleOrder = ['height', 'weight'];
+
 const CHART_FRAME = {
   width: 680,
   height: 260,
@@ -216,18 +218,14 @@ const StudentOverviewPage = () => {
     loadOverview();
   }, [loadOverview]);
 
-  const hero = useMemo(() => {
-    return overviewData?.hero || null;
-  }, [overviewData?.hero]);
+  const hero = overviewData?.hero || null;
 
   const activeGrowthMetric = growthMetricOptions[growthMetric] || growthMetricOptions.height;
 
-  const growthPoints = useMemo(() => {
-    return overviewData?.growthChart?.points || [];
-  }, [overviewData?.growthChart?.points]);
+  const growthPoints = overviewData?.growthChart?.points;
 
   const growthChartModel = useMemo(() => {
-    return buildGrowthChartModel(growthPoints, activeGrowthMetric.key);
+    return buildGrowthChartModel(Array.isArray(growthPoints) ? growthPoints : [], activeGrowthMetric.key);
   }, [growthPoints, activeGrowthMetric.key]);
 
   if (loading && !overviewData) {
@@ -242,20 +240,13 @@ const StudentOverviewPage = () => {
     return null;
   }
 
-  const handleNavigateAccount = () => {
-    navigate('/student/account');
-  };
-
-  const handleNavigateVaccinations = () => {
-    navigate('/student/vaccinations');
-  };
-
   const displayName = normalizeMetaText(hero?.fullName || 'Học sinh');
   const displayRoleLabel = normalizeMetaText(hero?.roleLabel || 'Học sinh');
   const displayStatusLabel = normalizeMetaText(hero?.statusLabel || 'Đang hoạt động');
   const displayClassName = normalizeMetaText(hero?.className);
   const displayStudentCode = normalizeMetaText(hero?.studentCode);
-  const displayEmail = normalizeMetaText(hero?.email) !== 'Chưa cập nhật' ? normalizeMetaText(hero?.email) : '';
+  const normalizedEmail = normalizeMetaText(hero?.email);
+  const displayEmail = normalizedEmail !== 'Chưa cập nhật' ? normalizedEmail : '';
 
   return (
     <div className="space-y-4.5 text-on-surface lg:space-y-5">
@@ -274,20 +265,20 @@ const StudentOverviewPage = () => {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-on-surface-variant">Hồ sơ tổng quan</p>
-              <h2 className="mt-1 text-[1.22rem] font-semibold leading-tight text-on-surface sm:text-[1.35rem]">{displayName}</h2>
-              <p className="mt-1 max-w-xl text-sm text-on-surface-variant">
+              <p className="app-overline tracking-[0.1em]">Hồ sơ tổng quan</p>
+              <h2 className="mt-1 text-[1.34rem] font-bold leading-tight text-on-surface sm:text-[1.46rem]">{displayName}</h2>
+              <p className="mt-1 max-w-xl text-sm text-on-surface-muted">
                 Theo dõi nhanh tình trạng sức khỏe, tiến độ tiêm chủng và các mốc cần chú ý trong tuần.
               </p>
 
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-primary/25 bg-white/78 px-2.5 py-1 text-xs font-semibold text-primary">
+                <span className="inline-flex items-center rounded-full border border-primary/32 bg-white/84 px-2.5 py-1 text-xs font-semibold text-primary">
                   {displayRoleLabel}
                 </span>
                 <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${
                   hero?.isActive
-                    ? 'border-success/35 bg-success-soft text-success'
-                    : 'border-danger/35 bg-danger-soft text-danger'
+                    ? 'border-success/42 bg-success-soft text-success'
+                    : 'border-danger/42 bg-danger-soft text-danger'
                 }`}>
                   <span className={`h-2 w-2 rounded-full ${hero?.isActive ? 'bg-success' : 'bg-danger'}`} />
                   <span>{displayStatusLabel}</span>
@@ -315,11 +306,11 @@ const StudentOverviewPage = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/60 bg-white/60 p-2.5">
+          <div className="rounded-2xl border border-white/72 bg-white/72 p-2.5">
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
               <button
                 type="button"
-                onClick={handleNavigateAccount}
+                onClick={() => navigate('/student/account')}
                 className="app-btn-primary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
               >
                 Xem tài khoản
@@ -327,7 +318,7 @@ const StudentOverviewPage = () => {
 
               <button
                 type="button"
-                onClick={handleNavigateVaccinations}
+                onClick={() => navigate('/student/vaccinations')}
                 className="app-btn-secondary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
               >
                 Xem lịch tiêm
@@ -360,27 +351,23 @@ const StudentOverviewPage = () => {
         <article className="app-panel-shell student-growth-card rounded-3xl p-4 md:p-5">
           <header className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-base font-semibold text-on-surface">Biểu đồ tăng trưởng</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">
+              <h2 className="app-section-title">Biểu đồ tăng trưởng</h2>
+              <p className="app-body-text mt-1">
                 {overviewData.growthChart?.subtitle || 'Theo dõi chiều cao và cân nặng theo từng tháng.'}
               </p>
             </div>
 
             <div className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant bg-surface/85 p-1">
-              <button
-                type="button"
-                onClick={() => setGrowthMetric('height')}
-                className={`student-growth-toggle app-focus-ring app-interactive ${growthMetric === 'height' ? 'student-growth-toggle-active' : ''}`}
-              >
-                Chiều cao
-              </button>
-              <button
-                type="button"
-                onClick={() => setGrowthMetric('weight')}
-                className={`student-growth-toggle app-focus-ring app-interactive ${growthMetric === 'weight' ? 'student-growth-toggle-active' : ''}`}
-              >
-                Cân nặng
-              </button>
+              {growthMetricToggleOrder.map((metric) => (
+                <button
+                  key={metric}
+                  type="button"
+                  onClick={() => setGrowthMetric(metric)}
+                  className={`student-growth-toggle app-focus-ring app-interactive ${growthMetric === metric ? 'student-growth-toggle-active' : ''}`}
+                >
+                  {growthMetricOptions[metric].label}
+                </button>
+              ))}
             </div>
           </header>
 
@@ -454,8 +441,8 @@ const StudentOverviewPage = () => {
         <article className="app-panel-shell rounded-3xl p-4 md:p-5">
           <header className="mb-3.5 flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-on-surface">Nhắc nhở và lưu ý</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">Những việc cần ưu tiên để theo dõi chăm sóc liên tục.</p>
+              <h2 className="app-section-title">Nhắc nhở và lưu ý</h2>
+              <p className="app-body-text mt-1">Những việc cần ưu tiên để theo dõi chăm sóc liên tục.</p>
             </div>
 
             <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
@@ -472,7 +459,7 @@ const StudentOverviewPage = () => {
               return (
                 <article key={item.id} className={reminderClassName}>
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-semibold text-on-surface">{item.title}</p>
+                  <p className="text-[14px] font-semibold text-on-surface">{item.title}</p>
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-primary">
                     <span className="material-symbols-outlined text-[15px]">{item.icon || 'event_upcoming'}</span>
                   </span>
@@ -489,7 +476,7 @@ const StudentOverviewPage = () => {
 
       <section className="app-panel-shell overflow-hidden rounded-3xl">
         <header className="flex items-center justify-between border-b border-outline-variant bg-surface/75 px-4 py-3.5">
-          <h2 className="text-base font-semibold text-on-surface">Hoạt động gần đây</h2>
+          <h2 className="app-section-title">Hoạt động gần đây</h2>
           <span className="inline-flex items-center gap-1 rounded-full border border-info/25 bg-info-soft/72 px-2.5 py-1 text-[11px] font-semibold text-info">
             <span className="material-symbols-outlined text-[14px]">history</span>
             <span>Cập nhật mới</span>
@@ -504,7 +491,7 @@ const StudentOverviewPage = () => {
                   <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${resolveActivityIconClass(item.tone)}`}>
                     <span className="material-symbols-outlined text-[15px]">{item.icon || 'task_alt'}</span>
                   </span>
-                  <p className="text-sm font-semibold text-on-surface">{item.title}</p>
+                  <p className="text-[14px] font-semibold text-on-surface">{item.title}</p>
                 </div>
 
                 <p className="mt-1.5 text-sm text-on-surface-variant">{item.description}</p>

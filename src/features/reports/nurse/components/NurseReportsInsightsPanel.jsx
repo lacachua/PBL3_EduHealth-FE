@@ -21,18 +21,19 @@ const NurseReportsInsightsPanel = ({ insights }) => {
   return (
     <section className="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <SectionCard
-        title="Top thuốc sử dụng"
+        title="Nhóm thuốc sử dụng nhiều"
         subtitle="Phát hiện nhóm thuốc cần bổ sung"
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
-        titleClassName="text-[15px] font-bold text-on-surface"
-        subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
+        titleClassName="app-section-title"
+        subtitleClassName="app-meta-text mt-0.5 leading-4"
       >
         <div className="space-y-1.5 p-4 pt-3">
+          <p className="app-overline">Mức tiêu thụ & tồn kho</p>
           {!medicines.length ? (
             <EmptyState
               title="Không có dữ liệu thuốc"
-              description="Danh sách top thuốc sẽ hiển thị khi có dữ liệu cấp phát."
+              description="Danh sách thuốc sử dụng nhiều sẽ hiển thị khi có dữ liệu cấp phát."
             />
           ) : (
             medicines.map((item) => {
@@ -53,7 +54,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
                       {item.stockLabel}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-on-surface-variant">Số lượt dùng: <span className="font-semibold text-on-surface">{item.usedQuantity}</span></p>
+                  <p className="mt-1 text-[12px] text-on-surface-variant">Số lượt dùng: <span className="font-semibold text-on-surface">{item.usedQuantity}</span></p>
                 </article>
               );
             })
@@ -66,10 +67,11 @@ const NurseReportsInsightsPanel = ({ insights }) => {
         subtitle="Điểm cần ưu tiên xử lý trong kỳ"
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
-        titleClassName="text-[15px] font-bold text-on-surface"
-        subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
+        titleClassName="app-section-title"
+        subtitleClassName="app-meta-text mt-0.5 leading-4"
       >
         <div className="space-y-1.5 p-4 pt-3">
+          <p className="app-overline">Ưu tiên xử lý</p>
           {!alerts.length ? (
             <EmptyState
               title="Chưa có cảnh báo"
@@ -80,7 +82,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
               <article key={alert.id} className={`rounded-lg border px-3 py-2 ${alertToneClassMap[alert.tone] || alertToneClassMap.info}`}>
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold">{alert.title}</h3>
-                  <span className="text-[10px] font-semibold">{alert.timeLabel}</span>
+                  <span className="text-[11px] font-semibold">{alert.timeLabel}</span>
                 </div>
                 <p className="mt-1 text-[12px] leading-[1.35]">{alert.message}</p>
               </article>

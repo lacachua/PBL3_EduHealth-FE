@@ -71,12 +71,12 @@
     /* Foundation */
     --sys-bg: #F6F9F9;
     --sys-surface: #FFFFFF;
-    --sys-surface-soft: #F8FBFB;
-    --sys-border: #D8E4E6;
-    --sys-border-strong: #C3D4D7;
+    --sys-surface-soft: #F1F7F8;
+    --sys-border: #CBDCDF;
+    --sys-border-strong: #B7CACF;
     --sys-text: #16323A;
-    --sys-text-muted: #6B8590;
-    --sys-text-soft: #8BA2AC;
+    --sys-text-muted: #5C7782;
+    --sys-text-soft: #77919C;
     --sys-success: #2D9878;
     --sys-warning: #B7791F;
     --sys-danger: #C76B6B;
@@ -89,9 +89,9 @@
 
     --sys-radius-md: 10px;
     --sys-radius-lg: 14px;
-    --sys-shadow-card: 0 6px 18px color-mix(in srgb, var(--sys-text) 10%, transparent);
-    --sys-shadow-soft: 0 12px 26px color-mix(in srgb, var(--sys-text) 13%, transparent);
-    --sys-shadow-raised: 0 14px 30px color-mix(in srgb, var(--sys-text) 16%, transparent);
+    --sys-shadow-card: 0 6px 18px color-mix(in srgb, var(--sys-text) 12%, transparent);
+    --sys-shadow-soft: 0 14px 28px color-mix(in srgb, var(--sys-text) 15%, transparent);
+    --sys-shadow-raised: 0 18px 34px color-mix(in srgb, var(--sys-text) 18%, transparent);
     --sys-motion-fast: 160ms;
     --sys-motion-base: 220ms;
     --sys-motion-slow: 320ms;
@@ -119,6 +119,19 @@
       border-color var(--sys-motion-fast) var(--sys-ease-standard),
       box-shadow var(--sys-motion-fast) var(--sys-ease-standard),
       background-color var(--sys-motion-fast) var(--sys-ease-standard);
+
+    /* Typography scale */
+    --type-page-title-size: clamp(1.5rem, 1.36rem + 0.5vw, 1.86rem);
+    --type-page-title-weight: 760;
+    --type-section-title-size: clamp(1.08rem, 1.02rem + 0.26vw, 1.24rem);
+    --type-section-title-weight: 680;
+    --type-card-title-size: 0.995rem;
+    --type-body-size: 0.875rem;
+    --type-meta-size: 0.75rem;
+    --type-overline-size: 0.6875rem;
+    --type-table-size: 0.8125rem;
+    --type-kpi-size: clamp(1.52rem, 1.34rem + 0.58vw, 1.96rem);
+    --type-kpi-weight: 790;
 
     /* Semantic app defaults */
     --app-bg: var(--sys-bg);
@@ -152,9 +165,9 @@
     --field-placeholder: var(--app-text-soft);
 
     --card-bg: var(--app-surface);
-    --card-border: var(--app-border);
-    --table-header-bg: var(--app-surface-soft);
-    --table-row-hover-bg: color-mix(in srgb, var(--app-primary-soft) 40%, var(--app-surface));
+    --card-border: color-mix(in srgb, var(--app-border-strong) 72%, var(--app-border));
+    --table-header-bg: color-mix(in srgb, var(--app-primary-soft) 30%, var(--app-surface));
+    --table-row-hover-bg: color-mix(in srgb, var(--app-primary-soft) 56%, var(--app-surface));
     --sys-focus-ring: 0 0 0 2px color-mix(in srgb, var(--app-primary) 24%, transparent);
     --sys-glass-bg: color-mix(in srgb, var(--app-surface) 82%, transparent);
 

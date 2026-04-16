@@ -99,7 +99,18 @@ const LoginPage = () => {
           centered
         />
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
+        <div className="mb-3 flex flex-wrap items-center justify-center gap-1.5">
+          <span className="auth-panel-chip">
+            <span className="material-symbols-outlined text-[14px]">verified_user</span>
+            Đăng nhập an toàn theo vai trò
+          </span>
+          <span className="auth-panel-chip">
+            <span className="material-symbols-outlined text-[14px]">domain</span>
+            Dành cho tài khoản do nhà trường cấp
+          </span>
+        </div>
+
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
           <AuthInput
             id="identifier"
             label={LOGIN_COPY.identifierLabel}
@@ -125,7 +136,7 @@ const LoginPage = () => {
             error={fieldErrors.password}
           />
 
-          <div className="flex items-center justify-between gap-3 pt-1.5 text-sm">
+          <div className="flex items-center justify-between gap-3 pt-0.5 text-[13px]">
             <label className="flex cursor-pointer items-center gap-2 text-auth-text-body transition-colors hover:text-auth-text-strong">
               <input
                 className="h-4 w-4 rounded border-auth-border text-auth-primary focus:ring-auth-primary/20"
@@ -143,13 +154,17 @@ const LoginPage = () => {
           <AuthStatusMessage message={submitError} type="error" />
 
           <button
-            className="auth-primary-button app-focus-ring group flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+            className="auth-primary-button app-focus-ring group flex h-[3.3rem] w-full items-center justify-center gap-2 rounded-[14px] text-[15px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? LOGIN_COPY.submitting : LOGIN_COPY.submit}
-            <span className="material-symbols-outlined text-[21px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+            <span className="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-0.5">arrow_forward</span>
           </button>
+
+          <p className="text-center text-[12px] font-medium text-auth-text-muted">
+            Cần hỗ trợ truy cập? Vui lòng liên hệ bộ phận quản trị của trường.
+          </p>
         </form>
       </AuthCard>
     </AuthShell>

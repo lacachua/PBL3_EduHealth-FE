@@ -1,7 +1,7 @@
 import React from 'react';
 
-const FilterBar = ({ children }) => (
-  <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">{children}</div>
+const FilterBar = ({ children, className = '' }) => (
+  <div className={`flex flex-col gap-2.5 md:flex-row md:flex-wrap md:items-center ${className}`}>{children}</div>
 );
 
 export default FilterBar;
