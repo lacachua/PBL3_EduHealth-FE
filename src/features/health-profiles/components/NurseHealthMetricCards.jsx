@@ -18,7 +18,7 @@ const NurseHealthMetricCards = ({ metrics }) => {
   return (
     <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => (
-        <article key={card.id} className="nurse-card-soft rounded-xl px-3.5 py-3">
+        <article key={card.id} className="app-card-shell rounded-xl px-3.5 py-3">
           <div className="mb-2 flex items-center justify-between">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#DCFCE7] text-[#166534]">
               <span className="material-symbols-outlined text-[17px]">{card.icon}</span>

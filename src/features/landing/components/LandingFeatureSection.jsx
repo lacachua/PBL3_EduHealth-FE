@@ -40,8 +40,8 @@ const bottomRowItems = [
 
 const FeatureCard = ({ title, description, icon, highlighted = false }) => {
   const cardClassName = highlighted
-    ? "flex h-full flex-col rounded-[1.75rem] bg-primary p-5 text-white shadow-md shadow-primary/18 ring-1 ring-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/25 lg:p-6"
-    : "flex h-full flex-col rounded-[1.75rem] bg-surface-container-lowest p-5 text-on-surface shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8 lg:p-6";
+    ? "flex h-full flex-col rounded-[1.75rem] bg-primary p-5 text-white shadow-md shadow-primary/18 ring-1 ring-white/15 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/25 lg:p-6"
+    : "flex h-full flex-col rounded-[1.75rem] bg-surface-container-lowest p-5 text-on-surface shadow-sm ring-1 ring-black/[0.03] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8 lg:p-6";
 
   const iconClassName = highlighted
     ? "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20"

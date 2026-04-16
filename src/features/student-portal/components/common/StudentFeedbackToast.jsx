@@ -19,14 +19,14 @@ const StudentFeedbackToast = ({ feedback, onClose }) => {
       <div
         role="status"
         aria-live="polite"
-        className={`pointer-events-auto w-full max-w-[420px] rounded-lg border px-4 py-2 text-sm font-medium shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition-all duration-200 ease-out ${toneClassName}`}
+        className={`pointer-events-auto w-full max-w-[420px] rounded-lg border px-4 py-2 text-sm font-medium shadow-lg transition-[opacity,transform,border-color,box-shadow] duration-200 ease-out ${toneClassName}`}
       >
         <div className="flex items-center justify-between gap-3">
           <span>{feedback.message}</span>
           <button
             type="button"
             onClick={onClose}
-            className="student-focus-ring student-interactive rounded border border-current/30 px-1.5 py-0.5 text-xs hover:bg-white/30"
+            className="app-focus-ring app-interactive rounded border border-current/30 px-1.5 py-0.5 text-xs hover:bg-white/30"
             aria-label="Đóng thông báo"
           >
             Đóng

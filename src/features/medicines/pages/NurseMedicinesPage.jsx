@@ -11,7 +11,7 @@ import {
   mapMedicineListEnvelope,
   mapMedicineMovementsEnvelope,
 } from '../adapters/nurseMedicineAdapter';
-import { parseNurseMedicineApiError } from '../adapters/nurseMedicineErrorParser';
+import { parseNurseMedicineApiError } from '../adapters/medicineErrorParser';
 import {
   MOVEMENT_PAGE_SIZE,
   PAGE_SIZE,
@@ -68,8 +68,8 @@ const EMPTY_MOVEMENT_LIST = {
 };
 
 const TOAST_CLASS_MAP = {
-  success: 'border-[#86EFAC] bg-[#DCFCE7] text-[#166534]',
-  error: 'border-[#FECACA] bg-[#FEE2E2] text-[#B91C1C]',
+  success: 'border-success/25 bg-success-soft text-success',
+  error: 'border-danger/25 bg-danger-soft text-danger',
 };
 
 const NurseMedicinesPage = () => {
@@ -343,7 +343,7 @@ const NurseMedicinesPage = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 text-on-surface">
       <NurseModulePageHeader
         title="Thuốc / Kho thuốc"
         description="Quản lý danh mục thuốc, theo dõi tồn kho và hạn sử dụng tại phòng y tế."
@@ -370,7 +370,7 @@ const NurseMedicinesPage = () => {
       <MedicinesSummaryCards summary={summary} loading={listStatus === 'loading'} />
 
       {forbidden ? (
-        <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
           Bạn không có quyền truy cập module Thuốc / Kho thuốc.
         </section>
       ) : null}
@@ -384,12 +384,16 @@ const NurseMedicinesPage = () => {
             onOpenMedicine={openDetailByMedicineId}
           />
 
-          <section className="space-y-3 rounded-2xl border border-[#D7ECDD] bg-white p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:p-5">
+          <section className="app-panel-shell space-y-3 p-4 md:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-[#0F172A]">Danh mục thuốc</h2>
-                <p className="text-sm text-[#64748B]">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
+                <h2 className="text-lg font-bold text-on-surface">Danh mục thuốc</h2>
+                <p className="text-sm text-on-surface-variant">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
               </div>
+            </div>
+
+            <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
+              Đang hiển thị <span className="font-semibold text-on-surface">{medicinesData.rows.length}</span> thuốc trên trang này • Tổng <span className="font-semibold text-on-surface">{medicinesData.totalItems}</span> thuốc
             </div>
 
             <MedicinesTable

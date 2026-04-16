@@ -11,7 +11,7 @@ const NurseHealthProfileTabs = ({ tabs, activeTab, onChange }) => {
               key={tab.id}
               type="button"
               onClick={() => onChange(tab.id)}
-              className={`nurse-focus-ring rounded-lg px-3 py-1.5 text-sm font-semibold transition-[background-color,color,box-shadow,border-color] duration-180 ease-out ${
+              className={`app-focus-ring rounded-lg px-3 py-1.5 text-sm font-semibold transition-[background-color,color,box-shadow,border-color] duration-180 ease-out ${
                 isActive
                   ? 'bg-[#DCFCE7] text-[#166534] shadow-[inset_0_0_0_1px_rgba(21,128,61,0.35)]'
                   : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'

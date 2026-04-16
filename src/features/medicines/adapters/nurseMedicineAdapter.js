@@ -1,4 +1,3 @@
-import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 import {
   ALERT_TYPE_LABELS,
   DISPOSE_REASON_LABELS,
@@ -10,6 +9,12 @@ import {
   MOVEMENT_TYPE_BADGE_CLASS,
   MOVEMENT_TYPE_LABELS,
 } from '../constants/nurseMedicineConstants';
+import {
+  getMedicineMetaFromEnvelope,
+  getMedicineRowsFromEnvelope,
+  normalizeMedicineEnvelope,
+  toMedicineDateTimeLabel,
+} from './medicineAdapterShared';
 
 const EMPTY_LIST_META = {
   page: 1,
@@ -30,18 +35,7 @@ export const formatDateOnly = (value) => {
   return `${day}/${month}/${year}`;
 };
 
-export const formatDateTime = (value) => {
-  if (!value) return '--';
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-
-  return date.toLocaleString('vi-VN', {
-    hour12: false,
-  });
-};
+export const formatDateTime = (value) => toMedicineDateTimeLabel(value);
 
 const toAlertKey = (item) => {
   if (item.isLowStock && item.isExpiringSoon) return 'mixed';
@@ -51,7 +45,7 @@ const toAlertKey = (item) => {
 };
 
 export const mapMedicineListEnvelope = (response) => {
-  const envelope = normalizeApiEnvelope(response);
+  const envelope = normalizeMedicineEnvelope(response);
   if (!envelope || envelope.success === false) {
     return {
       rows: [],
@@ -59,8 +53,8 @@ export const mapMedicineListEnvelope = (response) => {
     };
   }
 
-  const rows = Array.isArray(envelope.data) ? envelope.data : [];
-  const meta = envelope.meta || EMPTY_LIST_META;
+  const rows = getMedicineRowsFromEnvelope(envelope);
+  const meta = getMedicineMetaFromEnvelope(envelope, EMPTY_LIST_META);
 
   return {
     rows: rows.map((item) => {
@@ -84,7 +78,7 @@ export const mapMedicineListEnvelope = (response) => {
 };
 
 export const mapMedicineDetailEnvelope = (response) => {
-  const envelope = normalizeApiEnvelope(response);
+  const envelope = normalizeMedicineEnvelope(response);
   if (!envelope || envelope.success === false || !envelope.data) {
     return null;
   }
@@ -107,8 +101,8 @@ export const mapMedicineDetailEnvelope = (response) => {
 };
 
 export const mapMedicineAlertsEnvelope = (response) => {
-  const envelope = normalizeApiEnvelope(response);
-  const rows = Array.isArray(envelope?.data) ? envelope.data : [];
+  const envelope = normalizeMedicineEnvelope(response);
+  const rows = getMedicineRowsFromEnvelope(envelope);
 
   return rows.map((item) => ({
     ...item,
@@ -118,20 +112,25 @@ export const mapMedicineAlertsEnvelope = (response) => {
 };
 
 export const mapMedicineMovementsEnvelope = (response) => {
-  const envelope = normalizeApiEnvelope(response);
-  const rows = Array.isArray(envelope?.data) ? envelope.data : [];
-  const meta = envelope?.meta || EMPTY_LIST_META;
+  const envelope = normalizeMedicineEnvelope(response);
+  const rows = getMedicineRowsFromEnvelope(envelope);
+  const meta = getMedicineMetaFromEnvelope(envelope, {
+    page: 1,
+    pageSize: 5,
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   return {
     rows: rows.map((item) => ({
       ...(item || {}),
       typeLabel: MOVEMENT_TYPE_LABELS[item.type] || item.type || '--',
-      typeBadgeClass: MOVEMENT_TYPE_BADGE_CLASS[item.type] || 'border-slate-200 bg-slate-100 text-slate-600',
+      typeBadgeClass: MOVEMENT_TYPE_BADGE_CLASS[item.type] || 'border-outline-variant bg-surface-container-low text-on-surface-variant',
       reasonLabel: DISPOSE_REASON_LABELS[item.reason] || item.reason || '--',
       expiryDateLabel: formatDateOnly(item.expiryDate),
       createdAtLabel: formatDateTime(item.createdAt),
       createdByName: item.createdBy?.fullName || item.createdBy?.userId || '--',
-      quantityClassName: item.type === 'IMPORT' ? 'text-[#166534]' : item.type === 'DISPOSE' || item.type === 'DISPENSE' ? 'text-[#B91C1C]' : 'text-[#0F172A]',
+      quantityClassName: item.type === 'IMPORT' ? 'text-success' : item.type === 'DISPOSE' || item.type === 'DISPENSE' ? 'text-danger' : 'text-on-surface',
       quantityLabel: `${item.type === 'IMPORT' ? '+' : item.type === 'DISPOSE' || item.type === 'DISPENSE' ? '-' : ''}${Math.abs(Number(item.quantity || 0))}`,
     })),
     page: Number(meta.page || 1),

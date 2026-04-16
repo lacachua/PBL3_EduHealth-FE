@@ -23,7 +23,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
       <SectionCard
         title="Top thuốc sử dụng"
         subtitle="Phát hiện nhóm thuốc cần bổ sung"
-        className="nurse-card-soft rounded-xl p-0"
+        className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="text-[15px] font-bold text-on-surface"
         subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
@@ -64,7 +64,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
       <SectionCard
         title="Cảnh báo & gợi ý"
         subtitle="Điểm cần ưu tiên xử lý trong kỳ"
-        className="nurse-card-soft rounded-xl p-0"
+        className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="text-[15px] font-bold text-on-surface"
         subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"

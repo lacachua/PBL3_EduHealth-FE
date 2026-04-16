@@ -84,7 +84,7 @@ const NurseDashboardSidePanels = ({
         const visibleItems = Array.isArray(panel.items) ? panel.items.slice(0, maxItems) : [];
 
         return (
-          <section key={panelKey} className={`nurse-card-soft rounded-2xl p-3 ${isSinglePanelLayout ? 'h-full flex flex-col' : ''}`}>
+          <section key={panelKey} className={`app-card-shell rounded-2xl p-3 ${isSinglePanelLayout ? 'h-full flex flex-col' : ''}`}>
             <div className="mb-2 flex items-start justify-between gap-2">
               <div>
                 <h3 className="text-sm font-bold text-on-surface">{metadata.title}</h3>
@@ -92,7 +92,7 @@ const NurseDashboardSidePanels = ({
               </div>
               <Link
                 to={panel.to}
-                className="nurse-focus-ring rounded-lg border border-outline-variant bg-surface px-2 py-1 text-[11px] font-semibold text-on-surface-variant hover:bg-surface-container-low"
+                className="app-focus-ring rounded-lg border border-outline-variant bg-surface px-2 py-1 text-[11px] font-semibold text-on-surface-variant hover:bg-surface-container-low"
               >
                 {metadata.cta}
               </Link>
@@ -120,7 +120,7 @@ const NurseDashboardSidePanels = ({
                   <Link
                     key={item.id}
                     to={panel.to}
-                    className="nurse-focus-ring nurse-interactive flex items-start gap-2 rounded-lg border border-outline-variant bg-surface px-2 py-1.5 hover:bg-primary-soft/35"
+                    className="app-focus-ring app-interactive flex items-start gap-2 rounded-lg border border-outline-variant bg-surface px-2 py-1.5 hover:bg-primary-soft/35"
                   >
                     <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                     {renderPanelItem(panelKey, item)}

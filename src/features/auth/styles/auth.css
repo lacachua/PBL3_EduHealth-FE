@@ -1,0 +1,71 @@
+@layer utilities {
+  .auth-bg-pattern {
+    background:
+      radial-gradient(940px 460px at -8% -7%, color-mix(in srgb, var(--app-primary) 15%, transparent), transparent 64%),
+      radial-gradient(620px 320px at 108% 10%, color-mix(in srgb, var(--app-info) 12%, transparent), transparent 66%),
+      linear-gradient(180deg, var(--auth-bg) 0%, var(--app-bg) 100%);
+  }
+
+  .auth-surface-shadow {
+    box-shadow: var(--sys-shadow-soft);
+  }
+
+  .auth-primary-button {
+    border: 1px solid var(--auth-primary);
+    background: var(--auth-primary);
+    color: var(--sys-on-primary);
+    transition: var(--sys-transition-interactive);
+  }
+
+  .auth-primary-button:hover {
+    border-color: var(--auth-primary-hover);
+    background: var(--auth-primary-hover);
+    box-shadow: var(--sys-shadow-card);
+  }
+
+  .auth-title-fade-up {
+    animation: appFadeSlideIn var(--sys-motion-base) var(--sys-ease-standard) both;
+  }
+
+  .auth-accent-line {
+    transform-origin: center;
+    animation: authLineReveal var(--sys-motion-base) var(--sys-ease-standard) 90ms both;
+  }
+
+  .auth-visual-fallback {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--app-info) 36%, var(--app-primary)) 0%,
+      var(--app-primary-hover) 58%,
+      color-mix(in srgb, var(--app-text) 66%, transparent) 100%
+    );
+  }
+
+  .auth-visual-overlay {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--app-text) 68%, transparent) 0%,
+      color-mix(in srgb, var(--app-text) 34%, transparent) 46%,
+      color-mix(in srgb, var(--app-text) 12%, transparent) 100%
+    );
+  }
+}
+
+@keyframes authLineReveal {
+  from {
+    transform: scaleX(0.1);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-title-fade-up,
+  .auth-accent-line {
+    animation: none;
+  }
+}

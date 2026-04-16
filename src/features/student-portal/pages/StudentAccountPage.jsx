@@ -6,6 +6,7 @@ import StudentAccountProfileCard from '../components/account/StudentAccountProfi
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
 import StudentFeedbackToast from '../components/common/StudentFeedbackToast';
 import { studentPortalService } from '../services/studentPortalService';
+import '../styles/student-portal.css';
 
 const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
 
@@ -314,7 +315,7 @@ const StudentAccountPage = () => {
               onReset={resetPasswordForm}
             />
           ) : (
-            <section className="student-module-surface rounded-3xl p-4 text-sm text-on-surface-variant">
+            <section className="app-panel-shell rounded-3xl p-4 text-sm text-on-surface-variant">
               Tinh nang doi mat khau tam thoi chua kha dung cho tai khoan nay.
             </section>
           )}

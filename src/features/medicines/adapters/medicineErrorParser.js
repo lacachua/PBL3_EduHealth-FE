@@ -1,6 +1,7 @@
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 
-export const parseMedicinesApiError = (error) => {
+export const parseMedicinesApiError = (error, options = {}) => {
+  const forbiddenMessage = options.forbiddenMessage || 'Bạn không có quyền truy cập module giám sát thuốc.';
   const status = error?.response?.status || null;
 
   if (status === 401) {
@@ -15,7 +16,7 @@ export const parseMedicinesApiError = (error) => {
     return {
       status,
       type: 'forbidden',
-      message: 'Bạn không có quyền truy cập module giám sát thuốc.',
+      message: forbiddenMessage,
     };
   }
 
@@ -24,4 +25,10 @@ export const parseMedicinesApiError = (error) => {
     type: 'error',
     message: normalizeApiMessage(error),
   };
+};
+
+export const parseNurseMedicineApiError = (error) => {
+  return parseMedicinesApiError(error, {
+    forbiddenMessage: 'Bạn không có quyền truy cập module Thuốc / Kho thuốc.',
+  });
 };

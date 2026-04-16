@@ -60,8 +60,8 @@ const NurseReportsPage = () => {
     if (source === 'mock') {
       return {
         badgeClassName: 'border-info/20 bg-info-soft text-info',
-        label: 'Nguồn dữ liệu: Mô phỏng',
-        note: viewModel.sourceNote || 'Chế độ mock-first',
+        label: 'Nguồn dữ liệu: Mock-only (backend pending)',
+        note: viewModel.sourceNote || 'Backend chưa hỗ trợ live cho báo cáo nurse',
       };
     }
 
@@ -112,17 +112,16 @@ const NurseReportsPage = () => {
   };
 
   return (
-    <div className="nurse-page-bg space-y-2.5 rounded-xl p-3.5 sm:p-4">
+    <div className="space-y-3.5 text-on-surface">
       <NurseModulePageHeader
         title={viewModel.header.title}
         description={viewModel.header.description}
-        className="!rounded-xl !border-outline-variant !bg-surface !px-4 !py-3 shadow-none"
         actions={(
           <>
             <button
               type="button"
               onClick={handleViewReport}
-              className="nurse-focus-ring nurse-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-semibold"
             >
               <span className="material-symbols-outlined text-[18px]">visibility</span>
               Xem báo cáo
@@ -132,7 +131,7 @@ const NurseReportsPage = () => {
               type="button"
               onClick={() => handleExportRows(viewModel.classRows)}
               disabled={exporting || !viewModel.classRows.length}
-              className="nurse-focus-ring nurse-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+              className="app-focus-ring app-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span className={`material-symbols-outlined text-[18px] ${exporting ? 'animate-spin' : ''}`}>
                 {exporting ? 'progress_activity' : 'table_view'}
@@ -152,6 +151,12 @@ const NurseReportsPage = () => {
           {sourceTag.label}
         </span>
       </div>
+
+      {String(viewModel.source || '').toLowerCase() === 'mock' ? (
+        <section className="rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
+          Module báo cáo nurse hiện chỉ chạy mock-only. Dữ liệu live sẽ khả dụng khi backend bổ sung endpoint reports.
+        </section>
+      ) : null}
 
       <NurseReportsFilterBar
         filters={filters}

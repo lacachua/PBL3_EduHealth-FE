@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import DataTable from '../../../../shared/components/admin/DataTable';
 import EmptyState from '../../../../shared/components/admin/EmptyState';
 import Pagination from '../../../../shared/components/admin/Pagination';
-import SearchInput from '../../../../shared/components/admin/SearchInput';
 import SectionCard from '../../../../shared/components/admin/SectionCard';
 import StatusBadge from '../../../../shared/components/admin/StatusBadge';
 
@@ -121,7 +120,7 @@ const NurseReportsClassTable = ({
     <SectionCard
       title="Theo dõi theo lớp học"
       subtitle="Tra cứu nhanh theo lớp, trạng thái và xuất báo cáo Excel"
-      className="nurse-card-soft rounded-xl p-0"
+      className="app-card-shell rounded-xl p-0"
       headerClassName="mb-0 flex flex-col gap-2 px-4 pt-3.5 md:flex-row md:items-center md:justify-between"
       titleClassName="text-[15px] font-bold text-on-surface"
       subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
@@ -130,7 +129,7 @@ const NurseReportsClassTable = ({
           type="button"
           onClick={() => onExport(filteredRows)}
           disabled={exporting || !filteredRows.length}
-          className="nurse-focus-ring nurse-btn-primary inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="material-symbols-outlined text-[17px]">file_download</span>
           Xuất Excel
@@ -140,16 +139,20 @@ const NurseReportsClassTable = ({
       <div className="space-y-2.5 p-4 pt-3">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex w-full flex-col gap-2 md:flex-row md:items-center">
-            <SearchInput
-              value={searchValue}
-              onChange={onSearchValueChange}
-              placeholder="Tìm theo lớp hoặc khối"
-              className="md:max-w-[360px]"
-            />
+            <label className="relative w-full md:max-w-[360px]">
+              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+              <input
+                type="search"
+                value={searchValue}
+                onChange={(event) => onSearchValueChange(event.target.value)}
+                placeholder="Tìm theo lớp hoặc khối"
+                className="app-focus-ring app-input h-11 w-full rounded-lg pl-9 pr-3 text-sm"
+              />
+            </label>
             <select
               value={statusFilter}
               onChange={(event) => onStatusFilterChange(event.target.value)}
-              className="nurse-input nurse-focus-ring h-11 rounded-lg px-3 text-sm md:w-[200px]"
+              className="app-input app-focus-ring h-11 rounded-lg px-3 text-sm md:w-[200px]"
             >
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -180,9 +183,9 @@ const NurseReportsClassTable = ({
               bodyCellPaddingClassName="px-2.5 py-2"
               containerClassName="overflow-x-auto rounded-xl border border-outline-variant bg-surface"
               tableClassName="w-full table-fixed divide-y divide-outline-variant text-[12px]"
-              headClassName="nurse-table-head-strong text-left"
+              headClassName="app-table-head text-left"
               bodyClassName="divide-y divide-outline-variant bg-surface"
-              rowClassName="nurse-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
+              rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
             />
 
             <Pagination

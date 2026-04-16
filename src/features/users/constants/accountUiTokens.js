@@ -10,7 +10,7 @@ export const ACCOUNT_STATUS_BADGE_CLASS_MAP = {
 };
 
 export const ACCOUNT_BASE_CLASS = {
-  app: 'admin-page-bg',
+  app: 'app-page-bg',
   section: 'border border-outline-variant bg-surface-container-lowest',
   subtlePanel: 'border border-outline-variant bg-surface-container-low',
   headingText: 'text-on-surface',

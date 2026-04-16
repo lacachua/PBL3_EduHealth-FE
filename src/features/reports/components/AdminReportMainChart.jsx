@@ -10,9 +10,9 @@ const ClassBar = ({ item }) => {
   return (
     <div className="group relative z-10 flex h-full flex-1 cursor-pointer flex-col-reverse items-center gap-1">
       <span className="mt-3 text-[11px] font-bold text-on-surface-muted">{label}</span>
-      <div className="chart-bar-segment w-14 rounded-t-sm bg-success" style={{ height: `${stablePct}%` }} />
-      <div className="chart-bar-segment w-14 bg-warning" style={{ height: `${followUpPct}%` }} />
-      <div className="chart-bar-segment w-14 bg-danger" style={{ height: `${highRiskPct}%` }} />
+      <div className="w-14 rounded-t-sm bg-success" style={{ height: `${stablePct}%` }} />
+      <div className="w-14 bg-warning" style={{ height: `${followUpPct}%` }} />
+      <div className="w-14 bg-danger" style={{ height: `${highRiskPct}%` }} />
       <div className="pointer-events-none absolute -top-24 min-w-[160px] rounded-lg bg-on-surface px-2.5 py-2 text-[10px] text-surface opacity-0 transition-opacity group-hover:opacity-100">
         <p className="font-bold">{label}</p>
         <p>Ổn định: {item.stable}</p>

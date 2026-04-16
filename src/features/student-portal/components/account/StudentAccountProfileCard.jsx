@@ -34,14 +34,14 @@ const StudentAccountProfileCard = ({
   };
 
   return (
-    <section className="student-module-surface h-full rounded-3xl p-5 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+    <section className="app-panel-shell h-full rounded-3xl p-5">
       <div className="student-hero-gradient relative overflow-hidden rounded-2xl border border-primary/25 p-4 md:p-5">
         <span aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-white/40 blur-2xl" />
         <span aria-hidden="true" className="pointer-events-none absolute -right-8 bottom-2 h-28 w-28 rounded-full bg-info/18 blur-2xl" />
 
         <div className="relative z-10 flex flex-col items-center text-center">
           <div className="relative shrink-0">
-            <div className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/70 shadow-[0_8px_18px_rgba(19,51,71,0.14)]">
+            <div className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-white/70 shadow-sm">
               {profile.avatar ? (
                 <img src={profile.avatar} alt="Ảnh đại diện" className="h-full w-full object-cover" />
               ) : (
@@ -55,7 +55,7 @@ const StudentAccountProfileCard = ({
                   type="button"
                   onClick={triggerAvatarPicker}
                   disabled={isUploadingAvatar}
-                  className="student-focus-ring student-interactive absolute inset-0 flex items-center justify-center bg-slate-900/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 disabled:cursor-not-allowed"
+                  className="app-focus-ring app-interactive absolute inset-0 flex items-center justify-center bg-slate-900/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 disabled:cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-3xl text-white">
                     {isUploadingAvatar ? 'hourglass_top' : 'photo_camera'}
@@ -69,7 +69,7 @@ const StudentAccountProfileCard = ({
                 type="button"
                 onClick={triggerAvatarPicker}
                 disabled={isUploadingAvatar}
-                className="student-focus-ring student-interactive absolute -bottom-1.5 -right-1.5 rounded-full border border-outline-variant bg-surface p-2 text-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
+                className="app-focus-ring app-interactive absolute -bottom-1.5 -right-1.5 rounded-full border border-outline-variant bg-surface p-2 text-primary shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
                 aria-label="Đổi ảnh đại diện"
               >
                 <span className="material-symbols-outlined text-[16px]">edit</span>

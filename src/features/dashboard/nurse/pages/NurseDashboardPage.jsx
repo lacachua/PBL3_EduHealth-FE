@@ -32,7 +32,7 @@ const NurseDashboardPage = () => {
               onClick={() => {
                 fetchDashboard();
               }}
-              className="nurse-focus-ring nurse-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold"
             >
               <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>refresh</span>
               Refresh
@@ -47,7 +47,7 @@ const NurseDashboardPage = () => {
                   },
                 });
               }}
-              className="nurse-focus-ring nurse-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+              className="app-focus-ring app-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
             >
               <span className="material-symbols-outlined text-[18px]">add_circle</span>
               Lập phiếu khám

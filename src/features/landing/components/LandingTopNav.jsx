@@ -49,7 +49,7 @@ const LandingTopNav = () => {
           })}
         </div>
         <div className="flex items-center">
-          <Link to="/login" className="signature-gradient rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30">Đăng nhập</Link>
+          <Link to="/login" className="signature-gradient rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30">Đăng nhập</Link>
         </div>
       </div>
     </nav>

@@ -13,7 +13,7 @@ const renderProgress = (value = 0) => {
     <div className="mt-2.5">
       <div className="h-1.5 rounded-full bg-outline-variant/70">
         <div
-          className="h-full rounded-full bg-info transition-all duration-300"
+          className="h-full rounded-full bg-info transition-[width,background-color] duration-300"
           style={{ width: `${safeValue}%` }}
           aria-label={`Tiến độ ${safeValue}%`}
         />
@@ -33,11 +33,11 @@ const NurseReportsSummaryCards = ({ cards = [] }) => {
         const badgeClassName = BADGE_CLASS_MAP[card.badgeTone] || BADGE_CLASS_MAP.neutral;
 
         return (
-          <article key={card.id} className="nurse-card-soft rounded-xl px-3.5 py-3">
+          <article key={card.id} className="app-kpi-card">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-on-surface-muted">{card.title}</p>
-                <p className={`mt-0.5 text-[1.52rem] font-extrabold leading-tight ${card.valueClassName || 'text-on-surface'}`}>
+                <p className="app-kpi-label">{card.title}</p>
+                <p className={`app-kpi-value text-[1.52rem] ${card.valueClassName || 'text-on-surface'}`}>
                   {card.value}
                 </p>
               </div>

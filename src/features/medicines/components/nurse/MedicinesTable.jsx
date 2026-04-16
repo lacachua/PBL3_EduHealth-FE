@@ -2,17 +2,17 @@ import React from 'react';
 
 const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
   if (loading) {
-    return <p className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-4 text-sm text-[#64748B]">Đang tải danh mục thuốc...</p>;
+    return <p className="app-panel-shell px-3 py-4 text-sm text-on-surface-variant">Đang tải danh mục thuốc...</p>;
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+      <div className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
         <p>{error}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-2 rounded-lg border border-[#FCA5A5] px-2.5 py-1 text-xs font-semibold text-[#B91C1C]"
+          className="app-focus-ring mt-2 rounded-lg border border-danger/35 bg-surface px-2.5 py-1 text-xs font-semibold text-danger"
         >
           Thử lại
         </button>
@@ -21,9 +21,9 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[#E2E8F0] bg-white [scrollbar-width:thin]">
+    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
       <table className="min-w-[1120px] w-full text-left text-sm">
-        <thead className="nurse-table-head-strong text-[11px] uppercase tracking-[0.08em]">
+        <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
           <tr>
             <th className="px-4 py-3">Mã thuốc</th>
             <th className="px-4 py-3">Tên thuốc</th>
@@ -39,10 +39,10 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#E2E8F0]">
+        <tbody className="divide-y divide-outline-variant">
           {!rows.length ? (
             <tr>
-              <td className="px-4 py-8 text-center text-sm text-[#64748B]" colSpan={11}>
+              <td className="px-4 py-8 text-center text-sm text-on-surface-variant" colSpan={11}>
                 Không tìm thấy thuốc theo bộ lọc hiện tại.
               </td>
             </tr>
@@ -50,7 +50,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
             rows.map((item) => (
               <tr
                 key={item.id}
-                className="group cursor-pointer hover:bg-[#F8FAFC]"
+                className="group app-interactive cursor-pointer hover:bg-surface-container-low"
                 onClick={() => onView(item)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -61,7 +61,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                 tabIndex={0}
                 role="button"
               >
-                <td className="px-4 py-3 font-mono text-xs text-[#475569]">{item.id}</td>
+                <td className="px-4 py-3 font-mono text-xs text-on-surface-variant">{item.id}</td>
                 <td className="px-4 py-3">
                   <button
                     type="button"
@@ -69,7 +69,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                       event.stopPropagation();
                       onView(item);
                     }}
-                    className="nurse-focus-ring text-left text-sm font-semibold text-[#0F172A] transition group-hover:text-[#166534] hover:text-[#166534]"
+                    className="app-focus-ring text-left text-sm font-semibold text-on-surface transition group-hover:text-primary hover:text-primary"
                     style={{
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
@@ -80,7 +80,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                     {item.name}
                   </button>
                 </td>
-                <td className="px-4 py-3 text-[#334155]" style={{
+                <td className="px-4 py-3 text-on-surface" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
@@ -88,8 +88,8 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                 }}>
                   {item.activeIngredient || '--'}
                 </td>
-                <td className="px-4 py-3 text-[#334155]">{item.unitLabel}</td>
-                <td className="px-4 py-3 text-[#334155]" style={{
+                <td className="px-4 py-3 text-on-surface">{item.unitLabel}</td>
+                <td className="px-4 py-3 text-on-surface" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
@@ -97,9 +97,9 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                 }}>
                   {item.packaging || '--'}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-[#0F172A]">{item.currentStock}</td>
-                <td className="px-4 py-3 text-[#334155]">{item.nearestExpiryDateLabel}</td>
-                <td className="px-4 py-3 text-right text-[#334155]">{item.warningThreshold}</td>
+                <td className="px-4 py-3 text-right font-semibold text-on-surface">{item.currentStock}</td>
+                <td className="px-4 py-3 text-on-surface">{item.nearestExpiryDateLabel}</td>
+                <td className="px-4 py-3 text-right text-on-surface">{item.warningThreshold}</td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${item.statusBadgeClass}`}>
                     {item.statusLabel}
@@ -115,7 +115,7 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                     <button
                       type="button"
                       onClick={() => onView(item)}
-                      className="nurse-focus-ring rounded-lg border border-[#D1FAE5] bg-[#ECFDF3] px-2.5 py-1.5 text-xs font-semibold text-[#166534]"
+                      className="app-focus-ring app-row-action"
                     >
                       Mở chi tiết
                     </button>

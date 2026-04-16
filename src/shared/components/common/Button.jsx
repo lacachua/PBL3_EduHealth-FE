@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => {
-  const baseStyles = 'px-6 py-3 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2';
+  const baseStyles = 'px-6 py-3 rounded-xl font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 active:scale-[0.98] flex items-center justify-center gap-2';
   
   const variants = {
     primary: 'signature-gradient text-white shadow-lg shadow-primary/20 hover:opacity-90',

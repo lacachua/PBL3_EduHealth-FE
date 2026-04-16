@@ -3,7 +3,7 @@ import { useChangeCurrentUserPassword } from '../hooks/useChangeCurrentUserPassw
 
 const variantClassMap = {
   admin: {
-    card: 'rounded-xl border border-outline-variant bg-surface p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03)]',
+    card: 'rounded-xl border border-outline-variant bg-surface p-4 shadow-sm',
     title: 'text-[1.06rem] font-bold text-on-surface',
     headerRow: 'mb-2.5 flex items-center gap-2.5',
     headerIconWrap: 'inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary',
@@ -19,20 +19,20 @@ const variantClassMap = {
     cancelButton: 'inline-flex h-9 items-center justify-center rounded-lg border border-outline-variant bg-surface-bright px-4 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low',
   },
   nurse: {
-    card: 'rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-[0_6px_18px_rgba(15,23,42,0.06)]',
+    card: 'app-panel-shell p-5',
     title: 'text-[1.06rem] font-bold text-on-surface',
     headerRow: 'mb-3 flex items-center gap-2.5',
-    headerIconWrap: 'inline-flex h-6 w-6 items-center justify-center rounded-md bg-secondary-container text-secondary',
+    headerIconWrap: 'inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary',
     headerIcon: 'material-symbols-outlined text-[16px]',
     fieldGrid: 'mt-4 grid gap-3 md:grid-cols-2',
     label: 'text-[11px] font-semibold uppercase tracking-[0.05em] text-on-surface-variant',
-    input: 'h-10 w-full rounded-lg border border-field-editable-border bg-field-editable-bg px-3 pr-10 text-sm text-on-surface outline-none transition focus:border-secondary/45 focus:ring-2 focus:ring-secondary/12',
-    visibilityButton: 'absolute inset-y-0 right-1 inline-flex w-8 items-center justify-center rounded-md text-on-surface-variant transition hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-secondary/15',
+    input: 'app-focus-ring app-input h-10 w-full rounded-lg px-3 pr-10 text-sm',
+    visibilityButton: 'app-focus-ring absolute inset-y-0 right-1 inline-flex w-8 items-center justify-center rounded-md text-on-surface-variant transition hover:bg-surface-container-low focus:outline-none',
     error: 'mt-1 text-xs font-medium text-danger',
     noteError: 'rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger',
     actionsRow: 'flex flex-wrap items-center gap-2',
-    actionButton: 'inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70',
-    cancelButton: 'inline-flex h-9 items-center justify-center rounded-lg border border-outline-variant bg-surface-bright px-4 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low',
+    actionButton: 'app-btn-primary app-focus-ring inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70',
+    cancelButton: 'app-btn-secondary app-focus-ring inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold',
   },
 };
 

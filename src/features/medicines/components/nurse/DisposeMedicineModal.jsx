@@ -50,7 +50,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
           <input
             readOnly
             value={medicine.id}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           />
         </label>
       ) : null}
@@ -64,7 +64,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
             required
             value={form.quantity}
             onChange={(event) => updateField('quantity', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
             placeholder="Nhập số lượng cần hủy"
           />
         </label>
@@ -75,7 +75,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
             type="date"
             value={form.expiryDate}
             onChange={(event) => updateField('expiryDate', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           />
         </label>
       </div>
@@ -85,7 +85,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
         <select
           value={form.reason}
           onChange={(event) => updateField('reason', event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
         >
           {DISPOSE_REASON_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -98,7 +98,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
         <input
           value={form.batchNumber}
           onChange={(event) => updateField('batchNumber', event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           placeholder="Ví dụ: LOT-2026-001"
         />
       </label>
@@ -109,7 +109,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
           rows={3}
           value={form.note}
           onChange={(event) => updateField('note', event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           placeholder="Ghi chú thêm nếu cần"
         />
       </label>

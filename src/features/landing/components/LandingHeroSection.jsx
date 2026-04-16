@@ -26,7 +26,7 @@ const LandingHeroSection = ({ onNewsClick }) => {
           <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
             <Link
               to="/login"
-              className="signature-gradient flex w-full items-center justify-center space-x-2 rounded-xl px-8 py-3.5 font-bold text-white shadow-xl shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/30 sm:w-auto"
+              className="signature-gradient flex w-full items-center justify-center space-x-2 rounded-xl px-8 py-3.5 font-bold text-white shadow-xl shadow-primary/20 transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/30 sm:w-auto"
             >
               <span>Đăng nhập hệ thống</span>
               <span className="material-symbols-outlined">login</span>
@@ -35,7 +35,7 @@ const LandingHeroSection = ({ onNewsClick }) => {
             <button
               type="button"
               onClick={onNewsClick}
-              className="w-full rounded-xl bg-surface-container-lowest px-8 py-3.5 font-semibold text-on-surface outline outline-1 outline-variant/20 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-surface-container-low hover:shadow-md sm:w-auto"
+              className="w-full rounded-xl bg-surface-container-lowest px-8 py-3.5 font-semibold text-on-surface outline outline-1 outline-variant/20 shadow-sm transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-surface-container-low hover:shadow-md sm:w-auto"
             >
               Xem bản tin y tế
             </button>
@@ -51,7 +51,7 @@ const LandingHeroSection = ({ onNewsClick }) => {
               src={heroProductVisual}
             />
 
-            <div className="bg-glass absolute bottom-4 left-4 right-4 rounded-2xl border border-white/35 p-4 shadow-md shadow-slate-900/8 backdrop-blur-xl transition-all duration-500 group-hover:shadow-lg group-hover:shadow-slate-900/12">
+            <div className="bg-glass absolute bottom-4 left-4 right-4 rounded-2xl border border-white/35 p-4 shadow-md shadow-slate-900/8 backdrop-blur-xl transition-[box-shadow,background-color,transform] duration-500 group-hover:shadow-lg group-hover:shadow-slate-900/12">
               <div className="flex items-center space-x-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-container text-white">
                   <span

@@ -18,14 +18,14 @@ const LandingCtaSection = ({ onNewsClick }) => {
             <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
               <Link
                 to="/login"
-                className="rounded-2xl bg-white px-9 py-3.5 font-bold text-primary shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-surface-container-lowest hover:shadow-2xl"
+                className="rounded-2xl bg-white px-9 py-3.5 font-bold text-primary shadow-xl transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-surface-container-lowest hover:shadow-2xl"
               >
                 Đăng nhập hệ thống
               </Link>
               <button
                 type="button"
                 onClick={onNewsClick}
-                className="rounded-2xl border border-white/45 bg-white/5 px-8 py-3.5 font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-white/12 hover:shadow-lg hover:shadow-black/10"
+                className="rounded-2xl border border-white/45 bg-white/5 px-8 py-3.5 font-semibold text-white transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-white/12 hover:shadow-lg hover:shadow-black/10"
               >
                 Xem bản tin y tế
               </button>

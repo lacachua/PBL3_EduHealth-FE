@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
 import PageHeader from '../../../shared/components/admin/PageHeader';
@@ -17,7 +17,7 @@ const SystemLogsPage = () => {
   const handleSelectLog = (row) => setSelectedLog(row);
 
   return (
-    <div className="space-y-4 admin-page-bg">
+    <div className="space-y-4 app-page-bg">
       <PageHeader
         title="Nhật ký hoạt động"
         description="Theo dõi thời gian, người thao tác, module, hành động và đối tượng dữ liệu bị tác động."

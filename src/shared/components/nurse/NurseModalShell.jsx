@@ -12,7 +12,7 @@ const NurseModalShell = ({
   submitLabel,
   submitting,
   maxWidthClass = 'max-w-[768px]',
-  submitButtonClassName = 'nurse-btn-primary nurse-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70',
+  submitButtonClassName = 'app-btn-primary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70',
   cancelLabel = 'Hủy',
 }) => {
   const submitButtonLabel = submitting ? 'Đang xử lý...' : (submitLabel || 'Xác nhận');
@@ -70,7 +70,7 @@ const NurseModalShell = ({
             <button
               type="button"
               onClick={onClose}
-              className="nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D7ECDD] bg-white text-[#64748B] hover:bg-[#F8FAFC]"
+              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D7ECDD] bg-white text-[#64748B] hover:bg-[#F8FAFC]"
               aria-label="Đóng"
               disabled={submitting}
             >
@@ -92,7 +92,7 @@ const NurseModalShell = ({
             <button
               type="button"
               onClick={onClose}
-              className="nurse-btn-secondary nurse-focus-ring rounded-xl px-4 py-2 text-sm font-semibold"
+              className="app-btn-secondary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold"
               disabled={submitting}
             >
               {cancelLabel}

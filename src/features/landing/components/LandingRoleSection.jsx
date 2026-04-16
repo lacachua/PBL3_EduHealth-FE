@@ -44,7 +44,7 @@ const LandingRoleSection = () => {
 
         <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
           {roleItems.map((role) => (
-            <article key={role.tag} className="group flex h-full flex-col rounded-3xl bg-surface-container-lowest p-3 shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8">
+            <article key={role.tag} className="group flex h-full flex-col rounded-3xl bg-surface-container-lowest p-3 shadow-sm ring-1 ring-black/[0.03] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8">
               <div className="mb-4 aspect-[4/3] overflow-hidden rounded-[1.4rem] shadow-sm transition-shadow duration-300 group-hover:shadow-md group-hover:shadow-slate-900/10">
                 <img
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"

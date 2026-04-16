@@ -33,7 +33,7 @@ const UpdateMedicineStatusModal = ({ open, medicine, onClose, onSubmit, submitti
         <select
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
         >
           <option value="ACTIVE">Đang sử dụng</option>
           <option value="INACTIVE">Ngưng sử dụng</option>
@@ -46,7 +46,7 @@ const UpdateMedicineStatusModal = ({ open, medicine, onClose, onSubmit, submitti
           rows={3}
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           placeholder="Ví dụ: Tạm ngưng do không còn nhu cầu"
         />
       </label>

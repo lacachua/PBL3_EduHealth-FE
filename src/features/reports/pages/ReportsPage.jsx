@@ -12,7 +12,7 @@ import AdminReportDetailTable from '../components/AdminReportDetailTable';
 import ExportActions from '../components/ExportActions';
 import { useAdminReportsDashboard } from '../hooks/useAdminReportsDashboard';
 import { adminReportFilterOptions } from '../constants/adminReportFilterOptions';
-import '../components/adminReports.css';
+import '../styles/reports.css';
 
 const createInitialFilters = () => ({
   reportType: adminReportFilterOptions.reportTypes[0],
@@ -92,7 +92,7 @@ const ReportsPage = () => {
   }), [dashboard.header?.description, dashboard.header?.title]);
 
   return (
-    <div className="admin-page-bg relative space-y-4 rounded-xl p-4 sm:p-5">
+    <div className="app-page-bg relative space-y-4 rounded-xl p-4 sm:p-5">
       <PageHeader
         title={safeHeader.title}
         description={safeHeader.description}

@@ -1,10 +1,10 @@
 import React from 'react';
 
 const AlertItem = ({ item, actionLabel, onAction }) => (
-  <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-white px-3 py-2">
+  <div className="flex items-center justify-between gap-3 rounded-xl border border-outline-variant bg-surface px-3 py-2">
     <div className="min-w-0">
-      <p className="truncate text-sm font-semibold text-[#0F172A]">{item.medicineName}</p>
-      <p className="text-xs text-[#64748B]">
+      <p className="truncate text-sm font-semibold text-on-surface">{item.medicineName}</p>
+      <p className="text-xs text-on-surface-variant">
         Tồn: {item.currentStock} | Mức cảnh báo: {item.warningThreshold}
         {item.nearestExpiryDateLabel !== '--' ? ` | Hạn: ${item.nearestExpiryDateLabel}` : ''}
       </p>
@@ -13,7 +13,7 @@ const AlertItem = ({ item, actionLabel, onAction }) => (
     <button
       type="button"
       onClick={() => onAction(item.medicineId)}
-      className="nurse-focus-ring rounded-lg border border-[#D1FAE5] bg-[#ECFDF3] px-2.5 py-1.5 text-xs font-semibold text-[#166534]"
+      className="app-focus-ring app-row-action"
       aria-label={`${actionLabel} ${item.medicineName}`}
     >
       {actionLabel}
@@ -65,16 +65,16 @@ const MedicinesAlertsPanel = ({ alerts, loading, error, onOpenMedicine }) => {
 
   return (
     <section className="space-y-3">
-      {loading ? <p className="text-sm text-[#64748B]">Đang tải cảnh báo kho thuốc...</p> : null}
-      {error ? <p className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{error}</p> : null}
+      {loading ? <p className="text-sm text-on-surface-variant">Đang tải cảnh báo kho thuốc...</p> : null}
+      {error ? <p className="rounded-xl border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p> : null}
 
       {!loading && !error ? (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <AlertSection
             title="Cảnh báo sắp hết"
             icon="warning"
-            toneClassName="border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]"
-            badgeClassName="bg-[#FEF3C7] text-[#92400E]"
+            toneClassName="border-warning/30 bg-warning-soft text-warning"
+            badgeClassName="bg-warning/15 text-warning"
             items={lowStock}
             emptyLabel="Hiện không có thuốc nào ở mức sắp hết."
             actionLabel="Mở chi tiết"
@@ -84,8 +84,8 @@ const MedicinesAlertsPanel = ({ alerts, loading, error, onOpenMedicine }) => {
           <AlertSection
             title="Cảnh báo sắp hết hạn"
             icon="event_busy"
-            toneClassName="border-[#FECACA] bg-[#FEF2F2] text-[#991B1B]"
-            badgeClassName="bg-[#FEE2E2] text-[#991B1B]"
+            toneClassName="border-danger/30 bg-danger-soft text-danger"
+            badgeClassName="bg-danger/15 text-danger"
             items={expiring}
             emptyLabel="Hiện không có thuốc sắp hết hạn trong 30 ngày tới."
             actionLabel="Xem chi tiết"

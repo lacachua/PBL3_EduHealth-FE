@@ -261,7 +261,7 @@ const StudentPickerModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D9E2DE] text-[#5F746B] hover:bg-white"
+              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D9E2DE] text-[#5F746B] hover:bg-white"
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -282,7 +282,7 @@ const StudentPickerModal = ({
                     setPage(1);
                   }}
                   placeholder="Tìm theo tên học sinh"
-                  className="nurse-focus-ring nurse-input h-10 w-full rounded-lg pl-10 pr-3 text-sm"
+                  className="app-focus-ring app-input h-10 w-full rounded-lg pl-10 pr-3 text-sm"
                 />
               </label>
 
@@ -292,7 +292,7 @@ const StudentPickerModal = ({
                   setStatusFilter(event.target.value);
                   setPage(1);
                 }}
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-3 text-sm"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm"
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="active">Đang hoạt động</option>
@@ -351,7 +351,7 @@ const StudentPickerModal = ({
 
           <section className="min-h-0 p-4 lg:col-span-3">
             {selectedStudentId ? (
-              <div className="h-full overflow-y-auto rounded-xl border border-[#D9E2DE] bg-[#F8FAF9] p-4 animate-[nurseFadeSlideIn_180ms_ease-out]">
+              <div className="h-full overflow-y-auto rounded-xl border border-[#D9E2DE] bg-[#F8FAF9] p-4 animate-[appFadeSlideIn_180ms_ease-out]">
                 {previewLoading ? (
                   <p className="text-sm text-[#5F746B]">Đang tải thông tin học sinh...</p>
                 ) : null}
@@ -361,13 +361,13 @@ const StudentPickerModal = ({
                 ) : null}
 
                 <div className="space-y-4">
-                  <article className="nurse-card-soft rounded-lg p-3">
+                  <article className="app-card-shell rounded-lg p-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <h4 className="text-sm font-bold text-[#163126]">Thông tin cơ bản</h4>
                       <button
                         type="button"
                         onClick={() => onViewProfile?.(selectedStudentId)}
-                        className="nurse-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#175CD3] hover:text-[#1248AC]"
+                        className="app-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#175CD3] hover:text-[#1248AC]"
                       >
                         Xem hồ sơ học sinh
                       </button>
@@ -412,7 +412,7 @@ const StudentPickerModal = ({
                     </article>
                   ) : null}
 
-                  <article className="nurse-card-soft rounded-lg p-3">
+                  <article className="app-card-shell rounded-lg p-3">
                     <h4 className="text-sm font-bold text-[#163126]">Tóm tắt hồ sơ sức khỏe</h4>
                     <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
                       <div>
@@ -438,7 +438,7 @@ const StudentPickerModal = ({
                     </dl>
                   </article>
 
-                  <article className="nurse-card-soft rounded-lg p-3">
+                  <article className="app-card-shell rounded-lg p-3">
                     <h4 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h4>
                     {previewData.history.length ? (
                       <ul className="mt-2 space-y-2">
@@ -468,7 +468,7 @@ const StudentPickerModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
+            className="app-btn-secondary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
           >
             Hủy
           </button>
@@ -485,7 +485,7 @@ const StudentPickerModal = ({
               });
             }}
             disabled={!selectedStudentId || !selectedStudent}
-            className="nurse-btn-primary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-55"
+            className="app-btn-primary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-55"
           >
             Tiếp tục lập phiếu khám
           </button>

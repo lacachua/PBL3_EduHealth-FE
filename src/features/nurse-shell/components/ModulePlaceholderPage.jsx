@@ -15,7 +15,7 @@ const ModulePlaceholderPage = ({ title, description, moduleName, introTitle }) =
         </div>
       </div>
 
-      <div className="nurse-card-soft rounded-2xl border border-dashed px-6 py-9 sm:px-8 sm:py-10">
+      <div className="app-card-shell rounded-2xl border border-dashed px-6 py-9 sm:px-8 sm:py-10">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#D1FAE5] bg-[#F0FDF4] text-[#15803D]">
             <span className="material-symbols-outlined text-2xl">construction</span>

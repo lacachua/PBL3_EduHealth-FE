@@ -33,7 +33,7 @@ const NurseReportsDiseasePanel = ({ disease }) => {
     <SectionCard
       title="Phân bố bệnh lý"
       subtitle="Tỷ trọng nhóm triệu chứng trong kỳ"
-      className="nurse-card-soft h-full rounded-xl p-0"
+      className="app-card-shell h-full rounded-xl p-0"
       headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
       titleClassName="text-[15px] font-bold text-on-surface"
       subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"

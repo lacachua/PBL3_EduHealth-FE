@@ -19,7 +19,7 @@ const AuthVisualPanel = ({ panel }) => {
           onError={() => setImageFailed(true)}
         />
       ) : (
-        <div className="flex h-full w-full flex-col justify-between bg-[radial-gradient(circle_at_20%_20%,#5f88c9_0%,#25436d_42%,#132238_100%)] p-7 text-white">
+        <div className="auth-visual-fallback flex h-full w-full flex-col justify-between p-7 text-white">
           <span className="material-symbols-outlined text-[34px] text-white/90" style={{ fontVariationSettings: "'FILL' 1" }}>
             local_hospital
           </span>
@@ -27,7 +27,7 @@ const AuthVisualPanel = ({ panel }) => {
         </div>
       )}
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(19,34,56,0.72)] via-[rgba(19,34,56,0.3)] to-[rgba(19,34,56,0.08)]" />
+      <div className="auth-visual-overlay pointer-events-none absolute inset-0" />
 
       <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/78">{panel.tag}</p>

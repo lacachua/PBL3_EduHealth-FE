@@ -10,8 +10,8 @@ export const MEDICINE_STATUS_LABELS = {
 };
 
 export const MEDICINE_STATUS_BADGE_CLASS = {
-  ACTIVE: 'bg-[#DCFCE7] text-[#166534]',
-  INACTIVE: 'bg-slate-100 text-slate-600',
+  ACTIVE: 'bg-success-soft text-success',
+  INACTIVE: 'bg-surface-container-low text-on-surface-variant',
 };
 
 export const MEDICINE_ALERT_LABELS = {
@@ -22,10 +22,10 @@ export const MEDICINE_ALERT_LABELS = {
 };
 
 export const MEDICINE_ALERT_BADGE_CLASS = {
-  none: 'bg-slate-100 text-slate-600',
-  lowStock: 'bg-[#FEF3C7] text-[#B45309]',
-  expiring: 'bg-[#FEE2E2] text-[#B91C1C]',
-  mixed: 'bg-[#FEE2E2] text-[#B91C1C]',
+  none: 'bg-surface-container-low text-on-surface-variant',
+  lowStock: 'bg-warning-soft text-warning',
+  expiring: 'bg-danger-soft text-danger',
+  mixed: 'bg-danger-soft text-danger',
 };
 
 export const MEDICINE_UNIT_OPTIONS = [
@@ -57,9 +57,9 @@ export const MOVEMENT_TYPE_LABELS = {
 };
 
 export const MOVEMENT_TYPE_BADGE_CLASS = {
-  IMPORT: 'border-[#BBF7D0] bg-[#ECFDF3] text-[#166534]',
-  DISPENSE: 'border-[#FED7AA] bg-[#FFF7ED] text-[#9A3412]',
-  DISPOSE: 'border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]',
+  IMPORT: 'border-success/25 bg-success-soft text-success',
+  DISPENSE: 'border-warning/25 bg-warning-soft text-warning',
+  DISPOSE: 'border-danger/25 bg-danger-soft text-danger',
 };
 
 export const ALERT_TYPE_LABELS = {

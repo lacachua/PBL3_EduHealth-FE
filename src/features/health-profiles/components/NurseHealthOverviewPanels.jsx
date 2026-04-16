@@ -1,8 +1,8 @@
 import React from 'react';
 import SectionCard from '../../../shared/components/admin/SectionCard';
 
-const sectionCardClass = 'nurse-card-soft rounded-xl p-4';
-const sectionHeaderClass = 'nurse-section-header-strong -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
+const sectionCardClass = 'app-card-shell rounded-xl p-4';
+const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
 const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-[#166534]';
 const sectionSubtitleClass = 'mt-0.5 text-[11px] text-[#166534]/80';
 const alertChipClassMap = {

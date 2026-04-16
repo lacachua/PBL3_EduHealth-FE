@@ -50,14 +50,14 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
 
   return (
     <section className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_1px_4px_rgba(15,23,42,0.045)]">
-      <div className="nurse-section-header-strong flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
+      <div className="app-section-header flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div>
           <h2 className="text-base font-bold text-on-surface">Danh sách khám gần đây</h2>
           <p className="mt-0.5 text-xs text-on-surface-variant">Hiển thị 6 lượt gần nhất. Chọn một dòng để mở chi tiết phiếu khám.</p>
         </div>
         <Link
           to={recentExaminations?.to || '/nurse/examinations'}
-          className="nurse-focus-ring rounded-lg border border-outline-variant bg-surface px-2.5 py-1 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low"
+          className="app-focus-ring rounded-lg border border-outline-variant bg-surface px-2.5 py-1 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low"
         >
           Mở danh sách khám
         </Link>
@@ -94,9 +94,9 @@ const NurseDashboardRecentExaminationsTable = ({ recentExaminations, loading, on
           bodyCellPaddingClassName="px-2.5 py-2"
           containerClassName="flex-1 overflow-x-auto"
           tableClassName="w-full table-fixed divide-y divide-outline-variant text-[12px]"
-          headClassName="nurse-table-head-strong text-left"
+          headClassName="app-table-head text-left"
           bodyClassName="divide-y divide-outline-variant bg-surface"
-          rowClassName="nurse-interactive transition-[background-color] duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low"
+          rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low"
         />
       ) : null}
     </section>

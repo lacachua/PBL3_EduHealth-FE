@@ -52,7 +52,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
             required
             value={form.name}
             onChange={(event) => updateField('name', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
             placeholder="Ví dụ: Paracetamol 500mg"
           />
         </label>
@@ -62,7 +62,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
           <input
             value={form.activeIngredient}
             onChange={(event) => updateField('activeIngredient', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
             placeholder="Ví dụ: Acetaminophen"
           />
         </label>
@@ -72,7 +72,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
           <select
             value={form.unit}
             onChange={(event) => updateField('unit', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           >
             {MEDICINE_UNIT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>{option.label}</option>
@@ -88,7 +88,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
             required
             value={form.warningThreshold}
             onChange={(event) => updateField('warningThreshold', event.target.value)}
-            className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
             placeholder="Ví dụ: 30"
           />
         </label>
@@ -99,7 +99,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
         <input
           value={form.packaging}
           onChange={(event) => updateField('packaging', event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           placeholder="Ví dụ: Hộp 10 vỉ x 10 viên"
         />
       </label>
@@ -110,7 +110,7 @@ const UpdateMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, er
           rows={3}
           value={form.note}
           onChange={(event) => updateField('note', event.target.value)}
-          className="nurse-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
           placeholder="Ghi chú thêm nếu cần"
         />
       </label>

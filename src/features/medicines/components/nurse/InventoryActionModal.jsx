@@ -65,7 +65,7 @@ const InventoryActionModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:bg-white"
+            className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:bg-white"
             aria-label="Đóng"
             disabled={submitting}
           >
@@ -89,14 +89,14 @@ const InventoryActionModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
+              className="app-btn-secondary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
               disabled={submitting}
             >
               Hủy
             </button>
             <button
               type="submit"
-              className={`nurse-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold ${submitButtonClassName}`}
+              className={`app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold ${submitButtonClassName}`}
               disabled={submitting}
             >
               {submitting ? 'Đang xử lý...' : submitLabel}

@@ -152,16 +152,16 @@ const NurseVaccinationCampaignsPage = () => {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#86EFAC] bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#FECACA] bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#86EFAC] bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
@@ -191,14 +191,14 @@ const NurseVaccinationCampaignsPage = () => {
       <VaccinationSummaryCards summary={summary} loading={listStatus === 'loading'} />
 
       {forbidden ? (
-        <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
           Bạn không có quyền truy cập trang này.
         </section>
       ) : null}
 
       {!forbidden ? (
-        <section className="space-y-2 rounded-2xl border border-[#D7ECDD] bg-white p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:p-5">
-          <h2 className="text-lg font-bold text-[#0F172A]">Danh sách đợt tiêm</h2>
+        <section className="app-panel-shell space-y-2 p-4 md:p-5">
+          <h2 className="text-lg font-bold text-on-surface">Danh sách đợt tiêm</h2>
 
           <VaccinationCampaignTable
             rows={visibleRows}

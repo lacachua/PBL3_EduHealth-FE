@@ -84,7 +84,7 @@ const ExaminationDetailPage = () => {
         }}
       />
 
-      <section className="nurse-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+      <section className="app-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Chi tiết phiếu khám</h1>
@@ -93,7 +93,7 @@ const ExaminationDetailPage = () => {
           <button
             type="button"
             onClick={() => navigate('/nurse/examinations')}
-            className="nurse-btn-secondary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="app-btn-secondary app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[17px]">arrow_back</span>
             Quay lại danh sách
@@ -112,7 +112,7 @@ const ExaminationDetailPage = () => {
       >
         {data ? (
           <div className="space-y-3.5">
-            <section className="nurse-card-soft rounded-xl p-4">
+            <section className="app-card-shell rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Thông tin chung</h2>
               <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
                 <div>
@@ -150,7 +150,7 @@ const ExaminationDetailPage = () => {
               </dl>
             </section>
 
-            <section className="nurse-card-soft rounded-xl p-4">
+            <section className="app-card-shell rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Nội dung khám</h2>
               <div className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155]">
                 <div>
@@ -172,7 +172,7 @@ const ExaminationDetailPage = () => {
               </div>
             </section>
 
-            <section className="nurse-card-soft rounded-xl p-4">
+            <section className="app-card-shell rounded-xl p-4">
               <h2 className="text-sm font-bold text-[#163126]">Đơn thuốc</h2>
               {Array.isArray(data.prescriptions) && data.prescriptions.length ? (
                 <div className="mt-2 space-y-2">

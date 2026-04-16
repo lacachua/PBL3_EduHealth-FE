@@ -143,7 +143,7 @@ const LoginPage = () => {
           <AuthStatusMessage message={submitError} type="error" />
 
           <button
-            className="auth-primary-button group flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold text-white transition-all hover:brightness-[1.03] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-70"
+            className="auth-primary-button app-focus-ring group flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
             type="submit"
             disabled={isSubmitting}
           >

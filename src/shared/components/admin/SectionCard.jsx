@@ -12,7 +12,7 @@ const SectionCard = ({
   actionsClassName,
 }) => {
   return (
-    <section className={className || 'rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--fd-shadow-card)]'}>
+    <section className={className || 'rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--sys-shadow-card)]'}>
       {(title || actions) && (
         <div className={headerClassName || 'mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between'}>
           <div>

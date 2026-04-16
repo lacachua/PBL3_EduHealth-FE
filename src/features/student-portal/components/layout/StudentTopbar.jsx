@@ -72,7 +72,7 @@ const StudentTopbar = ({ onOpenSidebar, identity, onNavigateAccount, onLogout })
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="student-focus-ring student-interactive rounded-xl border border-outline-variant bg-surface p-2 text-primary hover:bg-primary-soft md:hidden"
+            className="app-focus-ring app-interactive rounded-xl border border-outline-variant bg-surface p-2 text-primary hover:bg-primary-soft md:hidden"
             aria-label="Mở thanh điều hướng"
           >
             <span className="material-symbols-outlined text-lg">menu</span>
@@ -88,7 +88,7 @@ const StudentTopbar = ({ onOpenSidebar, identity, onNavigateAccount, onLogout })
           <button
             type="button"
             onClick={handleOpenMenu}
-            className="student-avatar-trigger student-focus-ring student-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-bold"
+            className="student-avatar-trigger app-focus-ring app-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-bold"
             aria-label="Mở menu tài khoản"
             aria-expanded={isMenuOpen}
           >
@@ -104,7 +104,7 @@ const StudentTopbar = ({ onOpenSidebar, identity, onNavigateAccount, onLogout })
               <button
                 type="button"
                 onClick={handleNavigateAccount}
-                className="student-avatar-menu-item student-focus-ring student-interactive block w-full rounded-lg px-3 py-2 text-left text-sm font-medium"
+                className="student-avatar-menu-item app-focus-ring app-interactive block w-full rounded-lg px-3 py-2 text-left text-sm font-medium"
               >
                 Tài khoản cá nhân
               </button>
@@ -114,7 +114,7 @@ const StudentTopbar = ({ onOpenSidebar, identity, onNavigateAccount, onLogout })
               <button
                 type="button"
                 onClick={handleLogout}
-                className="student-avatar-menu-item student-avatar-menu-item-danger student-focus-ring student-interactive block w-full rounded-lg px-3 py-2 text-left text-sm font-medium"
+                className="student-avatar-menu-item student-avatar-menu-item-danger app-focus-ring app-interactive block w-full rounded-lg px-3 py-2 text-left text-sm font-medium"
               >
                 Đăng xuất
               </button>

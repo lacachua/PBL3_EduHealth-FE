@@ -12,7 +12,8 @@ import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
 import { getExaminations } from '../services/getExaminations';
 
 const defaultFilters = {
-  keyword: '',
+  localKeyword: '',
+  studentId: '',
   classId: '',
   diseaseTypeId: '',
   fromDate: '',
@@ -60,10 +61,16 @@ const parseExaminationListEnvelope = (envelope) => {
   };
 };
 
-const toApiStudentIdFromKeyword = (keyword) => {
-  const normalized = String(keyword || '').trim().toUpperCase();
-  return /^STD\d+$/i.test(normalized) ? normalized : '';
-};
+const normalizeCodeValue = (value) => String(value || '').trim().toUpperCase();
+
+const normalizeFiltersForApply = (filters) => ({
+  localKeyword: String(filters.localKeyword || '').trim(),
+  studentId: normalizeCodeValue(filters.studentId),
+  classId: normalizeCodeValue(filters.classId),
+  diseaseTypeId: normalizeCodeValue(filters.diseaseTypeId),
+  fromDate: filters.fromDate || '',
+  toDate: filters.toDate || '',
+});
 
 const ExaminationLandingPage = () => {
   const navigate = useNavigate();
@@ -76,6 +83,7 @@ const ExaminationLandingPage = () => {
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [listData, setListData] = useState(defaultListData);
+  const [filterValidationError, setFilterValidationError] = useState('');
 
   const [feedback, setFeedback] = useState(() => location.state?.feedback || null);
 
@@ -92,12 +100,10 @@ const ExaminationLandingPage = () => {
     setError('');
 
     try {
-      const apiStudentId = toApiStudentIdFromKeyword(nextFilters.keyword);
-
       const response = await getExaminations({
         page: nextPage,
         pageSize: EXAMINATION_PAGE_SIZE,
-        studentId: apiStudentId || undefined,
+        studentId: nextFilters.studentId || undefined,
         classId: nextFilters.classId,
         diseaseTypeId: nextFilters.diseaseTypeId,
         fromDate: nextFilters.fromDate,
@@ -149,7 +155,7 @@ const ExaminationLandingPage = () => {
   }, [location.pathname, location.state, navigate]);
 
   const displayedRows = useMemo(() => {
-    const keyword = String(appliedFilters.keyword || '').trim().toLowerCase();
+    const keyword = String(appliedFilters.localKeyword || '').trim().toLowerCase();
     if (!keyword) {
       return listData.rows;
     }
@@ -169,7 +175,7 @@ const ExaminationLandingPage = () => {
 
       return searchable.includes(keyword);
     });
-  }, [appliedFilters.keyword, listData.rows]);
+  }, [appliedFilters.localKeyword, listData.rows]);
 
   const effectiveStatus = status === 'success' && !displayedRows.length ? 'empty' : status;
 
@@ -191,13 +197,13 @@ const ExaminationLandingPage = () => {
       key: 'id',
       header: 'Mã phiếu',
       headerClassName: 'w-[128px]',
-      cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-[#0B6F3C]',
+      cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-primary',
     },
     {
       key: 'visitDate',
       header: 'Ngày khám',
       headerClassName: 'w-[120px]',
-      cellClassName: 'whitespace-nowrap text-[12px] text-[#5F746B]',
+      cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
       render: (row) => dateLabel(row.visitDate),
     },
     {
@@ -206,8 +212,8 @@ const ExaminationLandingPage = () => {
       headerClassName: 'w-[240px]',
       render: (row) => (
         <div>
-          <p className="text-[13px] font-semibold text-[#163126]">{row.studentName}</p>
-          <p className="text-[11px] text-[#5F746B]">
+          <p className="text-[13px] font-semibold text-on-surface">{row.studentName}</p>
+          <p className="text-[11px] text-on-surface-variant">
             {row.studentCode}
             {' • '}
             Mã hồ sơ {row.studentRecordId}
@@ -221,12 +227,12 @@ const ExaminationLandingPage = () => {
       key: 'diseaseTypeName',
       header: 'Loại bệnh',
       headerClassName: 'w-[180px]',
-      cellClassName: 'text-[12px] text-[#5F746B]',
+      cellClassName: 'text-[12px] text-on-surface-variant',
     },
     {
       key: 'diagnosis',
       header: 'Chẩn đoán',
-      cellClassName: 'min-w-[220px] text-[12px] text-[#163126]',
+      cellClassName: 'min-w-[220px] text-[12px] text-on-surface',
       render: (row) => <p className="line-clamp-2">{row.diagnosis}</p>,
     },
     {
@@ -236,26 +242,26 @@ const ExaminationLandingPage = () => {
       cellClassName: 'whitespace-nowrap',
       render: (row) => (
         <div className="flex items-center justify-end gap-2">
-          <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#F1F5F9] text-[#64748B]'}`}>
+          <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-success-soft text-success' : 'bg-surface-container-low text-on-surface-variant'}`}>
             {row.hasPrescription ? 'Có' : 'Không'}
           </span>
-          <span className="material-symbols-outlined text-[16px] text-[#94A3B8]" aria-hidden="true">chevron_right</span>
+          <span className="material-symbols-outlined text-[16px] text-on-surface-muted" aria-hidden="true">chevron_right</span>
         </div>
       ),
     },
   ]), []);
 
   return (
-    <div className="space-y-3.5 text-[#0F172A]">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#DC2626]/25 bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
@@ -270,7 +276,7 @@ const ExaminationLandingPage = () => {
               setPickerInitialStudentName('');
               setPickerOpen(true);
             }}
-            className="nurse-btn-primary nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+            className="app-btn-primary app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             Tạo phiếu khám mới
@@ -278,66 +284,87 @@ const ExaminationLandingPage = () => {
         )}
       />
 
-      <section className="nurse-card-soft rounded-2xl px-4 py-3 sm:px-5">
+      <section className="app-panel-shell px-4 py-3 sm:px-5">
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            setAppliedFilters(filters);
+
+            const normalizedFilters = normalizeFiltersForApply(filters);
+            const hasInvalidStudentId = normalizedFilters.studentId && !/^STD\d+$/i.test(normalizedFilters.studentId);
+            if (hasInvalidStudentId) {
+              setFilterValidationError('Mã hồ sơ học sinh phải đúng định dạng STDxxx (ví dụ: STD001).');
+              return;
+            }
+
+            setFilterValidationError('');
+            setFilters(normalizedFilters);
+            setAppliedFilters(normalizedFilters);
             setPage(1);
           }}
           className="space-y-2.5"
         >
-          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-12 lg:items-end">
-            <label className="relative lg:col-span-4">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#64748B]/80">search</span>
+          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-6 xl:items-end">
+            <label className="relative">
+              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
               <input
                 type="search"
-                value={filters.keyword}
-                onChange={(event) => setFilters((prev) => ({ ...prev, keyword: event.target.value }))}
-                placeholder="Tìm học sinh hoặc mã phiếu"
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+                value={filters.localKeyword}
+                onChange={(event) => setFilters((prev) => ({ ...prev, localKeyword: event.target.value }))}
+                placeholder="Tìm nhanh trên trang"
+                className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
               />
             </label>
 
-            <label className="flex flex-col gap-1 lg:col-span-2">
-              <span className="text-[11px] font-semibold text-[#64748B]">Lớp</span>
+            <label className="flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-on-surface-variant">Mã hồ sơ HS</span>
+              <input
+                type="text"
+                value={filters.studentId}
+                onChange={(event) => setFilters((prev) => ({ ...prev, studentId: event.target.value }))}
+                placeholder="Ví dụ: STD001"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-on-surface-variant">Mã lớp</span>
               <input
                 type="text"
                 value={filters.classId}
                 onChange={(event) => setFilters((prev) => ({ ...prev, classId: event.target.value }))}
-                placeholder="Nhập lớp"
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+                placeholder="Ví dụ: CLS001"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
               />
             </label>
 
-            <label className="flex flex-col gap-1 lg:col-span-2">
-              <span className="text-[11px] font-semibold text-[#64748B]">Nhóm bệnh</span>
+            <label className="flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-on-surface-variant">Mã nhóm bệnh</span>
               <input
                 type="text"
                 value={filters.diseaseTypeId}
                 onChange={(event) => setFilters((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
-                placeholder="Nhập nhóm bệnh"
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+                placeholder="Ví dụ: DIS001"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
               />
             </label>
 
-            <label className="flex flex-col gap-1 lg:col-span-2">
-              <span className="text-[11px] font-semibold text-[#64748B]">Từ ngày</span>
+            <label className="flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-on-surface-variant">Từ ngày</span>
               <input
                 type="date"
                 value={filters.fromDate}
                 onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
               />
             </label>
 
-            <label className="flex flex-col gap-1 lg:col-span-2">
-              <span className="text-[11px] font-semibold text-[#64748B]">Đến ngày</span>
+            <label className="flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-on-surface-variant">Đến ngày</span>
               <input
                 type="date"
                 value={filters.toDate}
                 onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
-                className="nurse-focus-ring nurse-input h-10 w-full rounded-lg px-2.5 text-sm"
+                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
               />
             </label>
           </div>
@@ -345,7 +372,7 @@ const ExaminationLandingPage = () => {
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               type="submit"
-              className="nurse-focus-ring nurse-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Lọc
             </button>
@@ -354,47 +381,50 @@ const ExaminationLandingPage = () => {
               onClick={() => {
                 setFilters({ ...defaultFilters });
                 setAppliedFilters({ ...defaultFilters });
+                setFilterValidationError('');
                 setPage(1);
               }}
-              className="nurse-focus-ring nurse-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Đặt lại
             </button>
           </div>
+
+          {filterValidationError ? <p className="text-xs font-medium text-danger">{filterValidationError}</p> : null}
         </form>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="inline-flex rounded-full border border-[#BBF7D0] bg-[#DCFCE7] px-2.5 py-1 font-semibold text-[#166534]">
+          <span className="inline-flex rounded-full border border-success/25 bg-success-soft px-2.5 py-1 font-semibold text-success">
             Tổng {listData.totalItems} phiếu khám
           </span>
-          <span className="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 font-medium text-[#64748B]">
+          <span className="rounded-full border border-outline-variant bg-surface px-2.5 py-1 font-medium text-on-surface-variant">
             {appliedFilterCount ? `${appliedFilterCount} bộ lọc đang áp dụng` : 'Chưa áp dụng bộ lọc'}
           </span>
         </div>
       </section>
 
       <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tổng phiếu khám</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#0F172A]">{stats.total}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Tổng phiếu khám</p>
+          <p className="app-kpi-value">{stats.total}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Có đơn thuốc</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#166534]">{stats.withPrescription}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Có đơn thuốc</p>
+          <p className="app-kpi-value text-success">{stats.withPrescription}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Không có đơn thuốc</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#B45309]">{stats.withoutPrescription}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Không có đơn thuốc</p>
+          <p className="app-kpi-value text-warning">{stats.withoutPrescription}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Có nhóm bệnh</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#B45309]">{stats.withDiseaseGroup}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Có nhóm bệnh</p>
+          <p className="app-kpi-value text-info">{stats.withDiseaseGroup}</p>
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-        <div className="nurse-table-summary-strong px-3 py-2 text-[11px] sm:px-4">
-          Đang hiển thị <span className="font-semibold text-[#0F172A]">{displayedRows.length}</span> phiếu trên trang này • Tổng <span className="font-semibold text-[#0F172A]">{listData.totalItems}</span> phiếu khám
+      <section className="app-panel-shell overflow-hidden">
+        <div className="app-table-summary px-3 py-2 text-[11px] sm:px-4">
+          Đang hiển thị <span className="font-semibold text-on-surface">{displayedRows.length}</span> phiếu trên trang này • Tổng <span className="font-semibold text-on-surface">{listData.totalItems}</span> phiếu khám
         </div>
 
         <AdminAsyncState
@@ -415,14 +445,14 @@ const ExaminationLandingPage = () => {
                 getRowKey={(row) => row.id}
                 onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
                 containerClassName="overflow-x-auto"
-                tableClassName="min-w-[940px] w-full divide-y divide-[#E2E8F0] text-[13px]"
-                headClassName="nurse-table-head-strong text-left"
-                bodyClassName="divide-y divide-[#E2E8F0] bg-white"
-                rowClassName="nurse-interactive transition-[background-color] duration-150 hover:bg-[#F0FDF4] focus-within:bg-[#F0FDF4]"
+                tableClassName="min-w-[940px] w-full divide-y divide-outline-variant text-[13px]"
+                headClassName="app-table-head text-left"
+                bodyClassName="divide-y divide-outline-variant bg-surface"
+                rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low"
               />
 
               {listData.totalPages > 1 ? (
-                <div className="border-t border-[#E2E8F0] px-3 py-2 sm:px-4">
+                <div className="border-t border-outline-variant px-3 py-2 sm:px-4">
                   <Pagination
                     compact
                     page={listData.page}
@@ -437,7 +467,7 @@ const ExaminationLandingPage = () => {
             <div className="px-4 py-5 sm:px-5">
               <EmptyState
                 title="Không có phiếu khám phù hợp"
-                description="Thử điều chỉnh từ khóa, ngày khám hoặc bộ lọc lớp để xem dữ liệu khác."
+                description="Thử điều chỉnh mã hồ sơ (STDxxx), mã lớp (CLSxxx), mã nhóm bệnh (DISxxx) hoặc bộ lọc thời gian."
               />
             </div>
           )}

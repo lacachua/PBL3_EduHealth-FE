@@ -20,7 +20,7 @@ const NurseDashboardKpiGrid = ({ kpis = [] }) => {
           <Link
             key={kpi.id}
             to={kpi.to}
-            className="nurse-focus-ring nurse-interactive min-h-[94px] rounded-xl border border-outline-variant bg-surface px-3.5 py-3.5 hover:border-outline"
+            className="app-focus-ring app-interactive min-h-[94px] rounded-xl border border-outline-variant bg-surface px-3.5 py-3.5 hover:border-outline"
           >
             <div className="flex items-start justify-between gap-2.5">
               <div className="min-w-0 pr-1">

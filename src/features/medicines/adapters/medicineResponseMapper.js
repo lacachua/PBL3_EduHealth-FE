@@ -1,10 +1,15 @@
-import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 import {
   mapMedicineAlertLabel,
   mapMedicineAlertTone,
   mapMedicineStatusLabel,
   mapMedicineStatusTone,
 } from './medicineStatusMapper';
+import {
+  getMedicineMetaFromEnvelope,
+  getMedicineRowsFromEnvelope,
+  normalizeMedicineEnvelope,
+  toMedicineDateTimeLabel,
+} from './medicineAdapterShared';
 
 const defaultPaged = {
   rows: [],
@@ -12,13 +17,6 @@ const defaultPaged = {
   pageSize: 10,
   totalItems: 0,
   totalPages: 1,
-};
-
-const toDisplayDate = (value) => {
-  if (!value) return '--';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString('vi-VN', { hour12: false });
 };
 
 const toDisplayDateOnly = (value) => {
@@ -49,36 +47,35 @@ const mapMedicineBase = (item = {}) => {
     isExpiringSoon,
     alertLabel: mapMedicineAlertLabel(isLowStock, isExpiringSoon),
     alertTone: mapMedicineAlertTone(isLowStock, isExpiringSoon),
-    createdAt: toDisplayDate(item.createdAt),
-    updatedAt: toDisplayDate(item.updatedAt),
+    createdAt: toMedicineDateTimeLabel(item.createdAt),
+    updatedAt: toMedicineDateTimeLabel(item.updatedAt),
   };
 };
 
 export const mapMedicinesListResponse = (responseOrPayload) => {
-  const envelope = normalizeApiEnvelope(responseOrPayload);
+  const envelope = normalizeMedicineEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false) {
     return defaultPaged;
   }
 
-  const sourceRows = Array.isArray(envelope.data)
-    ? envelope.data
-    : Array.isArray(envelope.data?.items)
-      ? envelope.data.items
-      : [];
+  const sourceRows = getMedicineRowsFromEnvelope(envelope);
 
   const rows = sourceRows.map((item) => mapMedicineBase(item));
+  const meta = getMedicineMetaFromEnvelope(envelope, {
+    page: 1,
+    pageSize: 10,
+    totalItems: rows.length,
+    totalPages: 1,
+  });
 
   return {
     rows,
-    page: Number(envelope.meta?.page || 1),
-    pageSize: Number(envelope.meta?.pageSize || 10),
-    totalItems: Number(envelope.meta?.totalItems || rows.length),
-    totalPages: Number(envelope.meta?.totalPages || 1),
+    ...meta,
   };
 };
 
 export const mapMedicineDetailResponse = (responseOrPayload) => {
-  const envelope = normalizeApiEnvelope(responseOrPayload);
+  const envelope = normalizeMedicineEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false || !envelope.data) {
     return null;
   }
@@ -87,12 +84,8 @@ export const mapMedicineDetailResponse = (responseOrPayload) => {
 };
 
 export const mapMedicineAlertsResponse = (responseOrPayload) => {
-  const envelope = normalizeApiEnvelope(responseOrPayload);
-  const sourceRows = Array.isArray(envelope?.data)
-    ? envelope.data
-    : Array.isArray(envelope?.data?.items)
-      ? envelope.data.items
-      : [];
+  const envelope = normalizeMedicineEnvelope(responseOrPayload);
+  const sourceRows = getMedicineRowsFromEnvelope(envelope);
 
   const alerts = sourceRows.map((item) => ({
     medicineId: item.medicineId,
@@ -118,16 +111,12 @@ export const mapMedicineAlertsResponse = (responseOrPayload) => {
 };
 
 export const mapMedicineMovementsResponse = (responseOrPayload) => {
-  const envelope = normalizeApiEnvelope(responseOrPayload);
+  const envelope = normalizeMedicineEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false) {
     return defaultPaged;
   }
 
-  const sourceRows = Array.isArray(envelope.data)
-    ? envelope.data
-    : Array.isArray(envelope.data?.items)
-      ? envelope.data.items
-      : [];
+  const sourceRows = getMedicineRowsFromEnvelope(envelope);
 
   const rows = sourceRows.map((item) => ({
     movementId: item.movementId || '--',
@@ -139,14 +128,18 @@ export const mapMedicineMovementsResponse = (responseOrPayload) => {
     expiryDate: toDisplayDateOnly(item.expiryDate),
     reason: item.reason || '--',
     createdBy: item.createdBy?.fullName || item.createdBy?.userId || '--',
-    createdAt: toDisplayDate(item.createdAt),
+    createdAt: toMedicineDateTimeLabel(item.createdAt),
   }));
+
+  const meta = getMedicineMetaFromEnvelope(envelope, {
+    page: 1,
+    pageSize: 5,
+    totalItems: rows.length,
+    totalPages: 1,
+  });
 
   return {
     rows,
-    page: Number(envelope.meta?.page || 1),
-    pageSize: Number(envelope.meta?.pageSize || 5),
-    totalItems: Number(envelope.meta?.totalItems || rows.length),
-    totalPages: Number(envelope.meta?.totalPages || 1),
+    ...meta,
   };
 };

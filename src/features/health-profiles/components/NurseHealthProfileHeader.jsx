@@ -17,7 +17,7 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
   const statusClass = statusClassMap[statusTone] || statusClassMap.default;
 
   return (
-    <section className="nurse-card-soft space-y-4 rounded-2xl px-4 py-4 sm:px-5 sm:py-5">
+    <section className="app-card-shell space-y-4 rounded-2xl px-4 py-4 sm:px-5 sm:py-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-start gap-4">
           <EntityAvatar
@@ -61,7 +61,7 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
         <button
           type="button"
           onClick={onEditHealthProfile}
-          className="nurse-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#15803D] px-4 text-sm font-semibold text-white transition-[background-color,box-shadow,transform] duration-180 ease-out hover:bg-[#166534] hover:shadow-[0_4px_10px_rgba(21,128,61,0.2)] hover:-translate-y-px"
+          className="app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#15803D] px-4 text-sm font-semibold text-white transition-[background-color,box-shadow,transform] duration-180 ease-out hover:bg-[#166534] hover:shadow-[0_4px_10px_rgba(21,128,61,0.2)] hover:-translate-y-px"
         >
           <span className="material-symbols-outlined text-[17px]">edit_square</span>
           Cập nhật hồ sơ sức khỏe

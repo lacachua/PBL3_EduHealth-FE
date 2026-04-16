@@ -9,6 +9,22 @@ const toPositiveInt = (value) => {
 
 const normalizeText = (value) => String(value || '').trim().toLowerCase();
 
+const parseCodeToUserId = (value, prefix) => {
+  const normalized = String(value || '').trim().toUpperCase();
+  const matcher = new RegExp(`^${prefix}(\\d+)$`);
+  const match = normalized.match(matcher);
+  if (!match) {
+    return null;
+  }
+
+  return toPositiveInt(match[1]);
+};
+
+const resolveUserIdFromStudentCode = (student = {}) => {
+  // Backend currently exposes StudentId in format STDxxx where xxx maps to student userId.
+  return parseCodeToUserId(student?.studentId, 'STD');
+};
+
 const extractLookupRows = (envelope) => {
   if (Array.isArray(envelope?.data)) {
     return envelope.data;
@@ -32,6 +48,10 @@ const resolveLookupUserId = (item) => {
     || null;
 };
 
+const resolveLookupStudentCode = (item) => {
+  return normalizeText(item?.studentCode || item?.username);
+};
+
 const buildStudentCacheKey = (student = {}) => {
   return [
     normalizeText(student.studentCode),
@@ -50,11 +70,15 @@ const pickBestLookupRow = (rows, student) => {
   const className = normalizeText(student?.className);
 
   const byCode = studentCode
-    ? rows.filter((item) => normalizeText(item?.studentCode) === studentCode)
+    ? rows.filter((item) => resolveLookupStudentCode(item) === studentCode)
     : [];
 
   if (byCode.length === 1) {
     return byCode[0];
+  }
+
+  if (byCode.length > 1) {
+    return null;
   }
 
   const byNameAndClass = rows.filter((item) => (
@@ -66,16 +90,8 @@ const pickBestLookupRow = (rows, student) => {
     return byNameAndClass[0];
   }
 
-  if (byCode.length > 1) {
-    return byCode[0];
-  }
-
   if (byNameAndClass.length > 1) {
-    return byNameAndClass[0];
-  }
-
-  if (rows.length === 1) {
-    return rows[0];
+    return null;
   }
 
   return null;
@@ -85,6 +101,11 @@ export const resolveVaccinationStudentUserId = async (student = {}) => {
   const directId = resolveLookupUserId(student);
   if (directId) {
     return directId;
+  }
+
+  const fromStudentCode = resolveUserIdFromStudentCode(student);
+  if (fromStudentCode) {
+    return fromStudentCode;
   }
 
   const cacheKey = buildStudentCacheKey(student);
@@ -101,7 +122,7 @@ export const resolveVaccinationStudentUserId = async (student = {}) => {
     try {
       const response = await getNurseStudentsLookupApi({
         page: 1,
-        pageSize: 50,
+        pageSize: 100,
         search: term,
       });
 

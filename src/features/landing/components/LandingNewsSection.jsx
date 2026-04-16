@@ -26,7 +26,7 @@ const LandingNewsSection = () => {
   const action = (
     <button
       type="button"
-      className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-3 text-sm font-semibold text-on-surface shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface hover:shadow-md"
+      className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-3 text-sm font-semibold text-on-surface shadow-sm transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-surface hover:shadow-md"
     >
       Xem tất cả bản tin
     </button>
@@ -44,7 +44,7 @@ const LandingNewsSection = () => {
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
           {newsItems.map((item) => (
-            <article key={item.title} className="flex h-full flex-col rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10">
+            <article key={item.title} className="flex h-full flex-col rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-black/[0.03] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-900/10">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-primary">{item.date}</p>
               <h3 className="mb-3 font-headline text-xl font-bold leading-snug text-on-surface">{item.title}</h3>
               <p className="flex-1 text-sm leading-relaxed text-on-surface-variant">{item.summary}</p>

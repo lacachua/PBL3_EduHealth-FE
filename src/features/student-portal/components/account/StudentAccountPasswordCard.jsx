@@ -3,7 +3,7 @@ import React from 'react';
 const labelClassName = 'text-xs font-bold uppercase tracking-[0.12em] text-on-surface-muted';
 
 const inputClassName =
-  'student-focus-ring nurse-input h-10 w-full rounded-lg px-3 pr-10 text-sm';
+  'app-focus-ring app-input h-10 w-full rounded-lg px-3 pr-10 text-sm';
 
 const StudentAccountPasswordCard = ({
   formValues,
@@ -17,8 +17,8 @@ const StudentAccountPasswordCard = ({
   onReset,
 }) => {
   return (
-    <section className="student-module-surface h-full rounded-3xl p-4 md:p-5">
-      <header className="student-accent-sky mb-4 rounded-2xl border border-info/25 px-3.5 py-3">
+    <section className="app-panel-shell h-full rounded-3xl p-4 md:p-5">
+      <header className="app-tone-info app-tone-surface mb-4 rounded-2xl border px-3.5 py-3">
         <div className="flex items-center gap-2.5">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-info/14 text-info">
             <span className="material-symbols-outlined text-[20px]">lock_reset</span>
@@ -47,7 +47,7 @@ const StudentAccountPasswordCard = ({
               <button
                 type="button"
                 onClick={() => onToggleVisibility(field.key)}
-                className="student-focus-ring student-interactive absolute inset-y-1 right-1 inline-flex w-8 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low"
+                className="app-focus-ring app-interactive absolute inset-y-1 right-1 inline-flex w-8 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-low"
                 aria-label={visibility[field.key] ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
                 <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
@@ -67,7 +67,7 @@ const StudentAccountPasswordCard = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="student-focus-ring student-interactive w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-on-primary shadow-[0_8px_16px_rgba(15,135,121,0.25)] disabled:cursor-not-allowed disabled:opacity-70"
+            className="app-btn-primary app-focus-ring w-full rounded-xl py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
           </button>
@@ -75,7 +75,7 @@ const StudentAccountPasswordCard = ({
           <button
             type="button"
             onClick={onReset}
-            className="student-focus-ring student-interactive w-full rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface"
+            className="app-btn-secondary app-focus-ring w-full rounded-xl px-4 py-2.5 text-sm font-semibold"
           >
             Hủy
           </button>

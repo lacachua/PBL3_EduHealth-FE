@@ -147,7 +147,7 @@ const NursePendingVaccinationsPage = () => {
 
     if (!studentUserId) {
       setHistoryStatus('error');
-      setHistoryError('Không thể đối chiếu mã học sinh nội bộ để tải lịch sử tiêm. Vui lòng mở hồ sơ học sinh để kiểm tra dữ liệu đồng bộ.');
+      setHistoryError('Không đủ dữ liệu định danh an toàn để mở lịch sử tiêm. Vui lòng kiểm tra lại hồ sơ học sinh trước khi tra cứu.');
       return;
     }
 
@@ -195,16 +195,16 @@ const NursePendingVaccinationsPage = () => {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#86EFAC] bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#FECACA] bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#86EFAC] bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
@@ -215,7 +215,7 @@ const NursePendingVaccinationsPage = () => {
           <button
             type="button"
             onClick={() => navigate('/nurse/vaccinations')}
-            className="nurse-btn-secondary nurse-focus-ring inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold"
+            className="app-btn-secondary app-focus-ring inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Quay lại đợt tiêm
@@ -223,37 +223,37 @@ const NursePendingVaccinationsPage = () => {
         )}
       >
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tổng bản ghi</p>
-            <p className="text-lg font-bold text-[#0F172A]">{summary.total}</p>
+          <div className="app-kpi-card">
+            <p className="app-kpi-label">Tổng bản ghi</p>
+            <p className="app-kpi-value text-lg">{summary.total}</p>
           </div>
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Đang hiển thị</p>
-            <p className="text-lg font-bold text-[#0F172A]">{summary.filtered}</p>
+          <div className="app-kpi-card">
+            <p className="app-kpi-label">Đang hiển thị</p>
+            <p className="app-kpi-value text-lg">{summary.filtered}</p>
           </div>
-          <div className="rounded-xl border border-[#FEF3C7] bg-[#FFFBEB] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#B45309]">Chờ tiêm</p>
-            <p className="text-lg font-bold text-[#B45309]">{summary.pending}</p>
+          <div className="app-kpi-card">
+            <p className="app-kpi-label">Chờ tiêm</p>
+            <p className="app-kpi-value text-lg text-warning">{summary.pending}</p>
           </div>
-          <div className="rounded-xl border border-[#FFEDD5] bg-[#FFF7ED] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#C2410C]">Tạm hoãn</p>
-            <p className="text-lg font-bold text-[#C2410C]">{summary.postponed}</p>
+          <div className="app-kpi-card">
+            <p className="app-kpi-label">Tạm hoãn</p>
+            <p className="app-kpi-value text-lg text-warning">{summary.postponed}</p>
           </div>
-          <div className="rounded-xl border border-[#FEE2E2] bg-[#FEF2F2] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#B91C1C]">Chống chỉ định/Vắng</p>
-            <p className="text-lg font-bold text-[#B91C1C]">{summary.contraindicated + summary.absent}</p>
+          <div className="app-kpi-card">
+            <p className="app-kpi-label">Chống chỉ định/Vắng</p>
+            <p className="app-kpi-value text-lg text-danger">{summary.contraindicated + summary.absent}</p>
           </div>
         </div>
       </NurseModulePageHeader>
 
       {forbidden ? (
-        <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
           Bạn không có quyền truy cập trang này.
         </section>
       ) : null}
 
       {!forbidden ? (
-        <section className="space-y-3 rounded-2xl border border-[#D7ECDD] bg-white p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:p-5">
+        <section className="app-panel-shell space-y-3 p-4 md:p-5">
           <VaccinationStudentsToolbar
             value={draftFilters}
             onChange={setDraftFilters}

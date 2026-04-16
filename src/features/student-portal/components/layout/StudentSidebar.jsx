@@ -43,7 +43,7 @@ const StudentSidebar = ({
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="student-focus-ring student-interactive hidden shrink-0 rounded-xl border border-outline-variant bg-surface p-1.5 text-primary hover:bg-primary-soft md:inline-flex"
+          className="app-focus-ring app-interactive hidden shrink-0 rounded-xl border border-outline-variant bg-surface p-1.5 text-primary hover:bg-primary-soft md:inline-flex"
           aria-label={isSidebarCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
         >
           <span className="material-symbols-outlined text-lg">
@@ -54,7 +54,7 @@ const StudentSidebar = ({
         <button
           type="button"
           onClick={onCloseSidebar}
-          className="student-focus-ring student-interactive rounded-xl p-1.5 text-on-surface-variant hover:bg-surface-container-low md:hidden"
+          className="app-focus-ring app-interactive rounded-xl p-1.5 text-on-surface-variant hover:bg-surface-container-low md:hidden"
           aria-label="Đóng thanh điều hướng"
         >
           <span className="material-symbols-outlined text-lg">close</span>
@@ -78,7 +78,7 @@ const StudentSidebar = ({
                   end={item.to === '/student/overview'}
                   onClick={onCloseSidebar}
                   title={isSidebarCollapsed ? item.label : undefined}
-                  className={({ isActive }) => `student-focus-ring student-interactive student-sidebar-nav-item group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] ${
+                  className={({ isActive }) => `app-focus-ring app-interactive student-sidebar-nav-item group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] ${
                     isActive
                       ? 'student-sidebar-nav-item-active font-semibold'
                       : 'font-medium'
@@ -109,7 +109,7 @@ const StudentSidebar = ({
           type="button"
           onClick={handleLogout}
           title={isSidebarCollapsed ? 'Đăng xuất' : undefined}
-          className={`student-sidebar-logout-button student-focus-ring student-interactive group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-semibold ${
+          className={`student-sidebar-logout-button app-focus-ring app-interactive group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-semibold ${
             isSidebarCollapsed ? 'justify-center' : 'justify-start'
           }`}
         >

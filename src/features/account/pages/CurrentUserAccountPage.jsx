@@ -14,7 +14,7 @@ const feedbackClassMap = {
 
 const variantClassMap = {
   admin: {
-    wrapper: 'space-y-4 admin-page-bg',
+    wrapper: 'space-y-4 app-page-bg',
     loadingCard: 'rounded-xl border border-outline-variant bg-surface p-4 text-sm text-on-surface-variant',
     errorCard: 'rounded-xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger',
     retryButton: 'mt-2 inline-flex items-center rounded-lg border border-danger/35 bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft/50',
@@ -23,7 +23,7 @@ const variantClassMap = {
   },
   nurse: {
     wrapper: 'space-y-4',
-    loadingCard: 'rounded-2xl border border-outline-variant bg-surface-container-low p-4 text-sm text-on-surface-variant',
+    loadingCard: 'app-panel-shell p-4 text-sm text-on-surface-variant',
     errorCard: 'rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger',
     retryButton: 'mt-2 inline-flex items-center rounded-lg border border-danger/35 bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft/50',
     topGrid: 'grid gap-6 lg:gap-7 xl:grid-cols-[minmax(320px,360px)_minmax(0,1fr)] xl:items-stretch',
@@ -70,7 +70,6 @@ const CurrentUserAccountPage = ({ variant = 'admin' }) => {
         <NurseModulePageHeader
           title={headerContent.title}
           description={headerContent.description}
-          className="rounded-xl"
         />
       ) : (
         <PageHeader

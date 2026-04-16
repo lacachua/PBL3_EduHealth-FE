@@ -30,17 +30,17 @@ const VaccinationStudentsTable = ({
     + 1;
 
   if (loading) {
-    return <p className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-4 text-sm text-[#64748B]">Đang tải danh sách học sinh...</p>;
+    return <p className="app-panel-shell px-3 py-4 text-sm text-on-surface-variant">Đang tải danh sách học sinh...</p>;
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+      <div className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
         <p>{error}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-2 rounded-lg border border-[#FCA5A5] px-2.5 py-1 text-xs font-semibold text-[#B91C1C]"
+          className="app-focus-ring mt-2 rounded-lg border border-danger/35 bg-surface px-2.5 py-1 text-xs font-semibold text-danger"
         >
           Thử lại
         </button>
@@ -49,9 +49,9 @@ const VaccinationStudentsTable = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[#E2E8F0] bg-white [scrollbar-width:thin]">
+    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
       <table className={`w-full text-left text-sm ${showResultColumns ? 'min-w-[1080px]' : 'min-w-[920px]'}`}>
-        <thead className="nurse-table-head-strong sticky top-0 z-[1] text-[11px] uppercase tracking-[0.08em]">
+        <thead className="app-table-head sticky top-0 z-[1] text-[11px] uppercase tracking-[0.08em]">
           <tr>
             <th className="px-4 py-3">Học sinh</th>
             <th className="px-4 py-3">Lớp</th>
@@ -65,49 +65,49 @@ const VaccinationStudentsTable = ({
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#E2E8F0]">
+        <tbody className="divide-y divide-outline-variant">
           {!rows.length ? (
             <tr>
-              <td className="px-4 py-8 text-center text-sm text-[#64748B]" colSpan={colSpan}>
+              <td className="px-4 py-8 text-center text-sm text-on-surface-variant" colSpan={colSpan}>
                 {emptyMessage || 'Không có dữ liệu phù hợp.'}
               </td>
             </tr>
           ) : (
             rows.map((item) => (
-              <tr key={item.studentVaccinationId} className="hover:bg-[#F8FAFC]">
+              <tr key={item.studentVaccinationId} className="app-interactive hover:bg-surface-container-low">
                 <td className="px-4 py-3 min-w-[220px]">
-                  <p className="font-semibold text-[#0F172A]">{item.student?.fullName || '--'}</p>
-                  <p className="text-xs text-[#64748B]">
+                  <p className="font-semibold text-on-surface">{item.student?.fullName || '--'}</p>
+                  <p className="text-xs text-on-surface-variant">
                     {item.student?.studentCode || '--'}
                     {' • '}
                     Mã hồ sơ {item.student?.studentId || '--'}
                   </p>
                 </td>
-                <td className="px-4 py-3 text-[#334155]">{item.student?.className || '--'}</td>
+                <td className="px-4 py-3 text-on-surface">{item.student?.className || '--'}</td>
                 {showCampaignColumn ? (
                   <td className="px-4 py-3 min-w-[220px]">
                     {hasCampaignAction ? (
                       <button
                         type="button"
                         onClick={() => onOpenCampaign(item)}
-                        className="nurse-focus-ring text-left text-sm font-semibold text-[#0F172A] hover:text-[#166534]"
+                        className="app-focus-ring text-left text-sm font-semibold text-on-surface hover:text-primary"
                       >
                         {item.campaignName || '--'}
                       </button>
                     ) : (
-                      <p className="text-sm font-semibold text-[#0F172A]">{item.campaignName || '--'}</p>
+                      <p className="text-sm font-semibold text-on-surface">{item.campaignName || '--'}</p>
                     )}
-                    <p className="text-xs text-[#64748B]">{item.campaignId || '--'} • {item.scheduledDateLabel || '--'}</p>
+                    <p className="text-xs text-on-surface-variant">{item.campaignId || '--'} • {item.scheduledDateLabel || '--'}</p>
                   </td>
                 ) : null}
-                {showScheduledDateColumn ? <td className="px-4 py-3 text-[#334155]">{item.scheduledDateLabel || '--'}</td> : null}
+                {showScheduledDateColumn ? <td className="px-4 py-3 text-on-surface">{item.scheduledDateLabel || '--'}</td> : null}
                 <td className="px-4 py-3">
                   <VaccinationStatusBadge label={item.statusLabel} className={item.statusBadgeClassName} />
                 </td>
-                {showResultColumns ? <td className="px-4 py-3 text-[#334155]">{item.vaccinatedAtLabel || '--'}</td> : null}
-                {showResultColumns ? <td className="px-4 py-3 font-mono text-xs text-[#334155]">{item.lotNumber || '--'}</td> : null}
+                {showResultColumns ? <td className="px-4 py-3 text-on-surface">{item.vaccinatedAtLabel || '--'}</td> : null}
+                {showResultColumns ? <td className="px-4 py-3 font-mono text-xs text-on-surface">{item.lotNumber || '--'}</td> : null}
                 {showResultColumns ? (
-                  <td className="px-4 py-3 text-[#334155]" title={item.note || '--'} style={clampTwoLinesStyle}>
+                  <td className="px-4 py-3 text-on-surface" title={item.note || '--'} style={clampTwoLinesStyle}>
                     {item.note || '--'}
                   </td>
                 ) : null}

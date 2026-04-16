@@ -4,30 +4,30 @@ const CARD_META = [
   {
     key: 'totalCampaigns',
     title: 'Tổng đợt tiêm',
-    valueClassName: 'text-[#0F172A]',
+    valueClassName: 'text-on-surface',
     icon: 'vaccines',
-    iconClassName: 'bg-[#ECFDF3] text-[#15803D]',
+    iconClassName: 'bg-primary-soft text-primary',
   },
   {
     key: 'activeCampaigns',
     title: 'Đang hoạt động',
-    valueClassName: 'text-[#166534]',
+    valueClassName: 'text-success',
     icon: 'event_available',
-    iconClassName: 'bg-[#DCFCE7] text-[#166534]',
+    iconClassName: 'bg-success-soft text-success',
   },
   {
     key: 'pendingStudents',
     title: 'Chờ tiêm',
-    valueClassName: 'text-[#B45309]',
+    valueClassName: 'text-warning',
     icon: 'hourglass_empty',
-    iconClassName: 'bg-[#FEF3C7] text-[#B45309]',
+    iconClassName: 'bg-warning-soft text-warning',
   },
   {
     key: 'completionRate',
     title: 'Tỷ lệ hoàn thành',
-    valueClassName: 'text-[#1D4ED8]',
+    valueClassName: 'text-info',
     icon: 'monitoring',
-    iconClassName: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    iconClassName: 'bg-info-soft text-info',
     renderValue: (value) => `${value}%`,
   },
 ];
@@ -36,18 +36,18 @@ const VaccinationSummaryCards = ({ summary, loading }) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {CARD_META.map((card) => (
-        <article key={card.key} className="nurse-card-soft h-full rounded-2xl p-4">
+        <article key={card.key} className="app-kpi-card h-full">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">{card.title}</p>
+            <p className="app-kpi-label">{card.title}</p>
             <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${card.iconClassName}`}>
               <span className="material-symbols-outlined text-[18px]">{card.icon}</span>
             </span>
           </div>
 
           {loading ? (
-            <div className="h-8 w-20 animate-pulse rounded bg-slate-200" />
+            <div className="h-8 w-20 animate-pulse rounded bg-outline-variant" />
           ) : (
-            <p className={`text-3xl font-extrabold leading-none ${card.valueClassName}`}>
+            <p className={`app-kpi-value text-3xl ${card.valueClassName}`}>
               {typeof card.renderValue === 'function'
                 ? card.renderValue(summary?.[card.key] ?? 0)
                 : (summary?.[card.key] ?? 0)}

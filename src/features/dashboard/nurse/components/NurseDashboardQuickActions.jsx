@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const NurseDashboardQuickActions = ({ actions = [] }) => {
   return (
-    <section className="nurse-card-soft rounded-2xl p-3.5 sm:p-4">
+    <section className="app-card-shell rounded-2xl p-3.5 sm:p-4">
       <div className="mb-2">
         <h2 className="text-base font-bold text-on-surface">Thao tác nhanh</h2>
         <p className="mt-0.5 text-xs text-on-surface-variant">Truy cập nhanh các khu vực nghiệp vụ điều dưỡng trong ngày.</p>
@@ -14,7 +14,7 @@ const NurseDashboardQuickActions = ({ actions = [] }) => {
           <Link
             key={action.id}
             to={action.to}
-            className="nurse-focus-ring nurse-interactive rounded-xl border border-outline-variant bg-surface px-2.5 py-2.5 hover:border-primary/25 hover:bg-primary-soft/35"
+            className="app-focus-ring app-interactive rounded-xl border border-outline-variant bg-surface px-2.5 py-2.5 hover:border-primary/25 hover:bg-primary-soft/35"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-primary">

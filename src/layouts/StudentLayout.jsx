@@ -5,7 +5,7 @@ import StudentSidebar from '../features/student-portal/components/layout/Student
 import StudentTopbar from '../features/student-portal/components/layout/StudentTopbar';
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
 import { studentPortalService } from '../features/student-portal/services/studentPortalService';
-import '../features/student-portal/styles/student-portal.css';
+import './styles/student-shell.css';
 
 const resolveFallbackIdentity = (user) => {
   const rawName = user?.fullName || user?.name || 'Học sinh';
@@ -71,7 +71,7 @@ const StudentLayout = () => {
   const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[78px]' : 'md:ml-[272px]';
 
   return (
-    <div className="student-shell student-page-bg min-h-screen text-on-surface">
+    <div className="student-shell app-page-bg min-h-screen text-on-surface">
       <div
         aria-hidden="true"
         onClick={() => setIsSidebarOpen(false)}

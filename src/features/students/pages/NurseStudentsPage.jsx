@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
 import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 import DataTable from '../../../shared/components/admin/DataTable';
 import EmptyState from '../../../shared/components/admin/EmptyState';
 import Pagination from '../../../shared/components/admin/Pagination';
@@ -52,16 +51,16 @@ const HEALTH_STATUS_META = {
 };
 
 const HEALTH_STATUS_CLASS_MAP = {
-  normal: 'bg-[#DCFCE7] text-[#166534]',
-  tracking: 'bg-[#FEF3C7] text-[#B45309]',
-  alert: 'bg-[#FEE2E2] text-[#DC2626]',
+  normal: 'bg-success-soft text-success',
+  tracking: 'bg-warning-soft text-warning',
+  alert: 'bg-danger-soft text-danger',
 };
 
 const ALERT_BADGE_CLASS_MAP = {
-  'Dị ứng': 'bg-[#FEE2E2] text-[#DC2626]',
-  'Cận thị': 'bg-[#DBEAFE] text-[#2563EB]',
-  'Bệnh nền': 'bg-[#F3E8FF] text-[#9333EA]',
-  'Dinh dưỡng': 'bg-[#FFEDD5] text-[#EA580C]',
+  'Dị ứng': 'bg-danger-soft text-danger',
+  'Cận thị': 'bg-info-soft text-info',
+  'Bệnh nền': 'bg-warning-soft text-warning',
+  'Dinh dưỡng': 'bg-warning-soft text-warning',
 };
 
 const toDateLabel = (value) => {
@@ -376,7 +375,7 @@ const NurseStudentsPage = () => {
         key: 'studentCode',
         header: 'Mã học sinh',
         headerClassName: 'w-[98px]',
-        cellClassName: 'whitespace-nowrap text-[12px] font-bold text-[#15803D]',
+        cellClassName: 'whitespace-nowrap text-[12px] font-bold text-success',
         render: (row) => row.studentCode || (row._studentId ? `HS${row._studentId}` : '--'),
       },
       {
@@ -390,8 +389,8 @@ const NurseStudentsPage = () => {
             onClick={() => openStudentProfile(row._studentId)}
             className="w-full text-left"
           >
-            <p className="truncate text-[14px] font-extrabold leading-5 text-[#0F172A] transition-colors duration-150 hover:text-[#15803D]">{row.fullName || '--'}</p>
-            <p className="truncate text-[11px] text-[#64748B]">{row.dateOfBirthDisplay}</p>
+            <p className="truncate text-[14px] font-extrabold leading-5 text-on-surface transition-colors duration-150 hover:text-primary">{row.fullName || '--'}</p>
+            <p className="truncate text-[11px] text-on-surface-muted">{row.dateOfBirthDisplay}</p>
           </button>
         ),
       },
@@ -399,13 +398,13 @@ const NurseStudentsPage = () => {
         key: 'classNameDisplay',
         header: 'Lớp',
         headerClassName: 'w-[70px]',
-        cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-[#0F172A]',
+        cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-on-surface',
       },
       {
         key: 'genderDisplay',
         header: 'Giới tính',
         headerClassName: 'w-[86px]',
-        cellClassName: 'whitespace-nowrap text-[12px] text-[#64748B]',
+        cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-muted',
       },
       {
         key: 'healthStatusKey',
@@ -425,7 +424,7 @@ const NurseStudentsPage = () => {
         cellClassName: 'min-w-0',
         render: (row) => {
           if (!row.alerts.length) {
-            return <span className="text-[12px] text-[#94A3B8]">—</span>;
+            return <span className="text-[12px] text-on-surface-muted">—</span>;
           }
 
           const visibleAlerts = row.alerts.slice(0, 2);
@@ -436,13 +435,13 @@ const NurseStudentsPage = () => {
               {visibleAlerts.map((tag) => (
                 <span
                   key={`${row._studentId}-${tag}`}
-                  className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${ALERT_BADGE_CLASS_MAP[tag] || 'bg-[#DCFCE7] text-[#166534]'}`}
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${ALERT_BADGE_CLASS_MAP[tag] || 'bg-success-soft text-success'}`}
                 >
                   {tag}
                 </span>
               ))}
               {remaining > 0 ? (
-                <span className="inline-flex rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-semibold text-[#64748B]">+{remaining}</span>
+                <span className="inline-flex rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">+{remaining}</span>
               ) : null}
             </div>
           );
@@ -451,37 +450,28 @@ const NurseStudentsPage = () => {
       {
         key: 'actions',
         header: 'Thao tác',
-        headerClassName: 'w-[96px] min-w-[96px] whitespace-nowrap text-center',
-        cellClassName: 'min-w-[96px] text-center',
+        headerClassName: 'w-[182px] min-w-[182px] whitespace-nowrap text-right',
+        cellClassName: 'min-w-[182px] text-right',
         render: (row) => (
-          <div className="flex justify-center">
-            <ActionDropdown
-              menuWidth={190}
-              items={[
-                {
-                  id: 'view-profile',
-                  label: 'Xem nhanh hồ sơ',
-                  icon: 'visibility',
-                  onClick: () => openStudentProfile(row._studentId),
-                },
-                {
-                  id: 'open-health-profile-detail',
-                  label: 'Mở trang hồ sơ sức khỏe',
-                  icon: 'quick_reference_all',
-                  onClick: () => navigateToHealthProfile(row._studentId, {
-                    source: 'nurse-students',
-                    studentId: row._studentId,
-                    studentName: row.fullName,
-                  }),
-                },
-                {
-                  id: 'create-examination',
-                  label: 'Tạo phiếu khám',
-                  icon: 'add_notes',
-                  onClick: () => navigateToExaminationByStudent(row),
-                },
-              ]}
-            />
+          <div className="flex justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => navigateToHealthProfile(row._studentId, {
+                source: 'nurse-students',
+                studentId: row._studentId,
+                studentName: row.fullName,
+              })}
+              className="app-focus-ring app-row-action"
+            >
+              Mở hồ sơ
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateToExaminationByStudent(row)}
+              className="app-focus-ring app-row-action app-row-action-primary"
+            >
+              Tạo phiếu
+            </button>
           </div>
         ),
       },
@@ -489,16 +479,16 @@ const NurseStudentsPage = () => {
   }, [navigateToExaminationByStudent, navigateToHealthProfile, openStudentProfile]);
 
   return (
-    <div className="space-y-3.5 text-[#0F172A]">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#DC2626]/25 bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
@@ -507,24 +497,24 @@ const NurseStudentsPage = () => {
         description="Tra cứu nhanh hồ sơ sức khỏe học sinh và điều phối thao tác khám bệnh tại phòng y tế."
       />
 
-      <section className="nurse-card-soft rounded-2xl px-4 py-3 sm:px-5">
+      <section className="app-panel-shell px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
           <form onSubmit={handleApplyFilters} className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <label className="relative w-full sm:max-w-[310px]">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#64748B]/80">search</span>
+              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
               <input
                 type="search"
                 value={draftFilters.keyword}
                 onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
                 placeholder="Tìm theo mã học sinh hoặc họ tên"
-                className="nurse-focus-ring nurse-input h-9 w-full rounded-lg pl-9 pr-3 text-sm"
+                className="app-focus-ring app-input h-9 w-full rounded-lg pl-9 pr-3 text-sm"
               />
             </label>
 
             <select
               value={draftFilters.classValue}
               onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
-              className="nurse-focus-ring nurse-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[118px]"
+              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[118px]"
             >
               {classOptions.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
@@ -534,7 +524,7 @@ const NurseStudentsPage = () => {
             <select
               value={draftFilters.gender}
               onChange={(event) => setDraftFilters((prev) => ({ ...prev, gender: event.target.value }))}
-              className="nurse-focus-ring nurse-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[110px]"
+              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[110px]"
             >
               {GENDER_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
@@ -544,7 +534,7 @@ const NurseStudentsPage = () => {
             <select
               value={draftFilters.healthStatus}
               onChange={(event) => setDraftFilters((prev) => ({ ...prev, healthStatus: event.target.value }))}
-              className="nurse-focus-ring nurse-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[162px]"
+              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[162px]"
             >
               {HEALTH_STATUS_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
@@ -553,7 +543,7 @@ const NurseStudentsPage = () => {
 
             <button
               type="submit"
-                className="nurse-focus-ring nurse-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+                className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Lọc
             </button>
@@ -561,7 +551,7 @@ const NurseStudentsPage = () => {
             <button
               type="button"
               onClick={handleResetFilters}
-                className="nurse-focus-ring nurse-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+                className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Đặt lại
             </button>
@@ -577,7 +567,7 @@ const NurseStudentsPage = () => {
                 },
               });
             }}
-            className="nurse-focus-ring nurse-btn-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="app-focus-ring app-btn-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[17px]">medical_information</span>
             Tạo phiếu khám mới
@@ -586,27 +576,27 @@ const NurseStudentsPage = () => {
       </section>
 
       <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tổng học sinh</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#0F172A]">{stats.total}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Tổng học sinh</p>
+          <p className="app-kpi-value">{stats.total}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Bình thường</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#166534]">{stats.normal}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Bình thường</p>
+          <p className="app-kpi-value text-success">{stats.normal}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Cần theo dõi</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#B45309]">{stats.tracking}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Cần theo dõi</p>
+          <p className="app-kpi-value text-warning">{stats.tracking}</p>
         </article>
-        <article className="nurse-card-soft rounded-xl px-3.5 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Cảnh báo</p>
-          <p className="mt-0.5 text-[1.35rem] font-extrabold text-[#DC2626]">{stats.alert}</p>
+        <article className="app-kpi-card">
+          <p className="app-kpi-label">Cảnh báo</p>
+          <p className="app-kpi-value text-danger">{stats.alert}</p>
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-        <div className="nurse-table-summary-strong px-3 py-2 text-[11px] sm:px-4">
-          Hiển thị <span className="font-semibold text-[#0F172A]">{filteredRows.length}</span> bản ghi trên trang này • Tổng <span className="font-semibold text-[#0F172A]">{tableData.totalItems}</span> học sinh
+      <section className="app-card-shell overflow-hidden rounded-2xl">
+        <div className="app-table-summary px-3 py-2 text-[11px] sm:px-4">
+          Hiển thị <span className="font-semibold text-on-surface">{filteredRows.length}</span> bản ghi trên trang này • Tổng <span className="font-semibold text-on-surface">{tableData.totalItems}</span> học sinh
         </div>
 
         <AdminAsyncState
@@ -625,13 +615,13 @@ const NurseStudentsPage = () => {
                 rows={filteredRows}
                 getRowKey={(row) => row._studentId || row.studentCode || row.fullName}
                 containerClassName="overflow-x-auto overflow-y-visible"
-                tableClassName="min-w-[980px] w-full table-fixed divide-y divide-[#E2E8F0] text-[13px]"
-                headClassName="nurse-table-head-strong text-left"
-                bodyClassName="divide-y divide-[#E2E8F0] bg-white"
-                rowClassName="transition-[background-color] duration-150 hover:bg-[#F0FDF4]"
+                tableClassName="min-w-[980px] w-full table-fixed divide-y divide-outline-variant text-[13px]"
+                headClassName="app-table-head text-left"
+                bodyClassName="divide-y divide-outline-variant bg-surface"
+                rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
               />
 
-              <div className="border-t border-[#E2E8F0] px-3 py-2 sm:px-4">
+              <div className="border-t border-outline-variant px-3 py-2 sm:px-4">
                 <Pagination
                   compact
                   page={tableData.page}
@@ -661,11 +651,11 @@ const NurseStudentsPage = () => {
       >
         {selectedRow ? (
           <div className="space-y-3">
-            <section className="rounded-lg border border-[#D1FAE5] bg-[#F0FDF4] p-3">
+            <section className="rounded-lg border border-success/25 bg-success-soft p-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-extrabold text-[#0F172A]">{selectedRow.fullName}</h3>
-                  <p className="mt-0.5 text-sm text-[#64748B]">{selectedRow.studentCode || (selectedRow._studentId ? `HS${selectedRow._studentId}` : '--')} • Lớp {selectedRow.classNameDisplay}</p>
+                  <h3 className="text-lg font-extrabold text-on-surface">{selectedRow.fullName}</h3>
+                  <p className="mt-0.5 text-sm text-on-surface-variant">{selectedRow.studentCode || (selectedRow._studentId ? `HS${selectedRow._studentId}` : '--')} • Lớp {selectedRow.classNameDisplay}</p>
                 </div>
                 <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${HEALTH_STATUS_CLASS_MAP[selectedRow.healthStatusKey] || HEALTH_STATUS_CLASS_MAP.normal}`}>
                   {HEALTH_STATUS_META[selectedRow.healthStatusKey]?.label || 'Bình thường'}
@@ -673,46 +663,46 @@ const NurseStudentsPage = () => {
               </div>
             </section>
 
-            <section className="rounded-lg border border-[#E2E8F0] bg-white p-3 text-sm text-[#0F172A]">
+            <section className="rounded-lg border border-outline-variant bg-surface p-3 text-sm text-on-surface">
               <div className="grid grid-cols-[128px_1fr] gap-y-2">
-                <p className="text-[#64748B]">Mã học sinh</p>
+                <p className="text-on-surface-variant">Mã học sinh</p>
                 <p className="font-semibold">{selectedRow.studentCode || (selectedRow._studentId ? `HS${selectedRow._studentId}` : '--')}</p>
 
-                <p className="text-[#64748B]">Ngày sinh</p>
+                <p className="text-on-surface-variant">Ngày sinh</p>
                 <p>{selectedRow.dateOfBirthDisplay}</p>
 
-                <p className="text-[#64748B]">Giới tính</p>
+                <p className="text-on-surface-variant">Giới tính</p>
                 <p>{selectedRow.genderDisplay}</p>
 
-                <p className="text-[#64748B]">Chiều cao / Cân nặng</p>
+                <p className="text-on-surface-variant">Chiều cao / Cân nặng</p>
                 <p>{(selectedRow.profile?.heightCm || selectedRow.currentHeight || '--')} cm / {(selectedRow.profile?.weightKg || selectedRow.currentWeight || '--')} kg</p>
 
-                <p className="text-[#64748B]">Nhóm máu</p>
+                <p className="text-on-surface-variant">Nhóm máu</p>
                 <p>{selectedRow.profile?.bloodType || '--'}</p>
 
-                <p className="text-[#64748B]">Tình trạng mắt</p>
+                <p className="text-on-surface-variant">Tình trạng mắt</p>
                 <p>{selectedRow.profile?.eyeStatus || '--'}</p>
 
-                <p className="text-[#64748B]">Bệnh nền</p>
+                <p className="text-on-surface-variant">Bệnh nền</p>
                 <p>{selectedRow.profile?.chronicNote || '--'}</p>
 
-                <p className="text-[#64748B]">Cảnh báo y tế</p>
+                <p className="text-on-surface-variant">Cảnh báo y tế</p>
                 <div className="flex flex-wrap gap-1">
                   {selectedRow.alerts.length
                     ? selectedRow.alerts.map((tag) => (
-                      <span key={`drawer-${selectedRow._studentId}-${tag}`} className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${ALERT_BADGE_CLASS_MAP[tag] || 'bg-[#DCFCE7] text-[#166534]'}`}>
+                      <span key={`drawer-${selectedRow._studentId}-${tag}`} className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${ALERT_BADGE_CLASS_MAP[tag] || 'bg-success-soft text-success'}`}>
                         {tag}
                       </span>
                     ))
-                    : <span className="text-[#94A3B8]">—</span>}
+                    : <span className="text-on-surface-muted">—</span>}
                 </div>
 
-                <p className="text-[#64748B]">Cập nhật gần nhất</p>
+                <p className="text-on-surface-variant">Cập nhật gần nhất</p>
                 <p>{toDateLabel(selectedRow.profile?.healthProfileUpdatedAt || selectedRow.updatedAt)}</p>
               </div>
             </section>
 
-            <div className="flex flex-wrap gap-2 border-t border-[#E2E8F0] pt-3">
+            <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
               <button
                 type="button"
                 onClick={() => {
@@ -722,7 +712,7 @@ const NurseStudentsPage = () => {
                     studentName: selectedRow.fullName,
                   });
                 }}
-                className="nurse-focus-ring nurse-btn-secondary rounded-md px-3 py-1.5 text-sm font-semibold"
+                className="app-focus-ring app-btn-secondary rounded-md px-3 py-1.5 text-sm font-semibold"
               >
                 Mở hồ sơ sức khỏe
               </button>
@@ -745,7 +735,7 @@ const NurseStudentsPage = () => {
                     showFeedback(normalizeApiMessage(apiError), 'error');
                   }
                 }}
-                className="nurse-focus-ring nurse-btn-secondary rounded-md px-3 py-1.5 text-sm font-semibold"
+                className="app-focus-ring app-btn-secondary rounded-md px-3 py-1.5 text-sm font-semibold"
               >
                 Đồng bộ dữ liệu
               </button>

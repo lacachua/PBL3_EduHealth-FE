@@ -11,7 +11,7 @@ const NurseReportsTrendPanel = ({ trend }) => {
     <SectionCard
       title="Xu hướng theo thời gian"
       subtitle="Theo dõi số ca y tế theo bộ lọc đã chọn"
-      className="nurse-card-soft h-full rounded-xl p-0"
+      className="app-card-shell h-full rounded-xl p-0"
       headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
       titleClassName="text-[15px] font-bold text-on-surface"
       subtitleClassName="mt-0.5 text-[11px] text-on-surface-variant leading-4"
@@ -41,7 +41,7 @@ const NurseReportsTrendPanel = ({ trend }) => {
                     <p className="text-[10px] font-semibold text-on-surface-variant">{item.value}</p>
                     <div className="relative h-full w-full max-w-[60px] rounded-t-md bg-outline-variant/50">
                       <div
-                        className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-all duration-300 ${isPeak || isLast ? 'bg-primary' : 'bg-success'}`}
+                        className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-[height,background-color] duration-300 ${isPeak || isLast ? 'bg-primary' : 'bg-success'}`}
                         style={{ height: `${heightPercent}%` }}
                         aria-label={`${item.label}: ${item.value}`}
                       />

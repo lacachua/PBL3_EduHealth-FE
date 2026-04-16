@@ -20,7 +20,7 @@ export const nurseReportsRepository = {
       await waitForMock('default');
       return getNurseReportsMockSnapshot(normalizedFilters, {
         source: 'mock',
-        note: 'Đang sử dụng dữ liệu mô phỏng cho module Báo cáo y tá.',
+        note: 'Mock-only: backend reports chưa hỗ trợ endpoint live cho nurse.',
       });
     }
 

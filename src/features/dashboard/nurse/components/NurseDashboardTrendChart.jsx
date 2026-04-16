@@ -8,7 +8,7 @@ const NurseDashboardTrendChart = ({ trend, loading, onRetry }) => {
   const hasError = trend?.status === 'error';
 
   return (
-    <section className="nurse-card-soft flex h-full min-h-[312px] flex-col rounded-2xl p-4 sm:p-4.5">
+    <section className="app-card-shell flex h-full min-h-[312px] flex-col rounded-2xl p-4 sm:p-4.5">
       <div className="mb-2.5 flex items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-bold text-on-surface">Lượt khám 7 ngày gần nhất</h2>

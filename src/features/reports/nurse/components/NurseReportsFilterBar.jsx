@@ -8,7 +8,7 @@ const FilterSelect = ({ label, value, options, onChange }) => {
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="nurse-input nurse-focus-ring h-9 rounded-lg px-2.5 text-sm"
+        className="app-input app-focus-ring h-9 rounded-lg px-2.5 text-sm"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -33,8 +33,8 @@ const NurseReportsFilterBar = ({
     : [{ value: 'all', label: 'Tất cả lớp' }];
 
   return (
-    <section className="rounded-xl border border-outline-variant bg-surface px-3 py-2.5 shadow-[0_1px_3px_rgba(15,23,42,0.035)]">
-      <div className="flex flex-wrap items-end gap-2">
+    <section className="app-panel-shell px-3.5 py-3">
+      <div className="flex flex-wrap items-end gap-2.5">
         <FilterSelect
           label="Mốc thời gian"
           value={filters.timeRange}
@@ -69,25 +69,23 @@ const NurseReportsFilterBar = ({
           onChange={(nextValue) => onFiltersChange({ classId: nextValue })}
         />
 
-        <div className="ml-auto flex items-center gap-1.5 self-center">
+        <div className="ml-auto flex items-center gap-2 self-center">
           <button
             type="button"
-            title="Đặt lại bộ lọc"
-            aria-label="Đặt lại bộ lọc"
             onClick={onReset}
-            className="nurse-focus-ring nurse-btn-secondary inline-flex h-9 w-9 items-center justify-center rounded-lg"
+            className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold"
           >
             <span className="material-symbols-outlined text-[18px]">restart_alt</span>
+            Đặt lại
           </button>
 
           <button
             type="button"
-            title="Làm mới dữ liệu"
-            aria-label="Làm mới dữ liệu"
             onClick={onRefresh}
-            className="nurse-focus-ring nurse-btn-secondary inline-flex h-9 w-9 items-center justify-center rounded-lg"
+            className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold"
           >
             <span className={`material-symbols-outlined text-[18px] ${refreshing ? 'animate-spin' : ''}`}>refresh</span>
+            Làm mới
           </button>
         </div>
       </div>

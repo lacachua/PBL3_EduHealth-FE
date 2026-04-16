@@ -2,40 +2,41 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
 import { studentPortalService } from '../services/studentPortalService';
+import '../styles/student-portal.css';
 
 const reminderToneClassMap = {
-  amber: 'student-reminder-card student-reminder-card-amber',
-  mint: 'student-reminder-card student-reminder-card-mint',
-  sky: 'student-reminder-card student-reminder-card-sky',
+  amber: 'student-reminder-card app-tone-warning app-tone-surface',
+  mint: 'student-reminder-card app-tone-primary app-tone-surface',
+  sky: 'student-reminder-card app-tone-info app-tone-surface',
 };
 
 const summaryVisuals = [
   {
     icon: 'monitor_heart',
-    cardClassName: 'student-summary-card-mint',
+    cardClassName: 'app-tone-primary app-tone-surface',
     iconClassName: 'bg-primary/14 text-primary',
   },
   {
     icon: 'health_metrics',
-    cardClassName: 'student-summary-card-sky',
+    cardClassName: 'app-tone-info app-tone-surface',
     iconClassName: 'bg-info/14 text-info',
   },
   {
     icon: 'vaccines',
-    cardClassName: 'student-summary-card-amber',
+    cardClassName: 'app-tone-warning app-tone-surface',
     iconClassName: 'bg-warning/16 text-warning',
   },
   {
     icon: 'check_circle',
-    cardClassName: 'student-summary-card-green',
+    cardClassName: 'app-tone-success app-tone-surface',
     iconClassName: 'bg-success/16 text-success',
   },
 ];
 
 const activityTagToneClassMap = {
-  mint: 'student-activity-tag student-activity-tag-mint',
-  amber: 'student-activity-tag student-activity-tag-amber',
-  sky: 'student-activity-tag student-activity-tag-sky',
+  mint: 'student-activity-tag app-tone-primary app-tone-chip',
+  amber: 'student-activity-tag app-tone-warning app-tone-chip',
+  sky: 'student-activity-tag app-tone-info app-tone-chip',
 };
 
 const activityIconToneClassMap = {
@@ -50,18 +51,18 @@ const growthMetricOptions = {
     label: 'Chiều cao',
     unit: 'cm',
     fractionDigits: 0,
-    lineClass: 'student-chart-line-height',
-    areaClass: 'student-chart-area-height',
-    dotClass: 'student-chart-dot-height',
+    lineClass: 'student-chart-line student-chart-series-height',
+    areaClass: 'student-chart-area student-chart-series-height',
+    dotClass: 'student-chart-dot student-chart-series-height',
   },
   weight: {
     key: 'weightKg',
     label: 'Cân nặng',
     unit: 'kg',
     fractionDigits: 1,
-    lineClass: 'student-chart-line-weight',
-    areaClass: 'student-chart-area-weight',
-    dotClass: 'student-chart-dot-weight',
+    lineClass: 'student-chart-line student-chart-series-weight',
+    areaClass: 'student-chart-area student-chart-series-weight',
+    dotClass: 'student-chart-dot student-chart-series-weight',
   },
 };
 
@@ -319,7 +320,7 @@ const StudentOverviewPage = () => {
               <button
                 type="button"
                 onClick={handleNavigateAccount}
-                className="student-overview-cta-primary student-focus-ring student-interactive rounded-xl px-3.5 py-2 text-sm font-semibold"
+                className="app-btn-primary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
               >
                 Xem tài khoản
               </button>
@@ -327,7 +328,7 @@ const StudentOverviewPage = () => {
               <button
                 type="button"
                 onClick={handleNavigateVaccinations}
-                className="student-overview-cta-secondary student-focus-ring student-interactive rounded-xl px-3.5 py-2 text-sm font-semibold"
+                className="app-btn-secondary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
               >
                 Xem lịch tiêm
               </button>
@@ -356,7 +357,7 @@ const StudentOverviewPage = () => {
       </section>
 
       <section className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-3.5">
-        <article className="student-module-surface student-growth-card rounded-3xl p-4 md:p-5">
+        <article className="app-panel-shell student-growth-card rounded-3xl p-4 md:p-5">
           <header className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-on-surface">Biểu đồ tăng trưởng</h2>
@@ -369,14 +370,14 @@ const StudentOverviewPage = () => {
               <button
                 type="button"
                 onClick={() => setGrowthMetric('height')}
-                className={`student-growth-toggle student-focus-ring student-interactive ${growthMetric === 'height' ? 'student-growth-toggle-active' : ''}`}
+                className={`student-growth-toggle app-focus-ring app-interactive ${growthMetric === 'height' ? 'student-growth-toggle-active' : ''}`}
               >
                 Chiều cao
               </button>
               <button
                 type="button"
                 onClick={() => setGrowthMetric('weight')}
-                className={`student-growth-toggle student-focus-ring student-interactive ${growthMetric === 'weight' ? 'student-growth-toggle-active' : ''}`}
+                className={`student-growth-toggle app-focus-ring app-interactive ${growthMetric === 'weight' ? 'student-growth-toggle-active' : ''}`}
               >
                 Cân nặng
               </button>
@@ -450,7 +451,7 @@ const StudentOverviewPage = () => {
           </div>
         </article>
 
-        <article className="student-module-surface rounded-3xl p-4 md:p-5">
+        <article className="app-panel-shell rounded-3xl p-4 md:p-5">
           <header className="mb-3.5 flex items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-on-surface">Nhắc nhở và lưu ý</h2>
@@ -486,7 +487,7 @@ const StudentOverviewPage = () => {
         </article>
       </section>
 
-      <section className="student-module-surface overflow-hidden rounded-3xl">
+      <section className="app-panel-shell overflow-hidden rounded-3xl">
         <header className="flex items-center justify-between border-b border-outline-variant bg-surface/75 px-4 py-3.5">
           <h2 className="text-base font-semibold text-on-surface">Hoạt động gần đây</h2>
           <span className="inline-flex items-center gap-1 rounded-full border border-info/25 bg-info-soft/72 px-2.5 py-1 text-[11px] font-semibold text-info">
@@ -497,7 +498,7 @@ const StudentOverviewPage = () => {
 
         <div className="divide-y divide-outline-variant">
           {overviewData.recentActivities.map((item) => (
-            <article key={item.id} className="student-activity-item flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between">
+            <article key={item.id} className="student-activity-item app-interactive flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${resolveActivityIconClass(item.tone)}`}>

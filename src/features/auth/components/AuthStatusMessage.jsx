@@ -10,7 +10,7 @@ const STATUS_STYLES = {
     icon: 'check_circle',
   },
   info: {
-    wrap: 'border-auth-blue-accent/20 bg-auth-soft-blue text-auth-navy',
+    wrap: 'border-info/28 bg-info-soft text-auth-text-strong',
     icon: 'info',
   },
 };

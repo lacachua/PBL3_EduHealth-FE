@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
 import { studentPortalService } from '../services/studentPortalService';
+import '../styles/student-portal.css';
 
 const statusToneClassMap = {
   success: 'border-success/35 bg-success-soft text-success',
@@ -11,17 +12,17 @@ const statusToneClassMap = {
 const summaryVisuals = [
   {
     icon: 'format_list_bulleted',
-    cardClassName: 'border-primary/25 student-accent-aqua',
+    cardClassName: 'app-tone-primary app-tone-surface',
     textClassName: 'text-primary',
   },
   {
     icon: 'event_available',
-    cardClassName: 'border-info/22 student-accent-sky',
+    cardClassName: 'app-tone-info app-tone-surface',
     textClassName: 'text-info',
   },
   {
     icon: 'description',
-    cardClassName: 'border-warning/25 student-accent-sun',
+    cardClassName: 'app-tone-warning app-tone-surface',
     textClassName: 'text-warning',
   },
 ];
@@ -171,7 +172,7 @@ const StudentCareHistoryPage = () => {
 
   return (
     <div className="space-y-4 text-on-surface">
-      <section className="student-module-surface rounded-3xl px-4 py-4 sm:px-5">
+      <section className="app-panel-shell rounded-3xl px-4 py-4 sm:px-5">
         <header className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-lg font-semibold text-on-surface">Lịch sử chăm sóc</h1>
@@ -216,7 +217,7 @@ const StudentCareHistoryPage = () => {
         </div>
       </section>
 
-      <section className="student-module-surface rounded-3xl p-4 md:p-5">
+      <section className="app-panel-shell rounded-3xl p-4 md:p-5">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-on-surface">Danh sách lần chăm sóc</h2>
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary-soft/75 px-2.5 py-1 text-[11px] font-semibold text-primary">
@@ -235,9 +236,9 @@ const StudentCareHistoryPage = () => {
                 key={item.id}
                 type="button"
                 onClick={() => openDrawer(item.id)}
-                className={`student-focus-ring student-interactive relative w-full rounded-2xl border p-3.5 text-left ${
+                className={`app-focus-ring app-interactive relative w-full rounded-2xl border p-3.5 text-left ${
                   isActive
-                    ? 'border-primary/45 bg-[linear-gradient(135deg,#dbf6f1_0%,#edf9ff_100%)] shadow-[0_10px_20px_rgba(15,135,121,0.12)]'
+                    ? 'student-list-item-active'
                     : 'border-outline-variant bg-surface hover:bg-surface-container-low'
                 }`}
               >
@@ -301,16 +302,16 @@ const StudentCareHistoryPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Chi tiết lần chăm sóc"
-            className={`pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant bg-surface shadow-[0_22px_44px_rgba(15,23,42,0.2)] transition-transform duration-200 ease-out ${
+            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${
               isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
             }`}
           >
             <div className="flex h-full flex-col overflow-hidden rounded-3xl">
-              <header className="relative border-b border-outline-variant bg-[linear-gradient(135deg,#dbf6f1_0%,#edf9ff_100%)] px-4 py-3.5">
+              <header className="student-drawer-header relative border-b border-outline-variant px-4 py-3.5">
                 <button
                   type="button"
                   onClick={closeDrawer}
-                  className="student-focus-ring student-interactive absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface"
+                  className="app-focus-ring app-interactive absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface"
                   aria-label="Đóng"
                 >
                   <span className="material-symbols-outlined text-[18px]">close</span>

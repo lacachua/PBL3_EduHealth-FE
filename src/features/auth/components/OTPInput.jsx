@@ -95,11 +95,11 @@ const OTPInput = ({
           maxLength={1}
           disabled={disabled}
           aria-label={`OTP ${index + 1}`}
-          className={`h-[56px] w-[56px] rounded-xl border text-center text-xl font-semibold outline-none transition-all sm:h-[62px] sm:w-[62px] ${
+          className={`app-focus-ring h-[56px] w-[56px] rounded-xl border text-center text-xl font-semibold outline-none transition-[border-color,background-color,box-shadow,color] duration-200 ease-out sm:h-[62px] sm:w-[62px] ${
             hasError
               ? 'border-auth-error bg-auth-error-soft/45 text-auth-error focus:border-auth-error focus:ring-2 focus:ring-auth-error/30'
               : activeIndex === index
-                ? 'border-auth-navy bg-auth-surface text-auth-text-strong ring-2 ring-auth-primary/30'
+                ? 'border-auth-primary bg-auth-surface text-auth-text-strong ring-2 ring-auth-primary/30'
                 : 'border-auth-border bg-auth-surface text-auth-text-strong focus:border-auth-primary focus:ring-2 focus:ring-auth-primary/30'
           } ${disabled ? 'cursor-not-allowed opacity-70' : ''}`}
         />

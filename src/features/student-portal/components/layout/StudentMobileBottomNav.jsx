@@ -12,7 +12,7 @@ const StudentMobileBottomNav = () => {
             to={item.to}
             end={item.to === '/student/overview'}
             className={({ isActive }) =>
-              `student-focus-ring student-interactive flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg px-1.5 py-1.5 text-[10px] font-semibold ${
+              `app-focus-ring app-interactive flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg px-1.5 py-1.5 text-[10px] font-semibold ${
                 isActive ? 'bg-primary-soft text-primary' : 'text-on-surface-variant'
               }`
             }

@@ -1,5 +1,6 @@
 import React from 'react';
 import AuthVisualPanel from './AuthVisualPanel';
+import '../styles/auth.css';
 
 const AuthShell = ({
   children,

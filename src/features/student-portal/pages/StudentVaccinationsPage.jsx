@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
 import { studentPortalService } from '../services/studentPortalService';
+import '../styles/student-portal.css';
 
 const filterOptions = [
   { id: 'all', label: 'Tất cả' },
@@ -12,17 +13,17 @@ const filterOptions = [
 const statusClassMap = {
   completed: {
     chip: 'border-success/35 bg-success-soft text-success',
-    card: 'border-success/25 bg-[linear-gradient(145deg,#ebf8f1_0%,#f6fcf9_100%)]',
+    card: 'app-tone-success app-tone-surface',
     icon: 'task_alt',
   },
   upcoming: {
     chip: 'border-warning/35 bg-warning-soft text-warning',
-    card: 'border-warning/28 bg-[linear-gradient(145deg,#fff1d8_0%,#fff8ea_100%)] shadow-[0_12px_22px_rgba(183,121,31,0.14)]',
+    card: 'app-tone-warning app-tone-surface',
     icon: 'event_upcoming',
   },
   pending: {
     chip: 'border-info/35 bg-info-soft text-info',
-    card: 'border-info/25 bg-[linear-gradient(145deg,#e8f3ff_0%,#f4f9ff_100%)]',
+    card: 'app-tone-info app-tone-surface',
     icon: 'update',
   },
 };
@@ -30,25 +31,25 @@ const statusClassMap = {
 const summaryVisuals = [
   {
     icon: 'format_list_bulleted',
-    cardClassName: 'border-primary/26 student-accent-aqua',
+    cardClassName: 'app-tone-primary app-tone-surface',
     textClassName: 'text-primary',
     label: 'Tổng số mũi',
   },
   {
     icon: 'task_alt',
-    cardClassName: 'border-success/26 bg-[linear-gradient(145deg,#e6f7ef_0%,#f4fcf8_100%)]',
+    cardClassName: 'app-tone-success app-tone-surface',
     textClassName: 'text-success',
     label: 'Đã tiêm',
   },
   {
     icon: 'event_upcoming',
-    cardClassName: 'border-warning/28 student-accent-sun',
+    cardClassName: 'app-tone-warning app-tone-surface',
     textClassName: 'text-warning',
     label: 'Sắp tới',
   },
   {
     icon: 'update',
-    cardClassName: 'border-info/25 student-accent-sky',
+    cardClassName: 'app-tone-info app-tone-surface',
     textClassName: 'text-info',
     label: 'Chờ cập nhật',
   },
@@ -212,7 +213,7 @@ const StudentVaccinationsPage = () => {
 
   return (
     <div className="space-y-4 text-on-surface">
-      <section className="student-module-surface rounded-3xl px-4 py-4 sm:px-5">
+      <section className="app-panel-shell rounded-3xl px-4 py-4 sm:px-5">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-lg font-semibold text-on-surface">Tiêm chủng</h1>
@@ -269,7 +270,7 @@ const StudentVaccinationsPage = () => {
         </div>
       </section>
 
-      <section className="student-module-surface rounded-3xl p-4 md:p-5">
+      <section className="app-panel-shell rounded-3xl p-4 md:p-5">
         <div className="mb-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-base font-semibold text-on-surface">Danh sách mũi tiêm</h2>
@@ -284,7 +285,7 @@ const StudentVaccinationsPage = () => {
                 key={option.id}
                 type="button"
                 onClick={() => setActiveFilter(option.id)}
-                className={`student-focus-ring student-interactive rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
+                className={`app-focus-ring app-interactive rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                   option.id === activeFilter
                     ? 'bg-primary-soft text-primary shadow-sm'
                     : 'text-on-surface-variant'
@@ -310,9 +311,9 @@ const StudentVaccinationsPage = () => {
                   key={record.id}
                   type="button"
                   onClick={() => openDrawer(record.id)}
-                  className={`student-focus-ring student-interactive relative w-full rounded-2xl border px-3.5 py-3 text-left ${
+                  className={`app-focus-ring app-interactive relative w-full rounded-2xl border px-3.5 py-3 text-left ${
                     isActive
-                      ? 'border-primary/45 bg-[linear-gradient(135deg,#dbf6f1_0%,#edf9ff_100%)] shadow-[0_10px_20px_rgba(15,135,121,0.12)]'
+                      ? 'student-list-item-active'
                       : `${statusClassMap[record.status]?.card || statusClassMap.pending.card}`
                   }`}
                 >
@@ -371,16 +372,16 @@ const StudentVaccinationsPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Chi tiết mũi tiêm"
-            className={`pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant bg-[linear-gradient(180deg,#ffffff_0%,#f9fcfc_100%)] shadow-[0_24px_48px_rgba(15,23,42,0.18)] transition-transform duration-200 ease-out ${
+            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${
               isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
             }`}
           >
             <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl">
-              <header className="relative shrink-0 border-b border-outline-variant bg-[linear-gradient(135deg,#dbf6f1_0%,#edf9ff_100%)] px-4 py-3.5">
+              <header className="student-drawer-header relative shrink-0 border-b border-outline-variant px-4 py-3.5">
                 <button
                   type="button"
                   onClick={closeDrawer}
-                  className="student-focus-ring student-interactive absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface"
+                  className="app-focus-ring app-interactive absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface"
                   aria-label="Đóng"
                 >
                   <span className="material-symbols-outlined text-[18px]">close</span>
@@ -453,7 +454,7 @@ const StudentVaccinationsPage = () => {
                   <button
                     type="button"
                     onClick={closeDrawer}
-                    className="student-focus-ring student-interactive rounded-lg border border-outline-variant bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface"
+                    className="app-focus-ring app-interactive rounded-lg border border-outline-variant bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface"
                   >
                     Đóng
                   </button>

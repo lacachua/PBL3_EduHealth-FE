@@ -91,7 +91,7 @@ const UpdateStudentVaccinationModal = ({
       submitting={submitting}
       submitLabel="Lưu kết quả"
       maxWidthClass="max-w-[880px]"
-      submitButtonClassName="nurse-btn-primary nurse-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+      submitButtonClassName="app-btn-primary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
     >
       <div className="space-y-4">
           <section className="grid gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 md:grid-cols-2">
@@ -132,7 +132,7 @@ const UpdateStudentVaccinationModal = ({
               <select
                 value={values.status}
                 onChange={(event) => updateField('status', event.target.value)}
-                className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                className="app-input rounded-xl px-3 py-2.5 text-sm"
               >
                 {VACCINATION_STATUS_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -155,7 +155,7 @@ const UpdateStudentVaccinationModal = ({
                     type="date"
                     value={values.vaccinatedAt}
                     onChange={(event) => updateField('vaccinatedAt', event.target.value)}
-                    className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                    className="app-input rounded-xl px-3 py-2.5 text-sm"
                   />
                   {fieldErrors.vaccinatedAt ? <span className="text-xs text-[#B91C1C]">{fieldErrors.vaccinatedAt}</span> : null}
                 </label>
@@ -166,7 +166,7 @@ const UpdateStudentVaccinationModal = ({
                     type="text"
                     value={values.lotNumber}
                     onChange={(event) => updateField('lotNumber', event.target.value)}
-                    className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                    className="app-input rounded-xl px-3 py-2.5 text-sm"
                     placeholder="Ví dụ: LOT-2026-09"
                   />
                   {fieldErrors.lotNumber ? <span className="text-xs text-[#B91C1C]">{fieldErrors.lotNumber}</span> : null}
@@ -184,7 +184,7 @@ const UpdateStudentVaccinationModal = ({
             <textarea
               value={values.note}
               onChange={(event) => updateField('note', event.target.value)}
-              className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+              className="app-input rounded-xl px-3 py-2.5 text-sm"
               rows={3}
               placeholder="Nhập ghi chú nếu có"
             />
