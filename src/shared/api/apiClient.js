@@ -1,5 +1,36 @@
-import axiosClient from './axiosClient';
+import axios from 'axios';
+import { env } from '../../app/config/env';
+import { clearAuthStorage, getAccessToken } from '../services/tokenClient';
 import { normalizeApiEnvelope } from './normalizeResponse';
+
+const httpClient = axios.create({
+  baseURL: env.apiBaseUrl,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+httpClient.interceptors.request.use((config) => {
+  const token = getAccessToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      clearAuthStorage();
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 const createApiError = ({ message, status, field, errors, response }) => {
   const error = new Error(message || 'Request failed');
@@ -34,7 +65,7 @@ export const requestEnvelope = async ({
   responseType,
   headers,
 }) => {
-  const response = await axiosClient.request({
+  const response = await httpClient.request({
     method,
     url,
     data,
@@ -57,6 +88,8 @@ export const requestData = async (options) => {
   return envelope?.data;
 };
 
+export const apiRequestRaw = (options = {}) => httpClient.request(options);
+
 export const apiGetEnvelope = (url, options = {}) => requestEnvelope({ method: 'get', url, ...options });
 export const apiPostEnvelope = (url, data, options = {}) => requestEnvelope({ method: 'post', url, data, ...options });
 export const apiPatchEnvelope = (url, data, options = {}) => requestEnvelope({ method: 'patch', url, data, ...options });
@@ -65,3 +98,5 @@ export const apiDeleteEnvelope = (url, options = {}) => requestEnvelope({ method
 export const apiGetData = (url, options = {}) => requestData({ method: 'get', url, ...options });
 export const apiPostData = (url, data, options = {}) => requestData({ method: 'post', url, data, ...options });
 export const apiPatchData = (url, data, options = {}) => requestData({ method: 'patch', url, data, ...options });
+
+export default httpClient;

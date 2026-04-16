@@ -5,6 +5,8 @@ const DataTable = ({
   rows,
   getRowKey,
   dense = false,
+  headCellPaddingClassName,
+  bodyCellPaddingClassName,
   containerClassName,
   tableClassName,
   headClassName,
@@ -12,8 +14,8 @@ const DataTable = ({
   rowClassName,
   onRowClick,
 }) => {
-  const headCellPaddingClass = dense ? 'px-3 py-2' : 'px-4 py-2.5';
-  const bodyCellPaddingClass = dense ? 'px-3 py-2.5' : 'px-4 py-3.5';
+  const headCellPaddingClass = headCellPaddingClassName || (dense ? 'px-3 py-2' : 'px-4 py-2.5');
+  const bodyCellPaddingClass = bodyCellPaddingClassName || (dense ? 'px-3 py-2.5' : 'px-4 py-3.5');
 
   const shouldIgnoreRowClick = (event) => {
     if (event.defaultPrevented) {
@@ -32,12 +34,12 @@ const DataTable = ({
   };
 
   return (
-    <div className={containerClassName || 'overflow-x-auto rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)]'}>
-      <table className={tableClassName || 'min-w-full divide-y divide-outline-variant text-sm'}>
-        <thead className={headClassName || 'bg-[var(--table-header-bg)] text-left text-on-surface-variant'}>
+    <div className={containerClassName || 'overflow-x-auto rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--sys-shadow-card)]'}>
+      <table className={tableClassName || 'min-w-full divide-y divide-outline-variant text-[13px] text-on-surface'}>
+        <thead className={headClassName || 'app-table-head text-left'}>
           <tr>
             {columns.map((column) => (
-              <th key={column.key} className={`${headCellPaddingClass} text-xs font-semibold uppercase tracking-[0.02em] ${column.headerClassName || ''}`}>
+              <th key={column.key} className={`${headCellPaddingClass} text-[11px] font-bold uppercase tracking-[0.07em] ${column.headerClassName || ''}`}>
                 {column.header}
               </th>
             ))}
@@ -66,7 +68,7 @@ const DataTable = ({
               } : undefined}
               role={onRowClick ? 'button' : undefined}
               tabIndex={onRowClick ? 0 : undefined}
-              className={`${rowClassName || 'transition-colors duration-150 hover:bg-[var(--table-row-hover-bg)] focus-within:bg-[var(--table-row-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20'} ${onRowClick ? 'cursor-pointer' : ''}`}
+              className={`${rowClassName || 'app-interactive transition-colors duration-150 hover:bg-[var(--table-row-hover-bg)] focus-within:bg-[var(--table-row-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20'} ${onRowClick ? 'cursor-pointer' : ''}`}
             >
               {columns.map((column) => (
                 <td key={column.key} className={`align-top ${bodyCellPaddingClass} ${column.cellClassName || ''}`}>

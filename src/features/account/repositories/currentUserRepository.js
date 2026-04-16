@@ -18,7 +18,6 @@ const ROLE_LABELS = {
   ADMIN: 'Quản trị viên',
   NURSE: 'Nhân viên y tế',
   STUDENT: 'Học sinh',
-  PARENT: 'Phụ huynh',
 };
 
 const toStringOrEmpty = (value) => {
@@ -102,11 +101,16 @@ export const currentUserRepository = {
   },
 
   async updateCurrentUserProfile(payload) {
+    const requestBody = {
+      fullName: toStringOrEmpty(payload?.fullName),
+      phone: toStringOrEmpty(payload?.phone),
+    };
+
     if (shouldUseMock()) {
-      return updateCurrentUserProfileMock(payload);
+      return updateCurrentUserProfileMock(requestBody);
     }
 
-    return updateCurrentUserProfileRequest(payload);
+    return updateCurrentUserProfileRequest(requestBody);
   },
 
   async uploadCurrentUserAvatar(payload) {

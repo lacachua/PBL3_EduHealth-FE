@@ -6,7 +6,7 @@ import {
 } from '../schemas/userManagementSchema';
 import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
 
-const controlClass = `h-11 rounded-xl border bg-surface px-3 text-sm outline-none transition ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.bodyText} ${ACCOUNT_BASE_CLASS.focusRing}`;
+const controlClass = `app-input app-focus-ring w-full text-[13px] ${ACCOUNT_BASE_CLASS.bodyText}`;
 
 const UserFilters = ({ initialValue, onApply, onReset }) => {
   const [draft, setDraft] = useState(initialValue);
@@ -27,8 +27,8 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-      <label className="relative w-full md:max-w-[320px]">
+    <form onSubmit={handleSubmit} className="app-filter-toolbar flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:items-end">
+      <label className="relative w-full lg:min-w-[300px] lg:flex-[1.2]">
         <span className={`material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] ${ACCOUNT_BASE_CLASS.mutedText}`}>search</span>
         <input
           type="search"
@@ -42,7 +42,7 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
       <select
         value={draft.role}
         onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))}
-        className={`w-full md:w-[170px] ${controlClass}`}
+        className={`w-full lg:w-[168px] ${controlClass}`}
       >
         {USER_ROLE_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -52,27 +52,29 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
       <select
         value={draft.status}
         onChange={(e) => setDraft((prev) => ({ ...prev, status: e.target.value }))}
-        className={`w-full md:w-[170px] ${controlClass}`}
+        className={`w-full lg:w-[168px] ${controlClass}`}
       >
         {USER_STATUS_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
 
-      <button
-        type="submit"
-        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.primaryButton}`}
-      >
-        Lọc
-      </button>
+      <div className="flex items-center gap-2 lg:ml-auto">
+        <button
+          type="submit"
+          className={`inline-flex px-3.5 ${ACCOUNT_BASE_CLASS.primaryButton}`}
+        >
+          Lọc
+        </button>
 
-      <button
-        type="button"
-        onClick={handleReset}
-        className={`inline-flex h-11 items-center justify-center rounded-xl px-3.5 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.secondaryButton}`}
-      >
-        Đặt lại
-      </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          className={`inline-flex px-3.5 ${ACCOUNT_BASE_CLASS.secondaryButton}`}
+        >
+          Đặt lại
+        </button>
+      </div>
     </form>
   );
 };

@@ -41,7 +41,7 @@ const UserStatusConfirmModalContent = ({ user, submitting, onCancel, onConfirm }
             <button
               type="button"
               onClick={onCancel}
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
+              className={`app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>

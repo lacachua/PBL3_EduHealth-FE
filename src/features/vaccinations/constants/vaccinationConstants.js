@@ -43,46 +43,46 @@ export const VACCINATION_PENDING_PAGE_SIZE = 10;
 export const VACCINATION_STATUS_META = {
   PENDING: {
     label: 'Chờ tiêm',
-    badgeClassName: 'bg-[#FEF3C7] text-[#B45309]',
+    badgeClassName: 'bg-warning-soft text-warning',
   },
   DONE: {
     label: 'Đã tiêm',
-    badgeClassName: 'bg-[#DCFCE7] text-[#166534]',
+    badgeClassName: 'bg-success-soft text-success',
   },
   POSTPONED: {
     label: 'Tạm hoãn',
-    badgeClassName: 'bg-[#FFEDD5] text-[#C2410C]',
+    badgeClassName: 'bg-warning-soft text-warning',
   },
   CONTRAINDICATED: {
     label: 'Chống chỉ định',
-    badgeClassName: 'bg-[#FEE2E2] text-[#B91C1C]',
+    badgeClassName: 'bg-danger-soft text-danger',
   },
   ABSENT: {
     label: 'Vắng mặt',
-    badgeClassName: 'bg-[#E2E8F0] text-[#334155]',
+    badgeClassName: 'bg-surface-container-low text-on-surface-variant',
   },
   UNKNOWN: {
     label: 'Không xác định',
-    badgeClassName: 'bg-[#E2E8F0] text-[#475569]',
+    badgeClassName: 'bg-surface-container-low text-on-surface-variant',
   },
 };
 
 export const CAMPAIGN_STATUS_META = {
   ACTIVE: {
     label: 'Đang hoạt động',
-    badgeClassName: 'bg-[#DCFCE7] text-[#166534]',
+    badgeClassName: 'bg-success-soft text-success',
   },
   COMPLETED: {
     label: 'Hoàn thành',
-    badgeClassName: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    badgeClassName: 'bg-info-soft text-info',
   },
   CANCELLED: {
     label: 'Đã hủy',
-    badgeClassName: 'bg-[#FEE2E2] text-[#B91C1C]',
+    badgeClassName: 'bg-danger-soft text-danger',
   },
   UNKNOWN: {
     label: 'Không xác định',
-    badgeClassName: 'bg-[#E2E8F0] text-[#475569]',
+    badgeClassName: 'bg-surface-container-low text-on-surface-variant',
   },
 };
 

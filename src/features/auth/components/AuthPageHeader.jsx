@@ -19,20 +19,20 @@ const AuthPageHeader = ({
           />
         </div>
 
-        <h1 className="auth-title-fade-up font-headline text-[1.62rem] font-bold tracking-tight text-auth-text-strong sm:text-[1.74rem]">
+        <h1 className="auth-title-fade-up font-headline text-[1.66rem] font-bold tracking-tight text-auth-text-strong sm:text-[1.78rem]">
           {title}
         </h1>
 
         <span className="auth-accent-line mx-auto mt-1.5 block h-[3px] w-14 rounded-full bg-auth-primary/85" />
 
-        {subtitle ? <p className="mt-1.5 text-[13px] font-medium text-auth-text-body/90">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1.5 text-[14px] font-medium text-auth-text-body">{subtitle}</p> : null}
       </div>
     );
   }
 
   return (
     <div className="mb-4.5">
-      <h1 className="font-headline text-[1.56rem] font-bold tracking-tight text-auth-text-strong sm:text-[1.66rem]">
+      <h1 className="font-headline text-[1.6rem] font-bold tracking-tight text-auth-text-strong sm:text-[1.7rem]">
         {title}
       </h1>
     </div>

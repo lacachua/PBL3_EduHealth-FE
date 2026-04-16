@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
-import NurseSidebar from '../features/nurse/components/NurseSidebar';
-import NurseTopbar from '../features/nurse/components/NurseTopbar';
+import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
+import NurseTopbar from '../features/nurse-shell/components/NurseTopbar';
 
 const getUserName = (user) => {
   const rawName = user?.fullName || user?.name || 'Nhân viên y tế';
@@ -40,11 +40,11 @@ const NurseLayout = () => {
   };
 
   return (
-    <div className="nurse-shell nurse-page-bg min-h-screen text-[#0F172A]">
+    <div className="nurse-shell app-page-bg min-h-screen text-on-surface">
       <div
         aria-hidden="true"
         onClick={closeSidebar}
-        className={`fixed inset-0 z-30 bg-slate-900/25 transition-opacity duration-200 md:hidden ${
+        className={`fixed inset-0 z-30 bg-on-surface/25 transition-opacity duration-200 md:hidden ${
           isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />

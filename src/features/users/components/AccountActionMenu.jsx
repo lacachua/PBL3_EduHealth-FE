@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
 
 const toneClassMap = {
-  default: ACCOUNT_BASE_CLASS.bodyText,
+  default: 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
   danger: 'text-danger hover:bg-danger-soft',
   warning: 'text-warning hover:bg-warning-soft',
   success: 'text-success hover:bg-success-soft',
@@ -28,14 +28,14 @@ const AccountActionMenu = ({ items }) => {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`inline-flex h-8 w-8 items-center justify-center rounded-md border bg-surface-container-lowest transition hover:bg-surface-container-low ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText} hover:text-on-surface-variant`}
+        className={`app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-surface transition-[background-color,border-color,color,box-shadow] hover:bg-surface-container-low hover:text-on-surface ${ACCOUNT_BASE_CLASS.border} ${ACCOUNT_BASE_CLASS.mutedText}`}
         aria-label="Mở menu thao tác"
       >
-        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
+        <span className="material-symbols-outlined text-[18px]">more_vert</span>
       </button>
 
       {open ? (
-        <div className={`absolute right-0 top-9 z-30 min-w-[170px] rounded-md border bg-surface-container-lowest p-1 shadow-[0_8px_18px_rgba(15,23,42,0.1)] ${ACCOUNT_BASE_CLASS.border}`}>
+        <div className={`absolute right-0 top-9 z-30 min-w-[182px] rounded-lg border bg-surface p-1.5 shadow-[0_16px_30px_-20px_rgba(15,23,42,0.55)] ${ACCOUNT_BASE_CLASS.border}`}>
           {items.map((item) => (
             <button
               key={item.id}
@@ -44,9 +44,13 @@ const AccountActionMenu = ({ items }) => {
                 setOpen(false);
                 item.onClick?.();
               }}
-              className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs font-medium transition ${toneClassMap[item.tone || 'default'] || toneClassMap.default} ${!item.tone ? 'hover:bg-surface-container-low' : ''}`}
+              className={`app-focus-ring flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] font-semibold transition ${toneClassMap[item.tone || 'default'] || toneClassMap.default}`}
             >
-              {item.icon ? <span className="material-symbols-outlined text-[16px]">{item.icon}</span> : null}
+              {item.icon ? (
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-surface-container-low text-[15px]">
+                  <span className="material-symbols-outlined text-[15px]">{item.icon}</span>
+                </span>
+              ) : null}
               {item.label}
             </button>
           ))}

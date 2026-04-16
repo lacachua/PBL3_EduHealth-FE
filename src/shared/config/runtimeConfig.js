@@ -8,12 +8,14 @@ const RUNTIME_CONFIG_SINGLETON = Object.freeze({
   enableMockHealthProfiles: shouldUseMockData(DATA_MODULES.NURSE_HEALTH_PROFILE),
   enableMockMedicines: shouldUseMockData(DATA_MODULES.ADMIN_MEDICINES) || shouldUseMockData(DATA_MODULES.NURSE_MEDICINES),
   enableMockExaminations: shouldUseMockData(DATA_MODULES.NURSE_EXAMINATIONS),
+  enableMockStudentPortal: shouldUseMockData(DATA_MODULES.STUDENT_PORTAL),
   moduleMockFlags: env.moduleMockFlags,
   mockDelayMs: Object.freeze({
     default: 200,
     auth: 500,
     users: 300,
     adminDashboard: 450,
+    studentPortal: 320,
   }),
 });
 

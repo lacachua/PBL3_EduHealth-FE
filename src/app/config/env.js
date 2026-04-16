@@ -49,10 +49,12 @@ const ENV_SINGLETON = Object.freeze({
     nurseExaminations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_EXAMINATIONS_MOCK, legacyEnableMockExaminations),
     nurseVaccinations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_VACCINATIONS_MOCK, false),
     nurseNotifications: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_NOTIFICATIONS_MOCK, false),
+    nurseReports: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_REPORTS_MOCK, true),
     nurseDashboard: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_DASHBOARD_MOCK, legacyEnableMockHealthProfiles),
 
     auth: parseBoolean(import.meta.env.VITE_ENABLE_AUTH_MOCK, legacyEnableMockAuth),
     currentUserAccount: parseBoolean(import.meta.env.VITE_ENABLE_CURRENT_USER_ACCOUNT_MOCK, false),
+    studentPortal: parseBoolean(import.meta.env.VITE_ENABLE_STUDENT_PORTAL_MOCK, true),
   }),
 });
 

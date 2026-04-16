@@ -30,16 +30,16 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
   const pageTokens = buildPageTokens(page, totalPages);
 
   const rootClassName = compact
-    ? 'flex flex-col items-center justify-between gap-2 text-[11px] text-on-surface-variant sm:flex-row'
+    ? 'flex flex-col items-center justify-between gap-2 text-xs text-on-surface-variant sm:flex-row'
     : 'mt-3 flex flex-col items-center justify-between gap-3 text-xs text-on-surface-variant sm:flex-row';
 
   const buttonClassName = compact
-    ? 'rounded border border-outline-variant bg-surface-container-lowest px-2 py-1 text-[11px] font-medium text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40'
-    : 'rounded border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 font-medium text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40';
+    ? 'rounded-md border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-[12px] font-semibold text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'rounded-md border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-[12px] font-semibold text-on-surface-variant transition-[background-color,border-color,color,box-shadow] duration-150 ease-out hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-40';
 
   const pageButtonClassName = compact
-    ? 'min-w-[24px] rounded px-1.5 py-1 text-[11px] font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15'
-    : 'min-w-[28px] rounded px-2 py-1.5 font-medium transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15';
+    ? 'min-w-[26px] rounded-md px-1.5 py-1 text-[12px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15'
+    : 'min-w-[30px] rounded-md px-2 py-1.5 text-[12px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/15';
 
   return (
     <div className={rootClassName}>
@@ -61,7 +61,7 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
           {pageTokens.map((token) => {
             if (typeof token !== 'number') {
               return (
-                <span key={token} className="px-1 text-[11px] text-on-surface-muted">
+                <span key={token} className="px-1 text-[12px] text-on-surface-muted">
                   ...
                 </span>
               );

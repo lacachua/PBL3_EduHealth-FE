@@ -4,7 +4,7 @@ import {
   validateCreateCampaignValues,
 } from '../schemas/vaccinationSchema';
 import { VACCINATION_TARGET_TYPE_OPTIONS } from '../constants/vaccinationConstants';
-import { getNurseStudentsLookupApi } from '../../nurse/services/nurseStudentsApi';
+import { getNurseStudentsLookupApi } from '../../health-profiles/services/healthProfilesApi';
 import NurseModalShell from '../../../shared/components/nurse/NurseModalShell';
 
 const normalizeClassCode = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -94,6 +94,9 @@ const toLookupStudent = (item = {}) => {
   };
 };
 
+const CLASS_LOOKUP_ERROR_MESSAGE = 'Không tải được danh sách lớp. Bạn có thể nhập mã lớp thủ công ở phần mở rộng bên dưới.';
+const INITIAL_CLASS_LOOKUP_STATUS = CREATE_CAMPAIGN_INITIAL_VALUES.targetType === 'CLASS' ? 'loading' : 'idle';
+
 const CreateVaccinationCampaignModal = ({
   open,
   onClose,
@@ -105,7 +108,7 @@ const CreateVaccinationCampaignModal = ({
   const [fieldErrors, setFieldErrors] = useState({});
 
   const [classBatchInput, setClassBatchInput] = useState('');
-  const [classLookupStatus, setClassLookupStatus] = useState('idle');
+  const [classLookupStatus, setClassLookupStatus] = useState(INITIAL_CLASS_LOOKUP_STATUS);
   const [classLookupError, setClassLookupError] = useState('');
   const [classOptions, setClassOptions] = useState([]);
   const [gradeFilter, setGradeFilter] = useState('all');
@@ -161,90 +164,81 @@ const CreateVaccinationCampaignModal = ({
     });
   }, [selectedStudentMap, values.targetStudentIds]);
 
-  const loadClassOptions = useCallback(async () => {
-    setClassLookupStatus('loading');
-    setClassLookupError('');
+  const fetchClassOptions = useCallback(async () => {
+    const rows = [];
+    let page = 1;
+    let totalPages = 1;
 
-    try {
-      const rows = [];
-      let page = 1;
-      let totalPages = 1;
-
-      do {
-        const response = await getNurseStudentsLookupApi({
-          page,
-          pageSize: 100,
-          isActive: true,
-        });
-
-        rows.push(...extractLookupRows(response));
-
-        const nextTotalPages = Number(response?.meta?.totalPages || response?.meta?.total_pages || 1);
-        totalPages = Number.isFinite(nextTotalPages) && nextTotalPages > 0
-          ? Math.min(nextTotalPages, 12)
-          : 1;
-
-        page += 1;
-      } while (page <= totalPages);
-
-      const optionMap = new Map();
-      rows.forEach((item) => {
-        const option = toClassOption(item);
-        if (!option) {
-          return;
-        }
-        if (!optionMap.has(option.value)) {
-          optionMap.set(option.value, option);
-        }
+    do {
+      const response = await getNurseStudentsLookupApi({
+        page,
+        pageSize: 100,
+        isActive: true,
       });
 
-      const resolved = Array.from(optionMap.values())
-        .sort((left, right) => {
-          const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
-          if (byGrade !== 0) {
-            return byGrade;
-          }
-          return left.label.localeCompare(right.label, 'vi');
-        });
+      rows.push(...extractLookupRows(response));
 
-      setClassOptions(resolved);
-      setClassLookupStatus('success');
-    } catch {
-      setClassOptions([]);
-      setClassLookupStatus('error');
-      setClassLookupError('Không tải được danh sách lớp. Bạn có thể nhập mã lớp thủ công ở phần mở rộng bên dưới.');
-    }
+      const nextTotalPages = Number(response?.meta?.totalPages || response?.meta?.total_pages || 1);
+      totalPages = Number.isFinite(nextTotalPages) && nextTotalPages > 0
+        ? Math.min(nextTotalPages, 12)
+        : 1;
+
+      page += 1;
+    } while (page <= totalPages);
+
+    const optionMap = new Map();
+    rows.forEach((item) => {
+      const option = toClassOption(item);
+      if (!option) {
+        return;
+      }
+      if (!optionMap.has(option.value)) {
+        optionMap.set(option.value, option);
+      }
+    });
+
+    return Array.from(optionMap.values())
+      .sort((left, right) => {
+        const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
+        if (byGrade !== 0) {
+          return byGrade;
+        }
+        return left.label.localeCompare(right.label, 'vi');
+      });
   }, []);
 
   useEffect(() => {
-    if (!open) {
+    if (!open || values.targetType !== 'CLASS' || classLookupStatus !== 'loading') {
       return;
     }
 
-    setValues({ ...CREATE_CAMPAIGN_INITIAL_VALUES });
-    setFieldErrors({});
+    let active = true;
 
-    setClassBatchInput('');
-    setClassLookupStatus('idle');
-    setClassLookupError('');
-    setClassOptions([]);
-    setGradeFilter('all');
+    const runLookup = async () => {
+      try {
+        const resolved = await fetchClassOptions();
+        if (!active) {
+          return;
+        }
+        setClassOptions(resolved);
+        setClassLookupStatus('success');
+        setClassLookupError('');
+      } catch {
+        if (!active) {
+          return;
+        }
+        setClassOptions([]);
+        setClassLookupStatus('error');
+        setClassLookupError(CLASS_LOOKUP_ERROR_MESSAGE);
+      }
+    };
 
-    setStudentKeyword('');
-    setLookupStatus('idle');
-    setLookupError('');
-    setLookupRows([]);
-    setManualStudentInput('');
-    setSelectedStudentMap({});
-  }, [open]);
+    void runLookup();
 
-  useEffect(() => {
-    if (!open || values.targetType !== 'CLASS' || classLookupStatus === 'success') {
-      return;
-    }
-
-    loadClassOptions();
-  }, [classLookupStatus, loadClassOptions, open, values.targetType]);
+    return () => {
+      active = false;
+    };
+  }, [classLookupStatus, fetchClassOptions, open, values.targetType]);
 
   const updateField = (field, fieldValue) => {
     setValues((prev) => ({
@@ -263,9 +257,18 @@ const CreateVaccinationCampaignModal = ({
     });
 
     if (field === 'targetType') {
+      const nextTargetType = String(fieldValue || '').toUpperCase();
       setLookupError('');
       setLookupRows([]);
       setGradeFilter('all');
+
+      if (nextTargetType === 'CLASS') {
+        setClassLookupError('');
+        setClassLookupStatus(classOptions.length ? 'success' : 'loading');
+      } else {
+        setClassLookupError('');
+        setClassLookupStatus('idle');
+      }
     }
   };
 
@@ -407,7 +410,7 @@ const CreateVaccinationCampaignModal = ({
       submitting={submitting}
       submitLabel="Tạo đợt tiêm"
       maxWidthClass="max-w-[860px]"
-      submitButtonClassName="nurse-btn-primary nurse-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+      submitButtonClassName="app-btn-primary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
     >
       <div className="space-y-4">
         <section className="space-y-3 rounded-xl border border-[#E2E8F0] bg-white p-3 md:p-4">
@@ -422,7 +425,7 @@ const CreateVaccinationCampaignModal = ({
                 type="text"
                 value={values.name}
                 onChange={(event) => updateField('name', event.target.value)}
-                className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="Ví dụ: Cúm mùa học kỳ II"
               />
               {fieldErrors.name ? <span className="text-xs text-[#B91C1C]">{fieldErrors.name}</span> : null}
@@ -434,7 +437,7 @@ const CreateVaccinationCampaignModal = ({
                 type="text"
                 value={values.vaccineName}
                 onChange={(event) => updateField('vaccineName', event.target.value)}
-                className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="Ví dụ: MMR II"
               />
               {fieldErrors.vaccineName ? <span className="text-xs text-[#B91C1C]">{fieldErrors.vaccineName}</span> : null}
@@ -447,7 +450,7 @@ const CreateVaccinationCampaignModal = ({
                 min="1"
                 value={values.doseNumber}
                 onChange={(event) => updateField('doseNumber', event.target.value)}
-                className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="1"
               />
               {fieldErrors.doseNumber ? <span className="text-xs text-[#B91C1C]">{fieldErrors.doseNumber}</span> : null}
@@ -459,7 +462,7 @@ const CreateVaccinationCampaignModal = ({
                 type="date"
                 value={values.scheduledDate}
                 onChange={(event) => updateField('scheduledDate', event.target.value)}
-                className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+                className="app-input rounded-xl px-3 py-2.5 text-sm"
               />
               {fieldErrors.scheduledDate ? <span className="text-xs text-[#B91C1C]">{fieldErrors.scheduledDate}</span> : null}
             </label>
@@ -493,7 +496,7 @@ const CreateVaccinationCampaignModal = ({
                   <select
                     value={gradeFilter}
                     onChange={(event) => setGradeFilter(event.target.value)}
-                    className="nurse-input w-full rounded-xl px-3 py-2 text-sm"
+                    className="app-input w-full rounded-xl px-3 py-2 text-sm"
                   >
                     <option value="all">Tất cả khối</option>
                     {gradeOptions.filter((item) => item !== 'all').map((item) => (
@@ -516,7 +519,7 @@ const CreateVaccinationCampaignModal = ({
                         key={option.value}
                         type="button"
                         onClick={() => toggleClassCode(option.value)}
-                        className={`nurse-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${
+                        className={`app-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${
                           selected
                             ? 'border-[#4ADE80] bg-[#DCFCE7] text-[#14532D] ring-1 ring-[#86EFAC]'
                             : 'border-[#E2E8F0] bg-white text-[#334155] hover:border-[#86EFAC] hover:bg-[#F8FAFC]'
@@ -544,7 +547,7 @@ const CreateVaccinationCampaignModal = ({
                   <textarea
                     value={classBatchInput}
                     onChange={(event) => setClassBatchInput(event.target.value)}
-                    className="nurse-input w-full rounded-xl px-3 py-2 text-sm"
+                    className="app-input w-full rounded-xl px-3 py-2 text-sm"
                     placeholder="CLS001, CLS002"
                     rows={2}
                   />
@@ -552,7 +555,7 @@ const CreateVaccinationCampaignModal = ({
                   <button
                     type="button"
                     onClick={addClassCodes}
-                    className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
+                    className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
                   >
                     Thêm mã lớp
                   </button>
@@ -568,13 +571,13 @@ const CreateVaccinationCampaignModal = ({
                   type="text"
                   value={studentKeyword}
                   onChange={(event) => setStudentKeyword(event.target.value)}
-                  className="nurse-input min-w-[280px] flex-1 rounded-xl px-3 py-2.5 text-sm"
+                  className="app-input min-w-[280px] flex-1 rounded-xl px-3 py-2.5 text-sm"
                   placeholder="Nhập tên hoặc mã học sinh"
                 />
                 <button
                   type="button"
                   onClick={searchStudents}
-                  className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold"
+                  className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold"
                 >
                   Tìm học sinh
                 </button>
@@ -594,7 +597,7 @@ const CreateVaccinationCampaignModal = ({
                         type="button"
                         disabled={selected}
                         onClick={() => addStudentCandidate(student.id, student)}
-                        className="nurse-focus-ring flex w-full items-center justify-between rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-left text-sm text-[#334155] hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-70"
+                        className="app-focus-ring flex w-full items-center justify-between rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-left text-sm text-[#334155] hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <span>
                           <span className="font-semibold text-[#0F172A]">{student.fullName}</span>
@@ -616,14 +619,14 @@ const CreateVaccinationCampaignModal = ({
                   <textarea
                     value={manualStudentInput}
                     onChange={(event) => setManualStudentInput(event.target.value)}
-                    className="nurse-input w-full rounded-xl px-3 py-2 text-sm"
+                    className="app-input w-full rounded-xl px-3 py-2 text-sm"
                     placeholder="Nhập nhiều mã, ví dụ: 1201, 1202"
                     rows={2}
                   />
                   <button
                     type="button"
                     onClick={addManualStudentIds}
-                    className="nurse-btn-secondary nurse-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
+                    className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
                   >
                     Thêm mã học sinh
                   </button>
@@ -647,7 +650,7 @@ const CreateVaccinationCampaignModal = ({
                     <button
                       type="button"
                       onClick={() => removeClassCode(classCode)}
-                      className="nurse-focus-ring rounded"
+                      className="app-focus-ring rounded"
                       aria-label={`Xóa lớp ${classLabel}`}
                     >
                       <span className="material-symbols-outlined text-[14px]">close</span>
@@ -666,7 +669,7 @@ const CreateVaccinationCampaignModal = ({
                     <button
                       type="button"
                       onClick={() => removeStudentId(student.id)}
-                      className="nurse-focus-ring rounded"
+                      className="app-focus-ring rounded"
                       aria-label={`Xóa học sinh ${student.id}`}
                     >
                       <span className="material-symbols-outlined text-[14px]">close</span>
@@ -686,7 +689,7 @@ const CreateVaccinationCampaignModal = ({
           <textarea
             value={values.note}
             onChange={(event) => updateField('note', event.target.value)}
-            className="nurse-input rounded-xl px-3 py-2.5 text-sm"
+            className="app-input rounded-xl px-3 py-2.5 text-sm"
             placeholder="Nhập hướng dẫn bổ sung cho phụ huynh hoặc nhân viên y tế"
             rows={3}
           />

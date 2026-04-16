@@ -1,0 +1,8 @@
+.report-detail-drawer {
+  transform: translateX(100%);
+  transition: transform var(--sys-motion-base) var(--sys-ease-standard);
+}
+
+.report-detail-drawer.open {
+  transform: translateX(0);
+}

@@ -50,12 +50,12 @@ const AuthInput = ({
           placeholder={placeholder}
           aria-invalid={hasError}
           aria-describedby={error || hint ? helperId : undefined}
-          className={`h-14 w-full rounded-[14px] border bg-auth-surface text-[16px] text-auth-text-strong outline-none transition-all placeholder:text-auth-text-muted ${
+          className={`app-focus-ring h-14 w-full rounded-[14px] border bg-auth-surface text-[16px] text-auth-text-strong outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-out placeholder:text-auth-text-muted ${
             icon ? 'pl-12 pr-4' : 'px-4'
           } ${
             hasError
-              ? 'border-auth-error bg-auth-error-soft/35 focus:border-auth-error focus:ring-2 focus:ring-auth-error/25 focus:shadow-[0_0_0_3px_rgba(185,58,58,0.08)]'
-              : 'border-auth-border focus:border-auth-primary focus:ring-2 focus:ring-auth-primary/28 focus:shadow-[0_0_0_3px_rgba(22,92,72,0.1)]'
+              ? 'border-auth-error bg-auth-error-soft/35 focus:border-auth-error focus:ring-2 focus:ring-auth-error/25'
+              : 'border-auth-border focus:border-auth-primary focus:ring-2 focus:ring-auth-primary/28'
           } ${disabled ? 'cursor-not-allowed opacity-70' : ''}`}
         />
       </div>

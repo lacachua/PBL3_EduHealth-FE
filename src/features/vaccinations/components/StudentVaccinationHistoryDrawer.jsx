@@ -33,9 +33,9 @@ const StudentVaccinationHistoryDrawer = ({
       ) : null}
 
       {status === 'success' ? (
-        <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white [scrollbar-width:thin]">
+        <div className="overflow-x-auto rounded-xl border border-outline-variant bg-surface [scrollbar-width:thin]">
           <table className="min-w-[760px] w-full text-left text-sm">
-            <thead className="nurse-table-head-strong text-[11px] uppercase tracking-[0.08em]">
+            <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
               <tr>
                 <th className="px-4 py-3">Đợt tiêm</th>
                 <th className="px-4 py-3">Vaccine</th>
@@ -46,21 +46,21 @@ const StudentVaccinationHistoryDrawer = ({
                 <th className="px-4 py-3">Ghi chú</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody className="divide-y divide-outline-variant">
               {rows.map((item) => (
-                <tr key={item.studentVaccinationId}>
+                <tr key={item.studentVaccinationId} className="app-interactive hover:bg-surface-container-low">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-[#0F172A]">{item.campaignName}</p>
-                    <p className="text-xs text-[#64748B]">{item.campaignId}</p>
+                    <p className="font-semibold text-on-surface">{item.campaignName}</p>
+                    <p className="text-xs text-on-surface-variant">{item.campaignId}</p>
                   </td>
-                  <td className="px-4 py-3 text-[#334155]">{item.vaccineName}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-[#0F172A]">{item.doseNumber}</td>
+                  <td className="px-4 py-3 text-on-surface">{item.vaccineName}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-on-surface">{item.doseNumber}</td>
                   <td className="px-4 py-3">
                     <VaccinationStatusBadge label={item.statusLabel} className={item.statusBadgeClassName} />
                   </td>
-                  <td className="px-4 py-3 text-[#334155]">{item.vaccinatedAtLabel}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-[#334155]">{item.lotNumber || '--'}</td>
-                  <td className="px-4 py-3 text-[#334155]">{item.note || '--'}</td>
+                  <td className="px-4 py-3 text-on-surface">{item.vaccinatedAtLabel}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-on-surface">{item.lotNumber || '--'}</td>
+                  <td className="px-4 py-3 text-on-surface">{item.note || '--'}</td>
                 </tr>
               ))}
             </tbody>

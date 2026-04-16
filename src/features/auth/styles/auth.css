@@ -1,0 +1,91 @@
+@layer utilities {
+  .auth-bg-pattern {
+    background:
+      radial-gradient(940px 460px at -8% -7%, color-mix(in srgb, var(--app-primary) 15%, transparent), transparent 64%),
+      radial-gradient(620px 320px at 108% 10%, color-mix(in srgb, var(--app-info) 12%, transparent), transparent 66%),
+      linear-gradient(180deg, var(--auth-bg) 0%, var(--app-bg) 100%);
+  }
+
+  .auth-surface-shadow {
+    box-shadow:
+      0 18px 38px color-mix(in srgb, var(--app-text) 16%, transparent),
+      inset 0 1px 0 color-mix(in srgb, white 56%, transparent);
+  }
+
+  .auth-primary-button {
+    border: 1px solid var(--auth-primary);
+    background: var(--auth-primary);
+    color: var(--sys-on-primary);
+    transition: var(--sys-transition-interactive);
+  }
+
+  .auth-primary-button:hover {
+    border-color: var(--auth-primary-hover);
+    background: var(--auth-primary-hover);
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--auth-primary) 28%, transparent);
+  }
+
+  .auth-primary-button:disabled {
+    box-shadow: none;
+  }
+
+  .auth-panel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--auth-border) 82%, white 18%);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--auth-surface-soft) 76%, white 24%);
+    color: var(--auth-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    padding: 0.28rem 0.58rem;
+  }
+
+  .auth-title-fade-up {
+    animation: appFadeSlideIn var(--sys-motion-base) var(--sys-ease-standard) both;
+  }
+
+  .auth-accent-line {
+    transform-origin: center;
+    animation: authLineReveal var(--sys-motion-base) var(--sys-ease-standard) 90ms both;
+  }
+
+  .auth-visual-fallback {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--app-info) 36%, var(--app-primary)) 0%,
+      var(--app-primary-hover) 58%,
+      color-mix(in srgb, var(--app-text) 66%, transparent) 100%
+    );
+  }
+
+  .auth-visual-overlay {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--app-text) 74%, transparent) 0%,
+      color-mix(in srgb, var(--app-text) 44%, transparent) 44%,
+      color-mix(in srgb, var(--app-text) 18%, transparent) 100%
+    );
+  }
+}
+
+@keyframes authLineReveal {
+  from {
+    transform: scaleX(0.1);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-title-fade-up,
+  .auth-accent-line {
+    animation: none;
+  }
+}

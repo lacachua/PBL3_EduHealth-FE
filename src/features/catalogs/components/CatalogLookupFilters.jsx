@@ -29,7 +29,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
         <select
           value={draft.status}
           onChange={(event) => setDraft((prev) => ({ ...prev, status: event.target.value }))}
-          className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface-variant outline-none focus:border-primary/45 focus:ring-2 focus:ring-primary/15 md:w-[200px]"
+          className="app-input app-focus-ring h-10 w-full rounded-xl px-3 md:w-[200px]"
         >
           {CATALOG_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -38,7 +38,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
 
         <button
           type="submit"
-          className="h-11 w-full rounded-xl bg-primary px-3.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover md:w-auto"
+          className="app-focus-ring app-btn-primary w-full px-3.5 md:w-auto"
         >
           Áp dụng
         </button>
@@ -49,7 +49,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
             setDraft({ keyword: '', status: 'all' });
             onReset();
           }}
-          className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-3.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low md:w-auto"
+          className="app-focus-ring app-btn-secondary w-full px-3.5 md:w-auto"
         >
           Đặt lại
         </button>

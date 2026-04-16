@@ -10,9 +10,9 @@ const variantClassMap = {
   },
   nurse: {
     label: 'text-[11px] font-semibold uppercase tracking-[0.05em] text-on-surface-variant',
-    input: 'w-full rounded-lg border border-field-editable-border bg-field-editable-bg px-3 py-2 text-sm text-on-surface outline-none transition focus:border-secondary/45 focus:ring-2 focus:ring-secondary/12',
+    input: 'app-focus-ring app-input w-full rounded-lg px-3 py-2 text-sm',
     disabledInput: 'w-full rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 py-2 text-sm text-on-surface-variant cursor-not-allowed',
-    readonly: 'flex min-h-10 items-center rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 text-sm font-medium text-[#334155]',
+    readonly: 'flex min-h-10 items-center rounded-lg border border-field-readonly-border bg-field-readonly-bg px-3 text-sm font-medium text-on-surface',
     error: 'mt-1 text-xs font-medium text-danger',
   },
 };

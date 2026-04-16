@@ -133,7 +133,7 @@ const VerifyOtpPage = () => {
           {maskedIdentifier ? (
             <p className="text-[15px] text-auth-text-body">
               {VERIFY_COPY.sentToLabel}:{' '}
-              <span className="font-semibold text-auth-navy">{maskedIdentifier}</span>
+              <span className="font-semibold text-auth-text-strong">{maskedIdentifier}</span>
             </p>
           ) : null}
 
@@ -155,7 +155,7 @@ const VerifyOtpPage = () => {
           <AuthStatusMessage message={resendError} type="error" />
 
           <button
-            className="auth-primary-button flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold text-white transition-all hover:brightness-[1.03] active:scale-[0.995] disabled:cursor-not-allowed disabled:opacity-70"
+            className="auth-primary-button app-focus-ring flex h-14 w-full items-center justify-center gap-2 rounded-[14px] text-[16px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
             type="submit"
             disabled={isSubmitting || !normalizedIdentifier}
           >
@@ -166,7 +166,7 @@ const VerifyOtpPage = () => {
           <div className="pt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-auth-text-muted">
             <span>{VERIFY_COPY.resendPrompt}</span>
             {resendCountdown > 0 ? (
-              <span className="font-semibold text-auth-navy/95">
+              <span className="font-semibold text-auth-text-strong/95">
                 {VERIFY_COPY.resendCountdownPrefix} {resendCountdown} {VERIFY_COPY.resendCountdownSuffix}
               </span>
             ) : (
@@ -181,7 +181,7 @@ const VerifyOtpPage = () => {
             )}
 
             <span className="text-auth-text-muted/70">•</span>
-            <Link to="/forgot-password" state={{ identifier: normalizedIdentifier }} className="font-semibold text-auth-navy transition-colors hover:text-auth-blue-accent">
+            <Link to="/forgot-password" state={{ identifier: normalizedIdentifier }} className="font-semibold text-auth-text-strong transition-colors hover:text-auth-primary">
               {VERIFY_COPY.editEmailAction}
             </Link>
           </div>

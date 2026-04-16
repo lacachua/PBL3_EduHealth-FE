@@ -6,7 +6,7 @@ import SiteLayout from "../../layouts/SiteLayout";
 import AdminLayout from "../../layouts/AdminLayout";
 import AuthLayout from "../../layouts/AuthLayout";
 import NurseLayout from "../../layouts/NurseLayout";
-import { nurseModuleMeta } from "../../features/nurse/config/nurseModuleMeta";
+import StudentLayout from "../../layouts/StudentLayout";
 
 // Guards
 import RequireAuth from "../guards/RequireAuth";
@@ -26,29 +26,27 @@ import {
   LoginPage,
   MedicinesPage,
   NotFoundPage,
-  ModulePlaceholderPage,
   NurseHealthProfilesPage,
-  ParentDashboard,
   ReportsPage,
+  NurseDashboardPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
   NursePendingVaccinationsPage,
   NurseProfilePage,
+  NurseReportsPage,
   NurseStudentsPage,
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
   ServerErrorPage,
+  StudentAccountPage,
+  StudentCareHistoryPage,
   StudentManagementPage,
+  StudentOverviewPage,
+  StudentVaccinationsPage,
   SystemLogsPage,
   UserManagementPage,
   VerifyOtpPage,
 } from "./lazyRouteElements";
-
-const renderNurseModule = ({ title, description, moduleName }) => (
-  <Lazy>
-    <ModulePlaceholderPage title={title} description={description} moduleName={moduleName} />
-  </Lazy>
-);
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -91,7 +89,7 @@ export const router = createBrowserRouter(
         <Route element={<RequireRole allowedRoles={["nurse"]} />}>
           <Route path="/nurse" element={<NurseLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={renderNurseModule(nurseModuleMeta.dashboard)} />
+            <Route path="dashboard" element={<Lazy><NurseDashboardPage /></Lazy>} />
             <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
             <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
             <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
@@ -102,7 +100,7 @@ export const router = createBrowserRouter(
             <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
             <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
             <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
-            <Route path="reports" element={renderNurseModule(nurseModuleMeta.reports)} />
+            <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
             <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
           </Route>
         </Route>
@@ -111,8 +109,16 @@ export const router = createBrowserRouter(
       {/* Protected Student Routes */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRoles={["student"]} />}>
-          <Route path="/student/dashboard" element={<Lazy><ParentDashboard /></Lazy>} />
-          <Route path="/parent/dashboard" element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="/student" element={<StudentLayout />}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<Lazy><StudentOverviewPage /></Lazy>} />
+            <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
+            <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
+            <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
+
+            {/* Compatibility alias */}
+            <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
+          </Route>
         </Route>
       </Route>
 

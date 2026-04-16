@@ -9,12 +9,12 @@ export const mockAuthAccounts = [
     identifier: 'ntctuyen01@gmail.com',
     password: 'Tuyen123@',
     role: 'nurse',
-    fullName: 'Nguyen Tuyen (Y tá)',
+    fullName: 'Nguyen Tuyen',
   },
   {
     identifier: 'ntctuyen02@gmail.com',
     password: 'Tuyen123@',
     role: 'student',
-    fullName: 'Nguyen Tuyen (Học sinh)',
+    fullName: 'Nguyen Tuyen',
   },
 ];

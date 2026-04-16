@@ -5,7 +5,7 @@ const RightDrawer = ({
   title,
   subtitle,
   widthClass = 'max-w-[560px]',
-  panelAnimationClass = 'animate-[nurseSlideInRight_190ms_ease-out]',
+  panelAnimationClass = 'animate-[appSlideInRight_190ms_ease-out]',
   onClose,
   children,
   footer,
@@ -55,7 +55,7 @@ const RightDrawer = ({
       <button
         type="button"
         aria-label="Đóng panel"
-        className="absolute inset-0 bg-on-surface/32 animate-[nurseFadeIn_180ms_ease-out]"
+        className="absolute inset-0 bg-on-surface/32 animate-[appFadeIn_180ms_ease-out]"
         onClick={onClose}
       />
 
@@ -71,7 +71,7 @@ const RightDrawer = ({
               <button
                 type="button"
                 onClick={onClose}
-                className={`nurse-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:bg-surface-container-low ${closeButtonClassName}`}
+                className={`app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:bg-surface-container-low ${closeButtonClassName}`}
                 aria-label="Đóng"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>

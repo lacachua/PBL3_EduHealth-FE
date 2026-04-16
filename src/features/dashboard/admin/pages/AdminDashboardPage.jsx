@@ -72,27 +72,27 @@ const overviewCardsConfig = [
 const cardToneClassMap = {
   neutral: {
     icon: 'border-outline-variant bg-surface-container-high text-on-surface-variant',
-    card: 'border-outline-variant',
+    card: 'border-outline-variant bg-surface',
     value: 'text-on-surface',
   },
   success: {
-    icon: 'border-success/25 bg-success-soft text-success',
-    card: 'border-outline-variant',
+    icon: 'border-success/30 bg-success-soft text-success',
+    card: 'border-success/18 bg-success-soft/35',
     value: 'text-on-surface',
   },
   info: {
-    icon: 'border-info/25 bg-info-soft text-info',
-    card: 'border-outline-variant',
+    icon: 'border-info/30 bg-info-soft text-info',
+    card: 'border-info/18 bg-info-soft/32',
     value: 'text-on-surface',
   },
   warning: {
-    icon: 'border-warning/25 bg-warning-soft text-warning',
-    card: 'border-outline-variant',
+    icon: 'border-warning/30 bg-warning-soft text-warning',
+    card: 'border-warning/18 bg-warning-soft/28',
     value: 'text-on-surface',
   },
   critical: {
-    icon: 'border-danger/25 bg-danger-soft text-danger',
-    card: 'border-outline-variant',
+    icon: 'border-danger/30 bg-danger-soft text-danger',
+    card: 'border-danger/18 bg-danger-soft/30',
     value: 'text-danger',
   },
 };
@@ -112,8 +112,10 @@ const alertSeverityMarkerClassMap = {
 };
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
-const chartGridGuideLines = [0, 1];
-const sectionCardClassName = 'rounded-xl border border-outline-variant bg-surface p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03)]';
+const sectionCardClassName = 'app-card-shell rounded-xl p-4';
+const sectionCardTitleClassName = 'app-section-title';
+const sectionCardSubtitleClassName = 'app-meta-text mt-0.5';
+const sectionActionLinkClassName = 'app-focus-ring app-btn-secondary px-2.5';
 
 const formatNumber = (value) => {
   const parsed = Number(value);
@@ -197,7 +199,7 @@ const AdminDashboardPage = () => {
   const peakTrendId = dashboardData.trends.find((item) => item.value === trendStats.peak)?.id;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4.5">
       <PageHeader
         title={dashboardData.title}
         description={dashboardData.description}
@@ -205,17 +207,15 @@ const AdminDashboardPage = () => {
           <>
             <button
               type="button"
-              onClick={() => {
-                fetchDashboard();
-              }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+              onClick={fetchDashboard}
+              className="app-focus-ring app-btn-secondary px-3"
             >
               <span className="material-symbols-outlined text-base">refresh</span>
               Làm mới
             </button>
             <Link
               to="/admin/reports"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-semibold text-on-primary transition hover:bg-[var(--color-primary-hover)]"
+              className="app-focus-ring app-btn-primary px-3.5"
             >
               Xem báo cáo
               <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -224,59 +224,69 @@ const AdminDashboardPage = () => {
         }
       />
 
-      {dashboardData.generatedAtLabel ? (
-        <p className="px-1 text-xs font-medium text-on-surface-muted">Dữ liệu cập nhật lúc: {dashboardData.generatedAtLabel}</p>
-      ) : null}
-
       {error ? <ErrorState message={`Không tải được dữ liệu mới: ${error}`} onRetry={fetchDashboard} /> : null}
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {overviewCardsConfig.map((card) => {
-          const cardTone = cardToneClassMap[card.tone] || cardToneClassMap.neutral;
-          const cardValue = dashboardData.overview[card.key];
+      <section className="app-panel-shell rounded-2xl p-3.5 sm:p-4">
+        <div className="mb-2.5 flex flex-wrap items-start justify-between gap-2 px-0.5">
+          <div>
+            <p className="app-overline">Tổng quan điều phối</p>
+            <p className="app-meta-text mt-0.5">Theo dõi nhanh khối lượng vận hành và điểm cần xử lý.</p>
+          </div>
+          {dashboardData.generatedAtLabel ? (
+            <span className="inline-flex items-center rounded-full border border-outline-variant bg-surface px-2.5 py-1 text-[11px] font-semibold text-on-surface-muted">
+              Cập nhật: {dashboardData.generatedAtLabel}
+            </span>
+          ) : null}
+        </div>
 
-          return (
-            <Link
-              key={card.id}
-              to={normalizeRoute(card.to)}
-              className={`group rounded-xl border bg-surface px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition hover:border-outline hover:shadow-[0_6px_14px_rgba(15,23,42,0.06)] ${cardTone.card}`}
-            >
-              <div className="flex items-start justify-between gap-2.5">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-on-surface-muted">{card.label}</p>
-                  <p className={`mt-1 text-[1.6rem] font-extrabold leading-tight ${cardTone.value}`}>{formatNumber(cardValue)}</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {overviewCardsConfig.map((card) => {
+            const cardTone = cardToneClassMap[card.tone] || cardToneClassMap.neutral;
+            const cardValue = dashboardData.overview[card.key];
+
+            return (
+              <Link
+                key={card.id}
+                to={normalizeRoute(card.to)}
+                className={`group app-focus-ring app-kpi-card rounded-xl px-3.5 py-3 transition-transform duration-150 hover:-translate-y-[1px] ${cardTone.card}`}
+              >
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="min-w-0">
+                    <p className="app-kpi-label">{card.label}</p>
+                    <p className={`app-kpi-value mt-1 ${cardTone.value}`}>{formatNumber(cardValue)}</p>
+                  </div>
+                  <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border ${cardTone.icon}`}>
+                    <span className="material-symbols-outlined text-[18px]">{card.icon}</span>
+                  </span>
                 </div>
-                <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border ${cardTone.icon}`}>
-                  <span className="material-symbols-outlined text-[18px]">{card.icon}</span>
-                </span>
-              </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
       <SectionCard
         className={sectionCardClassName}
         title="Điều hướng nhanh"
         subtitle="Lối tắt tác vụ quản trị thường dùng."
-        titleClassName="font-headline text-[1.05rem] font-bold text-on-surface"
-        subtitleClassName="mt-0.5 text-xs font-medium text-on-surface-muted"
+        titleClassName={sectionCardTitleClassName}
+        subtitleClassName={sectionCardSubtitleClassName}
       >
-        <div className="rounded-xl border border-outline-variant bg-surface-container-low p-3">
+        <div className="rounded-xl border border-outline-variant bg-[var(--table-header-bg)] p-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {shortcuts.map((action) => (
               <Link
                 key={action.id}
                 to={normalizeRoute(action.to)}
-                className="group rounded-lg border border-outline-variant bg-surface px-3 py-2.5 transition hover:border-primary/25 hover:bg-primary-soft/25"
+                className="group app-focus-ring app-interactive rounded-lg border border-outline-variant bg-surface px-3 py-2.5 transition hover:border-primary/25 hover:bg-primary-soft/28"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-outline-variant bg-surface-container-high text-on-surface-variant transition group-hover:border-primary/25 group-hover:text-primary">
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-outline-variant bg-surface-container-high text-on-surface-variant transition group-hover:border-primary/30 group-hover:bg-primary-soft/45 group-hover:text-primary">
                     <span className="material-symbols-outlined text-[16px]">{action.icon}</span>
                   </span>
                   <span className="material-symbols-outlined text-[14px] text-on-surface-muted transition group-hover:text-primary">arrow_forward</span>
                 </div>
-                <p className="mt-1.5 text-[13px] font-semibold leading-[1.05rem] text-on-surface">{action.label}</p>
+                <p className="app-card-title mt-1.5 leading-[1.05rem]">{action.label}</p>
               </Link>
             ))}
           </div>
@@ -288,8 +298,8 @@ const AdminDashboardPage = () => {
           className={`${sectionCardClassName} lg:col-span-8`}
           title="Xu hướng khám trong tháng"
           subtitle="Theo dõi lượt khám theo các mốc gần nhất."
-            titleClassName="font-headline text-[1.05rem] font-bold text-on-surface"
-            subtitleClassName="mt-0.5 text-xs font-medium text-on-surface-muted"
+          titleClassName={sectionCardTitleClassName}
+          subtitleClassName={sectionCardSubtitleClassName}
         >
           {status === 'loading' && !hasTrendData ? <LoadingSpinner label="Đang tải dữ liệu xu hướng..." /> : null}
 
@@ -297,7 +307,7 @@ const AdminDashboardPage = () => {
             <div className="rounded-md border border-outline-variant bg-surface px-4 py-8 text-center">
               <span className="material-symbols-outlined text-2xl text-on-surface-muted">monitoring</span>
               <p className="mt-2 text-sm font-semibold text-on-surface">Chưa có dữ liệu xu hướng</p>
-              <p className="mt-1 text-xs text-on-surface-variant">Hệ thống sẽ hiển thị biểu đồ ngay khi có chuỗi thống kê lượt khám.</p>
+              <p className="mt-1 text-[12px] text-on-surface-variant">Hệ thống sẽ hiển thị biểu đồ ngay khi có chuỗi thống kê lượt khám.</p>
             </div>
           ) : null}
 
@@ -313,7 +323,7 @@ const AdminDashboardPage = () => {
               <div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 pb-2 pt-2">
                 <div className="relative h-36" data-dashboard-trend-chart="true">
                   <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-                    {chartGridGuideLines.map((line) => (
+                    {[0, 1].map((line) => (
                       <span key={`line-${line}`} className="block border-t border-outline-variant/60" />
                     ))}
                     <span className="block border-t border-outline" />
@@ -339,7 +349,7 @@ const AdminDashboardPage = () => {
                   </div>
                 </div>
 
-                <div className="mt-1.5 grid grid-cols-5 gap-1 text-[10px] font-semibold uppercase tracking-wide text-on-surface-muted md:grid-cols-10">
+                <div className="mt-1.5 grid grid-cols-5 gap-1 text-[11px] font-semibold uppercase tracking-wide text-on-surface-muted md:grid-cols-10">
                   {trendBars.map((point, index) => (
                     <span
                       key={`${point.id}-label`}
@@ -358,12 +368,12 @@ const AdminDashboardPage = () => {
           className={`${sectionCardClassName} lg:col-span-4`}
           title="Cảnh báo quản trị"
           subtitle="Các điểm cần ưu tiên xử lý."
-          titleClassName="font-headline text-[1.05rem] font-bold text-on-surface"
-          subtitleClassName="mt-0.5 text-xs font-medium text-on-surface-muted"
+          titleClassName={sectionCardTitleClassName}
+          subtitleClassName={sectionCardSubtitleClassName}
           actions={
             <Link
               to="/admin/medicines"
-              className="rounded-md border border-outline-variant bg-surface-container-lowest px-2.5 py-1 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+              className={sectionActionLinkClassName}
             >
               Xem cảnh báo
             </Link>
@@ -385,19 +395,19 @@ const AdminDashboardPage = () => {
                   <Link
                     key={alert.id}
                     to={targetRoute}
-                    className="flex items-start gap-2.5 border-b border-outline-variant px-3 py-2.5 last:border-b-0 hover:bg-surface-container-lowest"
+                    className="app-focus-ring flex items-start gap-2.5 border-b border-outline-variant px-3 py-2.5 last:border-b-0 hover:bg-surface-container-lowest"
                   >
                     <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${markerClassName}`} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-[13px] font-semibold leading-4.5 text-on-surface">{alert.title}</p>
                         {alert.metric ? (
-                          <span className="shrink-0 rounded-full border border-outline-variant bg-surface-container-lowest px-1.5 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                          <span className="shrink-0 rounded-full border border-outline-variant bg-surface-container-lowest px-1.5 py-0.5 text-[11px] font-semibold text-on-surface-variant">
                             {alert.metric}
                           </span>
                         ) : null}
                       </div>
-                      {alert.description ? <p className="mt-0.5 text-[10px] leading-[0.9rem] text-on-surface-muted">{alert.description}</p> : null}
+                      {alert.description ? <p className="mt-0.5 text-[11px] leading-[0.95rem] text-on-surface-muted">{alert.description}</p> : null}
                     </div>
                   </Link>
                 );
@@ -411,12 +421,12 @@ const AdminDashboardPage = () => {
         className={sectionCardClassName}
         title="Hoạt động gần đây"
         subtitle="4 cập nhật quản trị mới nhất."
-        titleClassName="font-headline text-[1.05rem] font-bold text-on-surface"
-        subtitleClassName="mt-0.5 text-xs font-medium text-on-surface-muted"
+        titleClassName={sectionCardTitleClassName}
+        subtitleClassName={sectionCardSubtitleClassName}
         actions={
           <Link
             to="/admin/system-logs"
-            className="rounded-md border border-outline-variant bg-surface-container-lowest px-2.5 py-1 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+            className={sectionActionLinkClassName}
           >
             Xem tất cả
           </Link>
@@ -438,17 +448,17 @@ const AdminDashboardPage = () => {
                 <Link
                   key={activity.id}
                   to={targetRoute}
-                  className="flex items-center gap-2 border-b border-outline-variant px-3 py-2.5 last:border-b-0 hover:bg-surface-container-lowest"
+                  className="app-focus-ring flex items-center gap-2 border-b border-outline-variant px-3 py-2.5 last:border-b-0 hover:bg-surface-container-lowest"
                 >
                   <span className={`inline-flex h-4 w-4 items-center justify-center rounded-sm border ${itemTone}`}>
-                    <span className="material-symbols-outlined text-[9px]">{activity.icon}</span>
+                    <span className="material-symbols-outlined text-[10px]">{activity.icon}</span>
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[12px] font-semibold leading-4 text-on-surface">{activity.title}</p>
-                      <span className="shrink-0 whitespace-nowrap text-right text-[10px] font-semibold tabular-nums text-on-surface-muted">{activity.timeLabel}</span>
+                      <p className="truncate text-[13px] font-semibold leading-4 text-on-surface">{activity.title}</p>
+                      <span className="shrink-0 whitespace-nowrap text-right text-[11px] font-semibold tabular-nums text-on-surface-muted">{activity.timeLabel}</span>
                     </div>
-                    <p className="truncate text-[11px] leading-4 text-on-surface-variant">{activity.metadata}</p>
+                    <p className="truncate text-[12px] leading-4 text-on-surface-variant">{activity.metadata}</p>
                   </div>
                 </Link>
               );

@@ -228,7 +228,7 @@ const NurseVaccinationCampaignDetailPage = () => {
 
     if (!studentUserId) {
       setHistoryStatus('error');
-      setHistoryError('Không thể đối chiếu mã học sinh nội bộ để tải lịch sử tiêm. Vui lòng mở hồ sơ học sinh để kiểm tra dữ liệu đồng bộ.');
+      setHistoryError('Không đủ dữ liệu định danh an toàn để mở lịch sử tiêm. Vui lòng kiểm tra lại hồ sơ học sinh trước khi tra cứu.');
       return;
     }
 
@@ -280,16 +280,16 @@ const NurseVaccinationCampaignDetailPage = () => {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#86EFAC] bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#FECACA] bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#86EFAC] bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
@@ -300,7 +300,7 @@ const NurseVaccinationCampaignDetailPage = () => {
           <button
             type="button"
             onClick={() => navigate('/nurse/vaccinations')}
-            className="nurse-focus-ring inline-flex h-9 items-center gap-1 rounded-lg border border-[#E2E8F0] bg-white px-2.5 text-xs font-semibold text-[#64748B] transition hover:bg-[#F8FAFC]"
+            className="app-focus-ring app-btn-secondary inline-flex h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold"
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             Quay lại danh sách đợt tiêm
@@ -309,7 +309,7 @@ const NurseVaccinationCampaignDetailPage = () => {
       />
 
       {forbidden ? (
-        <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
           Bạn không có quyền truy cập trang này.
         </section>
       ) : null}
@@ -323,8 +323,8 @@ const NurseVaccinationCampaignDetailPage = () => {
             <>
               <VaccinationCampaignSummaryStrip campaign={campaign} />
 
-              <section className="space-y-3 rounded-2xl border border-[#D7ECDD] bg-white p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] md:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
+              <section className="app-panel-shell space-y-3 p-4 md:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-outline-variant pb-3">
                   <div className="flex flex-wrap items-center gap-2">
                     {tabs.map((tab) => (
                       <button
@@ -336,10 +336,10 @@ const NurseVaccinationCampaignDetailPage = () => {
                           setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
                           setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
                         }}
-                        className={`nurse-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${
+                        className={`app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${
                           activeTab === tab.key
-                            ? 'bg-[#DCFCE7] text-[#166534]'
-                            : 'text-[#64748B] hover:bg-[#F8FAFC]'
+                              ? 'bg-primary-soft text-primary'
+                              : 'text-on-surface-variant hover:bg-surface-container-low'
                         }`}
                       >
                         {tab.label}
@@ -350,7 +350,7 @@ const NurseVaccinationCampaignDetailPage = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/nurse/vaccinations/pending')}
-                    className="nurse-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#475569] hover:bg-[#F8FAFC]"
+                      className="app-focus-ring app-row-action"
                   >
                     <span className="material-symbols-outlined text-[16px]">pending_actions</span>
                     Mở trang theo dõi chưa hoàn thành

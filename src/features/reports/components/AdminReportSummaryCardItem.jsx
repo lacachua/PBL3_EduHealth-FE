@@ -27,7 +27,7 @@ const AdminReportSummaryCardItem = ({ card }) => {
   const hasNote = Boolean(card.note);
 
   return (
-    <article className="group rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-all hover:border-secondary/20">
+    <article className="group rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-[border-color,box-shadow] duration-200 ease-out hover:border-secondary/20">
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconToneClass}`}>
           <span

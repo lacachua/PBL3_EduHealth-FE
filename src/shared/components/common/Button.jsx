@@ -1,19 +1,21 @@
 import React from 'react';
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => {
-  const baseStyles = 'px-6 py-3 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2';
+  const baseStyles = 'app-focus-ring inline-flex items-center justify-center gap-2 px-4';
   
   const variants = {
-    primary: 'signature-gradient text-white shadow-lg shadow-primary/20 hover:opacity-90',
-    secondary: 'bg-white text-primary border-2 border-primary hover:bg-primary/5',
-    outline: 'bg-transparent text-on-surface-variant border border-outline-variant/20 hover:bg-surface-container-low',
-    ghost: 'bg-transparent text-on-surface-variant hover:bg-surface-container-low',
-    white: 'bg-white text-primary hover:bg-surface-container-lowest shadow-xl',
+    primary: 'app-btn-primary',
+    secondary: 'app-btn-secondary',
+    outline: 'app-btn-secondary bg-transparent',
+    danger: 'app-btn-danger',
+    white: 'app-btn-secondary bg-white',
   };
+
+  const variantClass = variants[variant] || variants.primary;
 
   return (
     <button 
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${baseStyles} ${variantClass} ${className}`}
       {...props}
     >
       {children}

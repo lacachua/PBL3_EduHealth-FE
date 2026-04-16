@@ -83,7 +83,7 @@ const UserManagementPage = () => {
   });
 
   return (
-    <div className={`space-y-4 ${ACCOUNT_BASE_CLASS.app}`}>
+    <div className={`space-y-3.5 ${ACCOUNT_BASE_CLASS.app}`}>
       <AdminFeedbackToast
         feedback={feedback}
         onClose={clearFeedback}
@@ -99,7 +99,7 @@ const UserManagementPage = () => {
           <button
             type="button"
             onClick={handleCreate}
-            className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-semibold transition ${ACCOUNT_BASE_CLASS.primaryButton}`}
+            className={`inline-flex items-center gap-1.5 px-3.5 ${ACCOUNT_BASE_CLASS.primaryButton}`}
           >
             <span className="material-symbols-outlined text-[16px]">person_add</span>
             {USER_MANAGEMENT_COPY.createButtonLabel}
@@ -108,9 +108,9 @@ const UserManagementPage = () => {
       />
 
       <AdminManagementListSection
-        sectionClassName={`overflow-hidden rounded-xl shadow-[0_1px_4px_rgba(15,23,42,0.04)] ${ACCOUNT_BASE_CLASS.section}`}
-        panelClassName={`border-b px-4 py-3 md:px-5 ${ACCOUNT_BASE_CLASS.subtlePanel} ${ACCOUNT_BASE_CLASS.mutedText}`}
-        borderClassName={`border-t px-4 py-3 md:px-5 ${ACCOUNT_BASE_CLASS.border}`}
+        sectionClassName={`overflow-hidden rounded-2xl shadow-[0_16px_30px_-22px_rgba(15,23,42,0.5)] ${ACCOUNT_BASE_CLASS.section}`}
+        panelClassName={`border-b px-4 py-3.5 md:px-5 ${ACCOUNT_BASE_CLASS.subtlePanel} ${ACCOUNT_BASE_CLASS.mutedText}`}
+        borderClassName={`border-t px-4 py-2.5 md:px-5 ${ACCOUNT_BASE_CLASS.border}`}
         filters={<UserFilters initialValue={filters} onApply={onFiltersChange} onReset={onResetFilters} />}
         summary={`Hiển thị ${tableData.rows.length} / ${tableData.totalItems} tài khoản`}
         status={status}

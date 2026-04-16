@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 
 const PageFallback = () => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-    <span style={{ fontSize: "1rem", color: "#888" }}>Dang tai...</span>
+    <span style={{ fontSize: "1rem", color: "#516C77", fontWeight: 600 }}>Đang tải...</span>
   </div>
 );
 
@@ -19,19 +19,24 @@ export const ServerErrorPage = React.lazy(() => import("../../pages/ServerErrorP
 
 export const AdminDashboardPage = React.lazy(() => import("../../features/dashboard/admin/pages/AdminDashboardPage"));
 export const AdminSettingsPage = React.lazy(() => import('../../features/dashboard/admin/pages/AdminSettingsPage'));
-export const ModulePlaceholderPage = React.lazy(() => import("../../features/nurse/components/ModulePlaceholderPage"));
-export const NurseProfilePage = React.lazy(() => import('../../features/nurse/pages/NurseProfilePage'));
-export const NurseStudentsPage = React.lazy(() => import("../../features/nurse/pages/NurseStudentsPage"));
-export const NurseHealthProfilesPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfilesPage"));
-export const NurseHealthProfileDetailPage = React.lazy(() => import("../../features/nurse/pages/NurseHealthProfileDetailPage"));
-export const NurseMedicinesPage = React.lazy(() => import("../../features/nurse/pages/NurseMedicinesPage"));
+export const NurseDashboardPage = React.lazy(() => import('../../features/dashboard/nurse/pages/NurseDashboardPage'));
+export const ModulePlaceholderPage = React.lazy(() => import("../../features/nurse-shell/components/ModulePlaceholderPage"));
+export const NurseProfilePage = React.lazy(() => import('../../features/account/pages/NurseProfilePage'));
+export const NurseStudentsPage = React.lazy(() => import("../../features/students/pages/NurseStudentsPage"));
+export const NurseHealthProfilesPage = React.lazy(() => import("../../features/health-profiles/pages/NurseHealthProfilesPage"));
+export const NurseHealthProfileDetailPage = React.lazy(() => import("../../features/health-profiles/pages/NurseHealthProfileDetailPage"));
+export const NurseMedicinesPage = React.lazy(() => import("../../features/medicines/pages/NurseMedicinesPage"));
 export const NurseVaccinationCampaignsPage = React.lazy(() => import("../../features/vaccinations/pages/NurseVaccinationCampaignsPage"));
 export const NurseVaccinationCampaignDetailPage = React.lazy(() => import("../../features/vaccinations/pages/NurseVaccinationCampaignDetailPage"));
 export const NursePendingVaccinationsPage = React.lazy(() => import("../../features/vaccinations/pages/NursePendingVaccinationsPage"));
+export const NurseReportsPage = React.lazy(() => import("../../features/reports/nurse/pages/NurseReportsPage"));
 export const ExaminationLandingPage = React.lazy(() => import("../../features/examinations/pages/ExaminationLandingPage"));
 export const CreateExaminationPage = React.lazy(() => import("../../features/examinations/pages/CreateExaminationPage"));
 export const ExaminationDetailPage = React.lazy(() => import("../../features/examinations/pages/ExaminationDetailPage"));
-export const ParentDashboard = React.lazy(() => import("../../features/dashboard/parent/ParentDashboard"));
+export const StudentOverviewPage = React.lazy(() => import('../../features/student-portal/pages/StudentOverviewPage'));
+export const StudentCareHistoryPage = React.lazy(() => import('../../features/student-portal/pages/StudentCareHistoryPage'));
+export const StudentVaccinationsPage = React.lazy(() => import('../../features/student-portal/pages/StudentVaccinationsPage'));
+export const StudentAccountPage = React.lazy(() => import('../../features/student-portal/pages/StudentAccountPage'));
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));
 export const CatalogManagementPage = React.lazy(() => import("../../features/catalogs/pages/CatalogManagementPage"));

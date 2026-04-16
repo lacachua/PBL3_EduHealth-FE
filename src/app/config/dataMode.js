@@ -9,6 +9,7 @@ export const DATA_MODES = Object.freeze({
 export const DATA_MODULES = Object.freeze({
   AUTH: 'auth',
   CURRENT_USER_ACCOUNT: 'currentUserAccount',
+  STUDENT_PORTAL: 'studentPortal',
 
   ADMIN_USERS: 'adminUsers',
   ADMIN_STUDENTS: 'adminStudents',
@@ -25,12 +26,15 @@ export const DATA_MODULES = Object.freeze({
   NURSE_EXAMINATIONS: 'nurseExaminations',
   NURSE_VACCINATIONS: 'nurseVaccinations',
   NURSE_NOTIFICATIONS: 'nurseNotifications',
+  NURSE_REPORTS: 'nurseReports',
   NURSE_DASHBOARD: 'nurseDashboard',
 });
 
 const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.AUTH]: { supportsLive: true },
   [DATA_MODULES.CURRENT_USER_ACCOUNT]: { supportsLive: true },
+  // Student portal read APIs are still pending on backend; keep mock source by default.
+  [DATA_MODULES.STUDENT_PORTAL]: { supportsLive: false },
 
   [DATA_MODULES.ADMIN_USERS]: { supportsLive: true },
   [DATA_MODULES.ADMIN_STUDENTS]: { supportsLive: true },
@@ -47,7 +51,8 @@ const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.NURSE_EXAMINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_VACCINATIONS]: { supportsLive: true },
   [DATA_MODULES.NURSE_NOTIFICATIONS]: { supportsLive: false },
-  [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: false },
+  [DATA_MODULES.NURSE_REPORTS]: { supportsLive: false },
+  [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: true },
 });
 
 const getDataMode = () => {

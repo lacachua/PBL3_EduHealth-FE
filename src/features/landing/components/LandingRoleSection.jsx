@@ -33,7 +33,7 @@ const roleItems = [
 
 const LandingRoleSection = () => {
   return (
-    <section id="giai-phap" className="bg-[#f8fbf8] py-10 md:py-11">
+    <section id="giai-phap" className="bg-[#f8fbf8] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Giải pháp theo nhóm người dùng"
@@ -42,21 +42,21 @@ const LandingRoleSection = () => {
           eyebrow="Theo vai trò"
         />
 
-        <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        <div className="grid grid-cols-1 items-stretch gap-3.5 md:grid-cols-2 lg:grid-cols-3 lg:gap-4.5">
           {roleItems.map((role) => (
-            <article key={role.tag} className="group flex h-full flex-col rounded-3xl bg-surface-container-lowest p-3 shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-900/8">
-              <div className="mb-4 aspect-[4/3] overflow-hidden rounded-[1.4rem] shadow-sm transition-shadow duration-300 group-hover:shadow-md group-hover:shadow-slate-900/10">
+            <article key={role.tag} className="group flex h-full flex-col rounded-3xl border border-outline-variant/75 bg-white p-3.5 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.42)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_22px_30px_-20px_rgba(15,23,42,0.55)]">
+              <div className="mb-4 aspect-[4/3] overflow-hidden rounded-[1.4rem] border border-outline-variant/40 shadow-sm transition-shadow duration-300 group-hover:shadow-md group-hover:shadow-slate-900/10">
                 <img
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   alt={role.imageAlt}
                   src={role.imageSrc}
                 />
               </div>
-              <span className="mb-2 inline-block w-fit rounded-full bg-secondary-container/30 px-3 py-1 text-xs font-bold text-on-secondary-container">
+              <span className="mb-2 inline-block w-fit rounded-full border border-primary/18 bg-primary-soft/70 px-3 py-1 text-[11px] font-bold text-primary">
                 {role.tag}
               </span>
-              <h3 className="mb-2 font-headline text-xl font-bold leading-snug md:text-[1.35rem]">{role.title}</h3>
-              <p className="flex-1 text-sm leading-relaxed text-on-surface-variant">{role.description}</p>
+              <h3 className="mb-2 font-headline text-[1.3rem] font-bold leading-snug md:text-[1.38rem]">{role.title}</h3>
+              <p className="flex-1 text-[14px] leading-relaxed text-on-surface-muted">{role.description}</p>
             </article>
           ))}
         </div>
