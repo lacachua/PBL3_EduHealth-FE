@@ -1,3 +1,3 @@
 export const ADMIN_DASHBOARD_ENDPOINTS = {
-  overview: '/api/v1/reports/admin/dashboard',
+  overview: '/api/v1/dashboard/admin',
 };

@@ -40,7 +40,7 @@ export const useCatalogList = () => {
         group,
       });
 
-      setTableData(mapCatalogListResponse(response));
+      setTableData(mapCatalogListResponse(response, group));
     } catch (apiError) {
       const parsedError = parseCatalogApiError(apiError);
       setAccessState(parsedError.type === 'forbidden' ? 'forbidden' : parsedError.type === 'unauthorized' ? 'unauthorized' : 'ok');

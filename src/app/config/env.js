@@ -54,7 +54,7 @@ const ENV_SINGLETON = Object.freeze({
 
     auth: parseBoolean(import.meta.env.VITE_ENABLE_AUTH_MOCK, legacyEnableMockAuth),
     currentUserAccount: parseBoolean(import.meta.env.VITE_ENABLE_CURRENT_USER_ACCOUNT_MOCK, false),
-    studentPortal: parseBoolean(import.meta.env.VITE_ENABLE_STUDENT_PORTAL_MOCK, true),
+    studentPortal: parseBoolean(import.meta.env.VITE_ENABLE_STUDENT_PORTAL_MOCK, false),
   }),
 });
 

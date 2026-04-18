@@ -1,6 +1,7 @@
 const STATUS_LABEL_MAP = {
   active: 'Hoạt động',
   inactive: 'Ngưng dùng',
+  unstandardized: 'Chưa chuẩn hóa',
   review: 'Chưa chuẩn hóa',
   pending_sync: 'Cần đồng bộ',
 };
@@ -8,6 +9,7 @@ const STATUS_LABEL_MAP = {
 const STATUS_TONE_MAP = {
   active: 'success',
   inactive: 'neutral',
+  unstandardized: 'warning',
   review: 'warning',
   pending_sync: 'info',
 };

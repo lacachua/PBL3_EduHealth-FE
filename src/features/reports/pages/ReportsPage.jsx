@@ -12,6 +12,8 @@ import AdminReportDetailTable from '../components/AdminReportDetailTable';
 import ExportActions from '../components/ExportActions';
 import { useAdminReportsDashboard } from '../hooks/useAdminReportsDashboard';
 import { adminReportFilterOptions } from '../constants/adminReportFilterOptions';
+import { ADMIN_REPORT_CAPABILITIES } from '../schemas/adminReportsSchema';
+import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
 import '../styles/reports.css';
 
 const createInitialFilters = () => ({
@@ -25,6 +27,18 @@ const createInitialFilters = () => ({
 });
 
 const ReportsPage = () => {
+  const isMockReportsSource = resolveModuleDataSource(DATA_MODULES.ADMIN_REPORTS) === 'mock';
+  const disableDirectiveWrites = isMockReportsSource || !ADMIN_REPORT_CAPABILITIES.supportsDirectiveWrite;
+  const disableNotificationWrites = isMockReportsSource || !ADMIN_REPORT_CAPABILITIES.supportsNotificationSend;
+
+  const directiveDisabledMessage = isMockReportsSource
+    ? 'Chức năng ghi chú đang ở chế độ mô phỏng và tạm khóa thao tác ghi.'
+    : 'Backend hiện chưa hỗ trợ endpoint lưu ghi chú nội bộ từ báo cáo quản trị.';
+
+  const notificationDisabledMessage = isMockReportsSource
+    ? 'Chức năng gửi thông báo đang ở chế độ mô phỏng và tạm khóa thao tác gửi.'
+    : 'Backend hiện chưa hỗ trợ gửi thông báo trực tiếp từ màn báo cáo quản trị cho role admin.';
+
   const {
     filters,
     dashboard,
@@ -108,10 +122,12 @@ const ReportsPage = () => {
         )}
       />
 
-      <div className="inline-flex items-center gap-1.5 rounded-lg border border-info/20 bg-info-soft px-3 py-1.5 text-xs font-medium text-info">
-        <span className="material-symbols-outlined text-[15px]">info</span>
-        Dữ liệu báo cáo hiện chạy ở chế độ mô phỏng, thao tác ghi đã tạm khóa.
-      </div>
+      {isMockReportsSource ? (
+        <div className="inline-flex items-center gap-1.5 rounded-lg border border-info/20 bg-info-soft px-3 py-1.5 text-xs font-medium text-info">
+          <span className="material-symbols-outlined text-[15px]">info</span>
+          Dữ liệu báo cáo hiện chạy ở chế độ mô phỏng, thao tác ghi đã tạm khóa.
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="text-xs font-semibold uppercase tracking-wider text-on-surface-muted">
@@ -169,7 +185,10 @@ const ReportsPage = () => {
         onSaveDirective={handleSaveDirective}
         onSendNotification={handleSendNotification}
         saving={savingDirective}
-        writeActionsDisabled
+        writeActionsDisabled={disableDirectiveWrites}
+        notificationActionsDisabled={disableNotificationWrites}
+        directiveDisabledMessage={directiveDisabledMessage}
+        notificationDisabledMessage={notificationDisabledMessage}
       />
     </div>
   );

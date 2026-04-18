@@ -78,7 +78,7 @@ const normalizeOverview = (source = {}) => {
     totalStudents: toNumber(source.totalStudents),
     totalClasses: toNumber(source.totalClasses),
     totalUsers: toNumber(source.totalUsers ?? source.activeUsers),
-    lowStockMedicines: toNumber(source.lowStockMedicines),
+    lowStockMedicines: toNumber(source.lowStockMedicines ?? source.lowStockMedicinesCount),
     totalVisitsToday: toNumber(source.totalVisitsToday),
     totalVisitsThisMonth: toNumber(source.totalVisitsThisMonth),
   };

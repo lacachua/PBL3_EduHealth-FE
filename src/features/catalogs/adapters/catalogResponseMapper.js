@@ -36,7 +36,7 @@ const mapCatalogRecord = (item = {}, fallbackGroup = 'vaccines') => {
   };
 };
 
-export const mapCatalogListResponse = (responseOrPayload) => {
+export const mapCatalogListResponse = (responseOrPayload, fallbackGroup = 'vaccines') => {
   const envelope = normalizeApiEnvelope(responseOrPayload);
 
   if (!envelope || envelope.success === false) {
@@ -49,7 +49,7 @@ export const mapCatalogListResponse = (responseOrPayload) => {
       ? envelope.data.items
       : [];
 
-  const group = envelope.data?.group || envelope.data?.type || 'vaccines';
+  const group = envelope.data?.group || envelope.data?.type || fallbackGroup;
   const rows = sourceRows.map((item) => mapCatalogRecord(item, group));
 
   return {
