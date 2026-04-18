@@ -33,17 +33,17 @@ export const DATA_MODULES = Object.freeze({
 const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.AUTH]: { supportsLive: true },
   [DATA_MODULES.CURRENT_USER_ACCOUNT]: { supportsLive: true },
-  // Student portal read APIs are still pending on backend; keep mock source by default.
-  [DATA_MODULES.STUDENT_PORTAL]: { supportsLive: false },
+  // Student portal now supports live read APIs via StudentsController.
+  [DATA_MODULES.STUDENT_PORTAL]: { supportsLive: true },
 
   [DATA_MODULES.ADMIN_USERS]: { supportsLive: true },
   [DATA_MODULES.ADMIN_STUDENTS]: { supportsLive: true },
-  [DATA_MODULES.ADMIN_CATALOGS]: { supportsLive: false },
+  [DATA_MODULES.ADMIN_CATALOGS]: { supportsLive: true },
   [DATA_MODULES.ADMIN_MEDICINES]: { supportsLive: true },
   [DATA_MODULES.ADMIN_REPORTS]: { supportsLive: false },
-  [DATA_MODULES.ADMIN_SYSTEM_LOGS]: { supportsLive: false },
+  [DATA_MODULES.ADMIN_SYSTEM_LOGS]: { supportsLive: true },
   [DATA_MODULES.ADMIN_SETTINGS]: { supportsLive: false },
-  [DATA_MODULES.ADMIN_DASHBOARD]: { supportsLive: false },
+  [DATA_MODULES.ADMIN_DASHBOARD]: { supportsLive: true },
 
   [DATA_MODULES.NURSE_STUDENTS]: { supportsLive: true },
   [DATA_MODULES.NURSE_HEALTH_PROFILE]: { supportsLive: true },

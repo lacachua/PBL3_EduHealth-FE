@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 
@@ -53,7 +52,6 @@ const AccountProfilePanel = ({
   onProfileSaved,
 }) => {
   const classes = variantClassMap[variant] || variantClassMap.admin;
-  const isMockMode = resolveModuleDataSource(DATA_MODULES.CURRENT_USER_ACCOUNT) === 'mock';
   const fileInputRef = useRef(null);
 
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState('');
@@ -160,21 +158,13 @@ const AccountProfilePanel = ({
       return;
     }
 
-    if (!isMockMode) {
-      const message = 'Tính năng lưu ảnh đại diện đang chờ backend hỗ trợ ở chế độ live.';
-      setAvatarError(message);
-      if (onFeedback) {
-        onFeedback({ type: 'info', message });
-      }
-      return;
-    }
-
     setIsAvatarSubmitting(true);
     setAvatarError('');
 
     try {
       const payload = new FormData();
       payload.append('avatar', pendingAvatarFile);
+      payload.append('file', pendingAvatarFile);
 
       const response = await currentUserRepository.uploadCurrentUserAvatar(payload);
 
@@ -248,9 +238,8 @@ const AccountProfilePanel = ({
               <button
                 type="button"
                 className={classes.avatarSaveButton}
-                disabled={isAvatarSubmitting || !isMockMode}
+                disabled={isAvatarSubmitting}
                 onClick={handleAvatarSave}
-                title={isMockMode ? undefined : 'Chưa hỗ trợ lưu ảnh ở chế độ live'}
               >
                 {isAvatarSubmitting ? 'Đang lưu...' : 'Lưu ảnh'}
               </button>
@@ -264,10 +253,6 @@ const AccountProfilePanel = ({
                 Hủy ảnh
               </button>
             </div>
-          ) : null}
-
-          {pendingAvatarFile && !isMockMode ? (
-            <p className={classes.errorText}>Lưu ảnh ở chế độ live đang chờ backend hỗ trợ.</p>
           ) : null}
 
           {avatarError ? <p className={classes.errorText}>{avatarError}</p> : null}

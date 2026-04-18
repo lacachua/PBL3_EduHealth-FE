@@ -100,8 +100,15 @@ export const adaptSystemLogsResponse = (payload) => {
     return { rows: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 };
   }
 
-  const rows = Array.isArray(envelope.data?.logs)
-    ? envelope.data.logs.map((item) => mapLogRow(item))
+  // Support both legacy shape { data: { logs: [] } } and current BE shape { data: [] }.
+  const sourceRows = Array.isArray(envelope.data)
+    ? envelope.data
+    : Array.isArray(envelope.data?.logs)
+      ? envelope.data.logs
+      : [];
+
+  const rows = Array.isArray(sourceRows)
+    ? sourceRows.map((item) => mapLogRow(item))
     : [];
 
   return {

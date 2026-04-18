@@ -232,7 +232,11 @@ export const uploadCurrentUserAvatarMock = async (payload) => {
     });
   }
 
-  const avatarFile = payload instanceof FormData ? payload.get('avatar') : null;
+  const avatarFile = payload instanceof FormData
+    ? (payload.get('avatar') || payload.get('file'))
+    : payload instanceof File
+      ? payload
+      : null;
   if (!(avatarFile instanceof File)) {
     throw createMockApiError({
       status: 400,

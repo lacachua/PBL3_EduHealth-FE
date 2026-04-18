@@ -43,6 +43,9 @@ const AdminReportDetailDrawer = ({
   onSendNotification,
   saving = false,
   writeActionsDisabled = false,
+  notificationActionsDisabled = false,
+  directiveDisabledMessage = 'Chức năng ghi chú đang ở chế độ demo mock-only và tạm khóa thao tác ghi chờ BE chính thức.',
+  notificationDisabledMessage = 'Chức năng gửi thông báo từ màn báo cáo tạm thời chưa mở API nên đang bị khóa.',
 }) => {
   const [notificationDraft, setNotificationDraft] = useState('');
   const [recipientTarget, setRecipientTarget] = useState('students');
@@ -68,9 +71,10 @@ const AdminReportDetailDrawer = ({
   };
 
   const recipientCount = resolveRecipientCount(recipientTarget, recipientStats);
-  const disableWrites = Boolean(writeActionsDisabled);
+  const disableDirectiveWrites = Boolean(writeActionsDisabled);
+  const disableNotificationWrites = Boolean(notificationActionsDisabled);
 
-  const canPreviewSend = !disableWrites && Boolean(notificationDraft.trim());
+  const canPreviewSend = !disableNotificationWrites && Boolean(notificationDraft.trim());
 
   const handleConfirmSend = async () => {
     if (!canPreviewSend) return;
@@ -188,9 +192,9 @@ const AdminReportDetailDrawer = ({
 
           <section>
             <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-on-surface-muted">Ghi chú nội bộ</h4>
-            {disableWrites ? (
+            {disableDirectiveWrites ? (
               <p className="mb-3 rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">
-                Chức năng ghi chú đang ở chế độ demo mock-only và tạm khóa thao tác ghi chờ BE chính thức.
+                {directiveDisabledMessage}
               </p>
             ) : null}
             {detail.recommendation ? (
@@ -202,24 +206,24 @@ const AdminReportDetailDrawer = ({
               className="h-32 w-full rounded-2xl border border-outline-variant bg-surface p-4 text-sm text-on-surface outline-none transition placeholder:text-on-surface-muted focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
               placeholder="Nhập ghi chú chỉ đạo hoặc đề xuất xử lý..."
               value={directiveNote}
-              disabled={disableWrites}
+              disabled={disableDirectiveWrites}
               onChange={(event) => onDirectiveChange(event.target.value)}
             />
             <button
               type="button"
               onClick={onSaveDirective}
-              disabled={saving || disableWrites}
+              disabled={saving || disableDirectiveWrites}
               className="mt-3 w-full rounded-xl border border-outline-variant bg-surface py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-high disabled:opacity-60"
             >
-              {disableWrites ? 'Tạm khóa lưu (mock-only)' : saving ? 'Đang lưu...' : 'Lưu ghi chú nội bộ'}
+              {disableDirectiveWrites ? 'Tạm khóa lưu' : saving ? 'Đang lưu...' : 'Lưu ghi chú nội bộ'}
             </button>
           </section>
 
           <section className="rounded-2xl border border-outline-variant/60 bg-surface p-5">
             <h4 className="mb-3 text-xs font-black uppercase tracking-widest text-on-surface-muted">Nội dung thông báo gửi ra ngoài</h4>
-            {disableWrites ? (
+            {disableNotificationWrites ? (
               <p className="mb-3 rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">
-                Chức năng gửi thông báo đang ở chế độ demo mock-only và tạm khóa thao tác gửi chờ BE chính thức.
+                {notificationDisabledMessage}
               </p>
             ) : null}
 
@@ -239,7 +243,7 @@ const AdminReportDetailDrawer = ({
               className="h-28 w-full rounded-2xl border border-outline-variant bg-surface p-4 text-sm text-on-surface outline-none transition placeholder:text-on-surface-muted focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10"
               placeholder="Nhập nội dung thông báo gửi đến học sinh..."
               value={notificationDraft}
-              disabled={disableWrites}
+              disabled={disableNotificationWrites}
               onChange={(event) => setNotificationDraft(event.target.value)}
             />
 
@@ -251,7 +255,7 @@ const AdminReportDetailDrawer = ({
               onClick={() => setIsConfirmOpen(true)}
               className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-on-primary transition hover:bg-primary-hover disabled:opacity-60"
             >
-              {disableWrites ? 'Tạm khóa gửi (mock-only)' : 'Xem trước & gửi thông báo'}
+              {disableNotificationWrites ? 'Tạm khóa gửi' : 'Xem trước & gửi thông báo'}
             </button>
           </section>
         </div>

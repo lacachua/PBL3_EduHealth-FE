@@ -81,13 +81,14 @@ const catalogMap = {
 
 const applyFilters = (rows, query = {}) => {
   const keyword = (query.keyword || '').trim().toLowerCase();
-  const status = query.status || 'all';
+  const status = String(query.status || 'all').trim().toLowerCase();
+  const normalizedStatus = status === 'unstandardized' ? 'review' : status;
 
   return rows.filter((item) => {
     const byKeyword = !keyword
       || item.name.toLowerCase().includes(keyword)
       || item.code.toLowerCase().includes(keyword);
-    const byStatus = status === 'all' || item.status === status;
+    const byStatus = normalizedStatus === 'all' || item.status === normalizedStatus;
     return byKeyword && byStatus;
   });
 };

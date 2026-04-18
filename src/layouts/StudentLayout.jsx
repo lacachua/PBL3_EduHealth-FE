@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
 import StudentSidebar from '../features/student-portal/components/layout/StudentSidebar';
-import StudentTopbar from '../features/student-portal/components/layout/StudentTopbar';
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
 import { studentPortalService } from '../features/student-portal/services/studentPortalService';
+import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import './styles/student-shell.css';
 
 const resolveFallbackIdentity = (user) => {
@@ -35,6 +35,16 @@ const StudentLayout = () => {
       ...(identityOverrides || {}),
     };
   }, [fallbackIdentity, identityOverrides]);
+
+  const headerUser = useMemo(() => {
+    return {
+      ...user,
+      fullName: identity?.fullName || user?.fullName || user?.name || '',
+      avatar: identity?.avatar || user?.avatar || user?.avatarUrl || '',
+      role: 'STUDENT',
+      roleLabel: String(identity?.roleLabel || user?.roleLabel || 'Học sinh'),
+    };
+  }, [identity?.avatar, identity?.fullName, identity?.roleLabel, user]);
 
   useEffect(() => {
     let isActive = true;
@@ -89,11 +99,13 @@ const StudentLayout = () => {
       />
 
       <main className={`student-layout-main min-h-screen ${mainOffsetClass}`}>
-        <StudentTopbar
+        <RoleTopHeader
+          role="STUDENT"
+          user={headerUser}
           onOpenSidebar={() => setIsSidebarOpen(true)}
-          identity={identity}
           onNavigateAccount={handleNavigateAccount}
           onLogout={handleLogout}
+          containerClassName="student-layout-content"
         />
 
         <div className="student-layout-content px-4 pb-20 pt-3 sm:px-5 sm:pt-4 md:pb-5">
