@@ -1,23 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
 import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
-import NurseTopbar from '../features/nurse-shell/components/NurseTopbar';
-
-const getUserName = (user) => {
-  const rawName = user?.fullName || user?.name || 'Nhân viên y tế';
-  const trimmedName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim();
-
-  return trimmedName || rawName;
-};
-
-const getUserRoleLabel = (user) => {
-  const role = String(user?.role || '').toUpperCase();
-  if (role === 'ADMIN') return 'Quản trị viên';
-  if (role === 'NURSE') return 'Nhân viên y tế';
-  if (role === 'STUDENT' || role === 'PARENT') return 'Học sinh';
-  return 'Nhân viên y tế';
-};
+import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 
 const NurseLayout = () => {
   const { key: locationKey } = useLocation();
@@ -27,9 +12,6 @@ const NurseLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const userName = useMemo(() => getUserName(user), [user]);
-  const userRoleLabel = useMemo(() => getUserRoleLabel(user), [user]);
-
   const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[78px]' : 'md:ml-[272px]';
 
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -37,6 +19,10 @@ const NurseLayout = () => {
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
+  };
+
+  const handleNavigateAccount = () => {
+    navigate('/nurse/profile');
   };
 
   return (
@@ -58,10 +44,14 @@ const NurseLayout = () => {
       />
 
       <main className={`min-h-screen transition-[margin] duration-200 ${mainOffsetClass}`}>
-        <NurseTopbar
+        <RoleTopHeader
+          role="NURSE"
+          user={user}
           onOpenSidebar={() => setIsSidebarOpen(true)}
-          userName={userName}
-          userRoleLabel={userRoleLabel}
+          onNavigateAccount={handleNavigateAccount}
+          onLogout={handleLogout}
+          showNotifications
+          hasUnreadNotifications
         />
 
         <div className="px-4 pb-5 pt-4 sm:px-5 sm:pt-5">

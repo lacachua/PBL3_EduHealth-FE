@@ -1,23 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
 import BrandLogo from '../shared/components/common/BrandLogo';
+import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import { adminSidebarActions, adminSidebarGroups } from './constants/adminShellConfig';
-
-const getUserName = (user) => {
-  const rawName = user?.fullName || user?.name || 'Quản trị viên';
-  const trimmedName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim();
-
-  return trimmedName || rawName;
-};
-
-const getUserRoleLabel = (user) => {
-  const role = String(user?.role || '').toUpperCase();
-  if (role === 'ADMIN') return 'Quản trị viên';
-  if (role === 'NURSE') return 'Nhân viên y tế';
-  if (role === 'STUDENT' || role === 'PARENT') return 'Học sinh';
-  return 'Quản trị viên';
-};
 
 const AdminLayout = () => {
   const { key: locationKey } = useLocation();
@@ -27,14 +13,15 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const userName = useMemo(() => getUserName(user), [user]);
-  const userRoleLabel = useMemo(() => getUserRoleLabel(user), [user]);
-
   const closeSidebar = () => setIsSidebarOpen(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
+  };
+
+  const handleNavigateAccount = () => {
+    navigate('/admin/settings');
   };
 
   const sidebarWidthClass = isSidebarCollapsed ? 'md:w-[76px]' : 'md:w-[264px]';
@@ -150,54 +137,15 @@ const AdminLayout = () => {
       </aside>
 
       <main className={`min-h-screen bg-background md:border-l md:border-outline-variant/70 ${mainOffsetClass}`}>
-        <header className="sticky top-0 z-30 border-b border-outline-variant/90 bg-surface shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
-          <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-5">
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(true)}
-                className="rounded-xl border border-outline-variant/70 p-2 text-on-surface-variant md:hidden"
-                aria-label="Mở thanh điều hướng"
-              >
-                <span className="material-symbols-outlined text-lg">menu</span>
-              </button>
-
-              <label className="relative hidden w-full max-w-xl items-center md:inline-flex">
-                <span className="material-symbols-outlined pointer-events-none absolute left-3 text-base text-on-surface-variant">
-                  search
-                </span>
-                <input
-                  type="search"
-                  placeholder="Tìm học sinh, tài khoản, danh mục, báo cáo..."
-                  className="h-11 w-full rounded-xl border border-outline-variant bg-surface px-4 pl-10 text-sm text-on-surface outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/15"
-                />
-              </label>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="relative rounded-xl p-2 text-on-surface-variant transition hover:bg-surface-container-low"
-                aria-label="Thông báo"
-              >
-                <span className="material-symbols-outlined text-xl">notifications</span>
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-error" />
-              </button>
-
-              <div className="hidden h-6 w-px bg-outline-variant/50 sm:block" />
-
-              <div className="flex items-center gap-2">
-                <div className="hidden text-right sm:block">
-                  <p className="text-sm font-semibold text-on-surface">{userName}</p>
-                  <p className="text-[11px] uppercase tracking-wide text-on-surface-variant">{userRoleLabel}</p>
-                </div>
-                <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-primary-soft text-sm font-bold text-primary-hover">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+        <RoleTopHeader
+          role="ADMIN"
+          user={user}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          onNavigateAccount={handleNavigateAccount}
+          onLogout={handleLogout}
+          showNotifications
+          hasUnreadNotifications
+        />
 
         <div className="px-4 pb-4 pt-3 sm:px-5">
           <Outlet key={locationKey} />
