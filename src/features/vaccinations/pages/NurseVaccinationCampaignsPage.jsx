@@ -89,13 +89,11 @@ const NurseVaccinationCampaignsPage = () => {
     const totalCampaigns = campaignData.totalItems || campaignData.rows.length;
 
     const aggregate = campaignData.rows.reduce((acc, item) => {
-      acc.activeCampaigns += item.status === 'ACTIVE' ? 1 : 0;
       acc.totalStudents += item.statistics.totalStudents || 0;
       acc.doneStudents += item.statistics.doneCount || 0;
       acc.pendingStudents += item.statistics.pendingCount || 0;
       return acc;
     }, {
-      activeCampaigns: 0,
       totalStudents: 0,
       doneStudents: 0,
       pendingStudents: 0,
@@ -103,7 +101,6 @@ const NurseVaccinationCampaignsPage = () => {
 
     return {
       totalCampaigns,
-      activeCampaigns: aggregate.activeCampaigns,
       pendingStudents: aggregate.pendingStudents,
       completionRate: aggregate.totalStudents
         ? Math.round((aggregate.doneStudents / aggregate.totalStudents) * 100)
@@ -168,6 +165,19 @@ const NurseVaccinationCampaignsPage = () => {
       <NurseModulePageHeader
         title="Quản lý tiêm chủng"
         description="Theo dõi các đợt tiêm và cập nhật kết quả tiêm cho học sinh."
+        actions={(
+          <button
+            type="button"
+            onClick={() => {
+              setCreateError('');
+              setCreateOpen(true);
+            }}
+            className="app-btn-primary app-focus-ring inline-flex h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Tạo đợt tiêm
+          </button>
+        )}
       />
 
       <VaccinationCampaignToolbar
@@ -181,10 +191,6 @@ const NurseVaccinationCampaignsPage = () => {
           setDraftFilters(CAMPAIGN_FILTER_DEFAULTS);
           setAppliedFilters(CAMPAIGN_FILTER_DEFAULTS);
           setPage(1);
-        }}
-        onOpenCreate={() => {
-          setCreateError('');
-          setCreateOpen(true);
         }}
       />
 

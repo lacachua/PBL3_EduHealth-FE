@@ -286,10 +286,15 @@ const NurseStudentsPage = () => {
       const classNameDisplay = resolveClassLabel(row.classId, row.className);
       const alerts = inferAlerts({ row, detail, profile });
       const healthStatusKey = inferHealthStatus({ alerts, row, profile });
+      const studentCodeDisplay = profile?.studentCode
+        || detail?.studentCode
+        || row.studentCode
+        || (studentId ? `HS${studentId}` : '--');
 
       return {
         ...row,
         _studentId: studentId,
+        studentCodeDisplay,
         classNameDisplay,
         classFilterValue: String(row.classId || classNameDisplay),
         genderKey: detail?.gender || row.gender || 'UNKNOWN',
@@ -376,7 +381,7 @@ const NurseStudentsPage = () => {
         header: 'Mã học sinh',
         headerClassName: 'w-[98px]',
         cellClassName: 'whitespace-nowrap text-[12px] font-bold text-success',
-        render: (row) => row.studentCode || (row._studentId ? `HS${row._studentId}` : '--'),
+        render: (row) => row.studentCodeDisplay,
       },
       {
         key: 'fullName',
@@ -495,68 +500,7 @@ const NurseStudentsPage = () => {
       <NurseModulePageHeader
         title="Danh sách học sinh"
         description="Tra cứu nhanh hồ sơ sức khỏe học sinh và điều phối thao tác khám bệnh tại phòng y tế."
-      />
-
-      <section className="app-panel-shell px-4 py-3 sm:px-5">
-        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
-          <form onSubmit={handleApplyFilters} className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <label className="relative w-full sm:max-w-[310px]">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-              <input
-                type="search"
-                value={draftFilters.keyword}
-                onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
-                placeholder="Tìm theo mã học sinh hoặc họ tên"
-                className="app-focus-ring app-input h-9 w-full rounded-lg pl-9 pr-3 text-sm"
-              />
-            </label>
-
-            <select
-              value={draftFilters.classValue}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[118px]"
-            >
-              {classOptions.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <select
-              value={draftFilters.gender}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, gender: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[110px]"
-            >
-              {GENDER_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <select
-              value={draftFilters.healthStatus}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, healthStatus: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[162px]"
-            >
-              {HEALTH_STATUS_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <button
-              type="submit"
-                className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
-            >
-              Lọc
-            </button>
-
-            <button
-              type="button"
-              onClick={handleResetFilters}
-                className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
-            >
-              Đặt lại
-            </button>
-          </form>
-
+        actions={(
           <button
             type="button"
             onClick={() => {
@@ -567,12 +511,74 @@ const NurseStudentsPage = () => {
                 },
               });
             }}
-            className="app-focus-ring app-btn-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="app-focus-ring app-btn-primary inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
           >
-            <span className="material-symbols-outlined text-[17px]">medical_information</span>
+            <span className="material-symbols-outlined text-[18px]">medical_information</span>
             Tạo phiếu khám mới
           </button>
-        </div>
+        )}
+      />
+
+      <section className="app-panel-shell px-4 py-3 sm:px-5">
+        <form onSubmit={handleApplyFilters} className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center">
+          <label className="relative min-w-0 flex-1 xl:max-w-[320px]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+            <input
+              type="search"
+              value={draftFilters.keyword}
+              onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
+              placeholder="Tìm theo mã học sinh hoặc họ tên"
+              className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+            />
+          </label>
+
+          <select
+            value={draftFilters.classValue}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[128px] xl:shrink-0"
+          >
+            {classOptions.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <select
+            value={draftFilters.gender}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, gender: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[116px] xl:shrink-0"
+          >
+            {GENDER_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <select
+            value={draftFilters.healthStatus}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, healthStatus: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[172px] xl:shrink-0"
+          >
+            {HEALTH_STATUS_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
+            <button
+              type="submit"
+              className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+            >
+              Lọc
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+            >
+              Đặt lại
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
@@ -655,7 +661,7 @@ const NurseStudentsPage = () => {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-extrabold text-on-surface">{selectedRow.fullName}</h3>
-                  <p className="mt-0.5 text-sm text-on-surface-variant">{selectedRow.studentCode || (selectedRow._studentId ? `HS${selectedRow._studentId}` : '--')} • Lớp {selectedRow.classNameDisplay}</p>
+                  <p className="mt-0.5 text-sm text-on-surface-variant">{selectedRow.studentCodeDisplay} • Lớp {selectedRow.classNameDisplay}</p>
                 </div>
                 <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${HEALTH_STATUS_CLASS_MAP[selectedRow.healthStatusKey] || HEALTH_STATUS_CLASS_MAP.normal}`}>
                   {HEALTH_STATUS_META[selectedRow.healthStatusKey]?.label || 'Bình thường'}
@@ -666,7 +672,7 @@ const NurseStudentsPage = () => {
             <section className="rounded-lg border border-outline-variant bg-surface p-3 text-sm text-on-surface">
               <div className="grid grid-cols-[128px_1fr] gap-y-2">
                 <p className="text-on-surface-variant">Mã học sinh</p>
-                <p className="font-semibold">{selectedRow.studentCode || (selectedRow._studentId ? `HS${selectedRow._studentId}` : '--')}</p>
+                <p className="font-semibold">{selectedRow.studentCodeDisplay}</p>
 
                 <p className="text-on-surface-variant">Ngày sinh</p>
                 <p>{selectedRow.dateOfBirthDisplay}</p>

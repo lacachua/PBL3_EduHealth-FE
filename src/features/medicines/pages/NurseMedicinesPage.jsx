@@ -5,7 +5,6 @@ import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackTo
 import Pagination from '../../../shared/components/admin/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import {
-  buildSummaryStats,
   mapMedicineAlertsEnvelope,
   mapMedicineDetailEnvelope,
   mapMedicineListEnvelope,
@@ -19,8 +18,6 @@ import {
 import CreateMedicineModal from '../components/nurse/CreateMedicineModal';
 import DisposeMedicineModal from '../components/nurse/DisposeMedicineModal';
 import MedicineDetailDrawer from '../components/nurse/MedicineDetailDrawer';
-import MedicinesAlertsPanel from '../components/nurse/MedicinesAlertsPanel';
-import MedicinesSummaryCards from '../components/nurse/MedicinesSummaryCards';
 import MedicinesTable from '../components/nurse/MedicinesTable';
 import MedicinesToolbar from '../components/nurse/MedicinesToolbar';
 import StockInMedicineModal from '../components/nurse/StockInMedicineModal';
@@ -332,11 +329,10 @@ const NurseMedicinesPage = () => {
     setActiveMedicine(medicine);
   };
 
-  const summary = useMemo(() => buildSummaryStats({
-    rows: medicinesData.rows,
-    totalItems: medicinesData.totalItems,
-    alerts,
-  }), [alerts, medicinesData.rows, medicinesData.totalItems]);
+  const alertSummary = useMemo(() => ({
+    lowStock: alerts.filter((item) => item.alertType === 'LOW_STOCK').length,
+    expiring: alerts.filter((item) => item.alertType === 'EXPIRING').length,
+  }), [alerts]);
 
   if (unauthorized) {
     return <Navigate to="/login" replace />;
@@ -347,6 +343,19 @@ const NurseMedicinesPage = () => {
       <NurseModulePageHeader
         title="Thuốc / Kho thuốc"
         description="Quản lý danh mục thuốc, theo dõi tồn kho và hạn sử dụng tại phòng y tế."
+        actions={(
+          <button
+            type="button"
+            onClick={() => {
+              setActionError('');
+              setOpenCreateModal(true);
+            }}
+            className="app-btn-primary app-focus-ring inline-flex h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Thêm thuốc mới
+          </button>
+        )}
       />
 
       <MedicinesToolbar
@@ -361,13 +370,7 @@ const NurseMedicinesPage = () => {
           setAppliedFilters(DEFAULT_FILTERS);
           setPage(1);
         }}
-        onCreate={() => {
-          setActionError('');
-          setOpenCreateModal(true);
-        }}
       />
-
-      <MedicinesSummaryCards summary={summary} loading={listStatus === 'loading'} />
 
       {forbidden ? (
         <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
@@ -376,20 +379,22 @@ const NurseMedicinesPage = () => {
       ) : null}
 
       {!forbidden ? (
-        <>
-          <MedicinesAlertsPanel
-            alerts={alerts}
-            loading={alertsLoading}
-            error={alertsError}
-            onOpenMedicine={openDetailByMedicineId}
-          />
-
-          <section className="app-panel-shell space-y-3 p-4 md:p-5">
+        <section className="app-panel-shell space-y-3 p-4 md:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold text-on-surface">Danh mục thuốc</h2>
                 <p className="text-sm text-on-surface-variant">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
               </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
+              <span className="inline-flex rounded-full border border-warning/25 bg-warning-soft px-2.5 py-1 font-semibold text-warning">
+                Sắp hết: {alertsLoading ? '--' : alertSummary.lowStock}
+              </span>
+              <span className="inline-flex rounded-full border border-danger/25 bg-danger-soft px-2.5 py-1 font-semibold text-danger">
+                Sắp hết hạn: {alertsLoading ? '--' : alertSummary.expiring}
+              </span>
+              {alertsError ? <span className="text-danger">{alertsError}</span> : null}
             </div>
 
             <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
@@ -413,7 +418,6 @@ const NurseMedicinesPage = () => {
               />
             ) : null}
           </section>
-        </>
       ) : null}
 
       <MedicineDetailDrawer

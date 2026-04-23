@@ -7,7 +7,6 @@ const VaccinationCampaignToolbar = ({
   onChange,
   onApply,
   onReset,
-  onOpenCreate,
 }) => {
   const updateField = (field, fieldValue) => {
     onChange({
@@ -17,9 +16,9 @@ const VaccinationCampaignToolbar = ({
   };
 
   return (
-    <section className="app-panel-shell p-4 md:p-5">
+    <section className="app-panel-shell px-4 py-3 sm:px-5">
       <form
-        className="flex flex-wrap items-center gap-3"
+        className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center"
         onSubmit={(event) => {
           event.preventDefault();
           onApply();
@@ -29,14 +28,14 @@ const VaccinationCampaignToolbar = ({
           value={value.keyword}
           onChange={(keyword) => updateField('keyword', keyword)}
           placeholder="Tìm theo tên đợt hoặc vaccine"
-          className="min-w-[260px] flex-[1_1_360px]"
-          inputClassName="h-10 rounded-xl"
+          className="min-w-0 flex-1 xl:max-w-[340px]"
+          inputClassName="h-10 rounded-lg"
         />
 
         <select
           value={value.status}
           onChange={(event) => updateField('status', event.target.value)}
-          className="app-focus-ring app-input h-10 min-w-[190px] rounded-xl px-3 text-sm"
+          className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[184px] xl:shrink-0"
           aria-label="Lọc theo trạng thái đợt tiêm"
         >
           {VACCINATION_CAMPAIGN_STATUS_OPTIONS.map((option) => (
@@ -48,7 +47,7 @@ const VaccinationCampaignToolbar = ({
           type="button"
           onClick={() => updateField('incompleteOnly', !value.incompleteOnly)}
           aria-pressed={Boolean(value.incompleteOnly)}
-          className={`app-focus-ring inline-flex h-9 items-center gap-1 rounded-full border px-3 text-xs font-semibold uppercase tracking-[0.04em] transition ${
+          className={`app-focus-ring inline-flex h-10 w-full shrink-0 items-center justify-center gap-1 rounded-lg border px-3 text-sm font-semibold transition xl:w-[156px] ${
             value.incompleteOnly
               ? 'border-success/30 bg-success-soft text-success'
               : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface'
@@ -58,27 +57,19 @@ const VaccinationCampaignToolbar = ({
           Chưa hoàn thành
         </button>
 
-        <div className="ml-auto flex flex-wrap items-center gap-2.5">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
           <button
             type="button"
             onClick={onReset}
-            className="app-focus-ring app-btn-secondary inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold"
+            className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
           >
-            Xóa bộ lọc
+            Đặt lại
           </button>
           <button
             type="submit"
-            className="app-focus-ring app-btn-primary inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold"
+            className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
           >
-            Áp dụng
-          </button>
-          <button
-            type="button"
-            onClick={onOpenCreate}
-            className="app-btn-primary app-focus-ring inline-flex h-10 items-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            Tạo đợt tiêm
+            Lọc
           </button>
         </div>
       </form>

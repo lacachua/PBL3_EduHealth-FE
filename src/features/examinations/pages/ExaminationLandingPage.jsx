@@ -13,9 +13,6 @@ import { getExaminations } from '../services/getExaminations';
 
 const defaultFilters = {
   localKeyword: '',
-  studentId: '',
-  classId: '',
-  diseaseTypeId: '',
   fromDate: '',
   toDate: '',
 };
@@ -61,13 +58,8 @@ const parseExaminationListEnvelope = (envelope) => {
   };
 };
 
-const normalizeCodeValue = (value) => String(value || '').trim().toUpperCase();
-
 const normalizeFiltersForApply = (filters) => ({
   localKeyword: String(filters.localKeyword || '').trim(),
-  studentId: normalizeCodeValue(filters.studentId),
-  classId: normalizeCodeValue(filters.classId),
-  diseaseTypeId: normalizeCodeValue(filters.diseaseTypeId),
   fromDate: filters.fromDate || '',
   toDate: filters.toDate || '',
 });
@@ -83,17 +75,12 @@ const ExaminationLandingPage = () => {
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [listData, setListData] = useState(defaultListData);
-  const [filterValidationError, setFilterValidationError] = useState('');
 
   const [feedback, setFeedback] = useState(() => location.state?.feedback || null);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerInitialStudentId, setPickerInitialStudentId] = useState(null);
   const [pickerInitialStudentName, setPickerInitialStudentName] = useState('');
-
-  const appliedFilterCount = useMemo(() => (
-    Object.values(appliedFilters).filter((value) => String(value || '').trim()).length
-  ), [appliedFilters]);
 
   const fetchList = useCallback(async (nextPage = page, nextFilters = appliedFilters) => {
     setStatus('loading');
@@ -103,9 +90,6 @@ const ExaminationLandingPage = () => {
       const response = await getExaminations({
         page: nextPage,
         pageSize: EXAMINATION_PAGE_SIZE,
-        studentId: nextFilters.studentId || undefined,
-        classId: nextFilters.classId,
-        diseaseTypeId: nextFilters.diseaseTypeId,
         fromDate: nextFilters.fromDate,
         toDate: nextFilters.toDate,
       });
@@ -178,19 +162,6 @@ const ExaminationLandingPage = () => {
   }, [appliedFilters.localKeyword, listData.rows]);
 
   const effectiveStatus = status === 'success' && !displayedRows.length ? 'empty' : status;
-
-  const stats = useMemo(() => {
-    const withPrescription = displayedRows.filter((row) => row.hasPrescription).length;
-    const withDiseaseGroup = displayedRows.filter((row) => row.diseaseTypeName !== '--').length;
-    const withoutPrescription = Math.max(displayedRows.length - withPrescription, 0);
-
-    return {
-      total: listData.totalItems,
-      withPrescription,
-      withoutPrescription,
-      withDiseaseGroup,
-    };
-  }, [displayedRows, listData.totalItems]);
 
   const columns = useMemo(() => ([
     {
@@ -290,89 +261,47 @@ const ExaminationLandingPage = () => {
             event.preventDefault();
 
             const normalizedFilters = normalizeFiltersForApply(filters);
-            const hasInvalidStudentId = normalizedFilters.studentId && !/^STD\d+$/i.test(normalizedFilters.studentId);
-            if (hasInvalidStudentId) {
-              setFilterValidationError('Mã hồ sơ học sinh phải đúng định dạng STDxxx (ví dụ: STD001).');
-              return;
-            }
-
-            setFilterValidationError('');
             setFilters(normalizedFilters);
             setAppliedFilters(normalizedFilters);
             setPage(1);
           }}
-          className="space-y-2.5"
+          className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-end"
         >
-          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-6 xl:items-end">
-            <label className="relative">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-              <input
-                type="search"
-                value={filters.localKeyword}
-                onChange={(event) => setFilters((prev) => ({ ...prev, localKeyword: event.target.value }))}
-                placeholder="Tìm nhanh trên trang"
-                className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
-              />
-            </label>
+          <label className="relative min-w-0 flex-1 xl:max-w-[360px]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+            <input
+              type="search"
+              value={filters.localKeyword}
+              onChange={(event) => setFilters((prev) => ({ ...prev, localKeyword: event.target.value }))}
+              placeholder="Tìm theo mã phiếu, học sinh, lớp, chẩn đoán"
+              className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+            />
+          </label>
 
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold text-on-surface-variant">Mã hồ sơ HS</span>
-              <input
-                type="text"
-                value={filters.studentId}
-                onChange={(event) => setFilters((prev) => ({ ...prev, studentId: event.target.value }))}
-                placeholder="Ví dụ: STD001"
-                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-              />
-            </label>
+          <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
+            <span className="text-[11px] font-semibold text-on-surface-variant">Từ ngày</span>
+            <input
+              type="date"
+              value={filters.fromDate}
+              onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
+              className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
+            />
+          </label>
 
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold text-on-surface-variant">Mã lớp</span>
-              <input
-                type="text"
-                value={filters.classId}
-                onChange={(event) => setFilters((prev) => ({ ...prev, classId: event.target.value }))}
-                placeholder="Ví dụ: CLS001"
-                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-              />
-            </label>
+          <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
+            <span className="text-[11px] font-semibold text-on-surface-variant">Đến ngày</span>
+            <input
+              type="date"
+              value={filters.toDate}
+              onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
+              className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
+            />
+          </label>
 
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold text-on-surface-variant">Mã nhóm bệnh</span>
-              <input
-                type="text"
-                value={filters.diseaseTypeId}
-                onChange={(event) => setFilters((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
-                placeholder="Ví dụ: DIS001"
-                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold text-on-surface-variant">Từ ngày</span>
-              <input
-                type="date"
-                value={filters.fromDate}
-                onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
-                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold text-on-surface-variant">Đến ngày</span>
-              <input
-                type="date"
-                value={filters.toDate}
-                onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
-                className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-              />
-            </label>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
             <button
               type="submit"
-              className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Lọc
             </button>
@@ -381,45 +310,14 @@ const ExaminationLandingPage = () => {
               onClick={() => {
                 setFilters({ ...defaultFilters });
                 setAppliedFilters({ ...defaultFilters });
-                setFilterValidationError('');
                 setPage(1);
               }}
-              className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold"
+              className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
             >
               Đặt lại
             </button>
           </div>
-
-          {filterValidationError ? <p className="text-xs font-medium text-danger">{filterValidationError}</p> : null}
         </form>
-
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="inline-flex rounded-full border border-success/25 bg-success-soft px-2.5 py-1 font-semibold text-success">
-            Tổng {listData.totalItems} phiếu khám
-          </span>
-          <span className="rounded-full border border-outline-variant bg-surface px-2.5 py-1 font-medium text-on-surface-variant">
-            {appliedFilterCount ? `${appliedFilterCount} bộ lọc đang áp dụng` : 'Chưa áp dụng bộ lọc'}
-          </span>
-        </div>
-      </section>
-
-      <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Tổng phiếu khám</p>
-          <p className="app-kpi-value">{stats.total}</p>
-        </article>
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Có đơn thuốc</p>
-          <p className="app-kpi-value text-success">{stats.withPrescription}</p>
-        </article>
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Không có đơn thuốc</p>
-          <p className="app-kpi-value text-warning">{stats.withoutPrescription}</p>
-        </article>
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Có nhóm bệnh</p>
-          <p className="app-kpi-value text-info">{stats.withDiseaseGroup}</p>
-        </article>
       </section>
 
       <section className="app-panel-shell overflow-hidden">
@@ -467,7 +365,7 @@ const ExaminationLandingPage = () => {
             <div className="px-4 py-5 sm:px-5">
               <EmptyState
                 title="Không có phiếu khám phù hợp"
-                description="Thử điều chỉnh mã hồ sơ (STDxxx), mã lớp (CLSxxx), mã nhóm bệnh (DISxxx) hoặc bộ lọc thời gian."
+                description="Thử điều chỉnh từ khóa tìm kiếm hoặc khoảng thời gian."
               />
             </div>
           )}

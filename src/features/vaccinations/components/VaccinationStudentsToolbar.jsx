@@ -19,72 +19,70 @@ const VaccinationStudentsToolbar = ({
   };
 
   return (
-    <section className="app-panel-shell p-4 md:p-5">
+    <section className="app-panel-shell px-4 py-3 sm:px-5">
       <form
-        className="space-y-3"
+        className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center"
         onSubmit={(event) => {
           event.preventDefault();
           onApply();
         }}
       >
-        <div className="flex flex-wrap items-start gap-3">
-          <SearchInput
-            value={value.keyword}
-            onChange={(keyword) => updateField('keyword', keyword)}
-            placeholder={keywordPlaceholder}
-            className="min-w-[260px] flex-[1_1_360px]"
-            inputClassName="rounded-xl"
+        <SearchInput
+          value={value.keyword}
+          onChange={(keyword) => updateField('keyword', keyword)}
+          placeholder={keywordPlaceholder}
+          className="min-w-0 flex-1 xl:max-w-[340px]"
+          inputClassName="h-10 rounded-lg"
+        />
+
+        {showCampaignFilter ? (
+          <input
+            type="text"
+            value={value.campaignId}
+            onChange={(event) => updateField('campaignId', event.target.value)}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[142px] xl:shrink-0"
+            placeholder="Mã đợt tiêm"
+            aria-label="Lọc theo mã đợt tiêm"
           />
+        ) : null}
 
-          {showCampaignFilter ? (
-            <input
-              type="text"
-              value={value.campaignId}
-              onChange={(event) => updateField('campaignId', event.target.value)}
-              className="app-focus-ring app-input min-w-[170px] rounded-xl px-3 py-2.5 text-sm"
-              placeholder="Mã đợt tiêm"
-              aria-label="Lọc theo mã đợt tiêm"
-            />
-          ) : null}
+        {showClassFilter ? (
+          <input
+            type="text"
+            value={value.classId}
+            onChange={(event) => updateField('classId', event.target.value)}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[118px] xl:shrink-0"
+            placeholder="Mã lớp"
+            aria-label="Lọc theo mã lớp"
+          />
+        ) : null}
 
-          {showClassFilter ? (
-            <input
-              type="text"
-              value={value.classId}
-              onChange={(event) => updateField('classId', event.target.value)}
-              className="app-focus-ring app-input min-w-[150px] rounded-xl px-3 py-2.5 text-sm"
-              placeholder="Mã lớp"
-              aria-label="Lọc theo mã lớp"
-            />
-          ) : null}
+        <select
+          value={value.status}
+          onChange={(event) => updateField('status', event.target.value)}
+          className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[188px] xl:shrink-0"
+          aria-label="Lọc theo trạng thái"
+        >
+          {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
 
-          <select
-            value={value.status}
-            onChange={(event) => updateField('status', event.target.value)}
-            className="app-focus-ring app-input min-w-[180px] rounded-xl px-3 py-2.5 text-sm"
-            aria-label="Lọc theo trạng thái"
+        <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
+          <button
+            type="button"
+            onClick={onReset}
+            className="app-btn-secondary app-focus-ring inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
           >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+            Đặt lại
+          </button>
 
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={onReset}
-              className="app-btn-secondary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
-            >
-              Đặt lại
-            </button>
-
-            <button
-              type="submit"
-              className="app-btn-primary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
-            >
-              Áp dụng
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="app-btn-primary app-focus-ring inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+          >
+            Lọc
+          </button>
         </div>
       </form>
     </section>

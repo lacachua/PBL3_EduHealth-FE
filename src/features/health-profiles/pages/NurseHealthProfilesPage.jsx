@@ -248,10 +248,14 @@ const NurseHealthProfilesPage = () => {
       const classNameDisplay = resolveClassLabel(row.classId, row.className);
       const alerts = inferAlerts({ row, profile });
       const profileStatus = deriveProfileRecordStatus({ row, profile, alerts });
+      const studentCodeDisplay = profile?.studentCode
+        || row.studentCode
+        || (studentId ? `HS${studentId}` : '--');
 
       return {
         ...row,
         _studentId: studentId,
+        studentCodeDisplay,
         classNameDisplay,
         classFilterValue: String(row.classId || classNameDisplay),
         profile,
@@ -322,11 +326,8 @@ const NurseHealthProfilesPage = () => {
 
   const stats = useMemo(() => {
     return {
-      total: filteredRows.length,
-      recentlyUpdated: filteredRows.filter((row) => row.profileStatusKey === 'recent').length,
       needsReview: filteredRows.filter((row) => row.profileNeedsReview).length,
       withAlerts: filteredRows.filter((row) => row.hasMedicalAlerts).length,
-      incomplete: filteredRows.filter((row) => row.profileIncomplete).length,
     };
   }, [filteredRows]);
 
@@ -356,7 +357,7 @@ const NurseHealthProfilesPage = () => {
       header: 'Mã học sinh',
       headerClassName: 'w-[120px]',
         cellClassName: 'whitespace-nowrap text-[12px] font-bold text-primary',
-      render: (row) => row.studentCode || (row._studentId ? `HS${row._studentId}` : '--'),
+      render: (row) => row.studentCodeDisplay,
     },
     {
       key: 'fullName',
@@ -483,77 +484,74 @@ const NurseHealthProfilesPage = () => {
       <NurseModulePageHeader
         title="Hồ sơ sức khỏe học sinh"
         description="Theo dõi tiến độ cập nhật hồ sơ, cảnh báo y tế và ưu tiên rà soát sức khỏe học đường."
-      />
-
-      <section className="app-panel-shell px-4 py-3 sm:px-5">
-        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
-          <form onSubmit={handleApplyFilters} className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <label className="relative w-full sm:max-w-[320px]">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-              <input
-                type="search"
-                value={draftFilters.keyword}
-                onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
-                placeholder="Tìm theo mã học sinh hoặc họ tên"
-                className="app-focus-ring app-input h-9 w-full rounded-lg pl-9 pr-3 text-sm"
-              />
-            </label>
-
-            <select
-              value={draftFilters.classValue}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[140px]"
-            >
-              {classOptions.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <select
-              value={draftFilters.profileStatus}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, profileStatus: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[168px]"
-            >
-              {PROFILE_STATUS_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <select
-              value={draftFilters.alertState}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, alertState: event.target.value }))}
-              className="app-focus-ring app-input h-9 w-full rounded-lg px-2.5 text-sm sm:w-[170px]"
-            >
-              {ALERT_STATE_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-
-            <button type="submit" className="app-focus-ring app-btn-primary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold">
-              Lọc
-            </button>
-
-            <button type="button" onClick={handleResetFilters} className="app-focus-ring app-btn-secondary inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold">
-              Đặt lại
-            </button>
-          </form>
-
+        actions={(
           <button
             type="button"
             onClick={() => navigate('/nurse/students')}
-            className="app-focus-ring app-btn-secondary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            className="app-focus-ring app-btn-secondary inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
           >
-            <span className="material-symbols-outlined text-[17px]">group</span>
+            <span className="material-symbols-outlined text-[18px]">group</span>
             Danh sách học sinh
           </button>
-        </div>
+        )}
+      />
+
+      <section className="app-panel-shell px-4 py-3 sm:px-5">
+        <form onSubmit={handleApplyFilters} className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center">
+          <label className="relative min-w-0 flex-1 xl:max-w-[320px]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+            <input
+              type="search"
+              value={draftFilters.keyword}
+              onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
+              placeholder="Tìm theo mã học sinh hoặc họ tên"
+              className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+            />
+          </label>
+
+          <select
+            value={draftFilters.classValue}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[128px] xl:shrink-0"
+          >
+            {classOptions.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <select
+            value={draftFilters.profileStatus}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, profileStatus: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
+          >
+            {PROFILE_STATUS_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <select
+            value={draftFilters.alertState}
+            onChange={(event) => setDraftFilters((prev) => ({ ...prev, alertState: event.target.value }))}
+            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
+          >
+            {ALERT_STATE_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
+            <button type="submit" className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
+              Lọc
+            </button>
+
+            <button type="button" onClick={handleResetFilters} className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
+              Đặt lại
+            </button>
+          </div>
+        </form>
       </section>
 
-      <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Hồ sơ cập nhật gần đây</p>
-          <p className="app-kpi-value text-success">{stats.recentlyUpdated}</p>
-        </article>
+      <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         <article className="app-kpi-card">
           <p className="app-kpi-label">Hồ sơ cần rà soát</p>
           <p className="app-kpi-value text-warning">{stats.needsReview}</p>
@@ -561,10 +559,6 @@ const NurseHealthProfilesPage = () => {
         <article className="app-kpi-card">
           <p className="app-kpi-label">Hồ sơ có cảnh báo y tế</p>
           <p className="app-kpi-value text-danger">{stats.withAlerts}</p>
-        </article>
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Hồ sơ thiếu dữ liệu</p>
-          <p className="app-kpi-value text-danger">{stats.incomplete}</p>
         </article>
       </section>
 
