@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SearchInput from '../../../shared/components/admin/SearchInput';
 import {
   USER_FILTER_DEFAULTS,
   USER_ROLE_OPTIONS,
@@ -28,16 +29,14 @@ const UserFilters = ({ initialValue, onApply, onReset }) => {
 
   return (
     <form onSubmit={handleSubmit} className="app-filter-toolbar flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:items-end">
-      <label className="relative w-full lg:min-w-[300px] lg:flex-[1.2]">
-        <span className={`material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] ${ACCOUNT_BASE_CLASS.mutedText}`}>search</span>
-        <input
-          type="search"
-          value={draft.keyword}
-          onChange={(event) => setDraft((prev) => ({ ...prev, keyword: event.target.value }))}
-          placeholder="Tìm theo tên đăng nhập, họ tên, email hoặc số điện thoại"
-          className={`w-full pl-9 pr-3 ${controlClass}`}
-        />
-      </label>
+      <SearchInput
+        value={draft.keyword}
+        onChange={(keyword) => setDraft((prev) => ({ ...prev, keyword }))}
+        placeholder="Tìm theo tên đăng nhập, họ tên, email hoặc số điện thoại"
+        className="w-full lg:min-w-[300px] lg:flex-[1.2]"
+        inputClassName={controlClass}
+        iconClassName={ACCOUNT_BASE_CLASS.mutedText}
+      />
 
       <select
         value={draft.role}

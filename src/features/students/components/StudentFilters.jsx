@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SearchInput from '../../../shared/components/admin/SearchInput';
 import { STUDENT_FILTER_DEFAULTS, STUDENT_CLASS_FILTER_OPTIONS, STUDENT_STATUS_OPTIONS } from '../schemas/studentManagementSchema';
 import {
   STUDENT_BASE_CLASS,
@@ -26,16 +27,14 @@ const StudentFilters = ({ initialValue, onApply }) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-      <label className="relative w-full md:max-w-[320px]">
-        <span className={`material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] ${STUDENT_BASE_CLASS.mutedText}`}>search</span>
-        <input
-          type="search"
-          value={draft.keyword}
-          onChange={(event) => setDraft((prev) => ({ ...prev, keyword: event.target.value }))}
-          placeholder="Tìm theo mã, họ tên hoặc username"
-          className={`w-full pl-9 pr-3 ${controlClass}`}
-        />
-      </label>
+      <SearchInput
+        value={draft.keyword}
+        onChange={(keyword) => setDraft((prev) => ({ ...prev, keyword }))}
+        placeholder="Tìm theo mã, họ tên hoặc username"
+        className="w-full md:max-w-[320px]"
+        inputClassName={controlClass}
+        iconClassName={STUDENT_BASE_CLASS.mutedText}
+      />
 
       <select
         value={draft.classId}

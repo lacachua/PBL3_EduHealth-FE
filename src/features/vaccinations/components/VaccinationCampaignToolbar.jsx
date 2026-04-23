@@ -1,4 +1,5 @@
 import React from 'react';
+import SearchInput from '../../../shared/components/admin/SearchInput';
 import { VACCINATION_CAMPAIGN_STATUS_OPTIONS } from '../constants/vaccinationConstants';
 
 const VaccinationCampaignToolbar = ({
@@ -24,17 +25,13 @@ const VaccinationCampaignToolbar = ({
           onApply();
         }}
       >
-        <div className="relative min-w-[260px] flex-[1_1_360px]">
-          <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted">search</span>
-          <input
-            type="text"
-            value={value.keyword}
-            onChange={(event) => updateField('keyword', event.target.value)}
-            className="app-focus-ring app-input h-10 w-full rounded-xl px-10 text-sm"
-            placeholder="Tìm theo tên đợt hoặc vaccine"
-            aria-label="Tìm theo tên đợt hoặc vaccine"
-          />
-        </div>
+        <SearchInput
+          value={value.keyword}
+          onChange={(keyword) => updateField('keyword', keyword)}
+          placeholder="Tìm theo tên đợt hoặc vaccine"
+          className="min-w-[260px] flex-[1_1_360px]"
+          inputClassName="h-10 rounded-xl"
+        />
 
         <select
           value={value.status}

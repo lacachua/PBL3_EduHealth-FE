@@ -1,4 +1,5 @@
 import React from 'react';
+import SearchInput from '../../../../shared/components/admin/SearchInput';
 import { MEDICINE_STATUS_OPTIONS } from '../../constants/nurseMedicineConstants';
 
 const MedicinesToolbar = ({ value, onChange, onApply, onReset, onCreate }) => {
@@ -19,22 +20,18 @@ const MedicinesToolbar = ({ value, onChange, onApply, onReset, onCreate }) => {
         }}
       >
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[280px] flex-[1_1_420px]">
-            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted">search</span>
-            <input
-              type="text"
-              value={value.keyword}
-              onChange={(event) => updateField('keyword', event.target.value)}
-              className="app-focus-ring app-input w-full rounded-xl px-10 py-2.5 text-sm"
-              placeholder="Tìm theo tên thuốc hoặc hoạt chất"
-              aria-label="Tìm theo tên thuốc hoặc hoạt chất"
-            />
-          </div>
+          <SearchInput
+            value={value.keyword}
+            onChange={(keyword) => updateField('keyword', keyword)}
+            placeholder="Tìm theo tên thuốc hoặc hoạt chất"
+            className="min-w-[280px] flex-[1_1_420px]"
+            inputClassName="h-11 rounded-xl"
+          />
 
           <select
             value={value.status}
             onChange={(event) => updateField('status', event.target.value)}
-            className="app-focus-ring app-input min-w-[220px] rounded-xl px-3 py-2.5 text-sm"
+            className="app-focus-ring app-input min-w-[220px] rounded-xl px-3 text-sm"
             aria-label="Lọc theo trạng thái"
           >
             {MEDICINE_STATUS_OPTIONS.map((option) => (
@@ -45,7 +42,7 @@ const MedicinesToolbar = ({ value, onChange, onApply, onReset, onCreate }) => {
           <button
             type="button"
             onClick={onCreate}
-            className="app-btn-primary app-focus-ring inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold"
+            className="app-btn-primary app-focus-ring inline-flex items-center gap-1.5 rounded-xl px-4 text-sm font-semibold"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             Thêm thuốc mới
