@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ErrorState from '../../../shared/components/admin/ErrorState';
 import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
 import PageHeader from '../../../shared/components/admin/PageHeader';
@@ -8,13 +8,18 @@ import SystemLogsFilters from '../components/SystemLogsFilters';
 import SystemLogsTable from '../components/SystemLogsTable';
 import SystemLogDetailDrawer from '../components/SystemLogDetailDrawer';
 import SystemLogEmptyState from '../components/SystemLogEmptyState';
-import { SYSTEM_LOGS_DEFAULT_FILTERS, useSystemLogs } from '../hooks/useSystemLogs';
+import { SYSTEM_LOGS_DEFAULT_FILTERS, useSystemLogs, useSystemLogDetail } from '../hooks/useSystemLogs';
 
 const SystemLogsPage = () => {
   const { filters, tableData, status, error, onFiltersChange, onPageChange, fetchList } = useSystemLogs();
-  const [selectedLog, setSelectedLog] = useState(null);
-
-  const handleSelectLog = (row) => setSelectedLog(row);
+  const {
+    selectedLog,
+    detailOpen,
+    detailLoading,
+    detailError,
+    openDetail,
+    closeDetail,
+  } = useSystemLogDetail();
 
   return (
     <div className="space-y-4 app-page-bg">
@@ -52,7 +57,7 @@ const SystemLogsPage = () => {
           {status === 'empty' && <SystemLogEmptyState onClearFilters={() => onFiltersChange(SYSTEM_LOGS_DEFAULT_FILTERS)} />}
           
           {status === 'success' && (
-            <SystemLogsTable rows={tableData.rows} onSelect={handleSelectLog} />
+            <SystemLogsTable rows={tableData.rows} onSelect={(row) => openDetail(row)} />
           )}
         </div>
 
@@ -68,7 +73,13 @@ const SystemLogsPage = () => {
         )}
       </SectionCard>
 
-      <SystemLogDetailDrawer log={selectedLog} open={Boolean(selectedLog)} onClose={() => setSelectedLog(null)} />
+      <SystemLogDetailDrawer
+        log={selectedLog}
+        open={detailOpen}
+        loading={detailLoading}
+        error={detailError}
+        onClose={closeDetail}
+      />
     </div>
   );
 };

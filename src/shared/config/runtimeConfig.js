@@ -1,14 +1,8 @@
 import { env } from "../../app/config/env";
-import { DATA_MODULES, getDataModeValue, shouldUseMockData } from '../../app/config/dataMode';
+import { getDataModeValue } from '../../app/config/dataMode';
 
 const RUNTIME_CONFIG_SINGLETON = Object.freeze({
   dataMode: getDataModeValue(),
-  enableMockAuth: shouldUseMockData(DATA_MODULES.AUTH),
-  enableMockAdminDashboard: shouldUseMockData(DATA_MODULES.ADMIN_DASHBOARD),
-  enableMockHealthProfiles: shouldUseMockData(DATA_MODULES.NURSE_HEALTH_PROFILE),
-  enableMockMedicines: shouldUseMockData(DATA_MODULES.ADMIN_MEDICINES) || shouldUseMockData(DATA_MODULES.NURSE_MEDICINES),
-  enableMockExaminations: shouldUseMockData(DATA_MODULES.NURSE_EXAMINATIONS),
-  enableMockStudentPortal: shouldUseMockData(DATA_MODULES.STUDENT_PORTAL),
   moduleMockFlags: env.moduleMockFlags,
   mockDelayMs: Object.freeze({
     default: 200,

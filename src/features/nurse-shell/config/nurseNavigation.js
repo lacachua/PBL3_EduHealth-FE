@@ -52,6 +52,12 @@ export const nurseSidebarGroups = [
     label: 'Theo dõi & báo cáo',
     items: [
       {
+        id: 'nurse-notifications',
+        label: 'Hộp thư',
+        icon: 'notifications',
+        to: '/nurse/notifications',
+      },
+      {
         id: 'nurse-reports',
         label: 'Báo cáo',
         icon: 'bar_chart',

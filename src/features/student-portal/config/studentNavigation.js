@@ -18,6 +18,12 @@ export const studentNavigationItems = [
     to: '/student/vaccinations',
   },
   {
+    id: 'student-notifications',
+    label: 'Thông báo',
+    icon: 'notifications',
+    to: '/student/notifications',
+  },
+  {
     id: 'student-account',
     label: 'Tài khoản',
     icon: 'person',
@@ -34,6 +40,7 @@ export const studentSidebarGroups = [
       studentNavigationItems[1],
       studentNavigationItems[2],
       studentNavigationItems[3],
+      studentNavigationItems[4],
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
+import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 
@@ -11,6 +12,8 @@ const NurseLayout = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[78px]' : 'md:ml-[272px]';
 
@@ -51,7 +54,17 @@ const NurseLayout = () => {
           onNavigateAccount={handleNavigateAccount}
           onLogout={handleLogout}
           showNotifications
-          hasUnreadNotifications
+          hasUnreadNotifications={unreadNotificationsCount > 0}
+          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
+        />
+
+        <NotificationsBellController
+          currentUser={user}
+          viewerRole="NURSE"
+          fullPagePath="/nurse/notifications"
+          open={isNotificationsOpen}
+          onClose={() => setIsNotificationsOpen(false)}
+          onUnreadChange={setUnreadNotificationsCount}
         />
 
         <div className="px-4 pb-5 pt-4 sm:px-5 sm:pt-5">

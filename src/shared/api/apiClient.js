@@ -3,8 +3,16 @@ import { env } from '../../app/config/env';
 import { clearAuthStorage, getAccessToken } from '../services/tokenClient';
 import { normalizeApiEnvelope } from './normalizeResponse';
 
+const normalizeRequestUrl = (url) => {
+  if (typeof url !== 'string') {
+    return url;
+  }
+
+  return url.trim();
+};
+
 const httpClient = axios.create({
-  baseURL: env.apiBaseUrl,
+  baseURL: env.apiBaseUrl || undefined,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -67,7 +75,7 @@ export const requestEnvelope = async ({
 }) => {
   const response = await httpClient.request({
     method,
-    url,
+    url: normalizeRequestUrl(url),
     data,
     params,
     responseType,

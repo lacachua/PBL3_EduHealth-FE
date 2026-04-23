@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
+import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import StudentSidebar from '../features/student-portal/components/layout/StudentSidebar';
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
 import { studentPortalService } from '../features/student-portal/services/studentPortalService';
@@ -28,6 +29,8 @@ const StudentLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [identityOverrides, setIdentityOverrides] = useState(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const identity = useMemo(() => {
     return {
@@ -105,7 +108,19 @@ const StudentLayout = () => {
           onOpenSidebar={() => setIsSidebarOpen(true)}
           onNavigateAccount={handleNavigateAccount}
           onLogout={handleLogout}
+          showNotifications
+          hasUnreadNotifications={unreadNotificationsCount > 0}
+          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
           containerClassName="student-layout-content"
+        />
+
+        <NotificationsBellController
+          currentUser={headerUser}
+          viewerRole="STUDENT"
+          fullPagePath="/student/notifications"
+          open={isNotificationsOpen}
+          onClose={() => setIsNotificationsOpen(false)}
+          onUnreadChange={setUnreadNotificationsCount}
         />
 
         <div className="student-layout-content px-4 pb-20 pt-3 sm:px-5 sm:pt-4 md:pb-5">

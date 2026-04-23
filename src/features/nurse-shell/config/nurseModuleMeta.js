@@ -41,6 +41,12 @@ export const nurseModuleMeta = {
     description: 'Tổng hợp dữ liệu báo cáo để phục vụ đối soát và đánh giá hoạt động y tế học đường.',
     moduleName: 'Phân tích và báo cáo',
   },
+  notifications: {
+    title: 'Thông báo',
+    introTitle: 'Hộp thư và điều phối thông báo',
+    description: 'Theo dõi thông báo đến và thực hiện gửi thông báo theo luồng nghiệp vụ y tế.',
+    moduleName: 'Trung tâm thông báo',
+  },
   profile: {
     title: 'Tài khoản cá nhân',
     introTitle: 'Quản lý tài khoản cá nhân',

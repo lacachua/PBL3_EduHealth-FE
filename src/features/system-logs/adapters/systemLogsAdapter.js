@@ -1,4 +1,4 @@
-﻿import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 
 const statusLabelMap = {
   success: 'Thành công',
@@ -28,42 +28,36 @@ const moduleLabelMap = {
   examinations: 'Khám bệnh',
   medicines: 'Thuốc',
   vaccinations: 'Tiêm chủng',
-  system_sync: 'Đồng bộ hệ thống',
   system: 'Hệ thống',
 };
 
 const actionLabelMap = {
   create_user: 'Tạo tài khoản',
   lock_user: 'Khóa tài khoản',
-  update_health_profile: 'Cập nhật hồ sơ sức khỏe',
-  create_examination: 'Tạo phiếu khám',
-  stock_in_medicine: 'Nhập kho thuốc',
-  update_vaccination_status: 'Cập nhật trạng thái tiêm chủng',
-  sync_system_data: 'Đồng bộ dữ liệu hệ thống',
+  unlock_user: 'Mở khóa tài khoản',
+  update_user_avatar: 'Cập nhật ảnh đại diện',
+  stock_in: 'Nhập kho thuốc',
+  dispose_medicine: 'Hủy thuốc',
   create: 'Tạo mới',
   update: 'Cập nhật',
   delete: 'Xóa',
-  sync: 'Đồng bộ',
 };
 
 const targetTypeLabelMap = {
-  user_account: 'Tài khoản',
-  health_profile: 'Hồ sơ sức khỏe',
-  examination: 'Phiếu khám',
-  medicine_stock: 'Kho thuốc',
-  vaccination_record: 'Hồ sơ tiêm chủng',
-  sync_job: 'Lô đồng bộ',
+  user: 'Tài khoản',
+  student: 'Học sinh',
+  medicine: 'Thuốc',
 };
 
 const asCode = (value = '') => String(value || '').trim().toLowerCase();
 
 const mapLogRow = (item = {}) => {
-  const createdAt = item.createdAt || item.occurredAt || '--';
+  const createdAt = item.createdAt || '--';
   const actorRole = item.actorRole || '--';
-  const module = item.module || item.moduleCode || item.moduleLabel || '--';
-  const action = item.action || item.actionCode || item.actionCategory || item.actionLabel || '--';
-  const targetType = item.targetType || item.targetTypeCode || item.targetTypeLabel || '--';
-  const status = item.status || item.statusCode || item.statusTone || '--';
+  const module = item.module || '--';
+  const action = item.action || '--';
+  const targetType = item.targetType || '--';
+  const status = item.status || '--';
 
   const roleCode = asCode(actorRole);
   const moduleCode = asCode(module);
@@ -77,18 +71,18 @@ const mapLogRow = (item = {}) => {
     actorName: item.actorName || '--',
     actorUsername: item.actorUsername || '--',
     actorRole,
-    roleLabel: roleLabelMap[roleCode] || actorRole || '--',
+    roleLabel: roleLabelMap[roleCode] || actorRole,
     module,
-    moduleLabel: moduleLabelMap[moduleCode] || item.moduleLabel || module || '--',
+    moduleLabel: moduleLabelMap[moduleCode] || module,
     action,
-    actionLabel: actionLabelMap[actionCode] || item.actionLabel || action || '--',
+    actionLabel: actionLabelMap[actionCode] || action,
     targetType,
-    targetTypeLabel: targetTypeLabelMap[targetTypeCode] || item.targetTypeLabel || targetType || '--',
-    targetLabel: item.targetLabel || item.targetName || '--',
-    description: item.description || item.message || '--',
+    targetTypeLabel: targetTypeLabelMap[targetTypeCode] || targetType,
+    targetLabel: item.targetLabel || '--',
+    description: item.description || '--',
     status,
-    statusLabel: statusLabelMap[statusCode] || item.statusLabel || status || '--',
-    statusTone: statusToneMap[statusCode] || item.statusTone || 'neutral',
+    statusLabel: statusLabelMap[statusCode] || status,
+    statusTone: statusToneMap[statusCode] || 'neutral',
     targetId: item.targetId || null,
     metadata: item.metadata || null,
   };
@@ -100,16 +94,11 @@ export const adaptSystemLogsResponse = (payload) => {
     return { rows: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 };
   }
 
-  // Support both legacy shape { data: { logs: [] } } and current BE shape { data: [] }.
   const sourceRows = Array.isArray(envelope.data)
     ? envelope.data
-    : Array.isArray(envelope.data?.logs)
-      ? envelope.data.logs
-      : [];
-
-  const rows = Array.isArray(sourceRows)
-    ? sourceRows.map((item) => mapLogRow(item))
     : [];
+
+  const rows = sourceRows.map((item) => mapLogRow(item));
 
   return {
     rows,
@@ -118,4 +107,13 @@ export const adaptSystemLogsResponse = (payload) => {
     totalItems: Number(envelope.meta?.totalItems || rows.length),
     totalPages: Number(envelope.meta?.totalPages || 1),
   };
+};
+
+export const adaptSystemLogDetailResponse = (payload) => {
+  const envelope = normalizeApiEnvelope(payload);
+  if (!envelope || envelope.success === false || !envelope.data) {
+    return null;
+  }
+
+  return mapLogRow(envelope.data);
 };

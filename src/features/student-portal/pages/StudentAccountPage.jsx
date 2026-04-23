@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { useAuth } from '../../../app/providers/useAuth';
 import StudentAccountInfoCard from '../components/account/StudentAccountInfoCard';
 import StudentAccountPasswordCard from '../components/account/StudentAccountPasswordCard';
 import StudentAccountProfileCard from '../components/account/StudentAccountProfileCard';
@@ -64,6 +65,8 @@ const validatePasswordForm = (values) => {
 };
 
 const StudentAccountPage = () => {
+  const { updateUser } = useAuth();
+
   const [accountData, setAccountData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -168,6 +171,15 @@ const StudentAccountPage = () => {
         fullName: String(response.data?.profile?.fullName || prevValues.fullName || ''),
         phone: String(response.data?.profile?.phone || prevValues.phone || ''),
       }));
+
+      // Sync profile changes to global auth context so header updates immediately.
+      if (typeof updateUser === 'function') {
+        updateUser({
+          fullName: response.data?.profile?.fullName || profileValues.fullName,
+          phone: response.data?.profile?.phone || profileValues.phone,
+        });
+      }
+
       setFeedback({ type: 'success', message: response?.message || 'Cập nhật thông tin thành công.' });
     } catch (apiError) {
       setProfileErrors((prev) => ({
@@ -202,6 +214,12 @@ const StudentAccountPage = () => {
         },
       }));
       setFeedback({ type: 'success', message: response?.message || 'Cập nhật ảnh đại diện thành công.' });
+
+      // Sync avatar to global auth context so header avatar updates immediately.
+      const savedAvatar = response.data?.profile?.avatar || response.data?.avatar || '';
+      if (savedAvatar && typeof updateUser === 'function') {
+        updateUser({ avatar: savedAvatar, avatarUrl: savedAvatar });
+      }
     } catch (apiError) {
       setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Không thể cập nhật ảnh đại diện.') });
     } finally {

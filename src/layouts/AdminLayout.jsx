@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/providers/useAuth';
+import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import BrandLogo from '../shared/components/common/BrandLogo';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import { adminSidebarActions, adminSidebarGroups } from './constants/adminShellConfig';
@@ -12,6 +13,8 @@ const AdminLayout = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -144,7 +147,17 @@ const AdminLayout = () => {
           onNavigateAccount={handleNavigateAccount}
           onLogout={handleLogout}
           showNotifications
-          hasUnreadNotifications
+          hasUnreadNotifications={unreadNotificationsCount > 0}
+          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
+        />
+
+        <NotificationsBellController
+          currentUser={user}
+          viewerRole="ADMIN"
+          fullPagePath="/admin/notifications"
+          open={isNotificationsOpen}
+          onClose={() => setIsNotificationsOpen(false)}
+          onUnreadChange={setUnreadNotificationsCount}
         />
 
         <div className="px-4 pb-4 pt-3 sm:px-5">

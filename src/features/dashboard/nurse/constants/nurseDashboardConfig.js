@@ -1,17 +1,10 @@
-export const NURSE_DASHBOARD_SOURCE_KEYS = Object.freeze({
-  examinationsWindow: 'examinationsWindow',
-  recentExaminations: 'recentExaminations',
-  medicineAlerts: 'medicineAlerts',
-  pendingVaccinations: 'pendingVaccinations',
-  activeCampaigns: 'activeCampaigns',
+export const NURSE_DASHBOARD_ENDPOINTS = Object.freeze({
+  overview: '/api/v1/dashboard/nurse',
 });
 
 export const NURSE_DASHBOARD_EXAM_WINDOW_DAYS = 7;
-export const NURSE_DASHBOARD_EXAM_WINDOW_PAGE_SIZE = 1000;
 export const NURSE_DASHBOARD_RECENT_EXAM_LIMIT = 6;
 export const NURSE_DASHBOARD_MEDICINE_ALERT_LIMIT = 5;
-export const NURSE_DASHBOARD_PENDING_LIMIT = 5;
-export const NURSE_DASHBOARD_ACTIVE_CAMPAIGN_LIMIT = 5;
 
 export const NURSE_DASHBOARD_QUICK_ACTIONS = Object.freeze([
   {

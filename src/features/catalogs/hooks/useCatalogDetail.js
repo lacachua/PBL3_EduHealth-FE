@@ -23,7 +23,7 @@ export const useCatalogDetail = () => {
     }
 
     try {
-      const response = await getCatalogDetailApi(row.id, { group: options.group });
+      const response = await getCatalogDetailApi(row.id);
       const detail = mapCatalogDetailResponse(response, options.group);
       if (detail) {
         setSelectedItem(detail);

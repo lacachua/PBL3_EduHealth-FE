@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseCatalogApiError } from '../adapters/catalogErrorParser';
-import { mapCatalogListResponse } from '../adapters/catalogResponseMapper';
-import { getCatalogListApi } from '../services/catalogsApi';
+import { mapCatalogGroupsResponse, mapCatalogListResponse } from '../adapters/catalogResponseMapper';
+import { getCatalogGroupsApi, getCatalogListApi } from '../services/catalogsApi';
+import { CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
 
 const defaultFilters = {
   keyword: '',
@@ -18,6 +19,7 @@ const defaultTableData = {
 };
 
 export const useCatalogList = () => {
+  const [groups, setGroups] = useState(CATALOG_GROUPS);
   const [group, setGroup] = useState('vaccines');
   const [filters, setFilters] = useState(defaultFilters);
   const [page, setPage] = useState(1);
@@ -25,6 +27,31 @@ export const useCatalogList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [accessState, setAccessState] = useState('ok');
+
+  // Fetch catalog groups from API once on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchGroups = async () => {
+      try {
+        const response = await getCatalogGroupsApi();
+        const mapped = mapCatalogGroupsResponse(response);
+        if (!cancelled && mapped && mapped.length > 0) {
+          setGroups(mapped);
+          // If current group isn't in the fetched groups, switch to the first one
+          if (!mapped.some((g) => g.value === group)) {
+            setGroup(mapped[0].value);
+          }
+        }
+      } catch {
+        // If groups fetch fails, keep using the static fallback
+      }
+    };
+
+    fetchGroups();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchList = useCallback(async () => {
     setLoading(true);
@@ -83,6 +110,7 @@ export const useCatalogList = () => {
   }, [accessState, error, loading, tableData.rows.length]);
 
   return {
+    groups,
     group,
     filters,
     tableData,

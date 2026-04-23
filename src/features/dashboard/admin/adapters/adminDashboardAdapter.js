@@ -6,17 +6,6 @@ const toNumber = (value, fallback = 0) => {
 };
 
 const toText = (value, fallback = '') => (typeof value === 'string' ? value : fallback);
-const toLowerText = (value, fallback = '') => toText(value, fallback).toLowerCase();
-
-const moduleLabelMap = {
-  students: 'Quản lý học sinh',
-  users: 'Người dùng',
-  catalogs: 'Quản lý danh mục',
-  reports: 'Báo cáo',
-  vaccinations: 'Tiêm chủng',
-  medicines: 'Kho thuốc',
-  system: 'Hệ thống',
-};
 
 const defaultShortcuts = [
   {
@@ -78,72 +67,14 @@ const normalizeOverview = (source = {}) => {
     totalStudents: toNumber(source.totalStudents),
     totalClasses: toNumber(source.totalClasses),
     totalUsers: toNumber(source.totalUsers ?? source.activeUsers),
-    lowStockMedicines: toNumber(source.lowStockMedicines ?? source.lowStockMedicinesCount),
+    lowStockMedicines: toNumber(source.lowStockMedicinesCount ?? source.lowStockMedicines),
     totalVisitsToday: toNumber(source.totalVisitsToday),
     totalVisitsThisMonth: toNumber(source.totalVisitsThisMonth),
+    totalMedicines: toNumber(source.totalMedicines),
+    activeUsers: toNumber(source.activeUsers),
+    lockedUsers: toNumber(source.lockedUsers),
+    vaccinationCampaignsActive: toNumber(source.vaccinationCampaignsActive),
   };
-};
-
-const normalizeShortcuts = (source) => {
-  if (!Array.isArray(source) || !source.length) {
-    return defaultShortcuts;
-  }
-
-  const normalized = source
-    .map((item, index) => ({
-      id: item?.id || `shortcut-${index + 1}`,
-      label: toText(item?.label, ''),
-      description: toText(item?.description, ''),
-      to: toText(item?.to, '/admin/dashboard'),
-      icon: toText(item?.icon, 'link'),
-    }))
-    .filter((item) => item.label && item.to);
-
-  return normalized.length ? normalized : defaultShortcuts;
-};
-
-const normalizeTrends = (source) => {
-  if (!Array.isArray(source)) return [];
-
-  return source
-    .map((item, index) => ({
-      id: item?.id || `trend-${index + 1}`,
-      label: toText(item?.label, `Mốc ${index + 1}`),
-      value: toNumber(item?.value),
-    }))
-    .filter((item) => item.value >= 0);
-};
-
-const normalizeAlerts = (source) => {
-  if (!Array.isArray(source)) return [];
-
-  return source
-    .map((item, index) => ({
-      id: item?.id || `alert-${index + 1}`,
-      title: toText(item?.title, ''),
-      description: toText(item?.description, ''),
-      severity: toLowerText(item?.severity, 'warning'),
-      metric: toText(item?.metric, ''),
-      to: toText(item?.to, ''),
-    }))
-    .filter((item) => item.title);
-};
-
-const normalizeActivities = (items) => {
-  if (!Array.isArray(items)) return [];
-
-  return items.map((item, index) => ({
-    id: item?.id || `activity-${index + 1}`,
-    title: toText(item?.title || item?.description, ''),
-    metadata: toText(
-      item?.metadata,
-      `${toText(item?.actorName, 'Hệ thống')} • ${moduleLabelMap[item?.module] || 'Hệ thống'}`
-    ),
-    timeLabel: toText(item?.timeLabel, formatDateTime(item?.occurredAt) || '--'),
-    icon: toText(item?.icon, 'history'),
-    tone: toLowerText(item?.tone, 'neutral'),
-    to: toText(item?.to, ''),
-  }));
 };
 
 const buildEmpty = () => ({
@@ -165,6 +96,10 @@ export const adaptAdminDashboardEnvelope = (responseOrEnvelope) => {
   }
 
   const dataRoot = envelope?.data && typeof envelope.data === 'object' ? envelope.data : {};
+
+  // The BE returns AdminDashboardOverviewDto directly in envelope.data
+  // (flat fields like totalStudents, totalClasses, etc.), not nested under data.overview.
+  // Support both flat (BE contract) and nested (legacy/mock) shapes.
   const source = dataRoot?.overview && typeof dataRoot.overview === 'object'
     ? dataRoot.overview
     : dataRoot;
@@ -175,10 +110,10 @@ export const adaptAdminDashboardEnvelope = (responseOrEnvelope) => {
     title: 'Tổng quan quản trị',
     description: 'Theo dõi nhanh tình trạng vận hành y tế học đường toàn trường.',
     generatedAtLabel: formatDateTime(generatedAtIso),
-    overview: normalizeOverview(source.overview || source),
-    shortcuts: normalizeShortcuts(source.shortcuts),
-    trends: normalizeTrends(source.trends),
-    managementAlerts: normalizeAlerts(source.managementAlerts),
-    recentActivities: normalizeActivities(source.recentActivities).slice(0, 4),
+    overview: normalizeOverview(source),
+    shortcuts: defaultShortcuts, // BE doesn't provide shortcuts - use defaults directly
+    trends: [], // BE doesn't provide trends - return empty array
+    managementAlerts: [], // BE doesn't provide managementAlerts - return empty array
+    recentActivities: [], // BE doesn't provide recentActivities - return empty array
   };
 };

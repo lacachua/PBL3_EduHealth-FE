@@ -52,6 +52,12 @@ export const adminSidebarGroups = [
     label: 'Hệ thống',
     items: [
       {
+        id: 'admin-notifications',
+        label: 'Thông báo',
+        icon: 'notifications',
+        to: '/admin/notifications',
+      },
+      {
         id: 'admin-system-logs',
         label: 'Nhật ký hệ thống',
         icon: 'history',

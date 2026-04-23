@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { useAuth } from '../../../app/providers/useAuth';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 import ProfileField from './ProfileField';
 
@@ -61,6 +62,7 @@ const CurrentUserInfoCard = ({
   onProfileSaved,
 }) => {
   const classes = variantClassMap[variant] || variantClassMap.admin;
+  const { updateUser } = useAuth();
 
   const [formValues, setFormValues] = useState(() => createFormState(currentUser));
   const [formErrors, setFormErrors] = useState({});
@@ -112,6 +114,15 @@ const CurrentUserInfoCard = ({
         fullName: formValues.fullName,
         phone: formValues.phone,
       });
+
+      // Sync updated profile fields into the global auth context so that
+      // the header greeting name updates immediately.
+      if (typeof updateUser === 'function') {
+        updateUser({
+          fullName: formValues.fullName,
+          phone: formValues.phone,
+        });
+      }
 
       if (typeof onProfileSaved === 'function') {
         await onProfileSaved();
