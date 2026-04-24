@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import AdminAsyncState from '../../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../../shared/components/admin/AdminFeedbackToast';
+import AdminAsyncState from '../../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
 import {
   exportNurseReportsRowsToExcel,

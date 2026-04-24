@@ -22,27 +22,23 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
-      <table className="min-w-[1120px] w-full text-left text-sm">
+      <table className="min-w-[840px] w-full text-left text-sm">
         <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
           <tr>
-            <th className="px-4 py-3">Mã thuốc</th>
-            <th className="px-4 py-3">Tên thuốc</th>
-            <th className="px-4 py-3">Hoạt chất</th>
-            <th className="px-4 py-3">Đơn vị</th>
-            <th className="px-4 py-3">Quy cách</th>
-            <th className="px-4 py-3 text-right">Tồn kho</th>
-            <th className="px-4 py-3">Hạn gần nhất</th>
-            <th className="px-4 py-3 text-right">Mức cảnh báo</th>
-            <th className="px-4 py-3">Trạng thái</th>
-            <th className="px-4 py-3">Cảnh báo</th>
-            <th className="px-4 py-3 text-right">Chi tiết</th>
+            <th className="w-[12%] px-4 py-3">Mã thuốc</th>
+            <th className="w-[30%] px-4 py-3">Thuốc & Hoạt chất</th>
+            <th className="w-[14%] px-4 py-3">Quy cách</th>
+            <th className="w-[12%] px-4 py-3 text-right">Tồn kho</th>
+            <th className="w-[14%] px-4 py-3">Hạn gần nhất</th>
+            <th className="w-[14%] px-4 py-3">Mức cảnh báo</th>
+            <th className="w-[14%] px-4 py-3">Trạng thái</th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-outline-variant">
           {!rows.length ? (
             <tr>
-              <td className="px-4 py-8 text-center text-sm text-on-surface-variant" colSpan={11}>
+              <td className="px-4 py-8 text-center text-sm text-on-surface-variant" colSpan={7}>
                 Không tìm thấy thuốc theo bộ lọc hiện tại.
               </td>
             </tr>
@@ -79,17 +75,9 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                   >
                     {item.name}
                   </button>
+                  <p className="mt-0.5 text-xs text-on-surface-variant line-clamp-1" title={item.activeIngredient}>{item.activeIngredient || '--'}</p>
                 </td>
-                <td className="px-4 py-3 text-on-surface" style={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}>
-                  {item.activeIngredient || '--'}
-                </td>
-                <td className="px-4 py-3 text-on-surface">{item.unitLabel}</td>
-                <td className="px-4 py-3 text-on-surface" style={{
+                <td className="px-4 py-3 text-on-surface text-xs" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
@@ -97,28 +85,22 @@ const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
                 }}>
                   {item.packaging || '--'}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-on-surface">{item.currentStock}</td>
-                <td className="px-4 py-3 text-on-surface">{item.nearestExpiryDateLabel}</td>
-                <td className="px-4 py-3 text-right text-on-surface">{item.warningThreshold}</td>
-                <td className="px-4 py-3">
-                  <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${item.statusBadgeClass}`}>
-                    {item.statusLabel}
-                  </span>
+                <td className="px-4 py-3 text-right">
+                  <span className="font-semibold text-on-surface">{item.currentStock}</span>
+                  <span className="ml-1 text-xs text-on-surface-variant">{item.unitLabel}</span>
                 </td>
+                <td className="px-4 py-3 text-xs text-on-surface">{item.nearestExpiryDateLabel}</td>
+                <td className="px-4 py-3 text-xs text-on-surface">{item.warningThreshold} {item.unitLabel}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${item.alertBadgeClass}`}>
-                    {item.alertLabel}
-                  </span>
-                </td>
-                <td className="px-4 py-3" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => onView(item)}
-                      className="app-focus-ring app-row-action"
-                    >
-                      Mở chi tiết
-                    </button>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${item.statusBadgeClass}`}>
+                      {item.statusLabel}
+                    </span>
+                    {item.alertBadgeClass && !item.alertBadgeClass.includes('transparent') ? (
+                      <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${item.alertBadgeClass}`}>
+                        {item.alertLabel}
+                      </span>
+                    ) : null}
                   </div>
                 </td>
               </tr>

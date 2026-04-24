@@ -1,6 +1,6 @@
 import React from 'react';
-import AdminAsyncState from './AdminAsyncState';
-import Pagination from './Pagination';
+import AdminAsyncState from '../core/AsyncState';
+import Pagination from '../core/Pagination';
 
 const AdminManagementListSection = ({
   sectionClassName,
@@ -18,10 +18,10 @@ const AdminManagementListSection = ({
   pagination,
 }) => {
   return (
-    <section className={sectionClassName}>
+    <section className={sectionClassName || 'app-panel-shell space-y-3 p-4 md:p-5'}>
       <div className={panelClassName}>
         {filters}
-        {summary ? <p className="app-table-summary mt-2">{summary}</p> : null}
+        {summary ? <div className="app-table-summary rounded-xl px-3 py-2 text-[11px] mt-3">{summary}</div> : null}
       </div>
 
       <AdminAsyncState
@@ -35,7 +35,7 @@ const AdminManagementListSection = ({
         <>
           {table}
           {pagination ? (
-            <div className={borderClassName}>
+            <div className={borderClassName || 'pt-2'}>
               <Pagination
                 page={pagination.page}
                 pageSize={pagination.pageSize}

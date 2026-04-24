@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { getMedicines } from '../../medicines/services/getMedicines';
 import {

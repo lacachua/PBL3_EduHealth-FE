@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -159,6 +159,14 @@ const NursePendingVaccinationsPage = () => {
       setHistoryRows(mapped);
       setHistoryStatus(mapped.length ? 'success' : 'empty');
     } catch (apiError) {
+      const statusCode = Number(apiError?.response?.status || 0);
+      if (statusCode === 404) {
+        setHistoryRows([]);
+        setHistoryError('');
+        setHistoryStatus('empty');
+        return;
+      }
+
       setHistoryStatus('error');
       setHistoryError(resolveApiError(apiError));
     }

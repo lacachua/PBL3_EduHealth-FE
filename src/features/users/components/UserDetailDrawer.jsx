@@ -1,6 +1,6 @@
 import React from 'react';
-import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
+import EntityAvatar from '../../../shared/components/core/EntityAvatar';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
 import RetryState from '../../../shared/components/form/RetryState';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
 import { ACCOUNT_STATUS_BADGE_CLASS_MAP } from '../constants/accountUiTokens';
@@ -80,9 +80,9 @@ const UserDetailDrawer = ({
             <InfoRow label="Số điện thoại">{user.phoneNumber || '--'}</InfoRow>
             <InfoRow label="Vai trò"><RoleBadge role={user.role} label={user.roleLabel} /></InfoRow>
             <InfoRow label="Trạng thái"><AccountPill className={statusBadgeClass}>{user.statusLabel}</AccountPill></InfoRow>
-            <InfoRow label="Ngày tạo">{user.createdAt || '--'}</InfoRow>
-            <InfoRow label="Ngày cập nhật">{user.updatedAt || '--'}</InfoRow>
-            <InfoRow label="Lần đăng nhập gần nhất">{user.lastLoginAt || '--'}</InfoRow>
+            <InfoRow label="Ngày tạo">{user.createdAtLabel || '--'}</InfoRow>
+            <InfoRow label="Ngày cập nhật">{user.updatedAtLabel || '--'}</InfoRow>
+            <InfoRow label="Lần đăng nhập gần nhất">{user.lastLoginAtLabel || '--'}</InfoRow>
           </div>
 
           <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">

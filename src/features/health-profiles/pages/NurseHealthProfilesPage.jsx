@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import DataTable from '../../../shared/components/admin/DataTable';
-import EmptyState from '../../../shared/components/admin/EmptyState';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import DataTable from '../../../shared/components/core/DataTable';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
@@ -355,14 +355,14 @@ const NurseHealthProfilesPage = () => {
     {
       key: 'studentCode',
       header: 'Mã học sinh',
-      headerClassName: 'w-[120px]',
-        cellClassName: 'whitespace-nowrap text-[12px] font-bold text-primary',
+      headerClassName: 'w-[12%] min-w-[110px]',
+      cellClassName: 'whitespace-nowrap text-[12px] font-bold text-primary',
       render: (row) => row.studentCodeDisplay,
     },
     {
       key: 'fullName',
       header: 'Học sinh',
-      headerClassName: 'w-[240px]',
+      headerClassName: 'w-[25%] min-w-[180px]',
       cellClassName: 'min-w-0',
       render: (row) => (
         <button
@@ -370,23 +370,23 @@ const NurseHealthProfilesPage = () => {
           onClick={() => openDetail(row._studentId)}
           className="app-focus-ring app-interactive w-full rounded-md text-left"
         >
-            <p className="truncate text-[14px] font-bold leading-5 text-on-surface hover:text-primary">{row.fullName || '--'}</p>
-            <p className="truncate text-[11px] text-on-surface-variant">Lớp {row.classNameDisplay}</p>
+          <p className="truncate text-[14px] font-bold leading-5 text-on-surface hover:text-primary">{row.fullName || '--'}</p>
+          <p className="truncate text-[11px] text-on-surface-variant">Lớp {row.classNameDisplay}</p>
         </button>
       ),
     },
     {
       key: 'updatedAtDisplay',
       header: 'Cập nhật gần nhất',
-      headerClassName: 'w-[162px]',
-        cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
+      headerClassName: 'w-[18%] min-w-[140px]',
+      cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
       render: (row) => (
         <div>
           <p>{row.updatedAtDisplay}</p>
           {row.updatedAtDaysAgo !== null ? (
-              <p className="text-[10px] text-on-surface-muted">{row.updatedAtDaysAgo} ngày trước</p>
+            <p className="text-[10px] text-on-surface-muted">{row.updatedAtDaysAgo} ngày trước</p>
           ) : (
-              <p className="text-[10px] text-on-surface-muted">Chưa có mốc cập nhật</p>
+            <p className="text-[10px] text-on-surface-muted">Chưa có mốc cập nhật</p>
           )}
         </div>
       ),
@@ -394,7 +394,7 @@ const NurseHealthProfilesPage = () => {
     {
       key: 'profileStatusKey',
       header: 'Trạng thái hồ sơ',
-      headerClassName: 'w-[156px]',
+      headerClassName: 'w-[18%] min-w-[140px]',
       cellClassName: 'whitespace-nowrap',
       render: (row) => {
         const meta = PROFILE_STATUS_META[row.profileStatusKey] || PROFILE_STATUS_META.updated;
@@ -408,11 +408,11 @@ const NurseHealthProfilesPage = () => {
     {
       key: 'alerts',
       header: 'Cảnh báo y tế',
-      headerClassName: 'w-[220px]',
+      headerClassName: 'w-[20%] min-w-[160px]',
       cellClassName: 'min-w-0',
       render: (row) => {
         if (!row.alerts.length) {
-            return <span className="text-[12px] text-on-surface-muted">Không có</span>;
+          return <span className="text-[12px] text-on-surface-muted">Không có</span>;
         }
 
         return (
@@ -429,42 +429,7 @@ const NurseHealthProfilesPage = () => {
         );
       },
     },
-    {
-      key: 'actions',
-      header: 'Thao tác',
-      headerClassName: 'w-[196px] min-w-[196px] whitespace-nowrap text-right',
-      cellClassName: 'min-w-[196px] text-right',
-      render: (row) => (
-        <div className="flex justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              navigateToHealthProfile(row._studentId, {
-                source: 'nurse-health-profiles',
-                initialTab: 'health-history',
-              });
-            }}
-            className="app-focus-ring app-row-action"
-          >
-            Lịch sử
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              navigateToHealthProfile(row._studentId, {
-                source: 'nurse-health-profiles',
-                openHealthEdit: true,
-              });
-            }}
-            className="app-focus-ring app-row-action app-row-action-primary"
-          >
-            Cập nhật
-          </button>
-        </div>
-      ),
-    },
+
   ]), [navigateToHealthProfile, openDetail]);
 
   return (
@@ -562,9 +527,10 @@ const NurseHealthProfilesPage = () => {
         </article>
       </section>
 
-      <section className="app-panel-shell overflow-hidden">
-        <div className="app-table-summary px-3 py-2 text-[11px] sm:px-4">
-          Đang hiển thị <span className="font-semibold text-on-surface">{filteredRows.length}</span> hồ sơ trên trang này • Tổng <span className="font-semibold text-on-surface">{effectiveMeta.totalItems}</span> học sinh
+      <section className="app-panel-shell space-y-3 p-4 md:p-5">
+        <h2 className="text-lg font-bold text-on-surface">Danh sách hồ sơ sức khỏe</h2>
+        <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
+          Hiển thị <span className="font-semibold text-on-surface">{filteredRows.length}</span> bản ghi trên trang này • Tổng <span className="font-semibold text-on-surface">{tableData.totalItems}</span> hồ sơ
         </div>
 
         <AdminAsyncState
@@ -583,16 +549,11 @@ const NurseHealthProfilesPage = () => {
                 rows={filteredRows}
                 getRowKey={(row) => row._studentId || row.studentCode || row.fullName}
                 onRowClick={(row) => openDetail(row._studentId)}
-                containerClassName="overflow-x-auto overflow-y-visible"
-                tableClassName="min-w-[960px] w-full table-fixed divide-y divide-outline-variant text-[13px]"
-                headClassName="app-table-head text-left"
-                bodyClassName="divide-y divide-outline-variant bg-surface"
-                rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
+                tableClassName="min-w-[760px] w-full text-left text-sm"
               />
 
-              <div className="border-t border-outline-variant px-3 py-2 sm:px-4">
+              <div className="pt-2">
                 <Pagination
-                  compact
                   page={effectiveMeta.page}
                   pageSize={effectiveMeta.pageSize}
                   totalItems={effectiveMeta.totalItems}

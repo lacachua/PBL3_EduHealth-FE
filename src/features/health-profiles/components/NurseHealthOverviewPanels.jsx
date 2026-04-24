@@ -1,10 +1,10 @@
 import React from 'react';
-import SectionCard from '../../../shared/components/admin/SectionCard';
+import SectionCard from '../../../shared/components/core/SectionCard';
 
 const sectionCardClass = 'app-card-shell rounded-xl p-4';
 const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
-const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-[#166534]';
-const sectionSubtitleClass = 'mt-0.5 text-[11px] text-[#166534]/80';
+const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-[#163126]';
+const sectionSubtitleClass = 'mt-0.5 text-[11px] text-[#5F746B]';
 const alertChipClassMap = {
   allergy: 'bg-[#FEE2E2] text-[#DC2626]',
   vision: 'bg-[#DBEAFE] text-[#2563EB]',
@@ -14,12 +14,7 @@ const alertChipClassMap = {
 
 const getAlertChipClass = (variant) => alertChipClassMap[variant] || 'bg-[#DCFCE7] text-[#166534]';
 
-const toDateLabel = (value) => {
-  if (!value) return '--';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return String(value);
-  return parsed.toLocaleDateString('vi-VN');
-};
+import { formatDate } from '../../../shared/utils/dateFormat';
 
 const vaccinationStatusMeta = (status) => {
   const normalized = String(status || '').toUpperCase();
@@ -99,7 +94,7 @@ const NurseHealthOverviewPanels = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa ghi nhận cảnh báo sức khỏe đáng chú ý.</p>
+            <p className="text-sm text-[#64748B]">Chưa có dữ liệu cảnh báo sức khỏe.</p>
           )}
         </SectionCard>
 
@@ -117,16 +112,19 @@ const NurseHealthOverviewPanels = ({
                 <article key={item.id} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-[#0F172A]">{item.diagnosis || item.diseaseName || 'Khám định kỳ'}</p>
-                    <span className="text-[11px] text-[#64748B]">{item.visitDateLabel || toDateLabel(item.visitDate)}</span>
+                    <span className="text-[11px] text-[#64748B]">{item.visitDateLabel || formatDate(item.visitDate)}</span>
                   </div>
-                  <p className="mt-1 text-xs text-[#64748B]">{item.symptoms || '--'}</p>
-                  <p className="mt-1 text-xs text-[#64748B]">Điều trị: {item.treatment || '--'}</p>
-                  <p className="mt-1 text-[11px] text-[#64748B]">Phụ trách: {item.nurseName || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Triệu chứng</p>
+                  <p className="text-sm text-[#0F172A]">{item.symptoms || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Điều trị</p>
+                  <p className="text-sm text-[#0F172A]">{item.treatment || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Phụ trách</p>
+                  <p className="text-sm text-[#0F172A]">{item.nurseName || '--'}</p>
                 </article>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có bản ghi khám sức khỏe định kỳ.</p>
+            <p className="text-sm text-[#64748B]">Chưa có dữ liệu khám sức khỏe định kỳ.</p>
           )}
         </SectionCard>
       </div>
@@ -149,11 +147,16 @@ const NurseHealthOverviewPanels = ({
                     return (
                       <>
                         <p className="text-sm font-semibold text-[#0F172A]">{record.vaccineName}</p>
-                        <p className="mt-0.5 text-[11px] text-[#64748B]">{toDateLabel(record.administeredAt)}</p>
-                        <div className="mt-1">
+                        <p className="mt-0.5 text-[11px] text-[#64748B]">{formatDate(record.administeredAt)}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusMeta.className}`}>
                             {statusMeta.label}
                           </span>
+                          {(record.campaignName || record.doseNumber) && (
+                            <span className="text-[11px] font-medium text-[#64748B]">
+                              • {[record.doseNumber && `Mũi ${record.doseNumber}`, record.campaignName].filter(Boolean).join(' - ')}
+                            </span>
+                          )}
                         </div>
                       </>
                     );
@@ -192,7 +195,7 @@ const NurseHealthOverviewPanels = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có liên hệ khẩn cấp.</p>
+            <p className="text-sm text-[#64748B]">Chưa có dữ liệu liên hệ khẩn cấp.</p>
           )}
         </SectionCard>
       </div>

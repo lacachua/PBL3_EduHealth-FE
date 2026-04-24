@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import SearchInput from '../../../shared/components/admin/SearchInput';
+import SearchInput from '../../../shared/components/core/SearchInput';
 import {
   USER_FILTER_DEFAULTS,
   USER_ROLE_OPTIONS,

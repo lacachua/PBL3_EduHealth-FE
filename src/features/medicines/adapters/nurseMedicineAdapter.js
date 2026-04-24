@@ -1,3 +1,6 @@
+import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { extractRows, extractMeta } from '../../../shared/adapters/envelopeAdapter';
+import { formatDateTime } from '../../../shared/utils/dateFormat';
 import {
   ALERT_TYPE_LABELS,
   DISPOSE_REASON_LABELS,
@@ -9,12 +12,6 @@ import {
   MOVEMENT_TYPE_BADGE_CLASS,
   MOVEMENT_TYPE_LABELS,
 } from '../constants/nurseMedicineConstants';
-import {
-  getMedicineMetaFromEnvelope,
-  getMedicineRowsFromEnvelope,
-  normalizeMedicineEnvelope,
-  toMedicineDateTimeLabel,
-} from './medicineAdapterShared';
 
 const EMPTY_LIST_META = {
   page: 1,
@@ -22,6 +19,7 @@ const EMPTY_LIST_META = {
   totalItems: 0,
   totalPages: 0,
 };
+
 export const formatDateOnly = (value) => {
   if (!value) return '--';
 
@@ -34,8 +32,6 @@ export const formatDateOnly = (value) => {
   return `${day}/${month}/${year}`;
 };
 
-export const formatDateTime = (value) => toMedicineDateTimeLabel(value);
-
 const toAlertKey = (item) => {
   if (item.isLowStock && item.isExpiringSoon) return 'mixed';
   if (item.isLowStock) return 'lowStock';
@@ -44,7 +40,7 @@ const toAlertKey = (item) => {
 };
 
 export const mapMedicineListEnvelope = (response) => {
-  const envelope = normalizeMedicineEnvelope(response);
+  const envelope = normalizeApiEnvelope(response);
   if (!envelope || envelope.success === false) {
     return {
       rows: [],
@@ -52,8 +48,8 @@ export const mapMedicineListEnvelope = (response) => {
     };
   }
 
-  const rows = getMedicineRowsFromEnvelope(envelope);
-  const meta = getMedicineMetaFromEnvelope(envelope, EMPTY_LIST_META);
+  const rows = extractRows(envelope);
+  const meta = extractMeta(envelope, EMPTY_LIST_META);
 
   return {
     rows: rows.map((item) => {
@@ -76,7 +72,7 @@ export const mapMedicineListEnvelope = (response) => {
   };
 };
 export const mapMedicineDetailEnvelope = (response) => {
-  const envelope = normalizeMedicineEnvelope(response);
+  const envelope = normalizeApiEnvelope(response);
   if (!envelope || envelope.success === false || !envelope.data) {
     return null;
   }
@@ -99,8 +95,8 @@ export const mapMedicineDetailEnvelope = (response) => {
 };
 
 export const mapMedicineAlertsEnvelope = (response) => {
-  const envelope = normalizeMedicineEnvelope(response);
-  const rows = getMedicineRowsFromEnvelope(envelope);
+  const envelope = normalizeApiEnvelope(response);
+  const rows = extractRows(envelope);
 
   return rows.map((item) => ({
     ...item,
@@ -110,9 +106,9 @@ export const mapMedicineAlertsEnvelope = (response) => {
 };
 
 export const mapMedicineMovementsEnvelope = (response) => {
-  const envelope = normalizeMedicineEnvelope(response);
-  const rows = getMedicineRowsFromEnvelope(envelope);
-  const meta = getMedicineMetaFromEnvelope(envelope, {
+  const envelope = normalizeApiEnvelope(response);
+  const rows = extractRows(envelope);
+  const meta = extractMeta(envelope, {
     page: 1,
     pageSize: 5,
     totalItems: 0,

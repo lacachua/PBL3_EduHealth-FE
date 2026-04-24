@@ -1,11 +1,11 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import ErrorState from '../../../shared/components/admin/ErrorState';
+import ErrorState from '../../../shared/components/core/ErrorState';
 import ForbiddenState from '../../../shared/components/admin/ForbiddenState';
-import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
 import PageHeader from '../../../shared/components/admin/PageHeader';
-import Pagination from '../../../shared/components/admin/Pagination';
-import SectionCard from '../../../shared/components/admin/SectionCard';
+import Pagination from '../../../shared/components/core/Pagination';
+import SectionCard from '../../../shared/components/core/SectionCard';
 import TableToolbar from '../../../shared/components/admin/TableToolbar';
 import CatalogDetailDrawer from '../components/CatalogDetailDrawer';
 import CatalogGroupTabs from '../components/CatalogGroupTabs';

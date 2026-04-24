@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchInput from '../../../shared/components/admin/SearchInput';
+import SearchInput from '../../../shared/components/core/SearchInput';
 
 const VaccinationStudentsToolbar = ({
   value,

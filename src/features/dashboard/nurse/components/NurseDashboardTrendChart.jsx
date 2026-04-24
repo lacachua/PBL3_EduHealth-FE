@@ -1,7 +1,7 @@
 import React from 'react';
-import EmptyState from '../../../../shared/components/admin/EmptyState';
-import ErrorState from '../../../../shared/components/admin/ErrorState';
-import LoadingSpinner from '../../../../shared/components/admin/LoadingSpinner';
+import EmptyState from '../../../../shared/components/core/EmptyState';
+import ErrorState from '../../../../shared/components/core/ErrorState';
+import LoadingSpinner from '../../../../shared/components/core/LoadingSpinner';
 
 const NurseDashboardTrendChart = ({ trend, loading, onRetry }) => {
   const points = Array.isArray(trend?.points) ? trend.points : [];

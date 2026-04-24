@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import StudentDetailDrawer from '../components/StudentDetailDrawer';
@@ -88,11 +88,8 @@ const StudentManagementPage = () => {
       />
 
       <AdminManagementListSection
-        sectionClassName={`overflow-hidden rounded-xl shadow-[0_1px_4px_rgba(15,23,42,0.04)] ${STUDENT_BASE_CLASS.section}`}
-        panelClassName={`border-b px-4 py-3 md:px-5 ${STUDENT_BASE_CLASS.subtlePanel} ${STUDENT_BASE_CLASS.mutedText}`}
-        borderClassName={`border-t px-4 py-3 md:px-5 ${STUDENT_BASE_CLASS.border}`}
         filters={<StudentFilters initialValue={filters} onApply={onFiltersChange} />}
-        summary={STUDENT_MANAGEMENT_COPY.resultCount(tableData.rows.length, tableData.totalItems)}
+        summary={tableData.totalItems > 0 ? STUDENT_MANAGEMENT_COPY.resultCount(tableData.rows.length, tableData.totalItems) : null}
         status={status}
         error={error}
         onRetry={fetchList}

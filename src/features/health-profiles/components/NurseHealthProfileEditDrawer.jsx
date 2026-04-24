@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
+import EntityAvatar from '../../../shared/components/core/EntityAvatar';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
 import EditableField from '../../../shared/components/form/EditableField';
 import ReadonlyField from '../../../shared/components/form/ReadonlyField';
-import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import InlineError from '../../../shared/components/form/InlineError';
 import { validateStudentHealthForm } from '../../students/schemas/studentManagementSchema';
 

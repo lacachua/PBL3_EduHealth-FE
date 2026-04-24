@@ -1,11 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-
-const SOURCE_BADGE_CLASS_MAP = {
-  live: 'border-success/25 bg-success-soft text-success',
-  mock: 'border-warning/30 bg-warning-soft text-warning',
-  pending: 'border-outline-variant bg-surface-container-low text-on-surface-variant',
-};
+import NotificationSourceBadge from './NotificationSourceBadge';
 
 const formatRelativeTime = (value) => {
   const timestamp = new Date(value || '').getTime();
@@ -15,25 +10,25 @@ const formatRelativeTime = (value) => {
 
   const diffMinutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
   if (diffMinutes < 1) {
-    return 'vua xong';
+    return 'vừa xong';
   }
 
   if (diffMinutes < 60) {
-    return `${diffMinutes} phut truoc`;
+    return `${diffMinutes} phút trước`;
   }
 
   const diffHours = Math.floor(diffMinutes / 60);
   if (diffHours < 24) {
-    return `${diffHours} gio truoc`;
+    return `${diffHours} giờ trước`;
   }
 
-  return `${Math.floor(diffHours / 24)} ngay truoc`;
+  return `${Math.floor(diffHours / 24)} ngày trước`;
 };
 
 const NotificationsBellPanel = ({
   open,
   onClose,
-  title = 'Thong bao',
+  title = 'Thông báo',
   items = [],
   unreadCount = 0,
   loading = false,
@@ -79,8 +74,6 @@ const NotificationsBellPanel = ({
     return null;
   }
 
-  const sourceBadgeClassName = SOURCE_BADGE_CLASS_MAP[source] || SOURCE_BADGE_CLASS_MAP.pending;
-
   return createPortal(
     <div className="fixed inset-0 z-[75]">
       <div className="absolute inset-0 bg-transparent sm:bg-transparent" />
@@ -94,12 +87,10 @@ const NotificationsBellPanel = ({
             <div>
               <h2 className="text-base font-semibold text-on-surface">{title}</h2>
               <p className="mt-1 text-sm text-on-surface-variant">
-                {unreadCount > 0 ? `${unreadCount} thong bao chua doc` : 'Khong co thong bao chua doc'}
+                {unreadCount > 0 ? `${unreadCount} thông báo chưa đọc` : 'Không có thông báo chưa đọc'}
               </p>
             </div>
-            <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${sourceBadgeClassName}`}>
-              {String(source || 'pending').toUpperCase()}
-            </span>
+            <NotificationSourceBadge source={source} />
           </div>
 
           {sourceNote ? (
@@ -109,7 +100,7 @@ const NotificationsBellPanel = ({
 
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {loading ? (
-            <p className="px-1 text-sm text-on-surface-variant">Dang tai thong bao gan day...</p>
+            <p className="px-1 text-sm text-on-surface-variant">Đang tải thông báo gần đây...</p>
           ) : null}
 
           {error ? (
@@ -117,7 +108,7 @@ const NotificationsBellPanel = ({
           ) : null}
 
           {!loading && !error && !items.length ? (
-            <p className="px-1 text-sm text-on-surface-variant">Chua co thong bao gan day.</p>
+            <p className="px-1 text-sm text-on-surface-variant">Chưa có thông báo gần đây.</p>
           ) : null}
 
           {!loading && !error && items.length ? (
@@ -128,12 +119,12 @@ const NotificationsBellPanel = ({
                   type="button"
                   onClick={() => onSelectItem?.(item)}
                   className={`app-focus-ring flex w-full items-start gap-3 rounded-2xl border px-3 py-3 text-left transition hover:border-primary/20 hover:bg-surface-container-low ${
-                    item.isRead
+                    item.currentRecipient?.isRead
                       ? 'border-outline-variant bg-surface'
                       : 'border-primary/20 bg-primary-soft/10'
                   }`}
                 >
-                  <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${item.isRead ? 'bg-outline-variant' : 'bg-primary'}`} />
+                  <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${item.currentRecipient?.isRead ? 'bg-outline-variant' : 'bg-primary'}`} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-3">
                       <span className="line-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>
@@ -155,7 +146,7 @@ const NotificationsBellPanel = ({
             className="app-focus-ring app-btn-secondary px-3 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="material-symbols-outlined text-[16px]">done_all</span>
-            Danh dau da doc
+            Đã đọc tất cả
           </button>
 
           <button
@@ -163,7 +154,7 @@ const NotificationsBellPanel = ({
             onClick={onViewAll}
             className="app-focus-ring app-btn-primary px-3.5"
           >
-            Xem tat ca
+            Xem tất cả
           </button>
         </footer>
       </section>

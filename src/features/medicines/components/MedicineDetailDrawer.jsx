@@ -1,7 +1,7 @@
 import React from 'react';
-import Pagination from '../../../shared/components/admin/Pagination';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
-import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import Pagination from '../../../shared/components/core/Pagination';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import MedicineMovementsTable from './MedicineMovementsTable';
 
 const DetailRow = ({ label, value }) => (
@@ -56,8 +56,8 @@ const MedicineDetailDrawer = ({
             <div><StatusBadge tone={medicine.alertTone}>{medicine.alertLabel}</StatusBadge></div>
           </div>
           <DetailRow label="Ghi chú" value={medicine.note} />
-          <DetailRow label="Ngày tạo" value={medicine.createdAt} />
-          <DetailRow label="Cập nhật" value={medicine.updatedAt} />
+          <DetailRow label="Ngày tạo" value={medicine.createdAtLabel} />
+          <DetailRow label="Cập nhật" value={medicine.updatedAtLabel} />
         </div>
 
         <section>

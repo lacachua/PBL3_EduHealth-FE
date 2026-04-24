@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import EmptyState from '../../../shared/components/admin/EmptyState';
-import ErrorState from '../../../shared/components/admin/ErrorState';
-import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import ErrorState from '../../../shared/components/core/ErrorState';
+import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import AdminReportDetailDrawer from '../components/AdminReportDetailDrawer';
 import AdminReportFilters from '../components/AdminReportFilters';

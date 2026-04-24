@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import SearchInput from '../../../shared/components/admin/SearchInput';
+import SearchInput from '../../../shared/components/core/SearchInput';
 import { MEDICINE_STATUS_OPTIONS } from '../schemas/medicinesSchema';
 
 const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {

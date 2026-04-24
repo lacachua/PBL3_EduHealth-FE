@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import {
   mapMedicineAlertsEnvelope,
@@ -380,44 +380,44 @@ const NurseMedicinesPage = () => {
 
       {!forbidden ? (
         <section className="app-panel-shell space-y-3 p-4 md:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-on-surface">Danh mục thuốc</h2>
-                <p className="text-sm text-on-surface-variant">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
-              </div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-on-surface">Danh mục thuốc</h2>
+              <p className="text-sm text-on-surface-variant">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
             </div>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
-              <span className="inline-flex rounded-full border border-warning/25 bg-warning-soft px-2.5 py-1 font-semibold text-warning">
-                Sắp hết: {alertsLoading ? '--' : alertSummary.lowStock}
-              </span>
-              <span className="inline-flex rounded-full border border-danger/25 bg-danger-soft px-2.5 py-1 font-semibold text-danger">
-                Sắp hết hạn: {alertsLoading ? '--' : alertSummary.expiring}
-              </span>
-              {alertsError ? <span className="text-danger">{alertsError}</span> : null}
-            </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
+            <span className="inline-flex rounded-full border border-warning/25 bg-warning-soft px-2.5 py-1 font-semibold text-warning">
+              Sắp hết: {alertsLoading ? '--' : alertSummary.lowStock}
+            </span>
+            <span className="inline-flex rounded-full border border-danger/25 bg-danger-soft px-2.5 py-1 font-semibold text-danger">
+              Sắp hết hạn: {alertsLoading ? '--' : alertSummary.expiring}
+            </span>
+            {alertsError ? <span className="text-danger">{alertsError}</span> : null}
+          </div>
 
-            <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
-              Đang hiển thị <span className="font-semibold text-on-surface">{medicinesData.rows.length}</span> thuốc trên trang này • Tổng <span className="font-semibold text-on-surface">{medicinesData.totalItems}</span> thuốc
-            </div>
+          <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
+            Đang hiển thị <span className="font-semibold text-on-surface">{medicinesData.rows.length}</span> thuốc trên trang này • Tổng <span className="font-semibold text-on-surface">{medicinesData.totalItems}</span> thuốc
+          </div>
 
-            <MedicinesTable
-              rows={medicinesData.rows}
-              loading={listStatus === 'loading'}
-              error={listStatus === 'error' ? listError : ''}
-              onRetry={() => fetchMedicinesList(page, appliedFilters)}
-              onView={openDetailFromRow}
+          <MedicinesTable
+            rows={medicinesData.rows}
+            loading={listStatus === 'loading'}
+            error={listStatus === 'error' ? listError : ''}
+            onRetry={() => fetchMedicinesList(page, appliedFilters)}
+            onView={openDetailFromRow}
+          />
+
+          {(listStatus === 'success' || listStatus === 'empty') && medicinesData.totalPages > 1 ? (
+            <Pagination
+              page={medicinesData.page}
+              pageSize={medicinesData.pageSize}
+              totalItems={medicinesData.totalItems}
+              onPageChange={(nextPage) => setPage(nextPage)}
             />
-
-            {(listStatus === 'success' || listStatus === 'empty') && medicinesData.totalPages > 1 ? (
-              <Pagination
-                page={medicinesData.page}
-                pageSize={medicinesData.pageSize}
-                totalItems={medicinesData.totalItems}
-                onPageChange={(nextPage) => setPage(nextPage)}
-              />
-            ) : null}
-          </section>
+          ) : null}
+        </section>
       ) : null}
 
       <MedicineDetailDrawer

@@ -1,5 +1,5 @@
 import React from 'react';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
 
 const formatFullDateTime = (value) => {
   const date = new Date(value);
@@ -100,9 +100,9 @@ const SystemLogDetailDrawer = ({ log, open, loading, error, onClose }) => {
               <SectionHeader title="Thông tin cơ bản" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 <MinimalRow label="Thời gian" value={formatFullDateTime(log.createdAt)} />
-                <MinimalRow 
-                  label="Người thực hiện" 
-                  value={log.actorName} 
+                <MinimalRow
+                  label="Người thực hiện"
+                  value={log.actorName}
                   subtext={log.actorUsername ? `@${log.actorUsername}` : null}
                 />
                 <MinimalRow label="Vai trò" value={log.roleLabel} />
@@ -114,10 +114,10 @@ const SystemLogDetailDrawer = ({ log, open, loading, error, onClose }) => {
               <SectionHeader title="Nghiệp vụ thực hiện" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 <MinimalRow label="Phân hệ / Module" value={log.moduleLabel} />
-                <MinimalRow 
-                  label="Đối tượng" 
-                  value={log.targetLabel || log.targetTypeLabel} 
-                  subtext={log.targetTypeLabel} 
+                <MinimalRow
+                  label="Đối tượng"
+                  value={log.targetLabel || log.targetTypeLabel}
+                  subtext={log.targetTypeLabel}
                 />
                 <MinimalRow label="Mã đối tượng" value={log.targetId} />
               </div>

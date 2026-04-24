@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -203,8 +203,11 @@ const NurseVaccinationCampaignsPage = () => {
       ) : null}
 
       {!forbidden ? (
-        <section className="app-panel-shell space-y-2 p-4 md:p-5">
+        <section className="app-panel-shell space-y-3 p-4 md:p-5">
           <h2 className="text-lg font-bold text-on-surface">Danh sách đợt tiêm</h2>
+          <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
+            Hiển thị <span className="font-semibold text-on-surface">{visibleRows.length}</span> đợt tiêm trên trang này • Tổng <span className="font-semibold text-on-surface">{campaignData.totalItems}</span> đợt tiêm
+          </div>
 
           <VaccinationCampaignTable
             rows={visibleRows}
@@ -215,12 +218,14 @@ const NurseVaccinationCampaignsPage = () => {
           />
 
           {(listStatus === 'success' || listStatus === 'empty') && campaignData.totalPages > 1 ? (
-            <Pagination
-              page={campaignData.page}
-              pageSize={campaignData.pageSize}
-              totalItems={campaignData.totalItems}
-              onPageChange={(nextPage) => setPage(nextPage)}
-            />
+            <div className="pt-2">
+              <Pagination
+                page={campaignData.page}
+                pageSize={campaignData.pageSize}
+                totalItems={campaignData.totalItems}
+                onPageChange={(nextPage) => setPage(nextPage)}
+              />
+            </div>
           ) : null}
         </section>
       ) : null}

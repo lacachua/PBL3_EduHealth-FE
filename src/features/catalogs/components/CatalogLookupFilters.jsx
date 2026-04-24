@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FilterBar from '../../../shared/components/admin/FilterBar';
-import SearchInput from '../../../shared/components/admin/SearchInput';
+import SearchInput from '../../../shared/components/core/SearchInput';
 import { CATALOG_STATUS_OPTIONS } from '../schemas/catalogManagementSchema';
 
 const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {

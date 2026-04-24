@@ -79,7 +79,7 @@ const deriveBlockStatus = ({ itemCount }) => {
 };
 
 const mapExaminationRow = (item = {}, index = 0) => {
-  const id = toText(item.visitId || item.code, `VIS-${index + 1}`);
+  const id = toText(item.code || item.visitId, `VIS-${index + 1}`);
   const visitDateRaw = item.visitDate;
   const visitDate = parseDate(visitDateRaw);
 
@@ -91,7 +91,6 @@ const mapExaminationRow = (item = {}, index = 0) => {
     visitTimeLabel: formatClockTime(visitDateRaw),
     studentName: toText(item.studentName, '--'),
     studentCode: toText(item.code, '--'),
-    className: '--', // BE doesn't provide className in RecentExaminationDto
     diagnosis: toText(item.diagnosis, '--'),
   };
 };
@@ -133,7 +132,6 @@ const buildTrendPoints = (recentExaminations, totalVisitsToday) => {
     });
   }
 
-  // Count examinations by date from recentExaminations
   const countsByDate = recentExaminations.reduce((accumulator, item) => {
     const visitDate = parseDate(item.visitDate);
     if (!visitDate) {
@@ -145,7 +143,6 @@ const buildTrendPoints = (recentExaminations, totalVisitsToday) => {
     return accumulator;
   }, {});
 
-  // Set today's value from BE
   const todayKey = toDateKey(referenceDate);
   countsByDate[todayKey] = totalVisitsToday;
 

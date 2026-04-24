@@ -1,138 +1,222 @@
 import { waitForMock } from '../../../../shared/config/runtimeConfig';
 import {
-  adaptDetailResponse,
-  adaptInboxResponse,
+  adaptCreateFeedbackResponse,
+  adaptFeedbacksResponse,
+  adaptNotificationDetailResponse,
+  adaptNotificationsResponse,
   adaptRecentNotificationsResponse,
-  adaptReplyResponse,
-  adaptThreadResponse,
   adaptUnreadCountResponse,
   buildCreateNotificationPayload,
-  buildReplyPayload,
+  buildCreateFeedbackPayload,
+  getCurrentUserId,
+  normalizeRole,
+  toNullableInteger,
+  toText,
 } from '../adapters/notificationAdapters';
+import { TARGET_MODES } from '../constants/notificationTypes';
 import { emitNotificationsChanged } from '../services/notificationsEvents';
 
-const INBOX_PENDING_NOTE = 'Notifications dang dung mock fallback vi backend chua co inbox/recent/detail/read-all/thread.';
-const THREAD_PENDING_NOTE = 'Reply thread dang dung mock fallback vi backend chua co API thread/replies.';
+const INBOX_NOTE = 'Thông báo này đang dùng dữ liệu mẫu do backend chưa hỗ trợ đầy đủ inbox/detail cho 3 role.';
+const FEEDBACK_NOTE = 'Phần phản hồi đang dùng dữ liệu mẫu, chờ backend hỗ trợ lưu dữ liệu thật.';
+const LOOKUP_NOTE = 'Danh sách chọn đang dùng dữ liệu mẫu, chờ backend bổ sung lookup dùng chung.';
 
-const minutesAgo = (minutes) => new Date(Date.now() - minutes * 60 * 1000).toISOString();
 const nowIso = () => new Date().toISOString();
+const minutesAgo = (minutes) => new Date(Date.now() - minutes * 60 * 1000).toISOString();
+
+export const notificationLookupMock = Object.freeze({
+  classes: [
+    { classId: 501, label: '5A1', className: '5A1', description: '32 học sinh' },
+    { classId: 502, label: '5A2', className: '5A2', description: '30 học sinh' },
+    { classId: 401, label: '4A1', className: '4A1', description: '29 học sinh' },
+  ],
+  diseases: [
+    { diseaseId: 11, label: 'Hen suyễn', diseaseName: 'Hen suyễn' },
+    { diseaseId: 12, label: 'Dị ứng', diseaseName: 'Dị ứng' },
+    { diseaseId: 13, label: 'Cận thị', diseaseName: 'Cận thị' },
+    { diseaseId: 14, label: 'Sốt', diseaseName: 'Sốt' },
+    { diseaseId: 15, label: 'Béo phì', diseaseName: 'Béo phì' },
+  ],
+  vaccinations: [
+    {
+      vaccinationId: 21,
+      label: 'Tiêm sởi khối 1 - 20/10/2026',
+      vaccinationName: 'Tiêm sởi khối 1 - 20/10/2026',
+    },
+    {
+      vaccinationId: 22,
+      label: 'Tiêm nhắc lại Rubella - Lớp 5A1',
+      vaccinationName: 'Tiêm nhắc lại Rubella - Lớp 5A1',
+    },
+  ],
+  recipients: [
+    { userId: 1001, fullName: 'Nguyễn Tường Vy', role: 'ADMIN', className: '', label: 'Nguyễn Tường Vy' },
+    { userId: 1101, fullName: 'Lê Minh Châu', role: 'NURSE', className: '', label: 'Lê Minh Châu' },
+    { userId: 1102, fullName: 'Phạm Thu Hà', role: 'NURSE', className: '', label: 'Phạm Thu Hà' },
+    { userId: 3001, fullName: 'Trần Minh', role: 'STUDENT', classId: 501, className: '5A1', label: 'Trần Minh' },
+    { userId: 3002, fullName: 'Nguyễn An', role: 'STUDENT', classId: 501, className: '5A1', label: 'Nguyễn An' },
+    { userId: 3003, fullName: 'Lê Bảo Ngọc', role: 'STUDENT', classId: 502, className: '5A2', label: 'Lê Bảo Ngọc' },
+    { userId: 3004, fullName: 'Phạm Gia Hân', role: 'STUDENT', classId: 401, className: '4A1', label: 'Phạm Gia Hân' },
+  ],
+});
+
+const cloneJson = (value) => JSON.parse(JSON.stringify(value));
+
+const buildRecipient = (userId, overrides = {}) => {
+  const option = notificationLookupMock.recipients.find((recipient) => Number(recipient.userId) === Number(userId)) || {};
+
+  return {
+    id: Number(`${Math.abs(Number(userId) || 0)}${Math.floor(Math.random() * 9)}`),
+    userId: Number(userId || option.userId || 0),
+    fullName: option.fullName || overrides.fullName || 'Người nhận',
+    role: option.role || overrides.role || '',
+    className: option.className || overrides.className || '',
+    isRead: Boolean(overrides.isRead ?? false),
+    readAt: overrides.readAt || null,
+    sentAt: overrides.sentAt || minutesAgo(30),
+    status: overrides.status || 'SENT',
+  };
+};
 
 const baseNotifications = Object.freeze({
   ADMIN: [
     {
       notificationId: 9101,
-      title: 'Yeu cau cap nhat lich truc y te',
-      content: 'Dieu duong vui long cap nhat lich truc tuan nay truoc 15:00.',
-      type: 'GENERAL',
+      title: 'Yêu cầu cập nhật lịch trực y tế',
+      content: 'Điều dưỡng vui lòng cập nhật lịch trực tuần này trước 15:00 để nhà trường điều phối ca trực.',
+      type: 'SYSTEM',
+      createdByUserId: 1001,
+      createdByName: 'Nguyễn Tường Vy',
+      createdByRole: 'ADMIN',
       createdAt: minutesAgo(18),
-      sender: { userId: 5001, fullName: 'He thong EduHealth', role: 'SYSTEM' },
-      context: {},
-      isRead: false,
-      readAt: null,
-      canReply: true,
-      replyCount: 2,
-      threadId: 'thread-9101',
+      classId: null,
+      diseaseId: null,
+      vaccinationId: null,
+      currentRecipient: { id: 1, userId: 1001, isRead: false, readAt: null, sentAt: minutesAgo(18), status: 'SENT' },
+      recipients: [buildRecipient(1101), buildRecipient(1102)],
+      feedbackCount: 2,
+      source: 'MOCK',
     },
     {
       notificationId: 9102,
-      title: 'Hoc sinh gui yeu cau ho tro suc khoe',
-      content: 'Can xac nhan tiep nhan yeu cau tu hoc sinh Tran Minh lop 5A1.',
-      type: 'HEALTH_ALERT',
+      title: 'Học sinh gửi yêu cầu hỗ trợ sức khỏe',
+      content: 'Học sinh Trần Minh lớp 5A1 cần được tư vấn thêm về triệu chứng khó thở sau giờ thể dục.',
+      type: 'HEALTH_SUPPORT',
+      createdByUserId: 3001,
+      createdByName: 'Trần Minh',
+      createdByRole: 'STUDENT',
       createdAt: minutesAgo(110),
-      sender: { userId: 3101, fullName: 'Tran Minh', role: 'STUDENT' },
-      context: { classId: 7, className: '5A1' },
-      isRead: true,
-      readAt: minutesAgo(90),
-      canReply: true,
-      replyCount: 1,
-      threadId: 'thread-9102',
+      classId: 501,
+      className: '5A1',
+      diseaseId: 11,
+      diseaseName: 'Hen suyễn',
+      vaccinationId: null,
+      currentRecipient: { id: 2, userId: 1001, isRead: true, readAt: minutesAgo(90), sentAt: minutesAgo(110), status: 'SENT' },
+      recipients: [buildRecipient(1001, { isRead: true, readAt: minutesAgo(90) }), buildRecipient(1101)],
+      feedbackCount: 1,
+      source: 'MOCK',
     },
   ],
   NURSE: [
     {
       notificationId: 9201,
-      title: 'Chi dao theo doi hoc sinh nguy co cao',
-      content: 'Uu tien hoc sinh lop 5A1 co benh nen ho hap, cap nhat truoc 16:00.',
+      title: 'Theo dõi học sinh có nguy cơ cao',
+      content: 'Ưu tiên học sinh lớp 5A1 có bệnh nền hô hấp, cập nhật tình trạng trước 16:00.',
       type: 'HEALTH_ALERT',
+      createdByUserId: 1001,
+      createdByName: 'Nguyễn Tường Vy',
+      createdByRole: 'ADMIN',
       createdAt: minutesAgo(12),
-      sender: { userId: 1001, fullName: 'Admin Truong', role: 'ADMIN' },
-      context: { classId: 7, className: '5A1', diseaseId: 14, diseaseName: 'Hen suyen' },
-      isRead: false,
-      readAt: null,
-      canReply: true,
-      replyCount: 3,
-      threadId: 'thread-9201',
+      classId: 501,
+      className: '5A1',
+      diseaseId: 11,
+      diseaseName: 'Hen suyễn',
+      vaccinationId: null,
+      currentRecipient: { id: 3, userId: 1101, isRead: false, readAt: null, sentAt: minutesAgo(12), status: 'SENT' },
+      recipients: [buildRecipient(1101), buildRecipient(1102)],
+      feedbackCount: 3,
+      source: 'MOCK',
     },
     {
       notificationId: 9202,
-      title: 'Nhac hoan tat bien ban cap thuoc',
-      content: 'Vui long xac nhan bien ban thuoc da cap cho khoi 3 trong buoi sang.',
+      title: 'Nhắc hoàn tất biên bản cấp thuốc',
+      content: 'Vui lòng xác nhận biên bản thuốc đã cấp cho khối 3 trong buổi sáng.',
       type: 'MEDICINE_NOTICE',
+      createdByUserId: 1001,
+      createdByName: 'Nguyễn Tường Vy',
+      createdByRole: 'ADMIN',
       createdAt: minutesAgo(95),
-      sender: { userId: 1001, fullName: 'Admin Truong', role: 'ADMIN' },
-      context: { classId: 3, className: '3A1' },
-      isRead: true,
-      readAt: minutesAgo(66),
-      canReply: true,
-      replyCount: 0,
-      threadId: 'thread-9202',
+      classId: 401,
+      className: '4A1',
+      diseaseId: null,
+      vaccinationId: null,
+      currentRecipient: { id: 4, userId: 1101, isRead: true, readAt: minutesAgo(66), sentAt: minutesAgo(95), status: 'SENT' },
+      recipients: [buildRecipient(1101, { isRead: true, readAt: minutesAgo(66) })],
+      feedbackCount: 0,
+      source: 'MOCK',
     },
   ],
   STUDENT: [
     {
       notificationId: 9301,
-      title: 'Nhac lich tiem chung lop 5A1',
-      content: 'Hoc sinh lop 5A1 co lich tiem luc 09:00 sang thu Sau tai phong y te.',
+      title: 'Nhắc lịch tiêm chủng lớp 5A1',
+      content: 'Học sinh lớp 5A1 có lịch tiêm lúc 09:00 sáng thứ Sáu tại phòng y tế.',
       type: 'VACCINATION_REMINDER',
+      createdByUserId: 1001,
+      createdByName: 'Nguyễn Tường Vy',
+      createdByRole: 'ADMIN',
       createdAt: minutesAgo(35),
-      sender: { userId: 1001, fullName: 'Admin Truong', role: 'ADMIN' },
-      context: { classId: 7, className: '5A1', vaccinationId: 25, vaccinationName: 'Mui nhac lai so 2' },
-      isRead: false,
-      readAt: null,
-      canReply: true,
-      replyCount: 1,
-      threadId: 'thread-9301',
+      classId: 501,
+      className: '5A1',
+      diseaseId: null,
+      vaccinationId: 22,
+      vaccinationName: 'Tiêm nhắc lại Rubella - Lớp 5A1',
+      currentRecipient: { id: 5, userId: 3002, isRead: false, readAt: null, sentAt: minutesAgo(35), status: 'SENT' },
+      recipients: [buildRecipient(3001), buildRecipient(3002), buildRecipient(3003)],
+      feedbackCount: 1,
+      source: 'MOCK',
     },
     {
       notificationId: 9302,
-      title: 'Phan hoi tu phong y te',
-      content: 'Neu co trieu chung bat thuong sau khi dung thuoc, vui long phan hoi lai thong bao nay.',
+      title: 'Phản hồi từ phòng y tế',
+      content: 'Nếu có triệu chứng bất thường sau khi dùng thuốc, em hãy phản hồi lại thông báo này.',
       type: 'MEDICINE_NOTICE',
+      createdByUserId: 1101,
+      createdByName: 'Lê Minh Châu',
+      createdByRole: 'NURSE',
       createdAt: minutesAgo(165),
-      sender: { userId: 1101, fullName: 'Dieu duong Truong', role: 'NURSE' },
-      context: { diseaseId: 14, diseaseName: 'Hen suyen' },
-      isRead: true,
-      readAt: minutesAgo(126),
-      canReply: true,
-      replyCount: 2,
-      threadId: 'thread-9302',
+      classId: null,
+      diseaseId: 12,
+      diseaseName: 'Dị ứng',
+      vaccinationId: null,
+      currentRecipient: { id: 6, userId: 3002, isRead: true, readAt: minutesAgo(126), sentAt: minutesAgo(165), status: 'SENT' },
+      recipients: [buildRecipient(3002, { isRead: true, readAt: minutesAgo(126) })],
+      feedbackCount: 2,
+      source: 'MOCK',
     },
   ],
 });
 
-const baseThreads = Object.freeze({
-  'thread-9101': [
-    { replyId: 1, sender: { userId: 5001, fullName: 'He thong EduHealth', role: 'SYSTEM' }, content: 'Lich truc da duoc tao tu dashboard dieu phoi.', createdAt: minutesAgo(18) },
-    { replyId: 2, sender: { userId: 1101, fullName: 'Dieu duong Truong', role: 'NURSE' }, content: 'Da tiep nhan va se cap nhat trong dau gio chieu.', createdAt: minutesAgo(8) },
+const baseFeedbacks = Object.freeze({
+  9101: [
+    { feedbackId: 1, notificationId: 9101, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Đã tiếp nhận và sẽ cập nhật trong đầu giờ chiều.', createdAt: minutesAgo(8), status: 'SENT', source: 'MOCK' },
+    { feedbackId: 2, notificationId: 9101, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cảm ơn, cần ưu tiên ca trực sáng thứ Sáu.', createdAt: minutesAgo(3), status: 'SENT', source: 'MOCK' },
   ],
-  'thread-9102': [
-    { replyId: 1, sender: { userId: 3101, fullName: 'Tran Minh', role: 'STUDENT' }, content: 'Em can duoc tu van them ve dieu tri hen suyen.', createdAt: minutesAgo(110) },
+  9102: [
+    { feedbackId: 1, notificationId: 9102, senderUserId: 3001, senderName: 'Trần Minh', senderRole: 'STUDENT', content: 'Em cần được tư vấn thêm về triệu chứng khó thở.', createdAt: minutesAgo(110), status: 'SENT', source: 'MOCK' },
   ],
-  'thread-9201': [
-    { replyId: 1, sender: { userId: 1001, fullName: 'Admin Truong', role: 'ADMIN' }, content: 'Can uu tien theo doi trong ngay hom nay.', createdAt: minutesAgo(12) },
-    { replyId: 2, sender: { userId: 1101, fullName: 'Dieu duong Truong', role: 'NURSE' }, content: 'Da sap xep lich kiem tra luc 14:00.', createdAt: minutesAgo(6) },
-    { replyId: 3, sender: { userId: 1001, fullName: 'Admin Truong', role: 'ADMIN' }, content: 'Cap nhat ket qua sau buoi kiem tra.', createdAt: minutesAgo(3) },
+  9201: [
+    { feedbackId: 1, notificationId: 9201, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cần ưu tiên theo dõi trong ngày hôm nay.', createdAt: minutesAgo(12), status: 'SENT', source: 'MOCK' },
+    { feedbackId: 2, notificationId: 9201, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Đã sắp xếp lịch kiểm tra lúc 14:00.', createdAt: minutesAgo(6), status: 'SENT', source: 'MOCK' },
+    { feedbackId: 3, notificationId: 9201, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cập nhật kết quả sau buổi kiểm tra.', createdAt: minutesAgo(3), status: 'SENT', source: 'MOCK' },
   ],
-  'thread-9301': [
-    { replyId: 1, sender: { userId: 3002, fullName: 'Tran Minh', role: 'STUDENT' }, content: 'Em da ghi nho lich va se co mat dung gio.', createdAt: minutesAgo(12) },
+  9301: [
+    { feedbackId: 1, notificationId: 9301, senderUserId: 3002, senderName: 'Nguyễn An', senderRole: 'STUDENT', content: 'Em đã ghi nhớ lịch và sẽ có mặt đúng giờ.', createdAt: minutesAgo(12), status: 'SENT', source: 'MOCK' },
   ],
-  'thread-9302': [
-    { replyId: 1, sender: { userId: 1101, fullName: 'Dieu duong Truong', role: 'NURSE' }, content: 'Neu co dau hieu kho tho, hay den phong y te ngay.', createdAt: minutesAgo(165) },
-    { replyId: 2, sender: { userId: 3002, fullName: 'Tran Minh', role: 'STUDENT' }, content: 'Em da nho va se bao ngay neu co trieu chung.', createdAt: minutesAgo(124) },
+  9302: [
+    { feedbackId: 1, notificationId: 9302, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Nếu có dấu hiệu khó thở, em hãy đến phòng y tế ngay.', createdAt: minutesAgo(165), status: 'SENT', source: 'MOCK' },
+    { feedbackId: 2, notificationId: 9302, senderUserId: 3002, senderName: 'Nguyễn An', senderRole: 'STUDENT', content: 'Em đã nhớ và sẽ báo ngay nếu có triệu chứng.', createdAt: minutesAgo(124), status: 'SENT', source: 'MOCK' },
   ],
 });
-
-const cloneJson = (value) => JSON.parse(JSON.stringify(value));
 
 const inboxStoreByRole = {
   ADMIN: cloneJson(baseNotifications.ADMIN),
@@ -140,21 +224,15 @@ const inboxStoreByRole = {
   STUDENT: cloneJson(baseNotifications.STUDENT),
 };
 
-const threadStoreById = cloneJson(baseThreads);
+const feedbackStoreByNotificationId = cloneJson(baseFeedbacks);
 
-const normalizeRole = (role) => {
-  const normalized = String(role || 'STUDENT').trim().toUpperCase();
-  if (normalized === 'ADMIN' || normalized === 'NURSE' || normalized === 'STUDENT') {
-    return normalized;
-  }
-
-  return 'STUDENT';
+const resolveRole = ({ currentUser, viewerRole }) => {
+  const normalized = normalizeRole(viewerRole || currentUser?.role, 'STUDENT');
+  return normalized === 'SYSTEM' ? 'STUDENT' : normalized;
 };
 
-const resolveViewerRole = ({ currentUser, viewerRole }) => normalizeRole(currentUser?.role || viewerRole);
-
-const getStoreForRole = ({ currentUser, viewerRole }) => {
-  const role = resolveViewerRole({ currentUser, viewerRole });
+const getStore = ({ currentUser, viewerRole }) => {
+  const role = resolveRole({ currentUser, viewerRole });
   if (!inboxStoreByRole[role]) {
     inboxStoreByRole[role] = [];
   }
@@ -165,24 +243,22 @@ const getStoreForRole = ({ currentUser, viewerRole }) => {
   };
 };
 
-const sortByNewest = (items = []) => {
-  return [...items].sort((left, right) => {
-    const leftTime = new Date(left?.createdAt || 0).getTime();
-    const rightTime = new Date(right?.createdAt || 0).getTime();
-    return rightTime - leftTime;
-  });
-};
+const sortByNewest = (items = []) => [...items].sort((left, right) => {
+  const leftTime = new Date(left.createdAt || 0).getTime();
+  const rightTime = new Date(right.createdAt || 0).getTime();
+  return rightTime - leftTime;
+});
 
-const filterItems = ({ items = [], isRead, type = '', keyword = '' }) => {
-  const normalizedType = String(type || '').trim();
-  const normalizedKeyword = String(keyword || '').trim().toLowerCase();
+const filterNotifications = ({ items, isRead, type = '', keyword = '' }) => {
+  const normalizedType = toText(type).toUpperCase();
+  const normalizedKeyword = toText(keyword).toLowerCase();
 
   return sortByNewest(items).filter((item) => {
-    if (typeof isRead === 'boolean' && Boolean(item?.isRead) !== isRead) {
+    if (typeof isRead === 'boolean' && Boolean(item.currentRecipient?.isRead) !== isRead) {
       return false;
     }
 
-    if (normalizedType && item?.type !== normalizedType) {
+    if (normalizedType && item.type !== normalizedType) {
       return false;
     }
 
@@ -191,20 +267,18 @@ const filterItems = ({ items = [], isRead, type = '', keyword = '' }) => {
     }
 
     return [
-      item?.title,
-      item?.content,
-      item?.sender?.fullName,
-      item?.context?.className,
-      item?.context?.diseaseName,
-      item?.context?.vaccinationName,
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(normalizedKeyword);
+      item.title,
+      item.content,
+      item.createdByName,
+      item.createdByRole,
+      item.className,
+      item.diseaseName,
+      item.vaccinationName,
+    ].join(' ').toLowerCase().includes(normalizedKeyword);
   });
 };
 
-const paginate = (items = [], page = 1, pageSize = 20) => {
+const paginate = ({ items, page = 1, pageSize = 20 }) => {
   const safePage = Math.max(1, Number.parseInt(page, 10) || 1);
   const safePageSize = Math.max(1, Number.parseInt(pageSize, 10) || 20);
   const offset = (safePage - 1) * safePageSize;
@@ -218,36 +292,60 @@ const paginate = (items = [], page = 1, pageSize = 20) => {
   };
 };
 
-const buildMeta = ({ items = [], page, pageSize, note = INBOX_PENDING_NOTE, source = 'mock' }) => {
-  const pagination = paginate(items, page, pageSize);
+const metaFor = ({ items, page, pageSize, note = INBOX_NOTE, source = 'MOCK' }) => ({
+  page,
+  pageSize,
+  totalItems: items.length,
+  totalPages: Math.max(1, Math.ceil(items.length / Math.max(1, pageSize))),
+  unreadCount: items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0),
+  source,
+  note,
+});
+
+const findNotification = ({ notificationId, currentUser, viewerRole }) => {
+  const { items } = getStore({ currentUser, viewerRole });
+  return items.find((item) => Number(item.notificationId) === Number(notificationId));
+};
+
+const getLookupById = ({ collection, id, idKey }) => {
+  const parsedId = Number(id || 0);
+  return collection.find((item) => Number(item[idKey]) === parsedId) || null;
+};
+
+const resolvePreviewRecipients = ({ payload, draft, role }) => {
+  const targetMode = draft?.targetMode || '';
+  const classId = toNullableInteger(payload.classId);
+  const ids = Array.isArray(payload.recipientUserIds) ? payload.recipientUserIds : [];
+
+  if (targetMode === TARGET_MODES.CLASS && classId) {
+    return notificationLookupMock.recipients.filter((recipient) => (
+      recipient.role === 'STUDENT' && Number(recipient.classId) === classId
+    ));
+  }
+
+  if (ids.length) {
+    return notificationLookupMock.recipients.filter((recipient) => ids.includes(Number(recipient.userId)));
+  }
+
+  if (role === 'STUDENT') {
+    return notificationLookupMock.recipients.filter((recipient) => recipient.role === 'ADMIN' || recipient.role === 'NURSE').slice(0, 1);
+  }
+
+  return [];
+};
+
+const buildCreatedBy = ({ currentUser, role }) => {
+  const fallback = notificationLookupMock.recipients.find((recipient) => recipient.role === role) || {};
+  const userId = getCurrentUserId(currentUser) || Number(fallback.userId || (role === 'ADMIN' ? 1001 : role === 'NURSE' ? 1101 : 3002));
 
   return {
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-    totalItems: pagination.totalItems,
-    totalPages: pagination.totalPages,
-    unreadCount: items.reduce((sum, item) => sum + (item?.isRead ? 0 : 1), 0),
-    source,
-    note,
+    createdByUserId: userId,
+    createdByName: toText(currentUser?.fullName || currentUser?.name || fallback.fullName, 'Người dùng EduHealth'),
+    createdByRole: role,
   };
 };
 
-const updateReadState = (item) => {
-  if (!item || item.isRead) {
-    return;
-  }
-
-  item.isRead = true;
-  item.readAt = nowIso();
-};
-
-const touchThreadId = (threadId) => {
-  if (!threadStoreById[threadId]) {
-    threadStoreById[threadId] = [];
-  }
-};
-
-export const getNotificationsInboxMock = async ({
+export const getNotificationsMock = async ({
   page = 1,
   pageSize = 20,
   isRead,
@@ -257,14 +355,18 @@ export const getNotificationsInboxMock = async ({
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
-  const filtered = filterItems({ items, isRead, type, keyword });
-  const pagination = paginate(filtered, page, pageSize);
+  const { items, role } = getStore({ currentUser, viewerRole });
+  const filtered = filterNotifications({ items, isRead, type, keyword });
+  const pagination = paginate({ items: filtered, page, pageSize });
 
-  return adaptInboxResponse({
+  return adaptNotificationsResponse({
     data: pagination.rows,
-    meta: buildMeta({ items: filtered, page, pageSize }),
-  }, { page, pageSize });
+    meta: metaFor({
+      items: filtered,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+    }),
+  }, { currentUser, viewerRole: role, page, pageSize });
 };
 
 export const getRecentNotificationsMock = async ({
@@ -273,33 +375,30 @@ export const getRecentNotificationsMock = async ({
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
+  const { items, role } = getStore({ currentUser, viewerRole });
   const rows = sortByNewest(items).slice(0, Math.max(1, limit));
 
   return adaptRecentNotificationsResponse({
     data: rows,
     meta: {
-      source: 'mock',
-      note: INBOX_PENDING_NOTE,
-      unreadCount: items.reduce((sum, item) => sum + (item?.isRead ? 0 : 1), 0),
+      source: 'MOCK',
+      note: INBOX_NOTE,
+      unreadCount: items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0),
     },
-  });
+  }, { currentUser, viewerRole: role });
 };
 
-export const getUnreadCountMock = async ({
-  currentUser,
-  viewerRole,
-}) => {
+export const getUnreadCountMock = async ({ currentUser, viewerRole }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
+  const { items } = getStore({ currentUser, viewerRole });
 
   return adaptUnreadCountResponse({
     data: {
-      unreadCount: items.reduce((sum, item) => sum + (item?.isRead ? 0 : 1), 0),
+      unreadCount: items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0),
     },
     meta: {
-      source: 'mock',
-      note: INBOX_PENDING_NOTE,
+      source: 'MOCK',
+      note: INBOX_NOTE,
     },
   });
 };
@@ -310,51 +409,43 @@ export const getNotificationDetailMock = async ({
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
-  const item = items.find((entry) => Number(entry?.notificationId) === Number(notificationId));
+  const role = resolveRole({ currentUser, viewerRole });
+  const item = findNotification({ notificationId, currentUser, viewerRole: role });
 
   if (!item) {
-    const error = new Error('Khong tim thay thong bao.');
+    const error = new Error('Không tìm thấy thông báo.');
     error.status = 404;
     throw error;
   }
 
-  return adaptDetailResponse({
-    data: item,
-    meta: {
-      source: 'mock',
-      note: INBOX_PENDING_NOTE,
+  return adaptNotificationDetailResponse({
+    data: {
+      ...item,
+      feedbacks: feedbackStoreByNotificationId[item.notificationId] || [],
     },
-  });
+    meta: {
+      source: 'MOCK',
+      note: INBOX_NOTE,
+    },
+  }, { currentUser, viewerRole: role });
 };
 
-export const getNotificationThreadMock = async ({
-  notificationId,
+export const previewRecipientsMock = async ({
+  draft,
   currentUser,
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
-  const item = items.find((entry) => Number(entry?.notificationId) === Number(notificationId));
+  const role = resolveRole({ currentUser, viewerRole });
+  const payload = buildCreateNotificationPayload(draft);
+  const recipients = resolvePreviewRecipients({ payload, draft, role });
 
-  if (!item) {
-    const error = new Error('Khong tim thay chuoi phan hoi.');
-    error.status = 404;
-    throw error;
-  }
-
-  touchThreadId(item.threadId);
-
-  return adaptThreadResponse({
-    data: {
-      threadId: item.threadId,
-      replies: threadStoreById[item.threadId],
-    },
-    meta: {
-      source: 'mock',
-      note: THREAD_PENDING_NOTE,
-    },
-  });
+  return {
+    totalRecipients: recipients.length,
+    recipients,
+    source: 'MOCK',
+    sourceNote: LOOKUP_NOTE,
+  };
 };
 
 export const createNotificationMock = async ({
@@ -363,47 +454,53 @@ export const createNotificationMock = async ({
   viewerRole,
 }) => {
   await waitForMock('default');
+  const { role, items } = getStore({ currentUser, viewerRole });
   const payload = buildCreateNotificationPayload(draft);
-  const { role, items } = getStoreForRole({ currentUser, viewerRole });
-  const maxId = items.reduce((maxValue, item) => Math.max(maxValue, Number(item?.notificationId || 0)), 9000);
+  const preview = await previewRecipientsMock({ draft, currentUser, viewerRole: role });
+  const maxId = items.reduce((maxValue, item) => Math.max(maxValue, Number(item.notificationId || 0)), 9000);
   const nextId = maxId + 1;
-  const threadId = `thread-${nextId}`;
-  const senderRole = normalizeRole(currentUser?.role || role);
+  const createdBy = buildCreatedBy({ currentUser, role });
+  const classLookup = getLookupById({ collection: notificationLookupMock.classes, id: payload.classId, idKey: 'classId' });
+  const diseaseLookup = getLookupById({ collection: notificationLookupMock.diseases, id: payload.diseaseId, idKey: 'diseaseId' });
+  const vaccinationLookup = getLookupById({ collection: notificationLookupMock.vaccinations, id: payload.vaccinationId, idKey: 'vaccinationId' });
+  const recipients = preview.recipients.map((recipient) => buildRecipient(recipient.userId, { sentAt: nowIso() }));
 
   const item = {
     notificationId: nextId,
     title: payload.title,
     content: payload.content,
     type: payload.type,
+    ...createdBy,
     createdAt: nowIso(),
-    sender: {
-      userId: Number(currentUser?.userId || 0),
-      fullName: String(currentUser?.fullName || currentUser?.name || 'Nguoi dung EduHealth'),
-      role: senderRole,
+    classId: payload.classId || null,
+    className: classLookup?.className || '',
+    diseaseId: payload.diseaseId || null,
+    diseaseName: diseaseLookup?.diseaseName || '',
+    vaccinationId: payload.vaccinationId || null,
+    vaccinationName: vaccinationLookup?.vaccinationName || '',
+    currentRecipient: {
+      id: nextId,
+      userId: createdBy.createdByUserId,
+      isRead: true,
+      readAt: nowIso(),
+      sentAt: nowIso(),
+      status: 'SENT',
     },
-    context: {
-      classId: payload.classId || null,
-      className: payload.classId ? `Lop ${payload.classId}` : '',
-      diseaseId: payload.diseaseId || null,
-      diseaseName: payload.diseaseId ? `Benh #${payload.diseaseId}` : '',
-      vaccinationId: payload.vaccinationId || null,
-      vaccinationName: payload.vaccinationId ? `Dot tiem #${payload.vaccinationId}` : '',
-    },
-    isRead: false,
-    readAt: null,
-    canReply: true,
-    replyCount: 0,
-    threadId,
+    recipients,
+    feedbackCount: 0,
+    source: 'MOCK',
   };
 
   items.unshift(item);
-  threadStoreById[threadId] = [];
+  feedbackStoreByNotificationId[nextId] = [];
   emitNotificationsChanged();
 
   return {
     notificationId: nextId,
-    totalRecipients: payload.classId ? 30 : (payload.recipientUserIds?.length || 1),
-    source: 'mock',
+    item,
+    totalRecipients: recipients.length,
+    source: 'MOCK',
+    sourceNote: INBOX_NOTE,
   };
 };
 
@@ -413,75 +510,176 @@ export const markNotificationReadMock = async ({
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
-  const target = items.find((item) => Number(item?.notificationId) === Number(notificationId));
-
-  if (!target) {
+  const item = findNotification({ notificationId, currentUser, viewerRole });
+  if (!item) {
     return false;
   }
 
-  updateReadState(target);
+  item.currentRecipient = {
+    ...(item.currentRecipient || {}),
+    isRead: true,
+    readAt: item.currentRecipient?.readAt || nowIso(),
+  };
   emitNotificationsChanged();
   return true;
 };
 
-export const markAllNotificationsReadMock = async ({
-  currentUser,
-  viewerRole,
-} = {}) => {
+export const markAllNotificationsReadMock = async ({ currentUser, viewerRole } = {}) => {
   await waitForMock('default');
-  const { items } = getStoreForRole({ currentUser, viewerRole });
-  items.forEach(updateReadState);
+  const { items } = getStore({ currentUser, viewerRole });
+
+  items.forEach((item) => {
+    item.currentRecipient = {
+      ...(item.currentRecipient || {}),
+      isRead: true,
+      readAt: item.currentRecipient?.readAt || nowIso(),
+    };
+  });
   emitNotificationsChanged();
   return true;
 };
 
-export const replyToNotificationMock = async ({
+export const getRecipientOptionsMock = async ({ role, keyword = '' } = {}) => {
+  await waitForMock('fast');
+  const normalizedRole = normalizeRole(role, '');
+  const normalizedKeyword = toText(keyword).toLowerCase();
+
+  const base = notificationLookupMock.recipients.filter((recipient) => {
+    if (normalizedRole === 'STUDENT') {
+      return recipient.role === 'ADMIN' || recipient.role === 'NURSE';
+    }
+
+    if (normalizedRole === 'NURSE') {
+      return recipient.role === 'STUDENT';
+    }
+
+    return recipient.role === 'ADMIN' || recipient.role === 'NURSE' || recipient.role === 'STUDENT';
+  });
+
+  const filtered = normalizedKeyword
+    ? base.filter((recipient) => [
+      recipient.fullName,
+      recipient.role,
+      recipient.className,
+    ].join(' ').toLowerCase().includes(normalizedKeyword))
+    : base;
+
+  return {
+    options: filtered,
+    source: 'MOCK',
+    sourceNote: LOOKUP_NOTE,
+  };
+};
+
+export const getClassOptionsMock = async () => {
+  await waitForMock('fast');
+  return {
+    options: cloneJson(notificationLookupMock.classes),
+    source: 'MOCK',
+    sourceNote: LOOKUP_NOTE,
+  };
+};
+
+export const getDiseaseOptionsMock = async () => {
+  await waitForMock('fast');
+  return {
+    options: cloneJson(notificationLookupMock.diseases),
+    source: 'MOCK',
+    sourceNote: LOOKUP_NOTE,
+  };
+};
+
+export const getVaccinationOptionsMock = async () => {
+  await waitForMock('fast');
+  return {
+    options: cloneJson(notificationLookupMock.vaccinations),
+    source: 'MOCK',
+    sourceNote: LOOKUP_NOTE,
+  };
+};
+
+export const getFeedbacksMock = async ({
   notificationId,
-  content,
+}) => {
+  await waitForMock('default');
+  const id = Number(notificationId || 0);
+
+  if (!feedbackStoreByNotificationId[id]) {
+    feedbackStoreByNotificationId[id] = [];
+  }
+
+  return adaptFeedbacksResponse({
+    data: feedbackStoreByNotificationId[id],
+    meta: {
+      source: 'MOCK_READY',
+      note: FEEDBACK_NOTE,
+    },
+  }, { notificationId: id, source: 'MOCK_READY' });
+};
+
+export const createFeedbackMock = async ({
+  notificationId,
+  payload,
   currentUser,
   viewerRole,
 }) => {
   await waitForMock('default');
-  const { items, role } = getStoreForRole({ currentUser, viewerRole });
-  const target = items.find((item) => Number(item?.notificationId) === Number(notificationId));
+  const id = Number(notificationId || payload?.notificationId || 0);
+  const item = findNotification({ notificationId: id, currentUser, viewerRole });
 
-  if (!target) {
-    const error = new Error('Khong tim thay thong bao de phan hoi.');
+  if (!item) {
+    const error = new Error('Không tìm thấy thông báo để phản hồi.');
     error.status = 404;
     throw error;
   }
 
-  touchThreadId(target.threadId);
+  const createPayload = buildCreateFeedbackPayload({ notificationId: id, content: payload?.content });
+  const role = resolveRole({ currentUser, viewerRole });
+  const createdBy = buildCreatedBy({ currentUser, role });
 
-  const payload = buildReplyPayload(content);
-  const nextReplyId = threadStoreById[target.threadId].reduce((maxValue, item) => Math.max(maxValue, Number(item?.replyId || 0)), 0) + 1;
-  const reply = {
-    replyId: nextReplyId,
-    sender: {
-      userId: Number(currentUser?.userId || 0),
-      fullName: String(currentUser?.fullName || currentUser?.name || 'Nguoi dung EduHealth'),
-      role: normalizeRole(currentUser?.role || role),
-    },
-    content: payload.content,
+  if (!feedbackStoreByNotificationId[id]) {
+    feedbackStoreByNotificationId[id] = [];
+  }
+
+  const nextId = feedbackStoreByNotificationId[id].reduce(
+    (maxValue, feedback) => Math.max(maxValue, Number(feedback.feedbackId || 0)),
+    0,
+  ) + 1;
+
+  const feedback = {
+    feedbackId: nextId,
+    notificationId: id,
+    senderUserId: createdBy.createdByUserId,
+    senderName: createdBy.createdByName,
+    senderRole: createdBy.createdByRole,
+    content: createPayload.content,
     createdAt: nowIso(),
+    status: 'SENT',
+    source: 'MOCK_READY',
   };
 
-  threadStoreById[target.threadId].push(reply);
-  target.replyCount = threadStoreById[target.threadId].length;
+  feedbackStoreByNotificationId[id].push(feedback);
+  item.feedbackCount = feedbackStoreByNotificationId[id].length;
   emitNotificationsChanged();
 
-  return adaptReplyResponse({
-    data: reply,
+  return adaptCreateFeedbackResponse({
+    data: feedback,
     meta: {
-      source: 'mock',
-      note: THREAD_PENDING_NOTE,
+      source: 'MOCK_READY',
+      note: FEEDBACK_NOTE,
     },
+  }, {
+    notificationId: id,
+    senderUserId: createdBy.createdByUserId,
+    senderName: createdBy.createdByName,
+    senderRole: createdBy.createdByRole,
+    source: 'MOCK_READY',
   });
 };
 
 export const notificationsMockMeta = Object.freeze({
-  inboxNote: INBOX_PENDING_NOTE,
-  threadNote: THREAD_PENDING_NOTE,
-  source: 'mock',
+  inboxNote: INBOX_NOTE,
+  feedbackNote: FEEDBACK_NOTE,
+  lookupNote: LOOKUP_NOTE,
+  source: 'MOCK',
 });

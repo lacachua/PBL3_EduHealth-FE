@@ -1,4 +1,6 @@
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { extractRows, extractMeta } from '../../../shared/adapters/envelopeAdapter';
+import { formatDate, formatDateTime } from '../../../shared/utils/dateFormat';
 
 const statusToneMap = {
   ACTIVE: 'success',
@@ -59,30 +61,26 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
     return defaultModel;
   }
 
-  const sourceRows = Array.isArray(envelope.data)
-    ? envelope.data
-    : Array.isArray(envelope.data?.students)
-      ? envelope.data.students
-      : Array.isArray(envelope.data?.items)
-        ? envelope.data.items
-        : [];
+  const sourceRows = extractRows(envelope, { itemKeys: ['students'] });
 
   const rows = sourceRows.length
     ? sourceRows.map((item) => ({
       id: resolveStudentIdentity(item),
       studentId: resolveStudentIdentity(item),
       userId: resolveStudentIdentity(item),
-      studentCode: item.studentCode || `HS-${resolveStudentIdentity(item) || '--'}`,
+      studentCode: item.studentCode || null,
       fullName: item.fullName || '--',
       dateOfBirth: item.dateOfBirth || '--',
+      dateOfBirthLabel: formatDate(item.dateOfBirth),
       gender: item.gender || '--',
       genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : '--',
       classId: item.classId || '--',
       className: item.className || '--',
-      username: item.username || '--',
+      username: item.username || null,
       email: item.email || '--',
       phoneNumber: item.phoneNumber || item.phone || '--',
       phone: item.phone || item.phoneNumber || '--',
+      guardian: item.guardian || '--',
       heightCm: item.currentHeight ?? item.heightCm ?? null,
       weightKg: item.currentWeight ?? item.weightKg ?? null,
       currentHeight: item.currentHeight ?? item.heightCm ?? null,
@@ -95,7 +93,9 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
       statusLabel: item.statusLabel || statusLabelMap[toStudentStatus(item)] || '--',
       statusTone: statusToneMap[toStudentStatus(item)] || 'neutral',
       createdAt: item.createdAt || null,
+      createdAtLabel: formatDateTime(item.createdAt),
       updatedAt: item.updatedAt || null,
+      updatedAtLabel: formatDateTime(item.updatedAt),
       apiId: resolveStudentIdentity(item),
     }))
     : [];
@@ -107,12 +107,11 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
     id: item.id || item.studentId,
   }));
 
+  const meta = extractMeta(envelope, defaultModel);
+
   return {
     rows: normalizedRows,
-    page: Number(envelope.meta?.page || 1),
-    pageSize: Number(envelope.meta?.pageSize || 10),
-    totalItems: Number(envelope.meta?.totalItems || envelope.meta?.total || normalizedRows.length),
-    totalPages: Number(envelope.meta?.totalPages || 1),
+    ...meta,
   };
 };
 
@@ -130,9 +129,10 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     id: resolvedStudentId,
     studentId: resolvedStudentId,
     userId: resolvedStudentId,
-    studentCode: item.studentCode || `HS-${resolvedStudentId || '--'}`,
+    studentCode: item.studentCode || '--',
     fullName: item.fullName || '--',
     dateOfBirth: item.dateOfBirth || '--',
+    dateOfBirthLabel: formatDate(item.dateOfBirth),
     gender: item.gender || '--',
     genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : '--',
     classId: item.classId || '--',
@@ -152,14 +152,15 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     identifier: item.identifier || '--',
     address: item.address || '--',
     guardian: item.guardian || item.parentName || '--',
-    parentName: item.parentName || item.guardian || '--',
-    parentPhoneNumber: item.parentPhoneNumber || item.phone || '--',
+    guardianPhone: item.guardianPhone || item.parentPhoneNumber || item.phone || '--',
     emergencyContactNote: item.emergencyContactNote || '--',
     status,
     statusLabel: item.statusLabel || statusLabelMap[status] || '--',
     statusTone: statusToneMap[status] || 'neutral',
     createdAt: item.createdAt || null,
+    createdAtLabel: formatDateTime(item.createdAt),
     updatedAt: item.updatedAt || null,
+    updatedAtLabel: formatDateTime(item.updatedAt),
     apiId: resolvedStudentId,
   };
 };
@@ -232,8 +233,11 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
     allergyItems,
     medicalHistory: item.medicalHistoryNotes || '',
     lastExaminationDate: item.lastExaminationDate || '',
+    lastExaminationDateLabel: formatDate(item.lastExaminationDate),
     updatedBy,
     healthProfileUpdatedAt: profileSource.updatedAt || item.healthProfileUpdatedAt || item.updatedAt || null,
+    healthProfileUpdatedAtLabel: formatDateTime(profileSource.updatedAt || item.healthProfileUpdatedAt || item.updatedAt),
     updatedAt: item.updatedAt || null,
+    updatedAtLabel: formatDateTime(item.updatedAt),
   };
 };

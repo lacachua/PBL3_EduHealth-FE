@@ -1,6 +1,3 @@
-export const STUDENT_PORTAL_DEFAULT_AVATAR =
-  'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80';
-
 export const STUDENT_PORTAL_ROLE_LABELS = {
   ADMIN: 'Quản trị viên',
   NURSE: 'Nhân viên y tế',
@@ -12,7 +9,6 @@ export const STUDENT_PORTAL_IDENTITY_BASE = Object.freeze({
   studentCode: 'HS-24001',
   fullName: 'Trần Minh An',
   className: 'Lớp 4A',
-  avatar: STUDENT_PORTAL_DEFAULT_AVATAR,
 });
 
 export const STUDENT_PORTAL_OVERVIEW_BASE = Object.freeze({
@@ -266,7 +262,6 @@ export const STUDENT_PORTAL_ACCOUNT_BASE = Object.freeze({
   roleLabel: 'Học sinh',
   isActive: true,
   statusLabel: 'Đang hoạt động',
-  avatar: STUDENT_PORTAL_DEFAULT_AVATAR,
   studentCode: 'HS-24001',
   className: 'Lớp 4A',
   gender: 'Nam',

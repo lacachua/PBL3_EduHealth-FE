@@ -1,30 +1,35 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
 import {
-  parseRecipientUserIdsText,
+  canReplyToNotification,
+  getNotificationComposeConfig,
+} from '../constants/notificationComposeConfig';
+import {
+  createInitialComposeState,
+  validateFeedbackDraft,
   validateNotificationDraft,
-  validateReplyDraft,
 } from '../adapters/notificationAdapters';
 import { notificationsRepository } from '../repositories/notificationsRepository';
 import { subscribeNotificationsChanged } from '../services/notificationsEvents';
 
-const INITIAL_DRAFT = Object.freeze({
-  title: '',
-  content: '',
-  type: 'GENERAL',
-  classId: '',
-  diseaseId: '',
-  vaccinationId: '',
-  recipientUserIds: [],
+const buildReadNotification = (item) => ({
+  ...item,
+  currentRecipient: {
+    ...(item.currentRecipient || {}),
+    isRead: true,
+    readAt: item.currentRecipient?.readAt || new Date().toISOString(),
+  },
 });
 
 export const useNotificationInbox = ({
   currentUser,
   viewerRole,
 }) => {
+  const role = String(viewerRole || currentUser?.role || 'STUDENT').toUpperCase();
+  const config = useMemo(() => getNotificationComposeConfig(role), [role]);
   const capabilityState = useMemo(
-    () => notificationsRepository.getCapabilityState({ viewerRole: viewerRole || currentUser?.role }),
-    [currentUser?.role, viewerRole],
+    () => notificationsRepository.getCapabilityState({ viewerRole: role }),
+    [role],
   );
 
   const [items, setItems] = useState([]);
@@ -35,10 +40,11 @@ export const useNotificationInbox = ({
   const [inboxSource, setInboxSource] = useState(capabilityState.inboxSource);
   const [inboxSourceNote, setInboxSourceNote] = useState('');
   const [sendSource, setSendSource] = useState(capabilityState.composeSource);
-  const [threadSource, setThreadSource] = useState(capabilityState.threadSource);
-  const [threadSourceNote, setThreadSourceNote] = useState('');
+  const [feedbackSource, setFeedbackSource] = useState(capabilityState.feedbackSource);
+  const [feedbackSourceNote, setFeedbackSourceNote] = useState('');
+  const [lookupSourceNote, setLookupSourceNote] = useState('');
 
-  const [activeTab, setActiveTab] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('');
   const [keyword, setKeyword] = useState('');
 
@@ -46,62 +52,125 @@ export const useNotificationInbox = ({
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const [threadItems, setThreadItems] = useState([]);
-  const [threadLoading, setThreadLoading] = useState(false);
-  const [replyDraft, setReplyDraft] = useState('');
-  const [replyError, setReplyError] = useState('');
-  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackDraft, setFeedbackDraft] = useState('');
+  const [feedbackError, setFeedbackError] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   const [composerOpen, setComposerOpen] = useState(false);
-  const [draft, setDraft] = useState({ ...INITIAL_DRAFT });
-  const [recipientIdsText, setRecipientIdsText] = useState('');
+  const [draft, setDraft] = useState(() => createInitialComposeState(role));
   const [draftErrors, setDraftErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [preview, setPreview] = useState({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState('');
 
-  const unreadCount = useMemo(
-    () => items.reduce((sum, item) => sum + (item?.isRead ? 0 : 1), 0),
-    [items],
-  );
+  const [recipientOptions, setRecipientOptions] = useState([]);
+  const [classOptions, setClassOptions] = useState([]);
+  const [diseaseOptions, setDiseaseOptions] = useState([]);
+  const [vaccinationOptions, setVaccinationOptions] = useState([]);
 
-  const availableTypes = useMemo(() => {
-    const seen = new Set();
-    return items.reduce((accumulator, item) => {
-      const value = String(item?.type || '').trim();
-      if (!value || seen.has(value)) {
-        return accumulator;
+  const summary = useMemo(() => {
+    const unread = items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0);
+    const sent = items.reduce((sum, item) => {
+      const currentUserId = Number(currentUser?.userId || currentUser?.id || 0);
+      if (!currentUserId) {
+        return sum + (item.createdByRole === role ? 1 : 0);
       }
 
-      seen.add(value);
-      accumulator.push(value);
-      return accumulator;
-    }, []);
-  }, [items]);
+      return sum + (Number(item.createdByUserId) === currentUserId ? 1 : 0);
+    }, 0);
+
+    return {
+      total: items.length,
+      unread,
+      read: Math.max(0, items.length - unread),
+      sent,
+    };
+  }, [currentUser?.id, currentUser?.userId, items, role]);
+
+  const availableTypes = useMemo(() => {
+    const seen = new Set(config.allowedTypes);
+    items.forEach((item) => {
+      if (item.type) {
+        seen.add(item.type);
+      }
+    });
+
+    return Array.from(seen.values());
+  }, [config.allowedTypes, items]);
+
+  const loadLookups = useCallback(async () => {
+    try {
+      const [recipients, classes, diseases, vaccinations] = await Promise.all([
+        notificationsRepository.getRecipientOptions({ viewerRole: role }, role),
+        notificationsRepository.getClassOptions({ viewerRole: role }),
+        notificationsRepository.getDiseaseOptions({ viewerRole: role }),
+        notificationsRepository.getVaccinationOptions({ viewerRole: role }),
+      ]);
+
+      setRecipientOptions(recipients.options || []);
+      setClassOptions(classes.options || []);
+      setDiseaseOptions(diseases.options || []);
+      setVaccinationOptions(vaccinations.options || []);
+      setLookupSourceNote(recipients.sourceNote || classes.sourceNote || diseases.sourceNote || vaccinations.sourceNote || '');
+    } catch (apiError) {
+      setLookupSourceNote(normalizeApiMessage(apiError, 'Không thể tải dữ liệu chọn.'));
+    }
+  }, [role]);
 
   const loadInbox = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
-      const data = await notificationsRepository.getInbox({
+      const data = await notificationsRepository.getNotifications({
         page: 1,
-        pageSize: 30,
-        isRead: activeTab === 'unread' ? false : undefined,
+        pageSize: 50,
+        isRead: statusFilter === 'all' ? undefined : statusFilter === 'read',
         type: typeFilter,
         keyword,
         currentUser,
-        viewerRole,
-      });
+        viewerRole: role,
+      }, role);
 
       setItems(data.items || []);
       setInboxSource(String(data.source || capabilityState.inboxSource));
       setInboxSourceNote(String(data.sourceNote || ''));
     } catch (apiError) {
       setItems([]);
-      setError(normalizeApiMessage(apiError, 'Khong the tai danh sach thong bao.'));
+      setError(normalizeApiMessage(apiError, 'Không thể tải danh sách thông báo.'));
     } finally {
       setLoading(false);
     }
-  }, [activeTab, capabilityState.inboxSource, currentUser, keyword, typeFilter, viewerRole]);
+  }, [capabilityState.inboxSource, currentUser, keyword, role, statusFilter, typeFilter]);
+
+  const loadFeedbacks = useCallback(async (notificationId) => {
+    setFeedbackLoading(true);
+    setFeedbackError('');
+
+    try {
+      const result = await notificationsRepository.getFeedbacks(notificationId, {
+        currentUser,
+        viewerRole: role,
+      });
+
+      setFeedbackItems(result.feedbacks || []);
+      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
+      setFeedbackSourceNote(String(result.sourceNote || ''));
+    } catch (apiError) {
+      setFeedbackItems([]);
+      setFeedbackSource('PENDING');
+      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
+    } finally {
+      setFeedbackLoading(false);
+    }
+  }, [capabilityState.feedbackSource, currentUser, role]);
+
+  useEffect(() => {
+    loadLookups();
+  }, [loadLookups]);
 
   useEffect(() => {
     loadInbox();
@@ -113,87 +182,84 @@ export const useNotificationInbox = ({
     });
   }, [loadInbox]);
 
-  const loadThread = useCallback(async (notificationId) => {
-    setThreadLoading(true);
-    setReplyError('');
-
-    try {
-      const thread = await notificationsRepository.getThread({
-        notificationId,
-        currentUser,
-        viewerRole,
-      });
-
-      setThreadItems(thread.replies || []);
-      setThreadSource(String(thread.source || capabilityState.threadSource));
-      setThreadSourceNote(String(thread.sourceNote || ''));
-    } catch (apiError) {
-      setThreadItems([]);
-      setThreadSource('pending');
-      setThreadSourceNote(normalizeApiMessage(apiError, 'Khong the tai chuoi phan hoi.'));
-    } finally {
-      setThreadLoading(false);
+  useEffect(() => {
+    if (!composerOpen) {
+      return undefined;
     }
-  }, [capabilityState.threadSource, currentUser, viewerRole]);
+
+    const timeoutId = window.setTimeout(async () => {
+      setPreviewLoading(true);
+      setPreviewError('');
+
+      try {
+        const result = await notificationsRepository.previewRecipients(draft, role, {
+          currentUser,
+          viewerRole: role,
+        });
+        setPreview(result);
+      } catch (apiError) {
+        setPreview({ totalRecipients: 0, recipients: [], source: 'PENDING' });
+        setPreviewError(normalizeApiMessage(apiError, 'Không thể xem trước người nhận.'));
+      } finally {
+        setPreviewLoading(false);
+      }
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [composerOpen, currentUser, draft, role]);
 
   const openDetail = useCallback(async (notificationId) => {
     setDetailOpen(true);
     setDetailLoading(true);
-    setReplyDraft('');
-    setReplyError('');
+    setFeedbackDraft('');
+    setFeedbackError('');
 
     try {
-      const detail = await notificationsRepository.getDetail({
-        notificationId,
+      const detail = await notificationsRepository.getNotificationDetail(notificationId, {
         currentUser,
-        viewerRole,
+        viewerRole: role,
       });
 
-      setSelectedNotification(detail.item || null);
+      let nextItem = detail.item || null;
 
-      if (detail.item && !detail.item.isRead) {
-        await notificationsRepository.markRead({
-          notificationId: detail.item.notificationId,
+      if (nextItem && !nextItem.currentRecipient?.isRead) {
+        await notificationsRepository.markRead(nextItem.notificationId, {
           currentUser,
-          viewerRole,
+          viewerRole: role,
         });
-        setSelectedNotification((previous) => previous ? {
-          ...previous,
-          isRead: true,
-          readAt: previous.readAt || new Date().toISOString(),
-        } : previous);
+        nextItem = buildReadNotification(nextItem);
       }
 
-      await loadInbox();
-      await loadThread(notificationId);
+      setSelectedNotification(nextItem);
+      await Promise.all([loadInbox(), loadFeedbacks(notificationId)]);
     } catch (apiError) {
       setSelectedNotification(null);
-      setThreadItems([]);
-      setError(normalizeApiMessage(apiError, 'Khong the tai chi tiet thong bao.'));
+      setFeedbackItems([]);
+      setError(normalizeApiMessage(apiError, 'Không thể tải chi tiết thông báo.'));
     } finally {
       setDetailLoading(false);
     }
-  }, [currentUser, loadInbox, loadThread, viewerRole]);
+  }, [currentUser, loadFeedbacks, loadInbox, role]);
 
   const closeDetail = useCallback(() => {
     setDetailOpen(false);
     setSelectedNotification(null);
-    setThreadItems([]);
-    setReplyDraft('');
-    setReplyError('');
-    setThreadSource(capabilityState.threadSource);
-    setThreadSourceNote('');
-  }, [capabilityState.threadSource]);
+    setFeedbackItems([]);
+    setFeedbackDraft('');
+    setFeedbackError('');
+    setFeedbackSource(capabilityState.feedbackSource);
+    setFeedbackSourceNote('');
+  }, [capabilityState.feedbackSource]);
 
   const markAllRead = useCallback(async () => {
     try {
-      await notificationsRepository.markAllRead({ currentUser, viewerRole });
-      setFeedback('Da danh dau thong bao la da doc.');
+      await notificationsRepository.markAllRead({ currentUser, viewerRole: role });
+      setFeedback('Đã đánh dấu tất cả thông báo là đã đọc.');
       await loadInbox();
     } catch (apiError) {
-      setError(normalizeApiMessage(apiError, 'Khong the danh dau da doc toan bo.'));
+      setError(normalizeApiMessage(apiError, 'Không thể đánh dấu đã đọc toàn bộ.'));
     }
-  }, [currentUser, loadInbox, viewerRole]);
+  }, [currentUser, loadInbox, role]);
 
   const openComposer = useCallback(() => {
     if (!capabilityState.canCompose) {
@@ -201,11 +267,12 @@ export const useNotificationInbox = ({
     }
 
     setComposerOpen(true);
-    setDraft({ ...INITIAL_DRAFT });
-    setRecipientIdsText('');
+    setDraft(createInitialComposeState(role));
     setDraftErrors({});
     setFeedback('');
-  }, [capabilityState.canCompose]);
+    setPreview({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
+    setPreviewError('');
+  }, [capabilityState.canCompose, capabilityState.lookupSource, role]);
 
   const closeComposer = useCallback(() => {
     setComposerOpen(false);
@@ -213,41 +280,72 @@ export const useNotificationInbox = ({
   }, []);
 
   const updateDraftField = useCallback((field, value) => {
-    setDraft((previous) => ({
-      ...previous,
-      [field]: value,
-    }));
+    setDraft((previous) => {
+      const next = {
+        ...previous,
+        [field]: value,
+      };
 
-    setDraftErrors((previous) => {
-      if (!previous[field] && !previous.target && !previous.general) {
-        return previous;
+      if (field === 'targetMode') {
+        next.classId = '';
+        next.recipientUserIds = [];
       }
 
-      return {
-        ...previous,
-        [field]: undefined,
-        target: undefined,
-        general: undefined,
-      };
-    });
-  }, []);
+      if (field === 'type') {
+        if (!['HEALTH_ALERT', 'HEALTH_SUPPORT'].includes(value)) {
+          next.diseaseId = '';
+        }
 
-  const updateRecipientText = useCallback((value) => {
-    setRecipientIdsText(value);
-    setDraft((previous) => ({
-      ...previous,
-      recipientUserIds: parseRecipientUserIdsText(value),
-    }));
+        if (!['VACCINATION_REMINDER', 'VACCINATION_QUESTION'].includes(value)) {
+          next.vaccinationId = '';
+        }
+      }
+
+      return next;
+    });
 
     setDraftErrors((previous) => ({
       ...previous,
-      target: undefined,
+      [field]: undefined,
+      classId: field === 'targetMode' ? undefined : previous.classId,
+      recipientUserIds: field === 'targetMode' ? undefined : previous.recipientUserIds,
+      targetMode: undefined,
+      general: undefined,
+    }));
+  }, []);
+
+  const toggleRecipient = useCallback((userId) => {
+    const parsedId = Number(userId || 0);
+    if (!parsedId) {
+      return;
+    }
+
+    setDraft((previous) => {
+      const currentIds = Array.isArray(previous.recipientUserIds) ? previous.recipientUserIds : [];
+      const nextIds = currentIds.includes(parsedId)
+        ? currentIds.filter((id) => id !== parsedId)
+        : [...currentIds, parsedId];
+
+      return {
+        ...previous,
+        recipientUserIds: nextIds,
+      };
+    });
+
+    setDraftErrors((previous) => ({
+      ...previous,
+      recipientUserIds: undefined,
       general: undefined,
     }));
   }, []);
 
   const submitDraft = useCallback(async () => {
-    const validation = validateNotificationDraft(draft);
+    const validation = validateNotificationDraft({
+      draft,
+      role,
+      recipientOptions,
+    });
+
     if (!validation.isValid) {
       setDraftErrors(validation.fieldErrors);
       return false;
@@ -256,91 +354,120 @@ export const useNotificationInbox = ({
     setSubmitting(true);
 
     try {
-      const result = await notificationsRepository.create({ draft, currentUser, viewerRole });
-      setSendSource(String(result?.source || capabilityState.composeSource));
+      const result = await notificationsRepository.createNotification(draft, role, {
+        currentUser,
+        viewerRole: role,
+      });
+
+      setSendSource(String(result.source || capabilityState.composeSource));
       setComposerOpen(false);
-      setFeedback(`Gui thong bao thanh cong cho ${result.totalRecipients || 0} nguoi nhan.`);
+      setFeedback(
+        role === 'STUDENT'
+          ? 'Đã gửi yêu cầu mẫu. Chờ backend hỗ trợ lưu dữ liệu thật.'
+          : `Đã gửi thông báo${result.totalRecipients ? ` cho ${result.totalRecipients} người nhận` : ''}.`,
+      );
       await loadInbox();
       return true;
     } catch (apiError) {
       setDraftErrors({
-        general: normalizeApiMessage(apiError, 'Khong the gui thong bao.'),
+        general: normalizeApiMessage(apiError, 'Không thể gửi thông báo.'),
       });
       return false;
     } finally {
       setSubmitting(false);
     }
-  }, [capabilityState.composeSource, currentUser, draft, loadInbox, viewerRole]);
+  }, [capabilityState.composeSource, currentUser, draft, loadInbox, recipientOptions, role]);
 
-  const submitReply = useCallback(async () => {
+  const submitFeedback = useCallback(async () => {
     if (!selectedNotification?.notificationId) {
+      setFeedbackError('Không tìm thấy thông báo để phản hồi.');
       return false;
     }
 
-    const validation = validateReplyDraft(replyDraft);
+    if (!canReplyToNotification({ role, notification: selectedNotification, currentUser })) {
+      setFeedbackError('Bạn không có quyền phản hồi thông báo này.');
+      return false;
+    }
+
+    const validation = validateFeedbackDraft({
+      notificationId: selectedNotification.notificationId,
+      content: feedbackDraft,
+    });
+
     if (!validation.isValid) {
-      setReplyError(validation.error);
+      setFeedbackError(validation.error);
       return false;
     }
 
-    setReplySubmitting(true);
+    setFeedbackSubmitting(true);
 
     try {
-      const result = await notificationsRepository.reply({
-        notificationId: selectedNotification.notificationId,
-        content: replyDraft,
-        currentUser,
-        viewerRole,
-      });
+      const result = await notificationsRepository.createFeedback(
+        selectedNotification.notificationId,
+        validation.payload,
+        { currentUser, viewerRole: role },
+      );
 
-      setThreadSource(String(result.source || capabilityState.threadSource));
-      setThreadSourceNote(String(result.sourceNote || ''));
-      setReplyDraft('');
-      setReplyError(result.source === 'pending' ? 'BE chua ho tro replies. FE da giu san cau truc phan hoi.' : '');
-      await loadThread(selectedNotification.notificationId);
+      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
+      setFeedbackSourceNote(String(result.sourceNote || ''));
+      setFeedbackDraft('');
+      setFeedback('Đã ghi nhận phản hồi mẫu. Chờ backend hỗ trợ lưu dữ liệu thật.');
+      await Promise.all([
+        loadFeedbacks(selectedNotification.notificationId),
+        loadInbox(),
+      ]);
       return true;
     } catch (apiError) {
-      setReplyError(normalizeApiMessage(apiError, 'Khong the gui phan hoi.'));
+      setFeedbackError(normalizeApiMessage(apiError, 'Không thể gửi phản hồi.'));
       return false;
     } finally {
-      setReplySubmitting(false);
+      setFeedbackSubmitting(false);
     }
-  }, [capabilityState.threadSource, currentUser, loadThread, replyDraft, selectedNotification?.notificationId, viewerRole]);
+  }, [capabilityState.feedbackSource, currentUser, feedbackDraft, loadFeedbacks, loadInbox, role, selectedNotification]);
 
   return {
+    role,
+    config,
     items,
     loading,
     error,
     feedback,
+    summary,
     inboxSource,
     inboxSourceNote,
     sendSource,
-    threadSource,
-    threadSourceNote,
+    feedbackSource,
+    feedbackSourceNote,
+    lookupSourceNote,
     capabilityState,
-    activeTab,
+    statusFilter,
     typeFilter,
     keyword,
-    unreadCount,
     availableTypes,
     detailOpen,
     detailLoading,
     selectedNotification,
-    threadItems,
-    threadLoading,
-    replyDraft,
-    replyError,
-    replySubmitting,
+    feedbackItems,
+    feedbackLoading,
+    feedbackDraft,
+    feedbackError,
+    feedbackSubmitting,
     composerOpen,
     draft,
-    recipientIdsText,
     draftErrors,
     submitting,
-    setActiveTab,
+    preview,
+    previewLoading,
+    previewError,
+    recipientOptions,
+    classOptions,
+    diseaseOptions,
+    vaccinationOptions,
+    setStatusFilter,
     setTypeFilter,
     setKeyword,
     setFeedback,
-    setReplyDraft,
+    setFeedbackDraft,
     refreshInbox: loadInbox,
     openDetail,
     closeDetail,
@@ -348,8 +475,8 @@ export const useNotificationInbox = ({
     openComposer,
     closeComposer,
     updateDraftField,
-    updateRecipientText,
+    toggleRecipient,
     submitDraft,
-    submitReply,
+    submitFeedback,
   };
 };

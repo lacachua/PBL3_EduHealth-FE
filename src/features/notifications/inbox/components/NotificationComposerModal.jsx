@@ -1,17 +1,9 @@
 import React from 'react';
-
-const TYPE_OPTIONS = [
-  { value: 'GENERAL', label: 'Thong bao chung' },
-  { value: 'HEALTH_ALERT', label: 'Canh bao suc khoe' },
-  { value: 'VACCINATION_REMINDER', label: 'Nhac tiem chung' },
-  { value: 'MEDICINE_NOTICE', label: 'Thong bao thuoc' },
-];
-
-const SOURCE_BADGE_CLASS_MAP = {
-  live: 'border-success/25 bg-success-soft text-success',
-  mock: 'border-warning/30 bg-warning-soft text-warning',
-  pending: 'border-outline-variant bg-surface-container-low text-on-surface-variant',
-};
+import { getNotificationTypeMeta } from '../constants/notificationTypes';
+import NotificationPreviewRecipients from './NotificationPreviewRecipients';
+import NotificationRelatedFields from './NotificationRelatedFields';
+import NotificationSourceBadge from './NotificationSourceBadge';
+import NotificationTargetSelector from './NotificationTargetSelector';
 
 const ErrorText = ({ text }) => {
   if (!text) {
@@ -23,149 +15,130 @@ const ErrorText = ({ text }) => {
 
 const NotificationComposerModal = ({
   open,
+  role,
+  config,
   onClose,
   draft,
-  recipientIdsText,
-  errors,
+  errors = {},
   submitting,
-  source = 'pending',
-  scopeLabel = '',
+  source = 'MOCK',
   onFieldChange,
-  onRecipientTextChange,
+  onToggleRecipient,
   onSubmit,
+  recipientOptions,
+  classOptions,
+  diseaseOptions,
+  vaccinationOptions,
+  preview,
+  previewLoading,
+  previewError,
 }) => {
   if (!open) {
     return null;
   }
 
-  const sourceBadgeClassName = SOURCE_BADGE_CLASS_MAP[source] || SOURCE_BADGE_CLASS_MAP.pending;
-  const subtitle = source === 'live'
-    ? `Nguon gui hien tai: LIVE. ${scopeLabel}`
-    : source === 'mock'
-      ? `Nguon gui hien tai: MOCK-READY. ${scopeLabel}`
-      : `Nguon gui hien tai: PENDING. ${scopeLabel}`;
-
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-900/45 px-0 py-0 backdrop-blur-[1px] sm:items-center sm:px-4 sm:py-6">
-      <div className="w-full max-w-2xl rounded-t-3xl border border-outline-variant bg-surface shadow-[0_14px_40px_rgba(15,23,42,0.18)] sm:rounded-3xl">
+      <div className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-outline-variant bg-surface shadow-[0_14px_40px_rgba(15,23,42,0.18)] sm:rounded-3xl">
         <header className="border-b border-outline-variant px-4 py-3.5 sm:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="app-overline">Soan thong bao</p>
-              <h2 className="app-section-title mt-0.5">Soan thong bao</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">{subtitle}</p>
+              <p className="app-overline">{role === 'STUDENT' ? 'Yêu cầu hỗ trợ' : 'Soạn thông báo'}</p>
+              <h2 className="app-section-title mt-0.5">{config.modalTitle}</h2>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                Dữ liệu người nhận và thông tin liên quan được chọn từ danh sách, không nhập raw ID.
+              </p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
               className="app-focus-ring app-btn-secondary h-9 w-9 rounded-full p-0"
-              aria-label="Dong modal"
+              aria-label="Đóng modal"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${sourceBadgeClassName}`}>
-              Compose source: {String(source || 'pending').toUpperCase()}
-            </span>
+            <NotificationSourceBadge source={source} label={source === 'LIVE' ? 'Gửi thật' : 'Gửi mẫu'} />
           </div>
         </header>
 
-        <div className="space-y-4 px-4 py-4 sm:px-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
+          <section className="space-y-3 rounded-2xl border border-outline-variant bg-surface-container-low px-3 py-3">
+            <div>
+              <h3 className="text-sm font-semibold text-on-surface">Nội dung</h3>
+              <p className="mt-0.5 text-xs text-on-surface-variant">
+                Chọn đúng loại để hệ thống chỉ hiển thị các trường liên quan.
+              </p>
+            </div>
+
             <label className="space-y-1">
-              <span className="app-overline">Loai thong bao</span>
+              <span className="app-overline">{role === 'STUDENT' ? 'Loại yêu cầu' : 'Loại thông báo'}</span>
               <select
-                className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
+                className="app-focus-ring app-input h-11 w-full rounded-xl px-3"
                 value={draft.type}
                 onChange={(event) => onFieldChange('type', event.target.value)}
               >
-                {TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                {config.allowedTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {getNotificationTypeMeta(type, role).label}
+                  </option>
                 ))}
               </select>
               <ErrorText text={errors.type} />
             </label>
 
             <label className="space-y-1">
-              <span className="app-overline">Gui theo lop</span>
+              <span className="app-overline">Tiêu đề</span>
               <input
-                type="number"
-                min="1"
-                className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
-                value={draft.classId}
-                onChange={(event) => onFieldChange('classId', event.target.value)}
-                placeholder="Nhap ma lop neu gui theo lop"
+                type="text"
+                className="app-focus-ring app-input h-11 w-full rounded-xl px-3"
+                value={draft.title}
+                onChange={(event) => onFieldChange('title', event.target.value)}
+                placeholder={role === 'STUDENT' ? 'Nhập tiêu đề yêu cầu' : 'Nhập tiêu đề thông báo'}
               />
-            </label>
-          </div>
-
-          <label className="space-y-1">
-            <span className="app-overline">Tieu de</span>
-            <input
-              type="text"
-              className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
-              value={draft.title}
-              onChange={(event) => onFieldChange('title', event.target.value)}
-              placeholder="Nhap tieu de thong bao"
-            />
-            <ErrorText text={errors.title} />
-          </label>
-
-          <label className="space-y-1">
-            <span className="app-overline">Noi dung</span>
-            <textarea
-              className="app-focus-ring app-input min-h-[120px] w-full rounded-2xl px-3 py-2.5"
-              value={draft.content}
-              onChange={(event) => onFieldChange('content', event.target.value)}
-              placeholder="Nhap noi dung thong bao"
-            />
-            <ErrorText text={errors.content} />
-          </label>
-
-          <label className="space-y-1">
-            <span className="app-overline">Nguoi nhan cu the</span>
-            <input
-              type="text"
-              className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
-              value={recipientIdsText}
-              onChange={(event) => onRecipientTextChange(event.target.value)}
-              placeholder="Tam thoi nhap userId, cach nhau bang dau phay. Recipient lookup theo ten dang cho backend."
-            />
-            <p className="text-xs text-on-surface-variant">
-              Hien tai FE chua co live recipient lookup theo ten. Ban co the gui theo lop hoac danh sach nguoi nhan cu the tam thoi.
-            </p>
-          </label>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="space-y-1">
-              <span className="app-overline">Benh lien quan</span>
-              <input
-                type="number"
-                min="1"
-                className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
-                value={draft.diseaseId}
-                onChange={(event) => onFieldChange('diseaseId', event.target.value)}
-                placeholder="Nhap ma benh neu co"
-              />
+              <ErrorText text={errors.title} />
             </label>
 
             <label className="space-y-1">
-              <span className="app-overline">Dot tiem lien quan</span>
-              <input
-                type="number"
-                min="1"
-                className="app-focus-ring app-input h-11 w-full rounded-2xl px-3"
-                value={draft.vaccinationId}
-                onChange={(event) => onFieldChange('vaccinationId', event.target.value)}
-                placeholder="Nhap ma dot tiem neu co"
+              <span className="app-overline">Nội dung</span>
+              <textarea
+                className="app-focus-ring app-input min-h-[120px] w-full rounded-xl px-3 py-2.5"
+                value={draft.content}
+                onChange={(event) => onFieldChange('content', event.target.value)}
+                placeholder={config.contentPlaceholder}
               />
+              <ErrorText text={errors.content} />
             </label>
-          </div>
+          </section>
 
-          <ErrorText text={errors.target} />
+          <NotificationTargetSelector
+            config={config}
+            role={role}
+            draft={draft}
+            errors={errors}
+            classOptions={classOptions}
+            recipientOptions={recipientOptions}
+            onFieldChange={onFieldChange}
+            onToggleRecipient={onToggleRecipient}
+          />
+
+          <NotificationRelatedFields
+            role={role}
+            draft={draft}
+            diseaseOptions={diseaseOptions}
+            vaccinationOptions={vaccinationOptions}
+            onFieldChange={onFieldChange}
+          />
+
+          <NotificationPreviewRecipients
+            preview={preview}
+            loading={previewLoading}
+            error={previewError}
+          />
+
           <ErrorText text={errors.general} />
         </div>
 
@@ -176,18 +149,18 @@ const NotificationComposerModal = ({
             className="app-focus-ring app-btn-secondary px-3"
             disabled={submitting}
           >
-            Huy
+            Hủy
           </button>
           <button
             type="button"
             onClick={onSubmit}
             className="app-focus-ring app-btn-primary px-3.5"
-            disabled={submitting || source === 'pending'}
+            disabled={submitting}
           >
             <span className={`material-symbols-outlined text-[18px] ${submitting ? 'animate-spin' : ''}`}>
               {submitting ? 'progress_activity' : 'send'}
             </span>
-            Gui thong bao
+            {config.submitLabel}
           </button>
         </footer>
       </div>

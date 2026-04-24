@@ -1,4 +1,5 @@
 import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
+import { apiGetEnvelope, apiPostEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import {
   getAdminReportsDashboardMockEnvelope,
@@ -7,13 +8,6 @@ import {
 } from '../mocks/adminReportsMock';
 
 const shouldUseMock = () => resolveModuleDataSource(DATA_MODULES.ADMIN_REPORTS) === 'mock';
-
-const createUnsupportedLiveError = () => {
-  const error = new Error('Backend chua ho tro endpoint report admin chinh thuc. Tam thoi dung mock data.');
-  error.name = 'UnsupportedFeatureError';
-  error.code = 'ADMIN_REPORTS_API_UNAVAILABLE';
-  throw error;
-};
 
 const buildMockExportBlob = ({ format, filters = {} }) => {
   const reportType = String(filters.reportType || 'overview');
@@ -51,40 +45,79 @@ const buildMockExportBlob = ({ format, filters = {} }) => {
   };
 };
 
+const extractFilenameFromContentDisposition = (contentDisposition) => {
+  if (!contentDisposition) return null;
+  const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+  if (match && match[1]) {
+    return match[1].replace(/['"]/g, '');
+  }
+  return null;
+};
+
 export const adminReportsRepository = {
   getDashboard: async (filters = {}) => {
-    if (!shouldUseMock()) {
-      createUnsupportedLiveError();
+    if (shouldUseMock()) {
+      await waitForMock('adminDashboard');
+      return getAdminReportsDashboardMockEnvelope(filters);
     }
 
-    await waitForMock('adminDashboard');
-    return getAdminReportsDashboardMockEnvelope(filters);
+    return apiGetEnvelope('/api/v1/reports/admin/dashboard');
   },
 
   getClassDetail: async ({ classId, filters = {} }) => {
-    if (!shouldUseMock()) {
-      createUnsupportedLiveError();
+    if (shouldUseMock()) {
+      await waitForMock('adminDashboard');
+      return getAdminReportsClassDetailMockEnvelope({ classId, filters });
     }
 
-    await waitForMock('adminDashboard');
-    return getAdminReportsClassDetailMockEnvelope({ classId, filters });
+    return apiGetEnvelope(`/api/v1/reports/admin/classes/${classId}`);
   },
 
   export: async ({ filters, format }) => {
-    if (!shouldUseMock()) {
-      createUnsupportedLiveError();
+    if (shouldUseMock()) {
+      await waitForMock('adminDashboard');
+      return buildMockExportBlob({ format, filters });
     }
 
-    await waitForMock('adminDashboard');
-    return buildMockExportBlob({ format, filters });
+    const params = {
+      format,
+      ...(filters.fromDate && { fromDate: filters.fromDate }),
+      ...(filters.toDate && { toDate: filters.toDate }),
+      ...(filters.classId && filters.classId !== 'all' && { classId: parseInt(filters.classId, 10) }),
+    };
+
+    const response = await apiRequestRaw({
+      method: 'get',
+      url: '/api/v1/reports/admin/export',
+      params,
+      responseType: 'blob',
+    });
+
+    const blob = response.data;
+    const contentDisposition = response.headers['content-disposition'];
+    const filename = extractFilenameFromContentDisposition(contentDisposition) || `admin-report.${format}`;
+
+    return {
+      mode: 'blob',
+      blob,
+      filename,
+      mimeType: response.headers['content-type'] || 'application/octet-stream',
+    };
   },
 
   saveDirective: async ({ classId, note }) => {
-    if (!shouldUseMock()) {
-      createUnsupportedLiveError();
+    if (shouldUseMock()) {
+      await waitForMock('adminDashboard');
+      return getSaveDirectiveMockEnvelope({ classId, note });
     }
 
-    await waitForMock('adminDashboard');
-    return getSaveDirectiveMockEnvelope({ classId, note });
+    const payload = {
+      classId: classId && classId !== 'all' ? parseInt(classId, 10) : null,
+      title: 'Chỉ đạo từ báo cáo',
+      content: note,
+      priority: 'NORMAL',
+    };
+
+    return apiPostEnvelope('/api/v1/reports/admin/directives', payload);
   },
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import { ACCOUNT_BASE_CLASS, ACCOUNT_TOAST_CLASS_MAP } from '../constants/accountUiTokens';
@@ -108,11 +108,8 @@ const UserManagementPage = () => {
       />
 
       <AdminManagementListSection
-        sectionClassName={`overflow-hidden rounded-2xl shadow-[0_16px_30px_-22px_rgba(15,23,42,0.5)] ${ACCOUNT_BASE_CLASS.section}`}
-        panelClassName={`border-b px-4 py-3.5 md:px-5 ${ACCOUNT_BASE_CLASS.subtlePanel} ${ACCOUNT_BASE_CLASS.mutedText}`}
-        borderClassName={`border-t px-4 py-2.5 md:px-5 ${ACCOUNT_BASE_CLASS.border}`}
         filters={<UserFilters initialValue={filters} onApply={onFiltersChange} onReset={onResetFilters} />}
-        summary={`Hiển thị ${tableData.rows.length} / ${tableData.totalItems} tài khoản`}
+        summary={tableData.totalItems > 0 ? `Đang hiển thị ${tableData.rows.length} tài khoản trên trang này • Tổng ${tableData.totalItems} tài khoản` : null}
         status={status}
         error={error}
         onRetry={fetchList}

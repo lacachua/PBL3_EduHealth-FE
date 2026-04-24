@@ -1,4 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
+
+import DataTable from '../../../shared/components/core/DataTable';
 
 const roleToneClass = {
   admin: 'border border-info/25 bg-info-soft text-info',
@@ -30,71 +32,94 @@ const formatDateParts = (value) => {
 };
 
 const SystemLogsTable = ({ rows, onSelect }) => {
-  return (
-    <div className="overflow-x-auto bg-surface">
-      <table className="w-full text-left text-sm text-on-surface-variant">
-        <thead className="border-b border-outline-variant bg-surface-container-low text-[11px] font-semibold uppercase tracking-wider text-on-surface-muted">
-          <tr>
-            <th className="px-5 py-3.5 whitespace-nowrap">Thời gian</th>
-            <th className="px-5 py-3.5 whitespace-nowrap">Người dùng</th>
-            <th className="px-5 py-3.5 whitespace-nowrap">Vai trò</th>
-            <th className="px-5 py-3.5 whitespace-nowrap">Hành động</th>
-            <th className="px-5 py-3.5 whitespace-nowrap">Đối tượng</th>
-            <th className="px-5 py-3.5">Chi tiết</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-outline-variant/60">
-          {rows.map((row) => {
-            const { dateLabel, timeLabel } = formatDateParts(row.createdAt);
-            const roleClass = roleToneClass[row.actorRole] || 'border border-outline-variant bg-surface-container-high text-on-surface-variant';
-            const actionClass = actionToneClass[row.action] || 'text-on-surface-variant';
+  const columns = [
+    {
+      key: 'createdAt',
+      header: 'Thời gian',
+      headerClassName: 'w-[15%] min-w-[120px]',
+      cellClassName: 'whitespace-nowrap',
+      render: (row) => {
+        const { dateLabel, timeLabel } = formatDateParts(row.createdAt);
+        return (
+          <>
+            <div className="text-[13px] font-medium text-on-surface">{dateLabel}</div>
+            <div className="text-[11px] text-on-surface-muted">{timeLabel}</div>
+          </>
+        );
+      },
+    },
+    {
+      key: 'user',
+      header: 'Người dùng',
+      headerClassName: 'w-[15%] min-w-[140px]',
+      cellClassName: 'whitespace-nowrap',
+      render: (row) => (
+        <>
+          <div className="text-[13px] font-medium text-on-surface">{row.actorName || '--'}</div>
+          {row.actorUsername && (
+            <div className="text-[11px] text-on-surface-muted">@{row.actorUsername}</div>
+          )}
+        </>
+      ),
+    },
+    {
+      key: 'role',
+      header: 'Vai trò',
+      headerClassName: 'w-[10%] min-w-[100px]',
+      cellClassName: 'whitespace-nowrap',
+      render: (row) => {
+        const roleClass = roleToneClass[row.actorRole] || 'border border-outline-variant bg-surface-container-high text-on-surface-variant';
+        return (
+          <span className={`inline-flex rounded px-2.5 py-0.5 text-[10px] font-semibold ${roleClass}`}>
+            {row.roleLabel || '--'}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'action',
+      header: 'Hành động',
+      headerClassName: 'w-[15%] min-w-[140px]',
+      cellClassName: 'whitespace-nowrap',
+      render: (row) => {
+        const actionClass = actionToneClass[row.action] || 'text-on-surface-variant';
+        return (
+          <>
+            <div className={`font-semibold text-[13px] ${actionClass}`}>{row.actionLabel || '--'}</div>
+            <div className="text-[11px] text-on-surface-muted">{row.moduleLabel || '--'}</div>
+          </>
+        );
+      },
+    },
+    {
+      key: 'target',
+      header: 'Đối tượng',
+      headerClassName: 'w-[15%] min-w-[140px]',
+      cellClassName: 'whitespace-nowrap',
+      render: (row) => (
+        <>
+          <div className="text-[13px] font-medium text-on-surface">{row.targetLabel || row.targetTypeLabel || '--'}</div>
+          <div className="text-[11px] text-on-surface-muted">{row.targetTypeLabel || '--'}</div>
+        </>
+      ),
+    },
+    {
+      key: 'detail',
+      header: 'Chi tiết',
+      headerClassName: 'w-[30%] min-w-[220px]',
+      cellClassName: 'text-[13px] text-on-surface-variant 2xl:max-w-[360px]',
+      render: (row) => <p className="line-clamp-2" title={row.description}>{row.description}</p>,
+    },
+  ];
 
-            return (
-              <tr
-                key={row.id}
-                onClick={() => onSelect?.(row)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    onSelect?.(row);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="cursor-pointer transition-colors hover:bg-surface-container-low focus:bg-surface-container-low focus:outline-none"
-              >
-                <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="text-[13px] font-medium text-on-surface">{dateLabel}</div>
-                  <div className="text-[11px] text-on-surface-muted">{timeLabel}</div>
-                </td>
-                <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="text-[13px] font-medium text-on-surface">{row.actorName || '--'}</div>
-                  {row.actorUsername && (
-                    <div className="text-[11px] text-on-surface-muted">@{row.actorUsername}</div>
-                  )}
-                </td>
-                <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <span className={`inline-flex rounded px-2.5 py-0.5 text-[10px] font-semibold ${roleClass}`}>
-                    {row.roleLabel || '--'}
-                  </span>
-                </td>
-                <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className={`font-semibold text-[13px] ${actionClass}`}>{row.actionLabel || '--'}</div>
-                  <div className="text-[11px] text-on-surface-muted">{row.moduleLabel || '--'}</div>
-                </td>
-                <td className="px-5 py-3.5 align-middle whitespace-nowrap">
-                  <div className="text-[13px] font-medium text-on-surface">{row.targetLabel || row.targetTypeLabel || '--'}</div>
-                  <div className="text-[11px] text-on-surface-muted">{row.targetTypeLabel || '--'}</div>
-                </td>
-                <td className="max-w-[220px] px-5 py-3.5 align-middle text-[13px] text-on-surface-variant 2xl:max-w-[360px]">
-                  <p className="line-clamp-2" title={row.description}>{row.description}</p>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+  return (
+    <DataTable
+      columns={columns}
+      rows={rows}
+      getRowKey={(row) => row.id}
+      onRowClick={onSelect}
+      tableClassName="min-w-[960px] w-full text-left text-sm"
+    />
   );
 };
 

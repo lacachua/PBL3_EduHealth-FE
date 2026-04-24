@@ -16,7 +16,6 @@ const normalizeCampaignDisplayName = (value, fallbackId = '') => {
     return fallbackId ? `Đợt tiêm ${fallbackId}` : '--';
   }
 
-  // Keep UI wording friendly when legacy/migration names leak into payload.
   if (/legacy\s+campaign|^campaign\b/i.test(raw)) {
     return fallbackId ? `Đợt tiêm ${fallbackId}` : 'Đợt tiêm cũ';
   }
