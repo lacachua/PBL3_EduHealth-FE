@@ -1,18 +1,21 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { sidebarWidthClasses } from '../../../layouts/constants/shellLayout';
 import BrandLogo from '../../../shared/components/common/BrandLogo';
 import { nurseSidebarGroups } from '../config/nurseNavigation';
 
 const NurseSidebar = ({ isSidebarOpen, isSidebarCollapsed, onCloseSidebar, onToggleSidebar, onLogout }) => {
-  const sidebarWidthClass = isSidebarCollapsed ? 'md:w-[78px]' : 'md:w-[272px]';
+  const sidebarWidthClass = isSidebarCollapsed ? sidebarWidthClasses.collapsed : sidebarWidthClasses.expanded;
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-[272px] flex-col border-r border-outline-variant bg-surface shadow-sm transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
+      className={`fixed inset-y-0 left-0 z-40 flex ${sidebarWidthClasses.drawer} flex-col overflow-x-hidden border-r border-outline-variant bg-surface shadow-sm transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex items-center gap-2 border-b border-outline-variant px-3.5 py-3.5">
+      <div className={`flex items-center border-b border-outline-variant py-3.5 ${
+        isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'gap-2 px-3.5'
+      }`}>
         {isSidebarCollapsed ? (
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary-soft text-primary">
             <span className="material-symbols-outlined text-xl">health_and_safety</span>
@@ -74,12 +77,6 @@ const NurseSidebar = ({ isSidebarOpen, isSidebarCollapsed, onCloseSidebar, onTog
                     >
                       <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                       {!isSidebarCollapsed ? <span>{item.label}</span> : null}
-
-                      {isSidebarCollapsed ? (
-                        <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface px-2 py-1 text-xs font-semibold text-on-surface-variant opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                          {item.label}
-                        </span>
-                      ) : null}
                     </button>
                   );
                 }
@@ -102,12 +99,6 @@ const NurseSidebar = ({ isSidebarOpen, isSidebarCollapsed, onCloseSidebar, onTog
                         {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-primary" /> : null}
                         <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
                         {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
-
-                        {isSidebarCollapsed ? (
-                          <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface px-2 py-1 text-xs font-semibold text-on-surface-variant opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                            {item.label}
-                          </span>
-                        ) : null}
                       </>
                     )}
                   </NavLink>

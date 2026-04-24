@@ -5,6 +5,7 @@ import NotificationsBellController from '../features/notifications/inbox/compone
 import BrandLogo from '../shared/components/common/BrandLogo';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import { adminSidebarActions, adminSidebarGroups } from './constants/adminShellConfig';
+import { mainOffsetClasses, sidebarWidthClasses } from './constants/shellLayout';
 
 const AdminLayout = () => {
   const { key: locationKey } = useLocation();
@@ -27,8 +28,8 @@ const AdminLayout = () => {
     navigate('/admin/settings');
   };
 
-  const sidebarWidthClass = isSidebarCollapsed ? 'md:w-[76px]' : 'md:w-[264px]';
-  const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[76px]' : 'md:ml-[264px]';
+  const sidebarWidthClass = isSidebarCollapsed ? sidebarWidthClasses.collapsed : sidebarWidthClasses.expanded;
+  const mainOffsetClass = isSidebarCollapsed ? mainOffsetClasses.collapsed : mainOffsetClasses.expanded;
 
   return (
     <div className="admin-shell min-h-screen bg-background text-on-surface">
@@ -41,11 +42,13 @@ const AdminLayout = () => {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-outline-variant bg-surface shadow-[2px_0_10px_rgba(15,23,42,0.04)] transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
+        className={`fixed inset-y-0 left-0 z-40 flex ${sidebarWidthClasses.drawer} flex-col overflow-x-hidden border-r border-outline-variant bg-surface shadow-[2px_0_10px_rgba(15,23,42,0.04)] transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center gap-2 border-b border-outline-variant/80 px-3.5 py-3.5">
+        <div className={`flex items-center border-b border-outline-variant/80 py-3.5 ${
+          isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'gap-2 px-3.5'
+        }`}>
           {isSidebarCollapsed ? (
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary-soft text-primary-hover">
               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -108,12 +111,6 @@ const AdminLayout = () => {
                           {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-primary-hover" /> : null}
                           <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
                           {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
-
-                          {isSidebarCollapsed ? (
-                            <span className="pointer-events-none absolute left-full top-1/2 z-20 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface px-2 py-1 text-xs font-semibold text-on-surface-variant opacity-0 shadow-sm transition group-hover:opacity-100">
-                              {item.label}
-                            </span>
-                          ) : null}
                         </>
                       )}
                     </NavLink>

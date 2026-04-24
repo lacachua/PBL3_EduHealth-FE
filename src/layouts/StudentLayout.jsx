@@ -6,6 +6,7 @@ import StudentSidebar from '../features/student-portal/components/layout/Student
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
 import { studentPortalService } from '../features/student-portal/services/studentPortalService';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
+import { mainOffsetClasses } from './constants/shellLayout';
 import './styles/student-shell.css';
 
 const resolveFallbackIdentity = (user) => {
@@ -81,7 +82,7 @@ const StudentLayout = () => {
     navigate('/student/account');
   };
 
-  const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[78px]' : 'md:ml-[272px]';
+  const mainOffsetClass = isSidebarCollapsed ? mainOffsetClasses.collapsed : mainOffsetClasses.expanded;
 
   return (
     <div className="student-shell app-page-bg min-h-screen text-on-surface">

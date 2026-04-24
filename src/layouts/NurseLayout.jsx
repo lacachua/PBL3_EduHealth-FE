@@ -4,6 +4,7 @@ import { useAuth } from '../app/providers/useAuth';
 import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
+import { mainOffsetClasses } from './constants/shellLayout';
 
 const NurseLayout = () => {
   const { key: locationKey } = useLocation();
@@ -15,7 +16,7 @@ const NurseLayout = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
-  const mainOffsetClass = isSidebarCollapsed ? 'md:ml-[78px]' : 'md:ml-[272px]';
+  const mainOffsetClass = isSidebarCollapsed ? mainOffsetClasses.collapsed : mainOffsetClasses.expanded;
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
