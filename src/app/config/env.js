@@ -15,6 +15,24 @@ const normalizeDataMode = (value) => {
   return 'live';
 };
 
+const normalizeOptionalString = (value, fallback = '') => {
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  const normalized = String(value).trim();
+  return normalized || fallback;
+};
+
+const normalizeApiBaseUrl = (value) => {
+  const normalized = normalizeOptionalString(value, '');
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/\/+$/, '');
+};
+
 const legacyEnableMockAuth = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_AUTH, false);
 const legacyEnableMockAdminDashboard = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_ADMIN_DASHBOARD, false);
 const legacyEnableMockHealthProfiles = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_HEALTH_PROFILES, false);
@@ -22,16 +40,9 @@ const legacyEnableMockMedicines = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_
 const legacyEnableMockExaminations = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_EXAMINATIONS, false);
 
 const ENV_SINGLETON = Object.freeze({
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
-  appName: import.meta.env.VITE_APP_NAME,
+  apiBaseUrl: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
+  appName: normalizeOptionalString(import.meta.env.VITE_APP_NAME, 'EduHealth'),
   dataMode: normalizeDataMode(import.meta.env.VITE_DATA_MODE),
-
-  // Legacy flags kept for backward compatibility.
-  enableMockAuth: legacyEnableMockAuth,
-  enableMockAdminDashboard: legacyEnableMockAdminDashboard,
-  enableMockHealthProfiles: legacyEnableMockHealthProfiles,
-  enableMockMedicines: legacyEnableMockMedicines,
-  enableMockExaminations: legacyEnableMockExaminations,
 
   moduleMockFlags: Object.freeze({
     adminUsers: parseBoolean(import.meta.env.VITE_ENABLE_ADMIN_USERS_MOCK, legacyEnableMockAdminDashboard),
@@ -49,7 +60,8 @@ const ENV_SINGLETON = Object.freeze({
     nurseExaminations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_EXAMINATIONS_MOCK, legacyEnableMockExaminations),
     nurseVaccinations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_VACCINATIONS_MOCK, false),
     nurseNotifications: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_NOTIFICATIONS_MOCK, false),
-    nurseReports: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_REPORTS_MOCK, true),
+    notificationsInbox: parseBoolean(import.meta.env.VITE_ENABLE_NOTIFICATIONS_INBOX_MOCK, false),
+    nurseReports: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_REPORTS_MOCK, false),
     nurseDashboard: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_DASHBOARD_MOCK, legacyEnableMockHealthProfiles),
 
     auth: parseBoolean(import.meta.env.VITE_ENABLE_AUTH_MOCK, legacyEnableMockAuth),

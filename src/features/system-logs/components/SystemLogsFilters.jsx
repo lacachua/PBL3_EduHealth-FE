@@ -1,4 +1,5 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import SearchInput from '../../../shared/components/admin/SearchInput';
 import { SYSTEM_LOGS_DEFAULT_FILTERS } from '../hooks/useSystemLogs';
 
 const inputClass =
@@ -48,12 +49,11 @@ const SystemLogsFilters = ({ initialValue, onApply }) => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:flex-row md:items-end">
         <div className="min-w-[220px] flex-1">
           <label className={labelClass}>Tìm kiếm</label>
-          <input
-            type="text"
-            className={inputClass}
-            placeholder="Nội dung, người thao tác, đối tượng..."
+          <SearchInput
             value={draft.keyword || ''}
-            onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
+            onChange={(keyword) => setDraft((p) => ({ ...p, keyword }))}
+            placeholder="Nội dung, người thao tác, đối tượng..."
+            inputClassName={inputClass}
           />
         </div>
         <div className="w-full md:w-[140px]">
@@ -90,16 +90,16 @@ const SystemLogsFilters = ({ initialValue, onApply }) => {
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-outline-variant bg-surface px-4 text-[13px] font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+            className="inline-flex h-11 min-w-[86px] items-center justify-center whitespace-nowrap rounded-xl border border-outline-variant bg-surface px-4 text-[13px] font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
           >
             Đặt lại
           </button>
-           <button
-             type="submit"
-             className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-[13px] font-semibold text-on-primary transition-colors hover:bg-primary-hover"
-           >
-             Áp dụng
-           </button>
+          <button
+            type="submit"
+            className="inline-flex h-11 min-w-[118px] items-center justify-center whitespace-nowrap rounded-xl bg-primary px-4 text-[13px] font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+          >
+            Áp dụng
+          </button>
         </div>
       </form>
 

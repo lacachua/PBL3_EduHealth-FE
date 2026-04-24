@@ -3,11 +3,25 @@ import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataM
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { buildCatalogDetailQueryParams, buildCatalogListQueryParams } from '../adapters/catalogQueryParams';
 import { getCatalogDetailMockEnvelope, getCatalogListMockEnvelope } from '../mocks/catalogsMock';
-import { CATALOG_ENDPOINTS } from '../schemas/catalogManagementSchema';
+import { CATALOG_ENDPOINTS, CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
 
 const shouldUseMock = () => resolveModuleDataSource(DATA_MODULES.ADMIN_CATALOGS) === 'mock';
 
 export const catalogsRepository = {
+  getGroups: async () => {
+    if (shouldUseMock()) {
+      await waitForMock('adminDashboard');
+      return {
+        success: true,
+        message: 'Mock: tải danh sách nhóm thành công.',
+        data: CATALOG_GROUPS.map((g) => ({ key: g.value, label: g.label })),
+        errors: null,
+        meta: null,
+      };
+    }
+
+    return apiGetEnvelope(CATALOG_ENDPOINTS.groups);
+  },
   getList: async (query = {}) => {
     const params = buildCatalogListQueryParams(query);
 

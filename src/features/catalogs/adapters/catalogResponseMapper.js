@@ -71,3 +71,21 @@ export const mapCatalogDetailResponse = (responseOrPayload, fallbackGroup = 'vac
   const detailSource = envelope.data.item || envelope.data;
   return mapCatalogRecord(detailSource, fallbackGroup);
 };
+
+/**
+ * Map the groups response from BE (CatalogGroupDto[]) to the FE tab format.
+ * BE shape: { key: "vaccines", label: "Vắc xin" }
+ * FE shape: { value: "vaccines", label: "Vắc xin" }
+ */
+export const mapCatalogGroupsResponse = (responseOrPayload) => {
+  const envelope = normalizeApiEnvelope(responseOrPayload);
+  if (!envelope || envelope.success === false || !Array.isArray(envelope.data)) {
+    return null;
+  }
+
+  return envelope.data.map((group) => ({
+    value: group.key || group.value || '',
+    label: group.label || group.name || '',
+  }));
+};
+

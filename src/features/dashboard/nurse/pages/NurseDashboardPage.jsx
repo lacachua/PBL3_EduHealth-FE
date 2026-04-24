@@ -101,24 +101,11 @@ const NurseDashboardPage = () => {
       </section>
 
       <section className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-stretch">
-        <div className="lg:col-span-7 h-full">
+        <div className="lg:col-span-12 h-full">
           <NurseDashboardRecentExaminationsTable
             recentExaminations={dashboardData.recentExaminations}
             loading={loading && !dashboardData.hasLoaded}
             onRetry={fetchDashboard}
-          />
-        </div>
-
-        <div className="lg:col-span-5 h-full">
-          <NurseDashboardSidePanels
-            panels={dashboardData.panels}
-            loading={loading && !dashboardData.hasLoaded}
-            onRetry={fetchDashboard}
-            panelKeys={['pendingVaccinations']}
-            maxItemsByPanel={{
-              pendingVaccinations: 3,
-            }}
-            className="h-full space-y-0"
           />
         </div>
       </section>

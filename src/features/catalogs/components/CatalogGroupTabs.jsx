@@ -1,9 +1,9 @@
 import React from 'react';
 import { CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
 
-const CatalogGroupTabs = ({ activeGroup, onChange }) => (
+const CatalogGroupTabs = ({ groups = CATALOG_GROUPS, activeGroup, onChange }) => (
   <div className="flex flex-wrap items-center gap-2">
-    {CATALOG_GROUPS.map((group) => (
+    {groups.map((group) => (
       <button
         key={group.value}
         type="button"

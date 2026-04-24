@@ -21,7 +21,7 @@ const RoleTopHeader = ({
   onNavigateAccount,
   onLogout,
   showNotifications = false,
-  hasUnreadNotifications = true,
+  hasUnreadNotifications = false,
   onNotificationClick,
   containerClassName = '',
 }) => {

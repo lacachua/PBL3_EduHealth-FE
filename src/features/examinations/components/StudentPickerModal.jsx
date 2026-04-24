@@ -379,11 +379,11 @@ const StudentPickerModal = ({
                       </div>
                       <div>
                         <dt className="text-xs text-[#5F746B]">Mã học sinh</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentId || '--'}</dd>
+                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentCode || '--'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-[#5F746B]">Mã hồ sơ</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentCode || '--'}</dd>
+                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentId || '--'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-[#5F746B]">Lớp</dt>

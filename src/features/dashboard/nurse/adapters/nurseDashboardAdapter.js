@@ -1,23 +1,12 @@
 import { normalizeApiEnvelope } from '../../../../shared/api/normalizeResponse';
 import {
-  VACCINATION_STATUS_META,
-} from '../../../vaccinations/constants/vaccinationConstants';
-import {
   NURSE_DASHBOARD_EXAM_WINDOW_DAYS,
-  NURSE_DASHBOARD_MEDICINE_ALERT_LIMIT,
-  NURSE_DASHBOARD_PENDING_LIMIT,
   NURSE_DASHBOARD_QUICK_ACTIONS,
-  NURSE_DASHBOARD_RECENT_EXAM_LIMIT,
-  NURSE_DASHBOARD_SOURCE_KEYS,
 } from '../constants/nurseDashboardConfig';
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
 
 const WEEKDAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-const MEDICINE_ALERT_LABELS = {
-  LOW_STOCK: 'Dưới ngưỡng',
-  EXPIRING: 'Sắp hết hạn',
-};
 
 const toNumber = (value, fallback = 0) => {
   const parsed = Number(value);
@@ -69,7 +58,7 @@ const formatDateTime = (value) => {
     minute: '2-digit',
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
+    year: '2-digit',
   });
 };
 
@@ -85,40 +74,13 @@ const formatClockTime = (value) => {
   });
 };
 
-const extractRows = (responseOrPayload) => {
-  const envelope = normalizeApiEnvelope(responseOrPayload);
-
-  if (Array.isArray(envelope?.data)) {
-    return {
-      rows: envelope.data,
-      meta: envelope?.meta || null,
-    };
-  }
-
-  if (Array.isArray(envelope?.data?.items)) {
-    return {
-      rows: envelope.data.items,
-      meta: envelope?.meta || envelope?.data?.meta || null,
-    };
-  }
-
-  return {
-    rows: [],
-    meta: envelope?.meta || null,
-  };
-};
-
-const deriveBlockStatus = ({ error, itemCount }) => {
-  if (toText(error)) {
-    return 'error';
-  }
-
+const deriveBlockStatus = ({ itemCount }) => {
   return itemCount > 0 ? 'success' : 'empty';
 };
 
 const mapExaminationRow = (item = {}, index = 0) => {
-  const id = toText(item.id || item.examinationId || item.code, `VIS-${index + 1}`);
-  const visitDateRaw = item.visitDate || item.createdAt || item.date;
+  const id = toText(item.visitId || item.code, `VIS-${index + 1}`);
+  const visitDateRaw = item.visitDate;
   const visitDate = parseDate(visitDateRaw);
 
   return {
@@ -127,48 +89,31 @@ const mapExaminationRow = (item = {}, index = 0) => {
     sortTime: visitDate ? visitDate.getTime() : 0,
     visitDateLabel: formatDateOnly(visitDateRaw),
     visitTimeLabel: formatClockTime(visitDateRaw),
-    studentName: toText(item?.student?.fullName || item.studentName, '--'),
-    studentCode: toText(item?.student?.studentCode || item.studentCode, '--'),
-    className: toText(item?.student?.className || item.className, '--'),
+    studentName: toText(item.studentName, '--'),
+    studentCode: toText(item.code, '--'),
+    className: '--', // BE doesn't provide className in RecentExaminationDto
     diagnosis: toText(item.diagnosis, '--'),
   };
 };
 
-const mapMedicineAlertRow = (item = {}, index = 0) => {
-  const alertType = toText(item.alertType, 'LOW_STOCK').toUpperCase();
+const mapMedicineAlertRow = (item = {}, alertType = 'LOW_STOCK', index = 0) => {
+  const alertTypeLabel = alertType === 'LOW_STOCK' ? 'Dưới ngưỡng' : 'Sắp hết hạn';
 
   return {
     id: `${toText(item.medicineId, 'MED')}-${index}`,
-    medicineName: toText(item.medicineName, '--'),
+    medicineName: toText(item.name, '--'),
     alertType,
-    alertTypeLabel: MEDICINE_ALERT_LABELS[alertType] || alertType,
-    currentStock: Number.isFinite(Number(item.currentStock)) ? Number(item.currentStock) : null,
-    warningThreshold: Number.isFinite(Number(item.warningThreshold)) ? Number(item.warningThreshold) : null,
-    nearestExpiryDateLabel: formatDateOnly(item.nearestExpiryDate),
-  };
-};
-
-const mapPendingVaccinationRow = (item = {}, index = 0) => {
-  const status = toText(item.status, 'UNKNOWN').toUpperCase();
-  const statusMeta = VACCINATION_STATUS_META[status] || VACCINATION_STATUS_META.UNKNOWN;
-
-  return {
-    id: toText(item.studentVaccinationId, `SV-${index + 1}`),
-    campaignName: toText(item.campaignName, '--'),
-    studentName: toText(item?.student?.fullName, '--'),
-    studentCode: toText(item?.student?.studentCode, '--'),
-    className: toText(item?.student?.className, '--'),
-    scheduledDateLabel: formatDateOnly(item.scheduledDate),
-    status,
-    statusLabel: statusMeta.label,
-    statusBadgeClassName: statusMeta.badgeClassName,
+    alertTypeLabel,
+    currentStock: toNumber(item.stockQuantity),
+    warningThreshold: toNumber(item.warningThreshold),
+    nearestExpiryDateLabel: formatDateOnly(item.expiryDate),
   };
 };
 
 const sortByVisitDateDesc = (left, right) => right.sortTime - left.sortTime;
 
-const buildTrendPoints = (examinationRows, generatedAt) => {
-  const referenceDate = parseDate(generatedAt) || new Date();
+const buildTrendPoints = (recentExaminations, totalVisitsToday) => {
+  const referenceDate = new Date();
   referenceDate.setHours(0, 0, 0, 0);
 
   const skeleton = [];
@@ -188,7 +133,8 @@ const buildTrendPoints = (examinationRows, generatedAt) => {
     });
   }
 
-  const countsByDate = examinationRows.reduce((accumulator, item) => {
+  // Count examinations by date from recentExaminations
+  const countsByDate = recentExaminations.reduce((accumulator, item) => {
     const visitDate = parseDate(item.visitDate);
     if (!visitDate) {
       return accumulator;
@@ -198,6 +144,10 @@ const buildTrendPoints = (examinationRows, generatedAt) => {
     accumulator[key] = (accumulator[key] || 0) + 1;
     return accumulator;
   }, {});
+
+  // Set today's value from BE
+  const todayKey = toDateKey(referenceDate);
+  countsByDate[todayKey] = totalVisitsToday;
 
   const maxValue = Math.max(1, ...skeleton.map((point) => countsByDate[point.dateKey] || 0));
 
@@ -258,14 +208,6 @@ const buildEmptyData = () => ({
       tone: 'warning',
       to: '/nurse/vaccinations/pending',
     },
-    {
-      id: 'campaigns-active',
-      label: 'Đợt tiêm hoạt động',
-      value: null,
-      icon: 'campaign',
-      tone: 'success',
-      to: '/nurse/vaccinations',
-    },
   ],
   trend: {
     points: [],
@@ -280,12 +222,6 @@ const buildEmptyData = () => ({
       error: '',
       to: '/nurse/medicines',
     },
-    pendingVaccinations: {
-      items: [],
-      status: 'empty',
-      error: '',
-      to: '/nurse/vaccinations/pending',
-    },
   },
   recentExaminations: {
     items: [],
@@ -294,46 +230,6 @@ const buildEmptyData = () => ({
     to: '/nurse/examinations',
   },
 });
-
-const buildKpis = ({
-  visitsToday,
-  visitsSevenDays,
-  lowStockCount,
-  expiringCount,
-  pendingCount,
-  activeCampaignCount,
-  errors,
-}) => {
-  const kpis = buildEmptyData().kpis;
-
-  return kpis.map((item) => {
-    if (item.id === 'visits-today') {
-      return { ...item, value: errors.examinations ? null : visitsToday };
-    }
-
-    if (item.id === 'visits-seven-days') {
-      return { ...item, value: errors.examinations ? null : visitsSevenDays };
-    }
-
-    if (item.id === 'medicines-low-stock') {
-      return { ...item, value: errors.medicineAlerts ? null : lowStockCount };
-    }
-
-    if (item.id === 'medicines-expiring') {
-      return { ...item, value: errors.medicineAlerts ? null : expiringCount };
-    }
-
-    if (item.id === 'vaccinations-pending') {
-      return { ...item, value: errors.pendingVaccinations ? null : pendingCount };
-    }
-
-    if (item.id === 'campaigns-active') {
-      return { ...item, value: errors.activeCampaigns ? null : activeCampaignCount };
-    }
-
-    return item;
-  });
-};
 
 export const formatDashboardNumber = (value) => {
   const parsed = Number(value);
@@ -344,104 +240,91 @@ export const formatDashboardNumber = (value) => {
   return numberFormatter.format(parsed);
 };
 
-export const adaptNurseDashboardSnapshot = (snapshot) => {
+export const adaptNurseDashboardOverview = (responseOrEnvelope) => {
+  const envelope = normalizeApiEnvelope(responseOrEnvelope);
   const base = buildEmptyData();
-  if (!snapshot || typeof snapshot !== 'object') {
+
+  if (!envelope || envelope.success === false) {
     return base;
   }
 
-  const sourceMap = snapshot?.sources || {};
-  const sourceErrors = snapshot?.errors || {};
+  const data = envelope?.data || {};
 
-  const examinationsWindow = extractRows(sourceMap[NURSE_DASHBOARD_SOURCE_KEYS.examinationsWindow]);
-  const recentExaminations = extractRows(sourceMap[NURSE_DASHBOARD_SOURCE_KEYS.recentExaminations]);
-  const medicineAlerts = extractRows(sourceMap[NURSE_DASHBOARD_SOURCE_KEYS.medicineAlerts]);
-  const pendingVaccinations = extractRows(sourceMap[NURSE_DASHBOARD_SOURCE_KEYS.pendingVaccinations]);
-  const activeCampaigns = extractRows(sourceMap[NURSE_DASHBOARD_SOURCE_KEYS.activeCampaigns]);
+  // Extract data from NurseDashboardOverviewDto
+  const totalVisitsToday = toNumber(data.totalVisitsToday);
+  const recentExaminations = Array.isArray(data.recentExaminations) ? data.recentExaminations : [];
+  const lowStockMedicines = Array.isArray(data.lowStockMedicines) ? data.lowStockMedicines : [];
+  const expiringMedicines = Array.isArray(data.expiringMedicines) ? data.expiringMedicines : [];
+  const pendingVaccinationsCount = toNumber(data.pendingVaccinationsCount);
 
-  const mappedExamWindowRows = examinationsWindow.rows.map(mapExaminationRow).sort(sortByVisitDateDesc);
-  const mappedRecentRows = recentExaminations.rows.map(mapExaminationRow).sort(sortByVisitDateDesc);
+  // Map examinations
+  const mappedRecentRows = recentExaminations.map(mapExaminationRow).sort(sortByVisitDateDesc);
 
-  const effectiveRecentRows = (
-    mappedRecentRows.length
-      ? mappedRecentRows
-      : mappedExamWindowRows.slice(0, NURSE_DASHBOARD_RECENT_EXAM_LIMIT)
-  );
+  // Map medicine alerts - combine low stock and expiring
+  const mappedLowStock = lowStockMedicines.map((item, index) => mapMedicineAlertRow(item, 'LOW_STOCK', index));
+  const mappedExpiring = expiringMedicines.map((item, index) => mapMedicineAlertRow(item, 'EXPIRING', index + lowStockMedicines.length));
+  const allMedicineAlerts = [...mappedLowStock, ...mappedExpiring];
 
-  const mappedMedicineAlerts = medicineAlerts.rows.map(mapMedicineAlertRow).slice(0, NURSE_DASHBOARD_MEDICINE_ALERT_LIMIT);
-  const mappedPendingRows = pendingVaccinations.rows.map(mapPendingVaccinationRow).slice(0, NURSE_DASHBOARD_PENDING_LIMIT);
-
-  const trendPoints = buildTrendPoints(mappedExamWindowRows, snapshot.generatedAt);
-  const visitsToday = trendPoints[trendPoints.length - 1]?.value || 0;
+  // Build trend points
+  const trendPoints = buildTrendPoints(recentExaminations, totalVisitsToday);
   const visitsSevenDays = trendPoints.reduce((sum, point) => sum + point.value, 0);
 
-  const lowStockCount = mappedMedicineAlerts.filter((item) => item.alertType === 'LOW_STOCK').length;
-  const expiringCount = mappedMedicineAlerts.filter((item) => item.alertType === 'EXPIRING').length;
-  const pendingCount = toNumber(pendingVaccinations?.meta?.totalItems, mappedPendingRows.length);
-  const activeCampaignCount = toNumber(activeCampaigns?.meta?.totalItems, activeCampaigns.rows.length);
+  // Build KPIs
+  const kpis = base.kpis.map((item) => {
+    if (item.id === 'visits-today') {
+      return { ...item, value: totalVisitsToday };
+    }
 
-  const hasExamWindowError = toText(sourceErrors[NURSE_DASHBOARD_SOURCE_KEYS.examinationsWindow]);
-  const hasRecentExamsError = toText(sourceErrors[NURSE_DASHBOARD_SOURCE_KEYS.recentExaminations]);
-  const hasMedicineAlertsError = toText(sourceErrors[NURSE_DASHBOARD_SOURCE_KEYS.medicineAlerts]);
-  const hasPendingError = toText(sourceErrors[NURSE_DASHBOARD_SOURCE_KEYS.pendingVaccinations]);
-  const hasCampaignError = toText(sourceErrors[NURSE_DASHBOARD_SOURCE_KEYS.activeCampaigns]);
+    if (item.id === 'visits-seven-days') {
+      return { ...item, value: visitsSevenDays };
+    }
+
+    if (item.id === 'medicines-low-stock') {
+      return { ...item, value: lowStockMedicines.length };
+    }
+
+    if (item.id === 'medicines-expiring') {
+      return { ...item, value: expiringMedicines.length };
+    }
+
+    if (item.id === 'vaccinations-pending') {
+      return { ...item, value: pendingVaccinationsCount };
+    }
+
+    return item;
+  });
 
   return {
     hasLoaded: true,
     title: base.title,
     description: base.description,
-    generatedAtLabel: formatDateTime(snapshot.generatedAt),
+    generatedAtLabel: formatDateTime(new Date().toISOString()),
     quickActions: NURSE_DASHBOARD_QUICK_ACTIONS,
-    kpis: buildKpis({
-      visitsToday,
-      visitsSevenDays,
-      lowStockCount,
-      expiringCount,
-      pendingCount,
-      activeCampaignCount,
-      errors: {
-        examinations: hasExamWindowError,
-        medicineAlerts: hasMedicineAlertsError,
-        pendingVaccinations: hasPendingError,
-        activeCampaigns: hasCampaignError,
-      },
-    }),
+    kpis,
     trend: {
       points: trendPoints,
       totalVisits: visitsSevenDays,
       status: deriveBlockStatus({
-        error: hasExamWindowError,
         itemCount: trendPoints.filter((item) => item.value > 0).length,
       }),
-      error: hasExamWindowError,
+      error: '',
     },
     panels: {
       medicineAlerts: {
-        items: mappedMedicineAlerts,
+        items: allMedicineAlerts,
         status: deriveBlockStatus({
-          error: hasMedicineAlertsError,
-          itemCount: mappedMedicineAlerts.length,
+          itemCount: allMedicineAlerts.length,
         }),
-        error: hasMedicineAlertsError,
+        error: '',
         to: '/nurse/medicines',
-      },
-      pendingVaccinations: {
-        items: mappedPendingRows,
-        status: deriveBlockStatus({
-          error: hasPendingError,
-          itemCount: mappedPendingRows.length,
-        }),
-        error: hasPendingError,
-        to: '/nurse/vaccinations/pending',
       },
     },
     recentExaminations: {
-      items: effectiveRecentRows,
+      items: mappedRecentRows,
       status: deriveBlockStatus({
-        error: effectiveRecentRows.length ? '' : hasRecentExamsError,
-        itemCount: effectiveRecentRows.length,
+        itemCount: mappedRecentRows.length,
       }),
-      error: effectiveRecentRows.length ? '' : hasRecentExamsError,
+      error: '',
       to: '/nurse/examinations',
     },
   };

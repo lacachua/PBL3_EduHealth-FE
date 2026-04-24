@@ -214,6 +214,11 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
     : (profileSource.updatedBy || item.updatedBy || '');
 
   return {
+    studentId: item.studentId || '',
+    studentCode: item.studentCode || '',
+    fullName: item.fullName || '',
+    classId: item.classId || '',
+    className: item.className || '',
     currentHeight: profileSource.heightCm ?? profileSource.currentHeight ?? '',
     currentWeight: profileSource.weightKg ?? profileSource.currentWeight ?? '',
     heightCm: profileSource.heightCm ?? profileSource.currentHeight ?? '',

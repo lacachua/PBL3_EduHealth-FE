@@ -22,7 +22,6 @@ const EMPTY_LIST_META = {
   totalItems: 0,
   totalPages: 0,
 };
-
 export const formatDateOnly = (value) => {
   if (!value) return '--';
 
@@ -76,7 +75,6 @@ export const mapMedicineListEnvelope = (response) => {
     totalPages: Number(meta.totalPages || 0),
   };
 };
-
 export const mapMedicineDetailEnvelope = (response) => {
   const envelope = normalizeMedicineEnvelope(response);
   if (!envelope || envelope.success === false || !envelope.data) {
@@ -137,18 +135,5 @@ export const mapMedicineMovementsEnvelope = (response) => {
     pageSize: Number(meta.pageSize || 5),
     totalItems: Number(meta.totalItems || 0),
     totalPages: Number(meta.totalPages || 0),
-  };
-};
-
-export const buildSummaryStats = ({ rows, totalItems, alerts }) => {
-  const lowStockCount = alerts.filter((item) => item.alertType === 'LOW_STOCK').length;
-  const expiringCount = alerts.filter((item) => item.alertType === 'EXPIRING').length;
-  const inactiveCount = rows.filter((item) => item.status === 'INACTIVE').length;
-
-  return {
-    totalMedicines: totalItems,
-    lowStockCount,
-    expiringCount,
-    inactiveCount,
   };
 };

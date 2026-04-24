@@ -9,13 +9,6 @@ const CARD_META = [
     iconClassName: 'bg-primary-soft text-primary',
   },
   {
-    key: 'activeCampaigns',
-    title: 'Đang hoạt động',
-    valueClassName: 'text-success',
-    icon: 'event_available',
-    iconClassName: 'bg-success-soft text-success',
-  },
-  {
     key: 'pendingStudents',
     title: 'Chờ tiêm',
     valueClassName: 'text-warning',
@@ -34,7 +27,7 @@ const CARD_META = [
 
 const VaccinationSummaryCards = ({ summary, loading }) => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
       {CARD_META.map((card) => (
         <article key={card.key} className="app-kpi-card h-full">
           <div className="mb-3 flex items-center justify-between">

@@ -32,6 +32,7 @@ const groupUi = {
 
 const CatalogLookupPage = () => {
   const {
+    groups,
     group,
     filters,
     tableData,
@@ -79,7 +80,7 @@ const CatalogLookupPage = () => {
       />
 
       <SectionCard title="Nhóm danh mục" subtitle="Chuyển nhanh nhóm dữ liệu để tra cứu danh mục tương ứng.">
-        <CatalogGroupTabs activeGroup={group} onChange={onGroupChange} />
+        <CatalogGroupTabs groups={groups} activeGroup={group} onChange={onGroupChange} />
       </SectionCard>
 
       <SectionCard title={`Danh sách ${activeGroupUi.title}`} subtitle={activeGroupUi.subtitle}>

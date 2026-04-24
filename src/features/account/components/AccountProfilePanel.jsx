@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { useAuth } from '../../../app/providers/useAuth';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 
 const variantClassMap = {
@@ -52,6 +53,7 @@ const AccountProfilePanel = ({
   onProfileSaved,
 }) => {
   const classes = variantClassMap[variant] || variantClassMap.admin;
+  const { updateUser } = useAuth();
   const fileInputRef = useRef(null);
 
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState('');
@@ -174,6 +176,12 @@ const AccountProfilePanel = ({
       }
 
       clearAvatarDraft();
+
+      // Sync the new avatar URL into the global auth context so that
+      // the header avatar (RoleTopHeader) updates immediately.
+      if (savedAvatarUrl && typeof updateUser === 'function') {
+        updateUser({ avatar: savedAvatarUrl, avatarUrl: savedAvatarUrl });
+      }
 
       if (typeof onProfileSaved === 'function') {
         await onProfileSaved();

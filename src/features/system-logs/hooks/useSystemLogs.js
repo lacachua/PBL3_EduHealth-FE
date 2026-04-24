@@ -1,7 +1,7 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import { adaptSystemLogsResponse } from '../adapters/systemLogsAdapter';
-import { getSystemLogsApi } from '../services/systemLogsApi';
+import { adaptSystemLogDetailResponse, adaptSystemLogsResponse } from '../adapters/systemLogsAdapter';
+import { getSystemLogDetailApi, getSystemLogsApi } from '../services/systemLogsApi';
 
 export const SYSTEM_LOGS_DEFAULT_FILTERS = {
   keyword: '',
@@ -71,5 +71,57 @@ export const useSystemLogs = () => {
     onFiltersChange,
     onPageChange,
     fetchList,
+  };
+};
+
+/**
+ * Hook to fetch a single system log detail from the API.
+ * Used when the user clicks on a row in the table.
+ */
+export const useSystemLogDetail = () => {
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
+
+  const openDetail = async (row) => {
+    // Immediately show the drawer with row-level data from the list
+    setSelectedLog(row || null);
+    setDetailOpen(true);
+    setDetailError('');
+
+    if (!row?.id || row.id === '--') {
+      setDetailLoading(false);
+      return;
+    }
+
+    setDetailLoading(true);
+
+    try {
+      const envelope = await getSystemLogDetailApi(row.id);
+      const detail = adaptSystemLogDetailResponse(envelope);
+      if (detail) {
+        setSelectedLog(detail);
+      }
+    } catch (apiError) {
+      setDetailError(normalizeApiMessage(apiError));
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const closeDetail = () => {
+    setDetailOpen(false);
+    setDetailLoading(false);
+    setDetailError('');
+  };
+
+  return {
+    selectedLog,
+    detailOpen,
+    detailLoading,
+    detailError,
+    openDetail,
+    closeDetail,
   };
 };

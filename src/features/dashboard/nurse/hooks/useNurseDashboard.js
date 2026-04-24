@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
-import { adaptNurseDashboardSnapshot } from '../adapters/nurseDashboardAdapter';
+import { adaptNurseDashboardOverview } from '../adapters/nurseDashboardAdapter';
 import { nurseDashboardRepository } from '../repositories/nurseDashboardRepository';
 
 export const useNurseDashboard = () => {
-  const fallbackData = useMemo(() => adaptNurseDashboardSnapshot(null), []);
+  const fallbackData = useMemo(() => adaptNurseDashboardOverview(null), []);
 
   const [dashboardData, setDashboardData] = useState(fallbackData);
   const [loading, setLoading] = useState(false);
@@ -15,8 +15,8 @@ export const useNurseDashboard = () => {
     setError('');
 
     try {
-      const snapshot = await nurseDashboardRepository.fetchSnapshot();
-      const viewModel = adaptNurseDashboardSnapshot(snapshot);
+      const envelope = await nurseDashboardRepository.fetchOverview();
+      const viewModel = adaptNurseDashboardOverview(envelope);
       setDashboardData(viewModel);
       return viewModel;
     } catch (apiError) {

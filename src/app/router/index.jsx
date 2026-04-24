@@ -12,6 +12,7 @@ import StudentLayout from "../../layouts/StudentLayout";
 import RequireAuth from "../guards/RequireAuth";
 import RequireRole from "../guards/RequireRole";
 import {
+  AdminNotificationsInboxPage,
   AdminDashboardPage,
   AdminSettingsPage,
   CatalogManagementPage,
@@ -31,6 +32,7 @@ import {
   NurseDashboardPage,
   NurseHealthProfileDetailPage,
   NurseMedicinesPage,
+  NurseNotificationsInboxPage,
   NursePendingVaccinationsPage,
   NurseProfilePage,
   NurseReportsPage,
@@ -41,6 +43,7 @@ import {
   StudentAccountPage,
   StudentCareHistoryPage,
   StudentManagementPage,
+  StudentNotificationsInboxPage,
   StudentOverviewPage,
   StudentVaccinationsPage,
   SystemLogsPage,
@@ -75,6 +78,7 @@ export const router = createBrowserRouter(
             <Route path="catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
             <Route path="medicines" element={<Lazy><MedicinesPage /></Lazy>} />
             <Route path="reports" element={<Lazy><ReportsPage /></Lazy>} />
+            <Route path="notifications" element={<Lazy><AdminNotificationsInboxPage /></Lazy>} />
             <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
             <Route
               path="settings"
@@ -100,6 +104,7 @@ export const router = createBrowserRouter(
             <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
             <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
             <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
+            <Route path="notifications" element={<Lazy><NurseNotificationsInboxPage /></Lazy>} />
             <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
             <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
           </Route>
@@ -114,6 +119,7 @@ export const router = createBrowserRouter(
             <Route path="overview" element={<Lazy><StudentOverviewPage /></Lazy>} />
             <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
             <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
+            <Route path="notifications" element={<Lazy><StudentNotificationsInboxPage /></Lazy>} />
             <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
 
             {/* Compatibility alias */}
