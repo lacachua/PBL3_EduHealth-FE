@@ -1,276 +1,245 @@
 import { DATA_MODULES, resolveModuleDataSource } from '../../../../app/config/dataMode';
 import {
-  adaptReplyResponse,
+  buildCreateFeedbackPayload,
   buildCreateNotificationPayload,
   buildPreviewRecipientsPayload,
+  normalizeRole,
+  toInteger,
+  toText,
 } from '../adapters/notificationAdapters';
 import {
+  createFeedbackMock,
   createNotificationMock,
+  getClassOptionsMock,
+  getDiseaseOptionsMock,
+  getFeedbacksMock,
   getNotificationDetailMock,
-  getNotificationThreadMock,
-  getNotificationsInboxMock,
+  getNotificationsMock,
   getRecentNotificationsMock,
+  getRecipientOptionsMock,
   getUnreadCountMock,
+  getVaccinationOptionsMock,
   markAllNotificationsReadMock,
   markNotificationReadMock,
   notificationsMockMeta,
-  replyToNotificationMock,
+  previewRecipientsMock,
 } from '../mocks/notificationsMock';
 import { notificationsApi } from '../services/notificationsApi';
 import { emitNotificationsChanged } from '../services/notificationsEvents';
 
-const normalizeRole = (role) => {
-  const normalized = String(role || '').trim().toUpperCase();
+const normalizeViewerRole = (role) => {
+  const normalized = normalizeRole(role, '');
   if (normalized === 'ADMIN' || normalized === 'NURSE' || normalized === 'STUDENT') {
     return normalized;
   }
 
-  return '';
+  return 'STUDENT';
 };
 
-const shouldUseInboxMock = () => resolveModuleDataSource(DATA_MODULES.NOTIFICATIONS_INBOX) === 'mock';
-const shouldUseNurseComposeMock = () => resolveModuleDataSource(DATA_MODULES.NURSE_NOTIFICATIONS) === 'mock';
+const isMockMode = (moduleKey) => resolveModuleDataSource(moduleKey) === 'mock';
 
-const resolveComposeSource = (viewerRole) => {
-  const role = normalizeRole(viewerRole);
-  if (role === 'NURSE') {
-    return shouldUseNurseComposeMock() ? 'mock' : 'live';
+const resolveComposeSource = (role) => {
+  const normalizedRole = normalizeViewerRole(role);
+
+  if (isMockMode(DATA_MODULES.NOTIFICATIONS_INBOX) || isMockMode(DATA_MODULES.NURSE_NOTIFICATIONS)) {
+    return 'MOCK';
   }
 
-  return shouldUseInboxMock() ? 'mock' : 'pending';
+  if (normalizedRole === 'NURSE') {
+    return 'LIVE';
+  }
+
+  return 'MOCK_READY';
 };
 
-const resolveCapabilityState = (viewerRole) => {
-  const role = normalizeRole(viewerRole);
-  const inboxSource = shouldUseInboxMock() ? 'mock' : 'pending';
-  const composeSource = resolveComposeSource(role);
+const resolveCapabilityState = (role) => {
+  const normalizedRole = normalizeViewerRole(role);
+  const composeSource = resolveComposeSource(normalizedRole);
 
   return {
-    inboxSource,
-    recentSource: inboxSource,
-    unreadCountSource: inboxSource,
-    detailSource: inboxSource,
-    threadSource: inboxSource,
-    replySource: inboxSource,
+    inboxSource: 'MOCK',
+    recentSource: 'MOCK',
+    unreadCountSource: 'MOCK',
+    detailSource: 'MOCK',
+    feedbackSource: 'MOCK_READY',
+    replySource: 'MOCK_READY',
     composeSource,
-    markAllReadSupported: inboxSource === 'mock',
-    canCompose: composeSource !== 'pending',
-    canReply: inboxSource === 'mock',
+    lookupSource: 'MOCK',
+    markAllReadSupported: true,
+    canCompose: true,
+    canReply: true,
   };
-};
-
-const buildPendingError = (message) => {
-  const error = new Error(message);
-  error.name = 'NotificationsPendingError';
-  error.status = 501;
-  error.source = 'pending';
-  return error;
 };
 
 const mapPreviewRecipients = (payload = {}) => {
-  const recipients = Array.isArray(payload?.data?.recipients) ? payload.data.recipients : [];
+  const data = payload?.data || payload || {};
+  const recipients = Array.isArray(data.recipients) ? data.recipients : [];
 
   return {
-    totalRecipients: Number(payload?.data?.total || recipients.length || 0),
+    totalRecipients: toInteger(data.totalRecipients ?? data.total ?? recipients.length, recipients.length),
     recipients,
-    source: 'live',
+    source: 'LIVE',
+    sourceNote: '',
   };
 };
+
+const buildPendingResult = (message) => ({
+  source: 'PENDING',
+  sourceNote: message,
+});
 
 export const notificationsRepository = {
   getCapabilityState: ({ viewerRole }) => resolveCapabilityState(viewerRole),
 
+  getNotifications: async (params = {}, role) => {
+    return getNotificationsMock({
+      ...params,
+      viewerRole: role || params.viewerRole,
+    });
+  },
+
+  getNotificationDetail: async (notificationId, params = {}) => {
+    return getNotificationDetailMock({
+      ...params,
+      notificationId,
+    });
+  },
+
   getRecentNotifications: async ({ currentUser, viewerRole, limit = 6 }) => {
-    const state = resolveCapabilityState(viewerRole);
-
-    if (state.recentSource === 'mock') {
-      return getRecentNotificationsMock({ currentUser, viewerRole, limit });
-    }
-
-    return {
-      items: [],
-      unreadCount: 0,
-      source: 'pending',
-      sourceNote: 'BE chua co GET /api/v1/notifications/recent va unread-count.',
-    };
+    return getRecentNotificationsMock({ currentUser, viewerRole, limit });
   },
 
   getUnreadCount: async ({ currentUser, viewerRole }) => {
-    const state = resolveCapabilityState(viewerRole);
-
-    if (state.unreadCountSource === 'mock') {
-      return getUnreadCountMock({ currentUser, viewerRole });
-    }
-
-    return {
-      unreadCount: 0,
-      source: 'pending',
-      sourceNote: 'BE chua co GET /api/v1/notifications/unread-count.',
-    };
+    return getUnreadCountMock({ currentUser, viewerRole });
   },
 
-  getInbox: async ({ page = 1, pageSize = 20, isRead, type = '', keyword = '', currentUser, viewerRole }) => {
-    const state = resolveCapabilityState(viewerRole);
+  createNotification: async (payloadOrDraft, role, context = {}) => {
+    const normalizedRole = normalizeViewerRole(role || context.viewerRole || context.currentUser?.role);
+    const composeSource = resolveComposeSource(normalizedRole);
 
-    if (state.inboxSource === 'mock') {
-      return getNotificationsInboxMock({
-        page,
-        pageSize,
-        isRead,
-        type,
-        keyword,
-        currentUser,
-        viewerRole,
-      });
-    }
-
-    return {
-      items: [],
-      page,
-      pageSize,
-      totalItems: 0,
-      totalPages: 1,
-      unreadCount: 0,
-      source: 'pending',
-      sourceNote: 'BE chua co GET /api/v1/notifications.',
-    };
-  },
-
-  getDetail: async ({ notificationId, currentUser, viewerRole }) => {
-    const state = resolveCapabilityState(viewerRole);
-
-    if (state.detailSource === 'mock') {
-      return getNotificationDetailMock({ notificationId, currentUser, viewerRole });
-    }
-
-    throw buildPendingError('BE chua co GET /api/v1/notifications/{notificationId}.');
-  },
-
-  markRead: async ({ notificationId, currentUser, viewerRole }) => {
-    const role = normalizeRole(viewerRole || currentUser?.role);
-    const state = resolveCapabilityState(role);
-
-    if (state.detailSource === 'mock') {
-      const marked = await markNotificationReadMock({ notificationId, currentUser, viewerRole: role });
-      return {
-        success: marked,
-        source: 'mock',
-      };
-    }
-
-    if (role === 'NURSE') {
-      await notificationsApi.markRead(notificationId);
+    if (composeSource === 'LIVE' && normalizedRole === 'NURSE') {
+      const payload = buildCreateNotificationPayload(payloadOrDraft);
+      const response = await notificationsApi.create(payload);
       emitNotificationsChanged();
+
       return {
-        success: true,
-        source: 'live',
+        notificationId: toInteger(response?.data?.notificationId, 0),
+        totalRecipients: toInteger(response?.data?.totalRecipients, payload.recipientUserIds?.length || 0),
+        source: 'LIVE',
+        sourceNote: '',
       };
     }
 
-    throw buildPendingError('PATCH read hien chi co the live cho luong NURSE khi BE tra id thong bao that.');
-  },
-
-  markAllRead: async ({ currentUser, viewerRole } = {}) => {
-    const state = resolveCapabilityState(viewerRole || currentUser?.role);
-
-    if (state.markAllReadSupported) {
-      await markAllNotificationsReadMock({ currentUser, viewerRole });
-      return {
-        success: true,
-        source: 'mock',
-      };
-    }
-
-    throw buildPendingError('BE chua co PATCH /api/v1/notifications/read-all.');
-  },
-
-  previewRecipients: async ({ draft, currentUser, viewerRole }) => {
-    const role = normalizeRole(viewerRole || currentUser?.role);
-    const composeSource = resolveComposeSource(role);
-
-    if (composeSource === 'pending') {
-      throw buildPendingError('Compose notifications cho role nay chua live va cung chua bat mock-ready.');
-    }
-
-    if (composeSource === 'mock') {
-      const payload = buildCreateNotificationPayload(draft);
-      return {
-        totalRecipients: payload.classId ? 30 : (payload.recipientUserIds?.length || 0),
-        recipients: [],
-        source: 'mock',
-      };
-    }
-
-    return mapPreviewRecipients(
-      await notificationsApi.previewRecipients(buildPreviewRecipientsPayload(draft)),
-    );
-  },
-
-  create: async ({ draft, currentUser, viewerRole }) => {
-    const role = normalizeRole(viewerRole || currentUser?.role);
-    const composeSource = resolveComposeSource(role);
-
-    if (composeSource === 'pending') {
-      throw buildPendingError('Compose notifications cho role nay dang pending backend.');
-    }
-
-    if (composeSource === 'mock') {
-      return createNotificationMock({ draft, currentUser, viewerRole: role });
-    }
-
-    const preview = await notificationsRepository.previewRecipients({ draft, currentUser, viewerRole: role });
-    if (preview.totalRecipients <= 0) {
-      throw new Error('Khong co nguoi nhan hop le de gui thong bao.');
-    }
-
-    const response = await notificationsApi.create(buildCreateNotificationPayload(draft));
-    emitNotificationsChanged();
-
-    return {
-      notificationId: Number(response?.data?.notificationId || 0),
-      totalRecipients: Number(response?.data?.totalRecipients || preview.totalRecipients),
-      source: 'live',
-    };
-  },
-
-  getThread: async ({ notificationId, currentUser, viewerRole }) => {
-    const state = resolveCapabilityState(viewerRole || currentUser?.role);
-
-    if (state.threadSource === 'mock') {
-      return getNotificationThreadMock({ notificationId, currentUser, viewerRole });
-    }
-
-    return {
-      threadId: '',
-      replies: [],
-      source: 'pending',
-      sourceNote: 'BE chua co GET /api/v1/notifications/{notificationId}/thread.',
-    };
-  },
-
-  reply: async ({ notificationId, content, currentUser, viewerRole }) => {
-    const state = resolveCapabilityState(viewerRole || currentUser?.role);
-
-    if (state.replySource === 'mock') {
-      return replyToNotificationMock({ notificationId, content, currentUser, viewerRole });
-    }
-
-    return adaptReplyResponse({
-      data: {
-        replyId: 0,
-        sender: {
-          userId: Number(currentUser?.userId || 0),
-          fullName: String(currentUser?.fullName || currentUser?.name || 'Nguoi dung EduHealth'),
-          role: normalizeRole(currentUser?.role || viewerRole),
-        },
-        content,
-        createdAt: new Date().toISOString(),
-      },
-      meta: {
-        source: 'pending',
-        note: 'BE chua co POST /api/v1/notifications/{notificationId}/replies.',
-      },
+    return createNotificationMock({
+      draft: payloadOrDraft,
+      currentUser: context.currentUser,
+      viewerRole: normalizedRole,
     });
+  },
+
+  previewRecipients: async (payloadOrDraft, role, context = {}) => {
+    const normalizedRole = normalizeViewerRole(role || context.viewerRole || context.currentUser?.role);
+    const composeSource = resolveComposeSource(normalizedRole);
+
+    if (composeSource === 'LIVE' && normalizedRole === 'NURSE') {
+      return mapPreviewRecipients(
+        await notificationsApi.previewRecipients(buildPreviewRecipientsPayload(payloadOrDraft)),
+      );
+    }
+
+    return previewRecipientsMock({
+      draft: payloadOrDraft,
+      currentUser: context.currentUser,
+      viewerRole: normalizedRole,
+    });
+  },
+
+  markRead: async (notificationId, context = {}) => {
+    const marked = await markNotificationReadMock({
+      notificationId,
+      currentUser: context.currentUser,
+      viewerRole: context.viewerRole,
+    });
+
+    return {
+      success: marked,
+      source: 'MOCK',
+      sourceNote: notificationsMockMeta.inboxNote,
+    };
+  },
+
+  markAllRead: async (context = {}) => {
+    await markAllNotificationsReadMock(context);
+
+    return {
+      success: true,
+      source: 'MOCK',
+      sourceNote: notificationsMockMeta.inboxNote,
+    };
+  },
+
+  getRecipientOptions: async (params = {}, role) => {
+    return getRecipientOptionsMock({
+      ...params,
+      role: role || params.role || params.viewerRole,
+    });
+  },
+
+  getClassOptions: async () => getClassOptionsMock(),
+
+  getDiseaseOptions: async () => getDiseaseOptionsMock(),
+
+  getVaccinationOptions: async () => getVaccinationOptionsMock(),
+
+  getFeedbacks: async (notificationId, context = {}) => {
+    if (!notificationId) {
+      return {
+        feedbacks: [],
+        ...buildPendingResult('Không tìm thấy thông báo để tải phản hồi.'),
+      };
+    }
+
+    return getFeedbacksMock({
+      notificationId,
+      currentUser: context.currentUser,
+      viewerRole: context.viewerRole,
+    });
+  },
+
+  createFeedback: async (notificationId, payload, context = {}) => {
+    const createPayload = buildCreateFeedbackPayload({
+      notificationId,
+      content: payload?.content,
+    });
+
+    return createFeedbackMock({
+      notificationId,
+      payload: createPayload,
+      currentUser: context.currentUser,
+      viewerRole: context.viewerRole,
+    });
+  },
+
+  // Compatibility aliases for existing bell/inbox code paths while the module is being migrated.
+  getInbox: async (params = {}) => notificationsRepository.getNotifications(params, params.viewerRole),
+  getDetail: async ({ notificationId, ...params }) => notificationsRepository.getNotificationDetail(notificationId, params),
+  create: async ({ draft, currentUser, viewerRole }) => notificationsRepository.createNotification(draft, viewerRole, { currentUser, viewerRole }),
+  getThread: async ({ notificationId, ...params }) => {
+    const result = await notificationsRepository.getFeedbacks(notificationId, params);
+    return {
+      threadId: notificationId ? `notification-${notificationId}` : '',
+      replies: result.feedbacks,
+      source: result.source,
+      sourceNote: result.sourceNote,
+    };
+  },
+  reply: async ({ notificationId, content, ...params }) => {
+    const result = await notificationsRepository.createFeedback(notificationId, { content: toText(content) }, params);
+    return {
+      reply: result.feedback,
+      source: result.source,
+      sourceNote: result.sourceNote,
+    };
   },
 
   mockMeta: notificationsMockMeta,

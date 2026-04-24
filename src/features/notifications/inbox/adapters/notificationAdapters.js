@@ -1,26 +1,31 @@
+import { getNotificationComposeConfig } from '../constants/notificationComposeConfig';
+import { getNotificationTypeMeta, normalizeSource, TARGET_MODES } from '../constants/notificationTypes';
+
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
+const MAX_FEEDBACK_LENGTH = 1000;
 
-const toInteger = (value, fallback = null) => {
+export const normalizeRole = (role, fallback = '') => {
+  const normalized = String(role || fallback || '').trim().toUpperCase();
+  if (normalized === 'ADMIN' || normalized === 'NURSE' || normalized === 'STUDENT' || normalized === 'SYSTEM') {
+    return normalized;
+  }
+
+  return fallback;
+};
+
+export const toInteger = (value, fallback = null) => {
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-
-  return parsed;
+  return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const toNullableInteger = (value) => {
+export const toNullableInteger = (value) => {
   const parsed = toInteger(value, null);
-  if (parsed === null || parsed <= 0) {
-    return null;
-  }
-
-  return parsed;
+  return parsed && parsed > 0 ? parsed : null;
 };
 
-const toText = (value, fallback = '') => {
-  const normalized = String(value || '').trim();
+export const toText = (value, fallback = '') => {
+  const normalized = String(value ?? '').trim();
   return normalized || fallback;
 };
 
@@ -28,8 +33,8 @@ const uniquePositiveIds = (values = []) => {
   const seen = new Set();
 
   values.forEach((value) => {
-    const parsed = toInteger(value, null);
-    if (parsed !== null && parsed > 0) {
+    const parsed = toNullableInteger(value);
+    if (parsed) {
       seen.add(parsed);
     }
   });
@@ -37,63 +42,13 @@ const uniquePositiveIds = (values = []) => {
   return Array.from(seen.values());
 };
 
-export const normalizeNotificationSender = (item = {}) => ({
-  userId: toInteger(
-    item?.sender?.userId
-    ?? item?.createdByUser?.userId
-    ?? item?.senderUserId
-    ?? item?.createdByUserId,
-    0,
-  ),
-  fullName: toText(
-    item?.sender?.fullName
-    ?? item?.createdByUser?.fullName,
-    'He thong EduHealth',
-  ),
-  role: toText(
-    item?.sender?.role
-    ?? item?.createdByUser?.role,
-    '',
-  ).toUpperCase(),
-});
+export const getCurrentUserId = (currentUser) => toNullableInteger(
+  currentUser?.userId
+  ?? currentUser?.id
+  ?? currentUser?.sub,
+) || 0;
 
-export const normalizeNotificationContext = (item = {}) => ({
-  classId: toNullableInteger(item?.context?.classId ?? item.classId),
-  className: toText(item?.context?.className ?? item.className),
-  diseaseId: toNullableInteger(item?.context?.diseaseId ?? item.diseaseId),
-  diseaseName: toText(item?.context?.diseaseName ?? item.diseaseName),
-  vaccinationId: toNullableInteger(item?.context?.vaccinationId ?? item.vaccinationId),
-  vaccinationName: toText(item?.context?.vaccinationName ?? item.vaccinationName),
-});
-
-export const toNotificationViewModel = (item = {}) => {
-  const nestedRecipient = item?.recipient || {};
-  const isRead = Boolean(item?.isRead ?? nestedRecipient?.isRead);
-
-  return {
-    notificationId: toInteger(item?.notificationId ?? item?.id, 0),
-    title: toText(item?.title, 'Thong bao'),
-    content: toText(item?.content),
-    type: toText(item?.type, 'GENERAL'),
-    createdAt: item?.createdAt || item?.sentAt || new Date().toISOString(),
-    sender: normalizeNotificationSender(item),
-    context: normalizeNotificationContext(item),
-    isRead,
-    readAt: item?.readAt || nestedRecipient?.readAt || null,
-    canReply: Boolean(item?.canReply ?? false),
-    replyCount: toInteger(item?.replyCount, 0),
-    threadId: toText(item?.threadId || (item?.notificationId ? `thread-${item.notificationId}` : ''), ''),
-  };
-};
-
-export const toReplyViewModel = (item = {}) => ({
-  replyId: toInteger(item?.replyId ?? item?.id, 0),
-  sender: normalizeNotificationSender(item),
-  content: toText(item?.content),
-  createdAt: item?.createdAt || new Date().toISOString(),
-});
-
-const resolveRows = (payload) => {
+export const resolveRows = (payload) => {
   if (Array.isArray(payload?.data)) {
     return payload.data;
   }
@@ -102,43 +57,149 @@ const resolveRows = (payload) => {
     return payload.data.items;
   }
 
+  if (Array.isArray(payload?.items)) {
+    return payload.items;
+  }
+
   return [];
 };
 
-const resolveMeta = (payload) => payload?.meta || payload?.data?.meta || {};
+export const resolveMeta = (payload) => payload?.meta || payload?.data?.meta || {};
 
-export const adaptInboxResponse = (payload = {}, fallbackParams = {}) => {
-  const rows = resolveRows(payload).map(toNotificationViewModel);
+const normalizeRecipient = (item = {}, fallback = {}) => {
+  const user = item.user || item;
+  const userId = toInteger(item.userId ?? user.userId ?? user.id, toInteger(fallback.userId, 0));
+
+  return {
+    id: toInteger(item.id, toInteger(fallback.id, 0)),
+    userId,
+    fullName: toText(item.fullName ?? user.fullName ?? user.name, fallback.fullName || 'Người nhận'),
+    role: normalizeRole(item.role ?? user.role, fallback.role || ''),
+    className: toText(item.className ?? user.className, fallback.className || ''),
+    isRead: Boolean(item.isRead ?? fallback.isRead ?? false),
+    readAt: item.readAt ?? fallback.readAt ?? null,
+    sentAt: item.sentAt ?? fallback.sentAt ?? null,
+    status: toText(item.status, fallback.status || 'SENT'),
+  };
+};
+
+const normalizeCurrentRecipient = ({ item, recipients, currentUser }) => {
+  const explicit = item.currentRecipient || item.recipient;
+  if (explicit) {
+    return normalizeRecipient(explicit);
+  }
+
+  const currentUserId = getCurrentUserId(currentUser);
+  const matched = currentUserId
+    ? recipients.find((recipient) => Number(recipient.userId) === currentUserId)
+    : null;
+
+  if (matched) {
+    return {
+      id: matched.id,
+      userId: matched.userId,
+      isRead: matched.isRead,
+      readAt: matched.readAt,
+      sentAt: matched.sentAt,
+      status: matched.status,
+    };
+  }
+
+  return {
+    id: 0,
+    userId: currentUserId,
+    isRead: Boolean(item.isRead ?? false),
+    readAt: item.readAt ?? null,
+    sentAt: item.sentAt ?? item.createdAt ?? null,
+    status: toText(item.status, 'SENT'),
+  };
+};
+
+export const normalizeFeedback = (item = {}, fallback = {}) => {
+  const sender = item.sender || item.senderUser || {};
+
+  return {
+    feedbackId: toInteger(item.feedbackId ?? item.replyId ?? item.id, toInteger(fallback.feedbackId, 0)),
+    notificationId: toInteger(item.notificationId, toInteger(fallback.notificationId, 0)),
+    senderUserId: toInteger(item.senderUserId ?? sender.userId ?? sender.id, toInteger(fallback.senderUserId, 0)),
+    senderName: toText(item.senderName ?? sender.fullName ?? sender.name, fallback.senderName || 'Người dùng EduHealth'),
+    senderRole: normalizeRole(item.senderRole ?? sender.role, fallback.senderRole || ''),
+    content: toText(item.content),
+    createdAt: item.createdAt || fallback.createdAt || new Date().toISOString(),
+    status: toText(item.status, fallback.status || 'SENT'),
+    source: normalizeSource(item.source || fallback.source || 'MOCK'),
+  };
+};
+
+export const toNotificationViewModel = (item = {}, { currentUser, viewerRole, source = 'MOCK' } = {}) => {
+  const recipients = Array.isArray(item.recipients)
+    ? item.recipients.map((recipient) => normalizeRecipient(recipient))
+    : [];
+  const currentRecipient = normalizeCurrentRecipient({ item, recipients, currentUser });
+  const createdByUser = item.createdByUser || item.sender || {};
+  const type = toText(item.type, 'GENERAL').toUpperCase();
+  const role = normalizeRole(viewerRole || currentUser?.role, '');
+  const typeMeta = getNotificationTypeMeta(type, role);
+  const feedbacks = Array.isArray(item.feedbacks)
+    ? item.feedbacks.map((feedback) => normalizeFeedback(feedback, { notificationId: item.notificationId, source }))
+    : [];
+
+  return {
+    notificationId: toInteger(item.notificationId ?? item.id, 0),
+    title: toText(item.title, 'Thông báo'),
+    content: toText(item.content),
+    type,
+    typeLabel: typeMeta.label,
+    createdByUserId: toInteger(item.createdByUserId ?? createdByUser.userId ?? createdByUser.id, 0),
+    createdByName: toText(item.createdByName ?? createdByUser.fullName ?? createdByUser.name, 'Hệ thống EduHealth'),
+    createdByRole: normalizeRole(item.createdByRole ?? createdByUser.role, 'SYSTEM'),
+    createdAt: item.createdAt || item.sentAt || new Date().toISOString(),
+    classId: toNullableInteger(item.classId ?? item.context?.classId),
+    className: toText(item.className ?? item.context?.className),
+    diseaseId: toNullableInteger(item.diseaseId ?? item.context?.diseaseId),
+    diseaseName: toText(item.diseaseName ?? item.context?.diseaseName),
+    vaccinationId: toNullableInteger(item.vaccinationId ?? item.context?.vaccinationId),
+    vaccinationName: toText(item.vaccinationName ?? item.context?.vaccinationName),
+    currentRecipient,
+    recipients,
+    feedbacks,
+    feedbackCount: toInteger(item.feedbackCount ?? item.replyCount ?? feedbacks.length, feedbacks.length),
+    source: normalizeSource(item.source || source),
+  };
+};
+
+export const adaptNotificationsResponse = (payload = {}, fallbackParams = {}) => {
   const meta = resolveMeta(payload);
+  const source = normalizeSource(meta.source || fallbackParams.source || 'MOCK');
+  const rows = resolveRows(payload).map((item) => toNotificationViewModel(item, {
+    currentUser: fallbackParams.currentUser,
+    viewerRole: fallbackParams.viewerRole,
+    source,
+  }));
   const unreadCount = toInteger(
-    meta?.unreadCount,
-    rows.reduce((sum, item) => sum + (item.isRead ? 0 : 1), 0),
+    meta.unreadCount,
+    rows.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0),
   );
 
   return {
     items: rows,
-    page: toInteger(meta?.page, toInteger(fallbackParams?.page, DEFAULT_PAGE)),
-    pageSize: toInteger(meta?.pageSize, toInteger(fallbackParams?.pageSize, DEFAULT_PAGE_SIZE)),
-    totalItems: toInteger(meta?.totalItems ?? meta?.total, rows.length),
-    totalPages: toInteger(meta?.totalPages, 1),
+    page: toInteger(meta.page, toInteger(fallbackParams.page, DEFAULT_PAGE)),
+    pageSize: toInteger(meta.pageSize, toInteger(fallbackParams.pageSize, DEFAULT_PAGE_SIZE)),
+    totalItems: toInteger(meta.totalItems ?? meta.total, rows.length),
+    totalPages: toInteger(meta.totalPages, 1),
     unreadCount,
-    source: toText(meta?.source, 'mock'),
-    sourceNote: toText(meta?.note),
+    source,
+    sourceNote: toText(meta.note ?? meta.sourceNote),
   };
 };
 
-export const adaptRecentNotificationsResponse = (payload = {}) => {
-  const meta = resolveMeta(payload);
-  const items = resolveRows(payload).map(toNotificationViewModel);
-
+export const adaptRecentNotificationsResponse = (payload = {}, fallbackParams = {}) => {
+  const data = adaptNotificationsResponse(payload, fallbackParams);
   return {
-    items,
-    unreadCount: toInteger(
-      meta?.unreadCount,
-      items.reduce((sum, item) => sum + (item.isRead ? 0 : 1), 0),
-    ),
-    source: toText(meta?.source, 'mock'),
-    sourceNote: toText(meta?.note),
+    items: data.items,
+    unreadCount: data.unreadCount,
+    source: data.source,
+    sourceNote: data.sourceNote,
   };
 };
 
@@ -147,94 +208,159 @@ export const adaptUnreadCountResponse = (payload = {}, fallback = {}) => {
   const meta = resolveMeta(payload);
 
   return {
-    unreadCount: toInteger(data?.unreadCount ?? fallback?.unreadCount, 0),
-    source: toText(meta?.source ?? fallback?.source, 'mock'),
-    sourceNote: toText(meta?.note ?? fallback?.sourceNote),
+    unreadCount: toInteger(data.unreadCount ?? fallback.unreadCount, 0),
+    source: normalizeSource(meta.source ?? fallback.source ?? 'MOCK'),
+    sourceNote: toText(meta.note ?? fallback.sourceNote),
   };
 };
 
-export const adaptDetailResponse = (payload = {}) => {
-  const data = payload?.data || payload;
-  const meta = resolveMeta(payload);
-
-  return {
-    item: toNotificationViewModel(data),
-    source: toText(meta?.source, 'mock'),
-    sourceNote: toText(meta?.note),
-  };
-};
-
-export const adaptThreadResponse = (payload = {}) => {
+export const adaptNotificationDetailResponse = (payload = {}, fallbackParams = {}) => {
   const data = payload?.data || payload || {};
   const meta = resolveMeta(payload);
-  const replies = Array.isArray(data?.replies)
-    ? data.replies.map(toReplyViewModel)
-    : (Array.isArray(data) ? data.map(toReplyViewModel) : []);
+  const source = normalizeSource(meta.source || fallbackParams.source || 'MOCK');
 
   return {
-    threadId: toText(data?.threadId, ''),
-    replies,
-    source: toText(meta?.source, 'mock'),
-    sourceNote: toText(meta?.note),
+    item: toNotificationViewModel(data, {
+      currentUser: fallbackParams.currentUser,
+      viewerRole: fallbackParams.viewerRole,
+      source,
+    }),
+    source,
+    sourceNote: toText(meta.note ?? meta.sourceNote),
   };
 };
 
-export const adaptReplyResponse = (payload = {}) => {
-  const data = payload?.data || payload || {};
+export const adaptFeedbacksResponse = (payload = {}, fallbackParams = {}) => {
   const meta = resolveMeta(payload);
+  const source = normalizeSource(meta.source || fallbackParams.source || 'MOCK');
+  const rows = resolveRows(payload).map((item) => normalizeFeedback(item, {
+    notificationId: fallbackParams.notificationId,
+    source,
+  }));
 
   return {
-    reply: toReplyViewModel(data),
-    source: toText(meta?.source, 'mock'),
-    sourceNote: toText(meta?.note),
+    feedbacks: rows,
+    source,
+    sourceNote: toText(meta.note ?? meta.sourceNote),
+  };
+};
+
+export const adaptCreateFeedbackResponse = (payload = {}, fallbackParams = {}) => {
+  const data = payload?.data || payload || {};
+  const meta = resolveMeta(payload);
+  const source = normalizeSource(meta.source || fallbackParams.source || 'MOCK_READY');
+
+  return {
+    feedback: normalizeFeedback(data, {
+      notificationId: fallbackParams.notificationId,
+      senderUserId: fallbackParams.senderUserId,
+      senderName: fallbackParams.senderName,
+      senderRole: fallbackParams.senderRole,
+      source,
+    }),
+    source,
+    sourceNote: toText(meta.note ?? meta.sourceNote),
   };
 };
 
 export const buildCreateNotificationPayload = (draft = {}) => {
-  const recipientUserIds = uniquePositiveIds(draft?.recipientUserIds || []);
+  const recipientUserIds = uniquePositiveIds(draft.recipientUserIds || []);
 
   return {
-    title: toText(draft?.title),
-    content: toText(draft?.content),
-    type: toText(draft?.type),
-    ...(toNullableInteger(draft?.classId) ? { classId: toNullableInteger(draft?.classId) } : {}),
-    ...(toNullableInteger(draft?.diseaseId) ? { diseaseId: toNullableInteger(draft?.diseaseId) } : {}),
-    ...(toNullableInteger(draft?.vaccinationId) ? { vaccinationId: toNullableInteger(draft?.vaccinationId) } : {}),
+    title: toText(draft.title),
+    content: toText(draft.content),
+    type: toText(draft.type),
+    ...(toNullableInteger(draft.classId) ? { classId: toNullableInteger(draft.classId) } : {}),
     ...(recipientUserIds.length ? { recipientUserIds } : {}),
+    ...(toNullableInteger(draft.diseaseId) ? { diseaseId: toNullableInteger(draft.diseaseId) } : {}),
+    ...(toNullableInteger(draft.vaccinationId) ? { vaccinationId: toNullableInteger(draft.vaccinationId) } : {}),
   };
 };
 
 export const buildPreviewRecipientsPayload = (draft = {}) => {
-  const recipientUserIds = uniquePositiveIds(draft?.recipientUserIds || []);
+  const recipientUserIds = uniquePositiveIds(draft.recipientUserIds || []);
 
   return {
-    ...(toNullableInteger(draft?.classId) ? { classId: toNullableInteger(draft?.classId) } : {}),
+    ...(toNullableInteger(draft.classId) ? { classId: toNullableInteger(draft.classId) } : {}),
     ...(recipientUserIds.length ? { userIds: recipientUserIds } : {}),
   };
 };
 
-export const buildReplyPayload = (content) => ({
-  content: toText(content),
+export const buildCreateFeedbackPayload = (formState = {}) => ({
+  notificationId: toNullableInteger(formState.notificationId),
+  content: toText(formState.content),
 });
 
-export const validateNotificationDraft = (draft = {}) => {
+export const createInitialComposeState = (role) => {
+  const config = getNotificationComposeConfig(role);
+
+  return {
+    type: config.allowedTypes[0] || 'GENERAL',
+    targetMode: config.defaultTargetMode,
+    title: '',
+    content: '',
+    classId: '',
+    recipientUserIds: [],
+    diseaseId: '',
+    vaccinationId: '',
+  };
+};
+
+export const validateNotificationDraft = ({
+  draft = {},
+  role,
+  recipientOptions = [],
+}) => {
+  const config = getNotificationComposeConfig(role);
   const payload = buildCreateNotificationPayload(draft);
   const fieldErrors = {};
+  const targetMode = draft.targetMode || config.defaultTargetMode;
+  const normalizedRole = normalizeRole(role, 'STUDENT');
+
+  if (!payload.type) {
+    fieldErrors.type = 'Vui lòng chọn loại thông báo.';
+  } else if (!config.allowedTypes.includes(payload.type)) {
+    fieldErrors.type = 'Loại thông báo không phù hợp với vai trò hiện tại.';
+  }
 
   if (!payload.title) {
-    fieldErrors.title = 'Tieu de la bat buoc.';
+    fieldErrors.title = 'Tiêu đề là bắt buộc.';
   }
 
   if (!payload.content) {
-    fieldErrors.content = 'Noi dung la bat buoc.';
+    fieldErrors.content = 'Nội dung là bắt buộc.';
   }
 
-  if (!payload.type) {
-    fieldErrors.type = 'Loai thong bao la bat buoc.';
-  }
+  if (normalizedRole === 'STUDENT') {
+    if (targetMode !== TARGET_MODES.RECIPIENTS) {
+      fieldErrors.targetMode = 'Học sinh chỉ được gửi yêu cầu tới quản trị hoặc điều dưỡng.';
+    }
 
-  if (!payload.classId && !(payload.recipientUserIds && payload.recipientUserIds.length)) {
-    fieldErrors.target = 'Can chon it nhat mot doi tuong nhan theo lop hoac nguoi nhan cu the.';
+    if (payload.classId) {
+      fieldErrors.classId = 'Học sinh không được gửi yêu cầu theo lớp.';
+    }
+
+    if (!payload.recipientUserIds?.length) {
+      fieldErrors.recipientUserIds = 'Vui lòng chọn quản trị hoặc điều dưỡng nhận yêu cầu.';
+    }
+
+    const recipientRoleMap = new Map(
+      recipientOptions.map((recipient) => [Number(recipient.userId), normalizeRole(recipient.role, '')]),
+    );
+    const invalidRecipient = (payload.recipientUserIds || []).some((userId) => {
+      const recipientRole = recipientRoleMap.get(Number(userId));
+      return recipientRole && recipientRole !== 'ADMIN' && recipientRole !== 'NURSE';
+    });
+
+    if (invalidRecipient) {
+      fieldErrors.recipientUserIds = 'Học sinh chỉ được gửi yêu cầu tới quản trị hoặc điều dưỡng.';
+    }
+  } else if (targetMode === TARGET_MODES.CLASS) {
+    if (!payload.classId) {
+      fieldErrors.classId = 'Vui lòng chọn lớp nhận thông báo.';
+    }
+  } else if (!payload.recipientUserIds?.length) {
+    fieldErrors.recipientUserIds = 'Vui lòng chọn ít nhất một người nhận.';
   }
 
   return {
@@ -244,26 +370,52 @@ export const validateNotificationDraft = (draft = {}) => {
   };
 };
 
-export const validateReplyDraft = (value) => {
-  const message = toText(value);
-  if (!message) {
+export const validateFeedbackDraft = ({ notificationId, content }) => {
+  const payload = buildCreateFeedbackPayload({ notificationId, content });
+
+  if (!payload.notificationId) {
     return {
       isValid: false,
-      error: 'Noi dung phan hoi la bat buoc.',
-      payload: buildReplyPayload(value),
+      error: 'Không tìm thấy thông báo để phản hồi.',
+      payload,
+    };
+  }
+
+  if (!payload.content) {
+    return {
+      isValid: false,
+      error: 'Nội dung phản hồi là bắt buộc.',
+      payload,
+    };
+  }
+
+  if (payload.content.length > MAX_FEEDBACK_LENGTH) {
+    return {
+      isValid: false,
+      error: `Nội dung phản hồi tối đa ${MAX_FEEDBACK_LENGTH} ký tự.`,
+      payload,
     };
   }
 
   return {
     isValid: true,
     error: '',
-    payload: buildReplyPayload(value),
+    payload,
   };
 };
 
-export const parseRecipientUserIdsText = (value) => {
-  return String(value || '')
-    .split(/[\s,;]+/)
-    .map((token) => toInteger(token, null))
-    .filter((token) => token !== null && token > 0);
+export const filterOptions = (options = [], keyword = '') => {
+  const normalizedKeyword = toText(keyword).toLowerCase();
+
+  if (!normalizedKeyword) {
+    return options;
+  }
+
+  return options.filter((option) => [
+    option.label,
+    option.fullName,
+    option.className,
+    option.role,
+    option.description,
+  ].join(' ').toLowerCase().includes(normalizedKeyword));
 };

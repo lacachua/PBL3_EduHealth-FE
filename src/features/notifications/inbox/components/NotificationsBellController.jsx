@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
+import { validateFeedbackDraft } from '../adapters/notificationAdapters';
 import { useNotificationsBellPanel } from '../hooks/useNotificationsBellPanel';
 import { notificationsRepository } from '../repositories/notificationsRepository';
 import NotificationDetailModal from './NotificationDetailModal';
@@ -14,6 +15,15 @@ const isMobileViewport = () => {
   return window.innerWidth < 640;
 };
 
+const buildReadNotification = (item) => ({
+  ...item,
+  currentRecipient: {
+    ...(item.currentRecipient || {}),
+    isRead: true,
+    readAt: item.currentRecipient?.readAt || new Date().toISOString(),
+  },
+});
+
 const NotificationsBellController = ({
   currentUser,
   viewerRole,
@@ -23,6 +33,7 @@ const NotificationsBellController = ({
   onUnreadChange,
 }) => {
   const navigate = useNavigate();
+  const role = String(viewerRole || currentUser?.role || 'STUDENT').toUpperCase();
   const {
     recentItems,
     recentSource,
@@ -34,19 +45,19 @@ const NotificationsBellController = ({
     refresh,
   } = useNotificationsBellPanel({
     currentUser,
-    viewerRole,
+    viewerRole: role,
   });
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [threadItems, setThreadItems] = useState([]);
-  const [threadLoading, setThreadLoading] = useState(false);
-  const [threadSource, setThreadSource] = useState(capabilityState.threadSource);
-  const [threadSourceNote, setThreadSourceNote] = useState('');
-  const [replyDraft, setReplyDraft] = useState('');
-  const [replyError, setReplyError] = useState('');
-  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackSource, setFeedbackSource] = useState(capabilityState.feedbackSource);
+  const [feedbackSourceNote, setFeedbackSourceNote] = useState('');
+  const [feedbackDraft, setFeedbackDraft] = useState('');
+  const [feedbackError, setFeedbackError] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   React.useEffect(() => {
     onUnreadChange?.(unreadCount);
@@ -56,33 +67,32 @@ const NotificationsBellController = ({
     setDetailOpen(false);
     setDetailLoading(false);
     setSelectedNotification(null);
-    setThreadItems([]);
-    setThreadLoading(false);
-    setReplyDraft('');
-    setReplyError('');
-    setThreadSource(capabilityState.threadSource);
-    setThreadSourceNote('');
-  }, [capabilityState.threadSource]);
+    setFeedbackItems([]);
+    setFeedbackLoading(false);
+    setFeedbackDraft('');
+    setFeedbackError('');
+    setFeedbackSource(capabilityState.feedbackSource);
+    setFeedbackSourceNote('');
+  }, [capabilityState.feedbackSource]);
 
-  const loadThread = useCallback(async (notificationId) => {
-    setThreadLoading(true);
+  const loadFeedbacks = useCallback(async (notificationId) => {
+    setFeedbackLoading(true);
     try {
-      const result = await notificationsRepository.getThread({
-        notificationId,
+      const result = await notificationsRepository.getFeedbacks(notificationId, {
         currentUser,
-        viewerRole,
+        viewerRole: role,
       });
-      setThreadItems(result.replies || []);
-      setThreadSource(String(result.source || capabilityState.threadSource));
-      setThreadSourceNote(String(result.sourceNote || ''));
+      setFeedbackItems(result.feedbacks || []);
+      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
+      setFeedbackSourceNote(String(result.sourceNote || ''));
     } catch (apiError) {
-      setThreadItems([]);
-      setThreadSource('pending');
-      setThreadSourceNote(normalizeApiMessage(apiError, 'Khong the tai chuoi phan hoi.'));
+      setFeedbackItems([]);
+      setFeedbackSource('PENDING');
+      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
     } finally {
-      setThreadLoading(false);
+      setFeedbackLoading(false);
     }
-  }, [capabilityState.threadSource, currentUser, viewerRole]);
+  }, [capabilityState.feedbackSource, currentUser, role]);
 
   const openNotificationDetail = useCallback(async (notification) => {
     const notificationId = Number(notification?.notificationId || 0);
@@ -102,81 +112,94 @@ const NotificationsBellController = ({
 
     setDetailOpen(true);
     setDetailLoading(true);
-    setReplyDraft('');
-    setReplyError('');
+    setFeedbackDraft('');
+    setFeedbackError('');
 
     try {
-      const detail = await notificationsRepository.getDetail({
-        notificationId,
+      const detail = await notificationsRepository.getNotificationDetail(notificationId, {
         currentUser,
-        viewerRole,
+        viewerRole: role,
       });
 
-      setSelectedNotification(detail.item || null);
+      let nextItem = detail.item || null;
 
-      if (detail.item && !detail.item.isRead) {
-        await notificationsRepository.markRead({
-          notificationId: detail.item.notificationId,
+      if (nextItem && !nextItem.currentRecipient?.isRead) {
+        await notificationsRepository.markRead(nextItem.notificationId, {
           currentUser,
-          viewerRole,
+          viewerRole: role,
         });
-        setSelectedNotification((previous) => previous ? {
-          ...previous,
-          isRead: true,
-          readAt: previous.readAt || new Date().toISOString(),
-        } : previous);
+        nextItem = buildReadNotification(nextItem);
       }
 
-      await Promise.all([loadThread(notificationId), refresh()]);
+      setSelectedNotification(nextItem);
+      await Promise.all([loadFeedbacks(notificationId), refresh()]);
     } catch (apiError) {
       setSelectedNotification({
-        title: 'Khong the mo chi tiet',
-        content: normalizeApiMessage(apiError, 'Khong the tai chi tiet thong bao.'),
-        sender: { fullName: 'EduHealth', role: '' },
-        isRead: true,
+        notificationId,
+        title: 'Không thể mở chi tiết',
+        content: normalizeApiMessage(apiError, 'Không thể tải chi tiết thông báo.'),
+        type: 'GENERAL',
+        typeLabel: 'Thông báo chung',
+        createdByName: 'EduHealth',
+        createdByRole: 'SYSTEM',
+        createdAt: new Date().toISOString(),
+        currentRecipient: { isRead: true },
+        recipients: [],
+        feedbackCount: 0,
+        source: 'PENDING',
       });
-      setThreadItems([]);
-      setThreadSource('pending');
-      setThreadSourceNote(normalizeApiMessage(apiError, 'Khong the tai chuoi phan hoi.'));
+      setFeedbackItems([]);
+      setFeedbackSource('PENDING');
+      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
     } finally {
       setDetailLoading(false);
     }
-  }, [currentUser, fullPagePath, loadThread, navigate, onClose, refresh, viewerRole]);
+  }, [currentUser, fullPagePath, loadFeedbacks, navigate, onClose, refresh, role]);
 
   const handleMarkAllRead = useCallback(async () => {
     try {
       await notificationsRepository.markAllRead({
         currentUser,
-        viewerRole,
+        viewerRole: role,
       });
       await refresh();
     } catch {
-      // Keep panel compact; pending state is already communicated by capability/source.
+      // Bell keeps the pending/mock status visible without interrupting navigation.
     }
-  }, [currentUser, refresh, viewerRole]);
+  }, [currentUser, refresh, role]);
 
-  const handleReplySubmit = useCallback(async () => {
+  const handleFeedbackSubmit = useCallback(async () => {
     if (!selectedNotification?.notificationId) {
       return;
     }
 
-    setReplySubmitting(true);
-    try {
-      const result = await notificationsRepository.reply({
-        notificationId: selectedNotification.notificationId,
-        content: replyDraft,
-        currentUser,
-        viewerRole,
-      });
-      setReplyError(result.source === 'pending' ? 'Reply dang cho backend thread/replies.' : '');
-      setReplyDraft('');
-      await Promise.all([loadThread(selectedNotification.notificationId), refresh()]);
-    } catch (apiError) {
-      setReplyError(normalizeApiMessage(apiError, 'Khong the gui phan hoi.'));
-    } finally {
-      setReplySubmitting(false);
+    const validation = validateFeedbackDraft({
+      notificationId: selectedNotification.notificationId,
+      content: feedbackDraft,
+    });
+
+    if (!validation.isValid) {
+      setFeedbackError(validation.error);
+      return;
     }
-  }, [currentUser, loadThread, refresh, replyDraft, selectedNotification?.notificationId, viewerRole]);
+
+    setFeedbackSubmitting(true);
+    try {
+      const result = await notificationsRepository.createFeedback(
+        selectedNotification.notificationId,
+        validation.payload,
+        { currentUser, viewerRole: role },
+      );
+      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
+      setFeedbackSourceNote(String(result.sourceNote || ''));
+      setFeedbackDraft('');
+      await Promise.all([loadFeedbacks(selectedNotification.notificationId), refresh()]);
+    } catch (apiError) {
+      setFeedbackError(normalizeApiMessage(apiError, 'Không thể gửi phản hồi.'));
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  }, [capabilityState.feedbackSource, currentUser, feedbackDraft, loadFeedbacks, refresh, role, selectedNotification?.notificationId]);
 
   const canMarkAllRead = useMemo(
     () => capabilityState.markAllReadSupported,
@@ -207,16 +230,18 @@ const NotificationsBellController = ({
         open={detailOpen}
         loading={detailLoading}
         item={selectedNotification}
+        role={role}
+        currentUser={currentUser}
         onClose={closeDetail}
-        threadItems={threadItems}
-        threadLoading={threadLoading}
-        threadSource={threadSource}
-        threadSourceNote={threadSourceNote}
-        replyDraft={replyDraft}
-        replyError={replyError}
-        replySubmitting={replySubmitting}
-        onReplyDraftChange={setReplyDraft}
-        onReplySubmit={handleReplySubmit}
+        feedbackItems={feedbackItems}
+        feedbackLoading={feedbackLoading}
+        feedbackSource={feedbackSource}
+        feedbackSourceNote={feedbackSourceNote}
+        feedbackDraft={feedbackDraft}
+        feedbackError={feedbackError}
+        feedbackSubmitting={feedbackSubmitting}
+        onFeedbackDraftChange={setFeedbackDraft}
+        onFeedbackSubmit={handleFeedbackSubmit}
         onViewFullPage={() => {
           onClose?.();
           navigate(fullPagePath, {
