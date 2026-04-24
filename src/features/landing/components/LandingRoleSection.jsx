@@ -1,7 +1,7 @@
 import React from "react";
 import SectionHeader from "./SectionHeader";
 import nurseVisual from "../../../assets/images/landing/role-nurse-visual.svg";
-import parentVisual from "../../../assets/images/landing/role-parent-visual.svg";
+import studentVisual from "../../../assets/images/landing/role-student-visual.svg";
 import adminVisual from "../../../assets/images/landing/role-admin-visual.svg";
 
 const roleItems = [
@@ -14,12 +14,12 @@ const roleItems = [
     imageSrc: nurseVisual,
   },
   {
-    tag: "Phụ huynh học sinh",
+    tag: "Học sinh",
     title: "Cập nhật thông tin kịp thời",
     description:
-      "Nhận thông báo khi học sinh được khám bệnh, cấp thuốc hoặc đến lịch tiêm chủng để phối hợp cùng nhà trường.",
-    imageAlt: "Minh họa màn hình phụ huynh theo dõi hồ sơ sức khỏe học sinh",
-    imageSrc: parentVisual,
+      "Nhận thông báo khi được khám bệnh, cấp thuốc hoặc đến lịch tiêm chủng để phối hợp cùng nhà trường.",
+    imageAlt: "Minh họa màn hình học sinh theo dõi hồ sơ sức khỏe",
+    imageSrc: studentVisual,
   },
   {
     tag: "Ban giám hiệu/Quản trị viên",
@@ -37,7 +37,7 @@ const LandingRoleSection = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Giải pháp theo nhóm người dùng"
-          description="EduHealth kết nối nhà trường, y tế và phụ huynh trong một quy trình phối hợp thống nhất."
+          description="EduHealth kết nối nhà trường, y tế và học sinh trong một quy trình phối hợp thống nhất."
           align="center"
           eyebrow="Theo vai trò"
         />

@@ -1,6 +1,6 @@
 import React from 'react';
-import DataTable from '../../../shared/components/admin/DataTable';
-import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import DataTable from '../../../shared/components/core/DataTable';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 
 const MedicinesTable = ({ rows, onViewDetail }) => {
   const columns = [

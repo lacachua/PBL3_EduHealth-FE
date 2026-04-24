@@ -1,5 +1,5 @@
 import React from 'react';
-import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
+import EntityAvatar from '../../../shared/components/core/EntityAvatar';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
 
 const metaItemClass = 'inline-flex items-center gap-1.5 text-[12px] text-[#64748B]';
@@ -17,7 +17,7 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
   const statusClass = statusClassMap[statusTone] || statusClassMap.default;
 
   return (
-    <section className="app-card-shell space-y-4 rounded-2xl px-4 py-4 sm:px-5 sm:py-5">
+    <section className="app-card-shell mb-6 space-y-4 rounded-2xl px-4 py-4 sm:px-5 sm:py-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-start gap-4">
           <EntityAvatar

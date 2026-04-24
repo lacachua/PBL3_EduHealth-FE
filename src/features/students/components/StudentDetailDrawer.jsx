@@ -1,7 +1,7 @@
 import React from 'react';
-import EntityAvatar from '../../../shared/components/admin/EntityAvatar';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
-import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import EntityAvatar from '../../../shared/components/core/EntityAvatar';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import RetryState from '../../../shared/components/form/RetryState';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
 
@@ -86,7 +86,7 @@ const StudentDetailDrawer = ({
           <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5">
             <InfoRow label="Mã học sinh">{student.studentCode || '--'}</InfoRow>
             <InfoRow label="Họ tên">{student.fullName || '--'}</InfoRow>
-            <InfoRow label="Ngày sinh">{student.dateOfBirth || '--'}</InfoRow>
+            <InfoRow label="Ngày sinh">{student.dateOfBirthLabel || '--'}</InfoRow>
             <InfoRow label="Giới tính">{student.genderLabel || '--'}</InfoRow>
             <InfoRow label="Lớp">{student.className || student.classId || '--'}</InfoRow>
             <InfoRow label="Tên đăng nhập">{student.username || '--'}</InfoRow>
@@ -114,9 +114,9 @@ const StudentDetailDrawer = ({
                 <span className="text-sm text-on-surface-variant">Chưa ghi nhận dị ứng.</span>
               )}
             </InfoRow>
-            <InfoRow label="Ngày tạo">{student.createdAt || '--'}</InfoRow>
-            <InfoRow label="Ngày cập nhật">{student.updatedAt || '--'}</InfoRow>
-            <InfoRow label="Cập nhật hồ sơ sức khỏe">{healthProfile?.healthProfileUpdatedAt || '--'}</InfoRow>
+            <InfoRow label="Ngày tạo">{student.createdAtLabel || '--'}</InfoRow>
+            <InfoRow label="Ngày cập nhật">{student.updatedAtLabel || '--'}</InfoRow>
+            <InfoRow label="Cập nhật hồ sơ sức khỏe">{healthProfile?.healthProfileUpdatedAtLabel || '--'}</InfoRow>
           </div>
         </div>
       ) : null}

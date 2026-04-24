@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import Pagination from '../../../shared/components/core/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
 import {
@@ -36,9 +36,9 @@ const parseStudentsEnvelope = (envelope) => {
     ? envelope.data
     : Array.isArray(envelope?.data?.students)
       ? envelope.data.students
-    : Array.isArray(envelope?.data?.items)
-      ? envelope.data.items
-      : [];
+      : Array.isArray(envelope?.data?.items)
+        ? envelope.data.items
+        : [];
 
   const resolveStudentUserId = (item) => {
     const parsed = Number(item?.userId ?? item?.id ?? item?.studentId);

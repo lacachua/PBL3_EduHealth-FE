@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ErrorState from '../../../../shared/components/admin/ErrorState';
+import ErrorState from '../../../../shared/components/core/ErrorState';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
 import NurseDashboardKpiGrid from '../components/NurseDashboardKpiGrid';
 import NurseDashboardQuickActions from '../components/NurseDashboardQuickActions';

@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../app/providers/useAuth';
+import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import NurseSidebar from '../features/nurse-shell/components/NurseSidebar';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
-import { mainOffsetClasses } from './constants/shellLayout';
+import { useRoleShell } from './hooks/useRoleShell';
 
 const NurseLayout = () => {
   const { key: locationKey } = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
-
-  const mainOffsetClass = isSidebarCollapsed ? mainOffsetClasses.collapsed : mainOffsetClasses.expanded;
-
-  const closeSidebar = () => setIsSidebarOpen(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
-
-  const handleNavigateAccount = () => {
-    navigate('/nurse/profile');
-  };
+  const {
+    user,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    isSidebarCollapsed,
+    setIsSidebarCollapsed,
+    closeSidebar,
+    isNotificationsOpen,
+    setIsNotificationsOpen,
+    unreadNotificationsCount,
+    setUnreadNotificationsCount,
+    handleLogout,
+    handleNavigateAccount,
+    mainOffsetClass,
+  } = useRoleShell({ accountPath: '/nurse/profile' });
 
   return (
     <div className="nurse-shell app-page-bg min-h-screen text-on-surface">

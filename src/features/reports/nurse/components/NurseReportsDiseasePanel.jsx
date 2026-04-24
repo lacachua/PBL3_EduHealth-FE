@@ -1,6 +1,6 @@
 import React from 'react';
-import EmptyState from '../../../../shared/components/admin/EmptyState';
-import SectionCard from '../../../../shared/components/admin/SectionCard';
+import EmptyState from '../../../../shared/components/core/EmptyState';
+import SectionCard from '../../../../shared/components/core/SectionCard';
 
 const buildPieGradient = (items) => {
   if (!items.length) {

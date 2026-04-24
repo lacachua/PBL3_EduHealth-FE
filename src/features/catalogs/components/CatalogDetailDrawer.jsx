@@ -1,6 +1,6 @@
 import React from 'react';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
-import StatusBadge from '../../../shared/components/admin/StatusBadge';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 
 const DetailRow = ({ label, value, children, isMultiline = false }) => (
   <div className="grid grid-cols-1 gap-1.5 border-b border-outline-variant py-2.5 last:border-b-0 sm:grid-cols-[148px_1fr] sm:gap-3">
@@ -43,8 +43,8 @@ const CatalogDetailDrawer = ({ open, item, loading, error, onClose }) => (
             <StatusBadge tone={item.statusTone}>{item.statusLabel}</StatusBadge>
           </div>
         </DetailRow>
-        <DetailRow label="Ngày tạo" value={item.createdAt} />
-        <DetailRow label="Cập nhật gần nhất" value={item.updatedAt} />
+        <DetailRow label="Ngày tạo" value={item.createdAtLabel} />
+        <DetailRow label="Cập nhật gần nhất" value={item.updatedAtLabel} />
       </div>
     ) : null}
   </RightDrawer>

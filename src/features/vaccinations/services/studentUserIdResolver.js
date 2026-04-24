@@ -98,14 +98,21 @@ const pickBestLookupRow = (rows, student) => {
 };
 
 export const resolveVaccinationStudentUserId = async (student = {}) => {
+  if (student?.studentId) {
+    const numericStudentId = toPositiveInt(student.studentId);
+    if (numericStudentId) {
+      return numericStudentId;
+    }
+
+    const parsedStudentId = resolveUserIdFromStudentCode(student);
+    if (parsedStudentId) {
+      return parsedStudentId;
+    }
+  }
+
   const directId = resolveLookupUserId(student);
   if (directId) {
     return directId;
-  }
-
-  const fromStudentCode = resolveUserIdFromStudentCode(student);
-  if (fromStudentCode) {
-    return fromStudentCode;
   }
 
   const cacheKey = buildStudentCacheKey(student);

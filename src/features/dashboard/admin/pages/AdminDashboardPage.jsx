@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import EmptyState from '../../../../shared/components/admin/EmptyState';
-import ErrorState from '../../../../shared/components/admin/ErrorState';
-import LoadingSpinner from '../../../../shared/components/admin/LoadingSpinner';
+import EmptyState from '../../../../shared/components/core/EmptyState';
+import ErrorState from '../../../../shared/components/core/ErrorState';
+import LoadingSpinner from '../../../../shared/components/core/LoadingSpinner';
 import PageHeader from '../../../../shared/components/admin/PageHeader';
-import SectionCard from '../../../../shared/components/admin/SectionCard';
+import SectionCard from '../../../../shared/components/core/SectionCard';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 
 const adminRouteSet = new Set([

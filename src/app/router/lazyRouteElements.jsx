@@ -20,7 +20,6 @@ export const ServerErrorPage = React.lazy(() => import("../../pages/ServerErrorP
 export const AdminDashboardPage = React.lazy(() => import("../../features/dashboard/admin/pages/AdminDashboardPage"));
 export const AdminSettingsPage = React.lazy(() => import('../../features/dashboard/admin/pages/AdminSettingsPage'));
 export const NurseDashboardPage = React.lazy(() => import('../../features/dashboard/nurse/pages/NurseDashboardPage'));
-export const ModulePlaceholderPage = React.lazy(() => import("../../features/nurse-shell/components/ModulePlaceholderPage"));
 export const NurseProfilePage = React.lazy(() => import('../../features/account/pages/NurseProfilePage'));
 export const NurseStudentsPage = React.lazy(() => import("../../features/students/pages/NurseStudentsPage"));
 export const NurseHealthProfilesPage = React.lazy(() => import("../../features/health-profiles/pages/NurseHealthProfilesPage"));

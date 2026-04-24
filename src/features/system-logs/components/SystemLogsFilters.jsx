@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import SearchInput from '../../../shared/components/admin/SearchInput';
+import SearchInput from '../../../shared/components/core/SearchInput';
 import { SYSTEM_LOGS_DEFAULT_FILTERS } from '../hooks/useSystemLogs';
 
 const inputClass =

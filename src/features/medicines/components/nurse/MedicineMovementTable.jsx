@@ -1,5 +1,5 @@
 import React from 'react';
-import Pagination from '../../../../shared/components/admin/Pagination';
+import Pagination from '../../../../shared/components/core/Pagination';
 import { MOVEMENT_TYPE_OPTIONS } from '../../constants/nurseMedicineConstants';
 
 const MedicineMovementTable = ({

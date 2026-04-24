@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import PageHeader from '../../../shared/components/admin/PageHeader';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import AccountProfilePanel from '../components/AccountProfilePanel';

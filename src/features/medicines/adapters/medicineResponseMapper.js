@@ -1,15 +1,12 @@
+import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { extractRows, extractMeta } from '../../../shared/adapters/envelopeAdapter';
+import { formatDateTime } from '../../../shared/utils/dateFormat';
 import {
   mapMedicineAlertLabel,
   mapMedicineAlertTone,
   mapMedicineStatusLabel,
   mapMedicineStatusTone,
 } from './medicineStatusMapper';
-import {
-  getMedicineMetaFromEnvelope,
-  getMedicineRowsFromEnvelope,
-  normalizeMedicineEnvelope,
-  toMedicineDateTimeLabel,
-} from './medicineAdapterShared';
 
 const defaultPaged = {
   rows: [],
@@ -47,21 +44,21 @@ const mapMedicineBase = (item = {}) => {
     isExpiringSoon,
     alertLabel: mapMedicineAlertLabel(isLowStock, isExpiringSoon),
     alertTone: mapMedicineAlertTone(isLowStock, isExpiringSoon),
-    createdAt: toMedicineDateTimeLabel(item.createdAt),
-    updatedAt: toMedicineDateTimeLabel(item.updatedAt),
+    createdAt: formatDateTime(item.createdAt),
+    updatedAt: formatDateTime(item.updatedAt),
   };
 };
 
 export const mapMedicinesListResponse = (responseOrPayload) => {
-  const envelope = normalizeMedicineEnvelope(responseOrPayload);
+  const envelope = normalizeApiEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false) {
     return defaultPaged;
   }
 
-  const sourceRows = getMedicineRowsFromEnvelope(envelope);
+  const sourceRows = extractRows(envelope);
 
   const rows = sourceRows.map((item) => mapMedicineBase(item));
-  const meta = getMedicineMetaFromEnvelope(envelope, {
+  const meta = extractMeta(envelope, {
     page: 1,
     pageSize: 10,
     totalItems: rows.length,
@@ -75,7 +72,7 @@ export const mapMedicinesListResponse = (responseOrPayload) => {
 };
 
 export const mapMedicineDetailResponse = (responseOrPayload) => {
-  const envelope = normalizeMedicineEnvelope(responseOrPayload);
+  const envelope = normalizeApiEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false || !envelope.data) {
     return null;
   }
@@ -84,8 +81,8 @@ export const mapMedicineDetailResponse = (responseOrPayload) => {
 };
 
 export const mapMedicineAlertsResponse = (responseOrPayload) => {
-  const envelope = normalizeMedicineEnvelope(responseOrPayload);
-  const sourceRows = getMedicineRowsFromEnvelope(envelope);
+  const envelope = normalizeApiEnvelope(responseOrPayload);
+  const sourceRows = extractRows(envelope);
 
   const alerts = sourceRows.map((item) => ({
     medicineId: item.medicineId,
@@ -111,12 +108,12 @@ export const mapMedicineAlertsResponse = (responseOrPayload) => {
 };
 
 export const mapMedicineMovementsResponse = (responseOrPayload) => {
-  const envelope = normalizeMedicineEnvelope(responseOrPayload);
+  const envelope = normalizeApiEnvelope(responseOrPayload);
   if (!envelope || envelope.success === false) {
     return defaultPaged;
   }
 
-  const sourceRows = getMedicineRowsFromEnvelope(envelope);
+  const sourceRows = extractRows(envelope);
 
   const rows = sourceRows.map((item) => ({
     movementId: item.movementId || '--',
@@ -128,10 +125,10 @@ export const mapMedicineMovementsResponse = (responseOrPayload) => {
     expiryDate: toDisplayDateOnly(item.expiryDate),
     reason: item.reason || '--',
     createdBy: item.createdBy?.fullName || item.createdBy?.userId || '--',
-    createdAt: toMedicineDateTimeLabel(item.createdAt),
+    createdAt: formatDateTime(item.createdAt),
   }));
 
-  const meta = getMedicineMetaFromEnvelope(envelope, {
+  const meta = extractMeta(envelope, {
     page: 1,
     pageSize: 5,
     totalItems: rows.length,

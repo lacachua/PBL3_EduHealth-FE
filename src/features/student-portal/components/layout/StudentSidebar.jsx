@@ -20,13 +20,11 @@ const StudentSidebar = ({
 
   return (
     <aside
-      className={`student-sidebar-surface fixed inset-y-0 left-0 z-40 flex ${sidebarWidthClasses.drawer} flex-col overflow-x-hidden transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
+      className={`student-sidebar-surface fixed inset-y-0 left-0 z-40 flex ${sidebarWidthClasses.drawer} flex-col overflow-x-hidden transition-[transform,width] duration-200 md:translate-x-0 ${sidebarWidthClass} ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
     >
-      <div className={`student-sidebar-header flex items-center py-3.5 ${
-        isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'gap-2 px-3.5'
-      }`}>
+      <div className={`student-sidebar-header flex items-center py-3.5 ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'gap-2 px-3.5'
+        }`}>
         {isSidebarCollapsed ? (
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary-soft text-primary">
             <span className="material-symbols-outlined text-[21px]" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -69,11 +67,10 @@ const StudentSidebar = ({
       <nav className="flex-1 space-y-5 overflow-y-auto px-2.5 pb-3.5 pt-3.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {studentSidebarGroups.map((group) => (
           <div key={group.id}>
-            {!isSidebarCollapsed ? (
-              <p className="student-sidebar-group-title px-3.5 pb-2">
-                {group.label}
-              </p>
-            ) : null}
+            <p className={`student-sidebar-group-title px-3.5 pb-2 ${isSidebarCollapsed ? 'hidden' : ''
+              }`}>
+              {group.label}
+            </p>
 
             <div className="space-y-1">
               {group.items.map((item) => (
@@ -83,17 +80,17 @@ const StudentSidebar = ({
                   end={item.to === '/student/overview'}
                   onClick={onCloseSidebar}
                   title={isSidebarCollapsed ? item.label : undefined}
-                  className={({ isActive }) => `app-focus-ring app-interactive student-sidebar-nav-item group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] ${
-                    isActive
+                  className={({ isActive }) => `app-focus-ring app-interactive student-sidebar-nav-item group relative flex items-center rounded-xl px-3.5 py-2.5 text-[15px] ${isSidebarCollapsed ? 'justify-center' : ''
+                    } ${isActive
                       ? 'student-sidebar-nav-item-active font-semibold'
                       : 'font-medium'
-                  }`}
+                    }`}
                 >
                   {({ isActive }) => (
                     <>
                       {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-primary" /> : null}
-                      <span className={`material-symbols-outlined text-[20px] ${isSidebarCollapsed ? 'mx-auto' : ''}`}>{item.icon}</span>
-                      {!isSidebarCollapsed ? <span className="ml-3">{item.label}</span> : null}
+                      <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                      <span className={isSidebarCollapsed ? 'hidden' : 'ml-3'}>{item.label}</span>
                     </>
                   )}
                 </NavLink>
@@ -108,12 +105,11 @@ const StudentSidebar = ({
           type="button"
           onClick={handleLogout}
           title={isSidebarCollapsed ? 'Đăng xuất' : undefined}
-          className={`student-sidebar-logout-button app-focus-ring app-interactive group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-semibold ${
-            isSidebarCollapsed ? 'justify-center' : 'justify-start'
-          }`}
+          className={`student-sidebar-logout-button app-focus-ring app-interactive group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-semibold ${isSidebarCollapsed ? 'justify-center' : 'justify-start'
+            }`}
         >
           <span className="material-symbols-outlined text-[18px]">logout</span>
-          {!isSidebarCollapsed ? <span className="ml-2">Đăng xuất</span> : null}
+          <span className={isSidebarCollapsed ? 'hidden' : 'ml-2'}>Đăng xuất</span>
         </button>
       </div>
     </aside>

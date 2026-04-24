@@ -26,26 +26,26 @@ const riskLabelMap = {
 
 const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
   return (
-    <section className="overflow-hidden rounded-3xl border border-outline-variant bg-surface-container-lowest shadow-sm">
-      <div className="flex items-center justify-between border-b border-outline-variant/60 bg-surface px-6 py-4">
-        <h4 className="text-base font-bold text-on-surface">Tổng hợp sức khỏe theo lớp</h4>
-        <div className="text-xs font-medium text-on-surface-muted">Sắp xếp theo mức độ rủi ro</div>
+    <section className="app-panel-shell space-y-3 p-4 md:p-5">
+      <div className="flex items-center justify-between">
+        <h4 className="text-lg font-bold text-on-surface">Tổng hợp sức khỏe theo lớp</h4>
+        <div className="text-xs font-medium text-on-surface-variant">Sắp xếp theo mức độ rủi ro</div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-surface">
+      <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
+        <table className="w-full text-left text-sm">
+          <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
             <tr>
-              <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Lớp</th>
-              <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Sĩ số</th>
-              <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-success">Ổn định</th>
-              <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-warning">Theo dõi</th>
-              <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-danger">Nguy cơ cao</th>
-              <th className="px-6 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Mức độ rủi ro</th>
+              <th className="px-5 py-3 text-left">Lớp</th>
+              <th className="px-4 py-3 text-center">Sĩ số</th>
+              <th className="px-4 py-3 text-center text-success">Ổn định</th>
+              <th className="px-4 py-3 text-center text-warning">Theo dõi</th>
+              <th className="px-4 py-3 text-center text-danger">Nguy cơ cao</th>
+              <th className="px-5 py-3 text-center">Mức độ rủi ro</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-outline-variant/60">
+          <tbody className="divide-y divide-outline-variant">
             {rows.map((row) => (
               <tr
                 key={row.id}
@@ -60,7 +60,7 @@ const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
                 role="button"
                 tabIndex={0}
               >
-                <td className="relative px-6 py-3.5 font-bold text-on-surface">
+                <td className="relative px-5 py-3.5 font-bold text-on-surface">
                   <span className={`absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded ${riskAccentClassMap[row.riskTone] || riskAccentClassMap.success}`} />
                   {row.className}
                 </td>
@@ -68,7 +68,7 @@ const AdminReportDetailTable = ({ rows, onAnalyzeClass }) => {
                 <td className="px-4 py-3.5 text-center text-sm font-semibold text-success">{row.stable}</td>
                 <td className="px-4 py-3.5 text-center text-sm font-semibold text-warning">{row.followUp}</td>
                 <td className="px-4 py-3.5 text-center text-sm font-semibold text-danger">{row.highRisk}</td>
-                <td className="px-6 py-3.5 text-center">
+                <td className="px-5 py-3.5 text-center">
                   <span className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-[10px] font-bold ${riskPillClassMap[row.riskTone]}`}>
                     {riskLabelMap[row.riskTone] || row.riskLabel}
                   </span>

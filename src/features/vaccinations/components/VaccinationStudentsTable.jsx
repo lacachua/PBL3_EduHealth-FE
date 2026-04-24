@@ -26,7 +26,7 @@ const VaccinationStudentsTable = ({
   const colSpan = 5
     + (showCampaignColumn ? 1 : 0)
     + (showScheduledDateColumn ? 1 : 0)
-    + (showResultColumns ? 3 : 0)
+    + (showResultColumns ? 2 : 0)
     + 1;
 
   if (loading) {
@@ -50,7 +50,7 @@ const VaccinationStudentsTable = ({
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
-      <table className={`w-full text-left text-sm ${showResultColumns ? 'min-w-[1080px]' : 'min-w-[920px]'}`}>
+      <table className={`w-full text-left text-sm ${showResultColumns ? 'min-w-[840px]' : 'min-w-[760px]'}`}>
         <thead className="app-table-head sticky top-0 z-[1] text-[11px] uppercase tracking-[0.08em]">
           <tr>
             <th className="px-4 py-3">Học sinh</th>
@@ -58,8 +58,7 @@ const VaccinationStudentsTable = ({
             {showCampaignColumn ? <th className="px-4 py-3">Đợt tiêm</th> : null}
             {showScheduledDateColumn ? <th className="px-4 py-3">Ngày dự kiến</th> : null}
             <th className="px-4 py-3">Trạng thái tiêm</th>
-            {showResultColumns ? <th className="px-4 py-3">Ngày tiêm thực tế</th> : null}
-            {showResultColumns ? <th className="px-4 py-3">Số lô</th> : null}
+            {showResultColumns ? <th className="px-4 py-3">Ngày tiêm & Số lô</th> : null}
             {showResultColumns ? <th className="px-4 py-3">Ghi chú</th> : null}
             <th className="px-3 py-3 text-right">Hành động</th>
           </tr>
@@ -104,8 +103,12 @@ const VaccinationStudentsTable = ({
                 <td className="px-4 py-3">
                   <VaccinationStatusBadge label={item.statusLabel} className={item.statusBadgeClassName} />
                 </td>
-                {showResultColumns ? <td className="px-4 py-3 text-on-surface">{item.vaccinatedAtLabel || '--'}</td> : null}
-                {showResultColumns ? <td className="px-4 py-3 font-mono text-xs text-on-surface">{item.lotNumber || '--'}</td> : null}
+                {showResultColumns ? (
+                  <td className="px-4 py-3 text-on-surface min-w-[140px]">
+                    <p>{item.vaccinatedAtLabel || '--'}</p>
+                    {item.lotNumber ? <p className="text-xs text-on-surface-variant mt-0.5">Lô: <span className="font-mono">{item.lotNumber}</span></p> : null}
+                  </td>
+                ) : null}
                 {showResultColumns ? (
                   <td className="px-4 py-3 text-on-surface" title={item.note || '--'} style={clampTwoLinesStyle}>
                     {item.note || '--'}
@@ -115,7 +118,7 @@ const VaccinationStudentsTable = ({
                   <div className="flex justify-end gap-1.5">
                     <VaccinationRowActionButton
                       icon="history"
-                      label="Lịch sử"
+                      label="Lịch sử tiêm tổng hợp"
                       onClick={() => onOpenHistory(item)}
                       variant="neutral"
                     />

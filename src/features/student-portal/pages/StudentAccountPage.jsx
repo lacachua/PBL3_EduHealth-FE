@@ -74,6 +74,10 @@ const StudentAccountPage = () => {
   const [profileValues, setProfileValues] = useState(createProfileFormState(null));
   const [profileErrors, setProfileErrors] = useState({});
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+  const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState('');
+  const [avatarError, setAvatarError] = useState('');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const [passwordValues, setPasswordValues] = useState(createPasswordFormState());
@@ -96,6 +100,16 @@ const StudentAccountPage = () => {
       const response = await studentPortalService.getAccountViewModel();
       setAccountData(response.data);
       setProfileValues(createProfileFormState(response.data.profile));
+
+      // Clear any pending avatar state when loading fresh data
+      setPendingAvatarFile(null);
+      setAvatarError('');
+      setPendingAvatarPreviewUrl((prev) => {
+        if (prev) {
+          window.URL.revokeObjectURL(prev);
+        }
+        return '';
+      });
     } catch (apiError) {
       setError(normalizeApiMessage(apiError, 'Không thể tải thông tin tài khoản.'));
     } finally {
@@ -106,6 +120,14 @@ const StudentAccountPage = () => {
   useEffect(() => {
     loadAccount();
   }, [loadAccount]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingAvatarPreviewUrl) {
+        window.URL.revokeObjectURL(pendingAvatarPreviewUrl);
+      }
+    };
+  }, [pendingAvatarPreviewUrl]);
 
   useEffect(() => {
     if (!feedback) {
@@ -192,15 +214,44 @@ const StudentAccountPage = () => {
     }
   };
 
-  const handleAvatarChange = async (avatarFile) => {
-    if (!accountData?.capabilities?.canUploadAvatar) {
+  const handleAvatarSelect = (avatarFile, error) => {
+    if (error) {
+      setAvatarError(error);
+      setPendingAvatarFile(null);
+      setPendingAvatarPreviewUrl((prev) => {
+        if (prev) {
+          window.URL.revokeObjectURL(prev);
+        }
+        return '';
+      });
+      return;
+    }
+
+    if (!avatarFile) {
+      return;
+    }
+
+    const previewUrl = window.URL.createObjectURL(avatarFile);
+    setAvatarError('');
+    setPendingAvatarFile(avatarFile);
+    setPendingAvatarPreviewUrl((prev) => {
+      if (prev) {
+        window.URL.revokeObjectURL(prev);
+      }
+      return previewUrl;
+    });
+  };
+
+  const handleAvatarSave = async () => {
+    if (!pendingAvatarFile) {
       return;
     }
 
     setIsUploadingAvatar(true);
+    setAvatarError('');
 
     try {
-      const response = await studentPortalService.uploadAccountAvatar(avatarFile);
+      const response = await studentPortalService.uploadAccountAvatar(pendingAvatarFile);
       setAccountData((prev) => ({
         ...prev,
         ...response.data,
@@ -213,6 +264,16 @@ const StudentAccountPage = () => {
           ...(response.data?.capabilities || {}),
         },
       }));
+
+      // Clear pending avatar state
+      setPendingAvatarFile(null);
+      setPendingAvatarPreviewUrl((prev) => {
+        if (prev) {
+          window.URL.revokeObjectURL(prev);
+        }
+        return '';
+      });
+
       setFeedback({ type: 'success', message: response?.message || 'Cập nhật ảnh đại diện thành công.' });
 
       // Sync avatar to global auth context so header avatar updates immediately.
@@ -221,10 +282,22 @@ const StudentAccountPage = () => {
         updateUser({ avatar: savedAvatar, avatarUrl: savedAvatar });
       }
     } catch (apiError) {
+      setAvatarError(normalizeApiMessage(apiError, 'Không thể cập nhật ảnh đại diện.'));
       setFeedback({ type: 'error', message: normalizeApiMessage(apiError, 'Không thể cập nhật ảnh đại diện.') });
     } finally {
       setIsUploadingAvatar(false);
     }
+  };
+
+  const handleAvatarCancel = () => {
+    setPendingAvatarFile(null);
+    setAvatarError('');
+    setPendingAvatarPreviewUrl((prev) => {
+      if (prev) {
+        window.URL.revokeObjectURL(prev);
+      }
+      return '';
+    });
   };
 
   const onPasswordFieldChange = (field, value) => {
@@ -315,9 +388,13 @@ const StudentAccountPage = () => {
         <div className="space-y-4">
           <StudentAccountProfileCard
             profile={accountData.profile}
+            pendingAvatarPreviewUrl={pendingAvatarPreviewUrl}
+            avatarError={avatarError}
             isUploadingAvatar={isUploadingAvatar}
             canUploadAvatar={canUploadAvatar}
-            onAvatarChange={handleAvatarChange}
+            onAvatarSelect={handleAvatarSelect}
+            onAvatarSave={handleAvatarSave}
+            onAvatarCancel={handleAvatarCancel}
           />
 
           {canChangePassword ? (

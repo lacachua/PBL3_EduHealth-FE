@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../app/providers/useAuth';
+import { Outlet, useLocation } from 'react-router-dom';
 import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import StudentSidebar from '../features/student-portal/components/layout/StudentSidebar';
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
 import { studentPortalService } from '../features/student-portal/services/studentPortalService';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
-import { mainOffsetClasses } from './constants/shellLayout';
+import { useRoleShell } from './hooks/useRoleShell';
 import './styles/student-shell.css';
 
 const resolveFallbackIdentity = (user) => {
@@ -22,16 +21,25 @@ const resolveFallbackIdentity = (user) => {
 
 const StudentLayout = () => {
   const { key: locationKey } = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+
+  const {
+    user,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    isSidebarCollapsed,
+    setIsSidebarCollapsed,
+    closeSidebar,
+    isNotificationsOpen,
+    setIsNotificationsOpen,
+    unreadNotificationsCount,
+    setUnreadNotificationsCount,
+    handleLogout,
+    handleNavigateAccount,
+    mainOffsetClass,
+  } = useRoleShell({ accountPath: '/student/account' });
 
   const fallbackIdentity = useMemo(() => resolveFallbackIdentity(user), [user]);
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [identityOverrides, setIdentityOverrides] = useState(null);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const identity = useMemo(() => {
     return {
@@ -73,36 +81,24 @@ const StudentLayout = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
-
-  const handleNavigateAccount = () => {
-    navigate('/student/account');
-  };
-
-  const mainOffsetClass = isSidebarCollapsed ? mainOffsetClasses.collapsed : mainOffsetClasses.expanded;
-
   return (
     <div className="student-shell app-page-bg min-h-screen text-on-surface">
       <div
         aria-hidden="true"
-        onClick={() => setIsSidebarOpen(false)}
-        className={`fixed inset-0 z-30 bg-slate-900/30 transition-opacity duration-200 md:hidden ${
-          isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        onClick={closeSidebar}
+        className={`fixed inset-0 z-30 bg-slate-900/30 transition-opacity duration-200 md:hidden ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`}
       />
 
       <StudentSidebar
         isSidebarOpen={isSidebarOpen}
         isSidebarCollapsed={isSidebarCollapsed}
-        onCloseSidebar={() => setIsSidebarOpen(false)}
+        onCloseSidebar={closeSidebar}
         onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
         onLogout={handleLogout}
       />
 
-      <main className={`student-layout-main min-h-screen ${mainOffsetClass}`}>
+      <main className={`student-layout-main min-h-screen transition-[margin] duration-200 ${mainOffsetClass}`}>
         <RoleTopHeader
           role="STUDENT"
           user={headerUser}

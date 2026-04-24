@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import DataTable from '../../../../shared/components/admin/DataTable';
-import EmptyState from '../../../../shared/components/admin/EmptyState';
-import Pagination from '../../../../shared/components/admin/Pagination';
-import SectionCard from '../../../../shared/components/admin/SectionCard';
-import StatusBadge from '../../../../shared/components/admin/StatusBadge';
+import DataTable from '../../../../shared/components/core/DataTable';
+import EmptyState from '../../../../shared/components/core/EmptyState';
+import Pagination from '../../../../shared/components/core/Pagination';
+import SectionCard from '../../../../shared/components/core/SectionCard';
+import StatusBadge from '../../../../shared/components/core/StatusBadge';
 
 const contains = (source, keyword) => {
   return String(source || '').toLowerCase().includes(keyword);

@@ -1,7 +1,7 @@
 import React from 'react';
-import EmptyState from '../../../shared/components/admin/EmptyState';
-import ErrorState from '../../../shared/components/admin/ErrorState';
-import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import ErrorState from '../../../shared/components/core/ErrorState';
+import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
 import NurseDrawerShell from '../../../shared/components/nurse/NurseDrawerShell';
 import VaccinationStatusBadge from './VaccinationStatusBadge';
 
@@ -17,8 +17,8 @@ const StudentVaccinationHistoryDrawer = ({
     <NurseDrawerShell
       open={open}
       onClose={onClose}
-      title="Lịch sử tiêm"
-      subtitle={studentLabel ? `Xem nhanh lịch sử của ${studentLabel}` : 'Xem nhanh lịch sử tiêm của học sinh'}
+      title="Lịch sử tiêm tổng hợp"
+      subtitle={studentLabel ? `Xem toàn bộ lịch sử tiêm của ${studentLabel}` : 'Xem toàn bộ lịch sử tiêm của học sinh'}
       widthClass="max-w-[720px]"
     >
       {status === 'loading' ? <LoadingSpinner label="Đang tải lịch sử tiêm..." /> : null}
@@ -27,8 +27,8 @@ const StudentVaccinationHistoryDrawer = ({
 
       {status === 'empty' ? (
         <EmptyState
-          title="Chưa có dữ liệu lịch sử"
-          description="Học sinh này chưa có dữ liệu lịch sử tiêm phù hợp."
+          title="Chưa có lịch sử tiêm tổng hợp"
+          description="Chưa có lịch sử tiêm cho học sinh này"
         />
       ) : null}
 

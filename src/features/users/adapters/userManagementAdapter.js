@@ -1,22 +1,30 @@
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { formatDateTime } from '../../../shared/utils/dateFormat';
 import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP } from '../schemas/userManagementSchema';
 
-export const adaptUserRow = (item) => ({
-  id: item.id,
-  username: item.username,
-  fullName: item.fullName,
-  email: item.email,
-  phoneNumber: item.phoneNumber || '',
-  role: item.role,
-  status: item.status,
-  createdAt: item.createdAt || '--',
-  updatedAt: item.updatedAt || '--',
-  lastLoginAt: item.lastLoginAt || '--',
-  roleLabel: ROLE_LABEL_MAP[item.role] || item.role,
-  roleTone: ROLE_TONE_MAP[item.role] || 'neutral',
-  statusLabel: STATUS_LABEL_MAP[item.status] || item.status,
-  statusTone: STATUS_TONE_MAP[item.status] || 'neutral',
-});
+export const adaptUserRow = (item) => {
+  const lastLogin = item.lastLoginAt || item.lastLogin || item.lastSignedInAt || null;
+
+  return {
+    id: item.id,
+    username: item.username,
+    fullName: item.fullName,
+    email: item.email,
+    phoneNumber: item.phoneNumber || '',
+    role: item.role,
+    status: item.status,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    lastLoginAt: lastLogin,
+    createdAtLabel: formatDateTime(item.createdAt),
+    updatedAtLabel: formatDateTime(item.updatedAt),
+    lastLoginAtLabel: formatDateTime(lastLogin),
+    roleLabel: ROLE_LABEL_MAP[item.role] || item.role,
+    roleTone: ROLE_TONE_MAP[item.role] || 'neutral',
+    statusLabel: STATUS_LABEL_MAP[item.status] || item.status,
+    statusTone: STATUS_TONE_MAP[item.status] || 'neutral',
+  };
+};
 
 export const adaptUserListResponse = (payload) => {
   const envelope = normalizeApiEnvelope(payload);
@@ -28,10 +36,10 @@ export const adaptUserListResponse = (payload) => {
   const sourceRows = Array.isArray(envelope.data)
     ? envelope.data
     : Array.isArray(envelope.data?.users)
-    ? envelope.data.users
-    : Array.isArray(envelope.data?.items)
-      ? envelope.data.items
-      : [];
+      ? envelope.data.users
+      : Array.isArray(envelope.data?.items)
+        ? envelope.data.items
+        : [];
 
   const rows = sourceRows.map(adaptUserRow);
 

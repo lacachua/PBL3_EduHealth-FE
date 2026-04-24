@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import DataTable from '../../../shared/components/admin/DataTable';
-import EmptyState from '../../../shared/components/admin/EmptyState';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import DataTable from '../../../shared/components/core/DataTable';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import StudentPickerModal from '../components/StudentPickerModal';
 import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
 import { getExaminations } from '../services/getExaminations';
+import { adaptExaminationListResponse } from '../adapters/examinationAdapter';
 
 const defaultFilters = {
   localKeyword: '',
@@ -23,39 +24,6 @@ const defaultListData = {
   pageSize: EXAMINATION_PAGE_SIZE,
   totalItems: 0,
   totalPages: 0,
-};
-
-const dateLabel = (value) => {
-  if (!value) return '--';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return String(value);
-  return parsed.toLocaleDateString('vi-VN');
-};
-
-const parseExaminationListEnvelope = (envelope) => {
-  const rows = Array.isArray(envelope?.data)
-    ? envelope.data
-    : Array.isArray(envelope?.data?.items)
-      ? envelope.data.items
-      : [];
-
-  return {
-    rows: rows.map((item) => ({
-      id: item.id,
-      visitDate: item.visitDate,
-      studentName: item.student?.fullName || '--',
-      studentCode: item.student?.studentCode || '--',
-      studentRecordId: item.student?.studentId || '--',
-      className: item.student?.className || '--',
-      diseaseTypeName: item.diseaseType?.name || '--',
-      diagnosis: item.diagnosis || '--',
-      hasPrescription: Boolean(item.hasPrescription),
-    })),
-    page: Number(envelope?.meta?.page || 1),
-    pageSize: Number(envelope?.meta?.pageSize || EXAMINATION_PAGE_SIZE),
-    totalItems: Number(envelope?.meta?.totalItems || rows.length),
-    totalPages: Number(envelope?.meta?.totalPages || 0),
-  };
 };
 
 const normalizeFiltersForApply = (filters) => ({
@@ -94,7 +62,7 @@ const ExaminationLandingPage = () => {
         toDate: nextFilters.toDate,
       });
 
-      const mapped = parseExaminationListEnvelope(response);
+      const mapped = adaptExaminationListResponse(response);
       setListData(mapped);
       setStatus(mapped.rows.length ? 'success' : 'empty');
     } catch (apiError) {
@@ -167,20 +135,20 @@ const ExaminationLandingPage = () => {
     {
       key: 'id',
       header: 'Mã phiếu',
-      headerClassName: 'w-[128px]',
+      headerClassName: 'w-[12%] min-w-[110px]',
       cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-primary',
     },
     {
       key: 'visitDate',
       header: 'Ngày khám',
-      headerClassName: 'w-[120px]',
+      headerClassName: 'w-[12%] min-w-[110px]',
       cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
-      render: (row) => dateLabel(row.visitDate),
+      render: (row) => row.visitDateLabel,
     },
     {
       key: 'studentName',
       header: 'Học sinh',
-      headerClassName: 'w-[240px]',
+      headerClassName: 'w-[28%] min-w-[180px]',
       render: (row) => (
         <div>
           <p className="text-[13px] font-semibold text-on-surface">{row.studentName}</p>
@@ -195,28 +163,27 @@ const ExaminationLandingPage = () => {
       ),
     },
     {
-      key: 'diseaseTypeName',
-      header: 'Loại bệnh',
-      headerClassName: 'w-[180px]',
-      cellClassName: 'text-[12px] text-on-surface-variant',
-    },
-    {
-      key: 'diagnosis',
-      header: 'Chẩn đoán',
-      cellClassName: 'min-w-[220px] text-[12px] text-on-surface',
-      render: (row) => <p className="line-clamp-2">{row.diagnosis}</p>,
+      key: 'diagnosisMerged',
+      header: 'Loại bệnh / Chẩn đoán',
+      headerClassName: 'w-[36%] min-w-[200px]',
+      cellClassName: 'min-w-[200px] text-[12px] text-on-surface',
+      render: (row) => (
+        <div>
+          <p className="font-semibold text-on-surface line-clamp-1">{row.diseaseTypeName || 'Chưa xác định'}</p>
+          <p className="text-on-surface-variant line-clamp-1 mt-0.5" title={row.diagnosis}>{row.diagnosis || '--'}</p>
+        </div>
+      ),
     },
     {
       key: 'hasPrescription',
       header: 'Đơn thuốc',
-      headerClassName: 'w-[156px] text-right',
+      headerClassName: 'w-[12%] min-w-[100px] text-right',
       cellClassName: 'whitespace-nowrap',
       render: (row) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end">
           <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-success-soft text-success' : 'bg-surface-container-low text-on-surface-variant'}`}>
             {row.hasPrescription ? 'Có' : 'Không'}
           </span>
-          <span className="material-symbols-outlined text-[16px] text-on-surface-muted" aria-hidden="true">chevron_right</span>
         </div>
       ),
     },
@@ -320,8 +287,9 @@ const ExaminationLandingPage = () => {
         </form>
       </section>
 
-      <section className="app-panel-shell overflow-hidden">
-        <div className="app-table-summary px-3 py-2 text-[11px] sm:px-4">
+      <section className="app-panel-shell space-y-3 p-4 md:p-5">
+        <h2 className="text-lg font-bold text-on-surface">Danh sách phiếu khám</h2>
+        <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
           Đang hiển thị <span className="font-semibold text-on-surface">{displayedRows.length}</span> phiếu trên trang này • Tổng <span className="font-semibold text-on-surface">{listData.totalItems}</span> phiếu khám
         </div>
 
@@ -335,24 +303,19 @@ const ExaminationLandingPage = () => {
           containerClassName="px-0 py-2"
         >
           {displayedRows.length ? (
-            <div className="space-y-3">
+            <>
               <DataTable
                 dense
                 columns={columns}
                 rows={displayedRows}
                 getRowKey={(row) => row.id}
                 onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
-                containerClassName="overflow-x-auto"
-                tableClassName="min-w-[940px] w-full divide-y divide-outline-variant text-[13px]"
-                headClassName="app-table-head text-left"
-                bodyClassName="divide-y divide-outline-variant bg-surface"
-                rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low focus-within:bg-surface-container-low"
+                tableClassName="min-w-[760px] w-full text-left text-sm"
               />
 
               {listData.totalPages > 1 ? (
-                <div className="border-t border-outline-variant px-3 py-2 sm:px-4">
+                <div className="pt-2">
                   <Pagination
-                    compact
                     page={listData.page}
                     pageSize={listData.pageSize}
                     totalItems={listData.totalItems}
@@ -360,7 +323,7 @@ const ExaminationLandingPage = () => {
                   />
                 </div>
               ) : null}
-            </div>
+            </>
           ) : (
             <div className="px-4 py-5 sm:px-5">
               <EmptyState

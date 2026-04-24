@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { getExaminationDetail } from '../services/getExaminationDetail';
-
-const dateTimeLabel = (value) => {
-  if (!value) return '--';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return String(value);
-  return parsed.toLocaleString('vi-VN', { hour12: false });
-};
+import { adaptExaminationDetailResponse } from '../adapters/examinationAdapter';
 
 const ExaminationDetailPage = () => {
   const navigate = useNavigate();
@@ -47,8 +41,9 @@ const ExaminationDetailPage = () => {
           return;
         }
 
-        setData(response?.data || null);
-        setStatus(response?.data ? 'success' : 'empty');
+        const adapted = adaptExaminationDetailResponse(response);
+        setData(adapted);
+        setStatus(adapted ? 'success' : 'empty');
       } catch (apiError) {
         if (!isMounted) {
           return;
@@ -84,22 +79,56 @@ const ExaminationDetailPage = () => {
         }}
       />
 
-      <section className="app-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Chi tiết phiếu khám</h1>
-            <p className="mt-1 text-sm text-[#5F746B]">Theo dõi toàn bộ thông tin lần khám và toa thuốc đã ghi nhận.</p>
+      {data ? (
+        <section className="app-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">
+                  Phiếu khám <span className="text-[#64748B]">{data.id}</span>
+                </h1>
+                {data.statusLabel && (
+                  <span className="inline-flex items-center rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-semibold text-[#166534]">
+                    {data.statusLabel}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm text-[#5F746B]">
+                {data.student?.fullName || '--'} • Lớp {data.student?.className || '--'} • {data.visitDateLabel || '--'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/nurse/examinations')}
+              className="app-btn-secondary app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            >
+              <span className="material-symbols-outlined text-[17px]">arrow_back</span>
+              Quay lại danh sách
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate('/nurse/examinations')}
-            className="app-btn-secondary app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
-          >
-            <span className="material-symbols-outlined text-[17px]">arrow_back</span>
-            Quay lại danh sách
-          </button>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="app-banner-soft rounded-2xl px-4 py-3.5 sm:px-5 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">
+                Chi tiết phiếu khám
+              </h1>
+              <p className="mt-1 text-sm text-[#5F746B]">
+                Đang tải thông tin...
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/nurse/examinations')}
+              className="app-btn-secondary app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold"
+            >
+              <span className="material-symbols-outlined text-[17px]">arrow_back</span>
+              Quay lại danh sách
+            </button>
+          </div>
+        </section>
+      )}
 
       <AdminAsyncState
         status={effectiveStatus}
@@ -113,80 +142,97 @@ const ExaminationDetailPage = () => {
         {data ? (
           <div className="space-y-3.5">
             <section className="app-card-shell rounded-xl p-4">
-              <h2 className="text-sm font-bold text-[#163126]">Thông tin chung</h2>
-              <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <dt className="text-xs text-[#64748B]">Mã phiếu khám</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.id || '--'}</dd>
+                  <h2 className="font-headline text-[0.97rem] font-bold text-[#163126]">Thông tin chung</h2>
+                  <p className="mt-0.5 text-[11px] text-[#5F746B]">Thông tin tổng quan về phiếu khám</p>
+                </div>
+              </div>
+              <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Mã phiếu khám</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.id || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#64748B]">Ngày khám</dt>
-                  <dd className="font-medium text-[#0F172A]">{dateTimeLabel(data.visitDate)}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Ngày khám</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.visitDateTimeLabel}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#64748B]">Học sinh</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.student?.fullName || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Học sinh</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.student?.fullName || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#64748B]">Mã học sinh</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.student?.studentCode || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Lớp</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.student?.className || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#64748B]">Mã hồ sơ</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.student?.studentId || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Mã hồ sơ</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.student?.studentId || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#64748B]">Lớp</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.student?.className || '--'}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-[#64748B]">Y tá phụ trách</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.nurse?.fullName || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Y tá phụ trách</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.nurse?.fullName || '--'}</dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-xs text-[#64748B]">Loại bệnh</dt>
-                  <dd className="font-medium text-[#0F172A]">{data.diseaseType?.name || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Loại bệnh</dt>
+                  <dd className="mt-1 text-sm font-medium text-[#0F172A]">{data.diseaseType?.name || '--'}</dd>
                 </div>
               </dl>
             </section>
 
             <section className="app-card-shell rounded-xl p-4">
-              <h2 className="text-sm font-bold text-[#163126]">Nội dung khám</h2>
-              <div className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155]">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <p className="text-xs text-[#64748B]">Triệu chứng</p>
-                  <p className="font-medium text-[#0F172A]">{data.symptoms || '--'}</p>
+                  <h2 className="font-headline text-[0.97rem] font-bold text-[#163126]">Nội dung khám</h2>
+                  <p className="mt-0.5 text-[11px] text-[#5F746B]">Chẩn đoán và hướng xử lý</p>
                 </div>
-                <div>
-                  <p className="text-xs text-[#64748B]">Chẩn đoán</p>
-                  <p className="font-medium text-[#0F172A]">{data.diagnosis || '--'}</p>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 sm:col-span-2">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Triệu chứng</p>
+                  <p className="mt-1 text-sm text-[#0F172A]">{data.symptoms || '--'}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-[#64748B]">Hướng xử lý</p>
-                  <p className="font-medium text-[#0F172A]">{data.treatment || '--'}</p>
+                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Chẩn đoán</p>
+                  <p className="mt-1 text-sm text-[#0F172A]">{data.diagnosis || '--'}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-[#64748B]">Ghi chú</p>
-                  <p className="font-medium text-[#0F172A]">{data.note || '--'}</p>
+                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Hướng xử lý</p>
+                  <p className="mt-1 text-sm text-[#0F172A]">{data.treatment || '--'}</p>
+                </div>
+                <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 sm:col-span-2">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Ghi chú</p>
+                  <p className="mt-1 text-sm text-[#0F172A]">{data.note || '--'}</p>
                 </div>
               </div>
             </section>
 
             <section className="app-card-shell rounded-xl p-4">
-              <h2 className="text-sm font-bold text-[#163126]">Đơn thuốc</h2>
-              {Array.isArray(data.prescriptions) && data.prescriptions.length ? (
-                <div className="mt-2 space-y-2">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h2 className="font-headline text-[0.97rem] font-bold text-[#163126]">Đơn thuốc</h2>
+                  <p className="mt-0.5 text-[11px] text-[#5F746B]">Danh sách thuốc được cấp phát</p>
+                </div>
+              </div>
+              {data.hasPrescription ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {data.prescriptions.map((item) => (
-                    <article key={item.prescriptionId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-                      <p className="text-sm font-semibold text-[#163126]">{item.medicineName || '--'}</p>
-                      <p className="text-xs text-[#5F746B]">Số lượng: {item.quantity ?? '--'}</p>
-                      <p className="text-xs text-[#5F746B]">Liều dùng: {item.dosage || '--'}</p>
-                      <p className="text-xs text-[#5F746B]">Hướng dẫn sử dụng: {item.usageInstruction || '--'}</p>
+                    <article key={item.prescriptionId} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-[#0F172A]">{item.medicineName}</p>
+                        <span className="inline-flex items-center rounded-full bg-[#E2E8F0] px-2 py-0.5 text-[11px] font-semibold text-[#334155]">
+                          SL: {item.quantity}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Liều dùng</p>
+                      <p className="text-sm text-[#0F172A]">{item.dosage}</p>
+                      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Hướng dẫn sử dụng</p>
+                      <p className="text-sm text-[#0F172A]">{item.usageInstruction}</p>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-[#64748B]">Phiếu khám không có đơn thuốc.</p>
+                <p className="text-sm text-[#64748B]">Chưa có đơn thuốc được cấp phát.</p>
               )}
             </section>
           </div>

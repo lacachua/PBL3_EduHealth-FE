@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import ErrorState from '../../../shared/components/admin/ErrorState';
-import LoadingSpinner from '../../../shared/components/admin/LoadingSpinner';
-import Pagination from '../../../shared/components/admin/Pagination';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import ErrorState from '../../../shared/components/core/ErrorState';
+import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
+import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -240,6 +240,14 @@ const NurseVaccinationCampaignDetailPage = () => {
       setHistoryRows(mapped);
       setHistoryStatus(mapped.length ? 'success' : 'empty');
     } catch (error) {
+      const statusCode = Number(error?.response?.status || 0);
+      if (statusCode === 404) {
+        setHistoryRows([]);
+        setHistoryError('');
+        setHistoryStatus('empty');
+        return;
+      }
+
       setHistoryStatus('error');
       setHistoryError(resolveApiError(error));
     }
@@ -336,11 +344,10 @@ const NurseVaccinationCampaignDetailPage = () => {
                           setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
                           setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
                         }}
-                        className={`app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${
-                          activeTab === tab.key
-                              ? 'bg-primary-soft text-primary'
-                              : 'text-on-surface-variant hover:bg-surface-container-low'
-                        }`}
+                        className={`app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${activeTab === tab.key
+                          ? 'bg-primary-soft text-primary'
+                          : 'text-on-surface-variant hover:bg-surface-container-low'
+                          }`}
                       >
                         {tab.label}
                       </button>
@@ -350,7 +357,7 @@ const NurseVaccinationCampaignDetailPage = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/nurse/vaccinations/pending')}
-                      className="app-focus-ring app-row-action"
+                    className="app-focus-ring app-row-action"
                   >
                     <span className="material-symbols-outlined text-[16px]">pending_actions</span>
                     Mở trang theo dõi chưa hoàn thành
@@ -396,12 +403,14 @@ const NurseVaccinationCampaignDetailPage = () => {
                 />
 
                 {(effectiveStatus === 'success' || effectiveStatus === 'empty') && effectivePaging.totalPages > 1 ? (
-                  <Pagination
-                    page={effectivePaging.page}
-                    pageSize={effectivePaging.pageSize}
-                    totalItems={effectivePaging.totalItems}
-                    onPageChange={(nextPage) => setPage(nextPage)}
-                  />
+                  <div className="pt-2">
+                    <Pagination
+                      page={effectivePaging.page}
+                      pageSize={effectivePaging.pageSize}
+                      totalItems={effectivePaging.totalItems}
+                      onPageChange={(nextPage) => setPage(nextPage)}
+                    />
+                  </div>
                 ) : null}
               </section>
             </>

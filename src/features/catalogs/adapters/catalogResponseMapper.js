@@ -1,4 +1,6 @@
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
+import { extractRows, extractMeta, extractItem } from '../../../shared/adapters/envelopeAdapter';
+import { formatDateTime } from '../../../shared/utils/dateFormat';
 import { mapCatalogStatusLabel, mapCatalogStatusTone } from './catalogStatusMapper';
 
 const defaultListModel = {
@@ -10,12 +12,7 @@ const defaultListModel = {
   totalPages: 1,
 };
 
-const toDisplayDate = (value) => {
-  if (!value) return '--';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString('vi-VN', { hour12: false });
-};
+const toDisplayDate = (value) => formatDateTime(value);
 
 const mapCatalogRecord = (item = {}, fallbackGroup = 'vaccines') => {
   const status = item.status || item.state || 'inactive';
@@ -43,32 +40,26 @@ export const mapCatalogListResponse = (responseOrPayload, fallbackGroup = 'vacci
     return defaultListModel;
   }
 
-  const sourceRows = Array.isArray(envelope.data)
-    ? envelope.data
-    : Array.isArray(envelope.data?.items)
-      ? envelope.data.items
-      : [];
-
+  const sourceRows = extractRows(envelope);
   const group = envelope.data?.group || envelope.data?.type || fallbackGroup;
   const rows = sourceRows.map((item) => mapCatalogRecord(item, group));
+  const meta = extractMeta(envelope, defaultListModel);
 
   return {
     group,
     rows,
-    page: Number(envelope.meta?.page || 1),
-    pageSize: Number(envelope.meta?.pageSize || 10),
-    totalItems: Number(envelope.meta?.totalItems || rows.length),
-    totalPages: Number(envelope.meta?.totalPages || 1),
+    ...meta,
   };
 };
 
 export const mapCatalogDetailResponse = (responseOrPayload, fallbackGroup = 'vaccines') => {
   const envelope = normalizeApiEnvelope(responseOrPayload);
-  if (!envelope || envelope.success === false || !envelope.data) {
+  const detailSource = extractItem(envelope);
+
+  if (!detailSource) {
     return null;
   }
 
-  const detailSource = envelope.data.item || envelope.data;
   return mapCatalogRecord(detailSource, fallbackGroup);
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import RightDrawer from '../admin/RightDrawer';
+import RightDrawer from '../core/RightDrawer';
 
 const NurseDrawerShell = ({
   open,

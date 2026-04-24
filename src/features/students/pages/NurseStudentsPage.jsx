@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/admin/AdminAsyncState';
-import AdminFeedbackToast from '../../../shared/components/admin/AdminFeedbackToast';
-import DataTable from '../../../shared/components/admin/DataTable';
-import EmptyState from '../../../shared/components/admin/EmptyState';
-import Pagination from '../../../shared/components/admin/Pagination';
-import RightDrawer from '../../../shared/components/admin/RightDrawer';
+import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
+import DataTable from '../../../shared/components/core/DataTable';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import Pagination from '../../../shared/components/core/Pagination';
+import RightDrawer from '../../../shared/components/core/RightDrawer';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { DATA_MODULES } from '../../../app/config/dataMode';
@@ -379,14 +379,14 @@ const NurseStudentsPage = () => {
       {
         key: 'studentCode',
         header: 'Mã học sinh',
-        headerClassName: 'w-[98px]',
+        headerClassName: 'w-[10%] min-w-[100px]',
         cellClassName: 'whitespace-nowrap text-[12px] font-bold text-success',
         render: (row) => row.studentCodeDisplay,
       },
       {
         key: 'fullName',
         header: 'Họ tên',
-        headerClassName: 'w-[220px]',
+        headerClassName: 'w-[24%] min-w-[200px]',
         cellClassName: 'min-w-0',
         render: (row) => (
           <button
@@ -402,19 +402,19 @@ const NurseStudentsPage = () => {
       {
         key: 'classNameDisplay',
         header: 'Lớp',
-        headerClassName: 'w-[70px]',
+        headerClassName: 'w-[8%] min-w-[70px]',
         cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-on-surface',
       },
       {
         key: 'genderDisplay',
         header: 'Giới tính',
-        headerClassName: 'w-[86px]',
+        headerClassName: 'w-[8%] min-w-[80px]',
         cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-muted',
       },
       {
         key: 'healthStatusKey',
         header: 'Trạng thái sức khỏe',
-        headerClassName: 'w-[150px]',
+        headerClassName: 'w-[14%] min-w-[140px]',
         cellClassName: 'whitespace-nowrap',
         render: (row) => {
           const meta = HEALTH_STATUS_META[row.healthStatusKey] || HEALTH_STATUS_META.normal;
@@ -425,7 +425,7 @@ const NurseStudentsPage = () => {
       {
         key: 'alerts',
         header: 'Cảnh báo y tế',
-        headerClassName: 'w-[180px]',
+        headerClassName: 'w-[16%] min-w-[160px]',
         cellClassName: 'min-w-0',
         render: (row) => {
           if (!row.alerts.length) {
@@ -455,21 +455,10 @@ const NurseStudentsPage = () => {
       {
         key: 'actions',
         header: 'Thao tác',
-        headerClassName: 'w-[182px] min-w-[182px] whitespace-nowrap text-right',
-        cellClassName: 'min-w-[182px] text-right',
+        headerClassName: 'w-[10%] min-w-[100px] whitespace-nowrap text-right',
+        cellClassName: 'min-w-[100px] text-right',
         render: (row) => (
-          <div className="flex justify-end gap-1.5">
-            <button
-              type="button"
-              onClick={() => navigateToHealthProfile(row._studentId, {
-                source: 'nurse-students',
-                studentId: row._studentId,
-                studentName: row.fullName,
-              })}
-              className="app-focus-ring app-row-action"
-            >
-              Mở hồ sơ
-            </button>
+          <div className="flex justify-end gap-1.5" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
             <button
               type="button"
               onClick={() => navigateToExaminationByStudent(row)}
@@ -600,8 +589,9 @@ const NurseStudentsPage = () => {
         </article>
       </section>
 
-      <section className="app-card-shell overflow-hidden rounded-2xl">
-        <div className="app-table-summary px-3 py-2 text-[11px] sm:px-4">
+      <section className="app-panel-shell space-y-3 p-4 md:p-5">
+        <h2 className="text-lg font-bold text-on-surface">Danh sách học sinh</h2>
+        <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
           Hiển thị <span className="font-semibold text-on-surface">{filteredRows.length}</span> bản ghi trên trang này • Tổng <span className="font-semibold text-on-surface">{tableData.totalItems}</span> học sinh
         </div>
 
@@ -620,16 +610,11 @@ const NurseStudentsPage = () => {
                 columns={tableColumns}
                 rows={filteredRows}
                 getRowKey={(row) => row._studentId || row.studentCode || row.fullName}
-                containerClassName="overflow-x-auto overflow-y-visible"
-                tableClassName="min-w-[980px] w-full table-fixed divide-y divide-outline-variant text-[13px]"
-                headClassName="app-table-head text-left"
-                bodyClassName="divide-y divide-outline-variant bg-surface"
-                rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
+                tableClassName="min-w-[860px] w-full text-left text-sm"
               />
 
-              <div className="border-t border-outline-variant px-3 py-2 sm:px-4">
+              <div className="pt-2">
                 <Pagination
-                  compact
                   page={tableData.page}
                   pageSize={tableData.pageSize}
                   totalItems={tableData.totalItems}
