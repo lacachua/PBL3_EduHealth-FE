@@ -1,101 +1,59 @@
-import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
-import { apiGetEnvelope, apiPostEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
-import { waitForMock } from '../../../shared/config/runtimeConfig';
 import {
-  getAdminReportsDashboardMockEnvelope,
-  getAdminReportsClassDetailMockEnvelope,
-  getSaveDirectiveMockEnvelope,
-} from '../mocks/adminReportsMock';
-
-const shouldUseMock = () => resolveModuleDataSource(DATA_MODULES.ADMIN_REPORTS) === 'mock';
-
-const buildMockExportBlob = ({ format, filters = {} }) => {
-  const reportType = String(filters.reportType || 'overview');
-  const classId = String(filters.classId || 'all');
-  const fromDate = String(filters.fromDate || '');
-  const toDate = String(filters.toDate || '');
-
-  if (format === 'xlsx') {
-    const csv = [
-      'reportType,classId,fromDate,toDate',
-      `${reportType},${classId},${fromDate},${toDate}`,
-    ].join('\n');
-
-    return {
-      mode: 'blob',
-      blob: new Blob([csv], { type: 'text/csv;charset=utf-8' }),
-      filename: 'admin-report-mock.csv',
-      mimeType: 'text/csv',
-    };
-  }
-
-  const lines = [
-    'BAO CAO ADMIN (MOCK)',
-    `Loai bao cao: ${reportType}`,
-    `Lop: ${classId}`,
-    `From: ${fromDate}`,
-    `To: ${toDate}`,
-  ].join('\n');
-
-  return {
-    mode: 'blob',
-    blob: new Blob([lines], { type: 'application/pdf' }),
-    filename: 'admin-report-mock.pdf',
-    mimeType: 'application/pdf',
-  };
-};
+  exportAdminReportsApi,
+  getAdminClassDetailApi,
+  getAdminReportsDashboardApi,
+  saveAdminClassDirectiveApi,
+} from '../services/adminReportsApi';
 
 const extractFilenameFromContentDisposition = (contentDisposition) => {
   if (!contentDisposition) return null;
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;\n]*)/i);
+  if (utf8Match?.[1]) {
+    return decodeURIComponent(utf8Match[1]);
+  }
+
   const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     return match[1].replace(/['"]/g, '');
   }
   return null;
 };
 
+const toNullableInt = (value) => {
+  if (!value || value === 'all') return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const buildReportQuery = (filters = {}) => {
+  const classId = toNullableInt(filters.classId);
+
+  return {
+    ...(filters.fromDate && { fromDate: filters.fromDate }),
+    ...(filters.toDate && { toDate: filters.toDate }),
+    ...(classId && { classId }),
+  };
+};
+
 export const adminReportsRepository = {
   getDashboard: async (filters = {}) => {
-    if (shouldUseMock()) {
-      await waitForMock('adminDashboard');
-      return getAdminReportsDashboardMockEnvelope(filters);
-    }
-
-    return apiGetEnvelope('/api/v1/reports/admin/dashboard');
+    return getAdminReportsDashboardApi(buildReportQuery(filters));
   },
 
-  getClassDetail: async ({ classId, filters = {} }) => {
-    if (shouldUseMock()) {
-      await waitForMock('adminDashboard');
-      return getAdminReportsClassDetailMockEnvelope({ classId, filters });
-    }
-
-    return apiGetEnvelope(`/api/v1/reports/admin/classes/${classId}`);
+  getClassDetail: async ({ classId }) => {
+    return getAdminClassDetailApi(classId);
   },
 
   export: async ({ filters, format }) => {
-    if (shouldUseMock()) {
-      await waitForMock('adminDashboard');
-      return buildMockExportBlob({ format, filters });
-    }
-
-    const params = {
+    const response = await exportAdminReportsApi({
       format,
-      ...(filters.fromDate && { fromDate: filters.fromDate }),
-      ...(filters.toDate && { toDate: filters.toDate }),
-      ...(filters.classId && filters.classId !== 'all' && { classId: parseInt(filters.classId, 10) }),
-    };
-
-    const response = await apiRequestRaw({
-      method: 'get',
-      url: '/api/v1/reports/admin/export',
-      params,
-      responseType: 'blob',
+      ...buildReportQuery(filters),
     });
 
     const blob = response.data;
     const contentDisposition = response.headers['content-disposition'];
-    const filename = extractFilenameFromContentDisposition(contentDisposition) || `admin-report.${format}`;
+    const filename = extractFilenameFromContentDisposition(contentDisposition)
+      || (format === 'xlsx' ? 'bao-cao-y-te-hoc-duong.xlsx' : 'bao-cao-y-te-hoc-duong.pdf');
 
     return {
       mode: 'blob',
@@ -106,18 +64,10 @@ export const adminReportsRepository = {
   },
 
   saveDirective: async ({ classId, note }) => {
-    if (shouldUseMock()) {
-      await waitForMock('adminDashboard');
-      return getSaveDirectiveMockEnvelope({ classId, note });
-    }
-
-    const payload = {
-      classId: classId && classId !== 'all' ? parseInt(classId, 10) : null,
+    return saveAdminClassDirectiveApi({
+      classId: toNullableInt(classId),
       title: 'Chỉ đạo từ báo cáo',
       content: note,
-      priority: 'NORMAL',
-    };
-
-    return apiPostEnvelope('/api/v1/reports/admin/directives', payload);
+    });
   },
 };

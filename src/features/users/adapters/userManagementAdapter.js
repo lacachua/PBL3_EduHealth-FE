@@ -2,8 +2,11 @@ import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 import { formatDateTime } from '../../../shared/utils/dateFormat';
 import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP } from '../schemas/userManagementSchema';
 
+import { normalizeAccountStatus } from '../../../shared/utils/statusHelper';
+
 export const adaptUserRow = (item) => {
   const lastLogin = item.lastLoginAt || item.lastLogin || item.lastSignedInAt || null;
+  const status = normalizeAccountStatus(item.status, item.isActive);
 
   return {
     id: item.id,
@@ -12,7 +15,7 @@ export const adaptUserRow = (item) => {
     email: item.email,
     phoneNumber: item.phoneNumber || '',
     role: item.role,
-    status: item.status,
+    status: status,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     lastLoginAt: lastLogin,
@@ -21,8 +24,8 @@ export const adaptUserRow = (item) => {
     lastLoginAtLabel: formatDateTime(lastLogin),
     roleLabel: ROLE_LABEL_MAP[item.role] || item.role,
     roleTone: ROLE_TONE_MAP[item.role] || 'neutral',
-    statusLabel: STATUS_LABEL_MAP[item.status] || item.status,
-    statusTone: STATUS_TONE_MAP[item.status] || 'neutral',
+    statusLabel: STATUS_LABEL_MAP[status] || status,
+    statusTone: STATUS_TONE_MAP[status] || 'neutral',
   };
 };
 

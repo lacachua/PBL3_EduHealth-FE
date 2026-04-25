@@ -9,6 +9,8 @@ import StudentTable from '../components/StudentTable';
 import StudentCreateModal from '../components/StudentCreateModal';
 import { STUDENT_BASE_CLASS } from '../constants/studentUiTokens';
 import { STUDENT_MANAGEMENT_COPY } from '../constants/studentManagementCopy';
+import UserStatusConfirmModal from '../../users/components/UserStatusConfirmModal';
+import ResetPasswordModal from '../../users/components/ResetPasswordModal';
 import { useStudentManagement } from '../hooks/useStudentManagement';
 import { useStudentManagementPageState } from '../hooks/useStudentManagementPageState';
 
@@ -34,6 +36,8 @@ const StudentManagementPage = () => {
     onPageChange,
     fetchList,
     fetchStudentDetail,
+    toggleStatus,
+    resetPassword,
   } = useStudentManagement();
 
   const {
@@ -48,6 +52,15 @@ const StudentManagementPage = () => {
     closeFeedback,
     handleCreateSuccess,
     retryStudentDetail,
+    askEditStudent,
+    statusConfirmUser,
+    resetPasswordUser,
+    askToggleStatus,
+    askResetPassword,
+    closeStatusConfirmModal,
+    closeResetPasswordModal,
+    handleConfirmStatus,
+    handleResetPasswordConfirm,
   } = useStudentManagementPageState({
     locationState: location.state,
     selectedStudent,
@@ -96,7 +109,15 @@ const StudentManagementPage = () => {
         loadingLabel={STUDENT_MANAGEMENT_COPY.loadingLabel}
         emptyTitle={STUDENT_MANAGEMENT_COPY.emptyTitle}
         emptyDescription={STUDENT_MANAGEMENT_COPY.emptyDescription}
-        table={<StudentTable rows={tableData.rows} onViewDetail={openStudentDetail} />}
+        table={(
+          <StudentTable
+            rows={tableData.rows}
+            onViewDetail={openStudentDetail}
+            onEdit={askEditStudent}
+            onToggleStatus={askToggleStatus}
+            onResetPassword={askResetPassword}
+          />
+        )}
         pagination={{
           page: tableData.page,
           pageSize: tableData.pageSize,
@@ -114,6 +135,8 @@ const StudentManagementPage = () => {
         syncMessage={basicSyncMessage || healthSyncMessage}
         onClose={() => setDetailOpen(false)}
         onRetry={retryStudentDetail}
+        onToggleStatus={askToggleStatus}
+        onResetPassword={askResetPassword}
       />
 
       <StudentCreateModal
@@ -121,6 +144,22 @@ const StudentManagementPage = () => {
         fromAdminUsers={fromAdminUsers}
         onClose={() => setCreateOpen(false)}
         onSuccess={handleCreateSuccess}
+      />
+
+      <UserStatusConfirmModal
+        open={Boolean(statusConfirmUser)}
+        user={statusConfirmUser}
+        submitting={false}
+        onCancel={closeStatusConfirmModal}
+        onConfirm={(reason) => handleConfirmStatus(toggleStatus, reason)}
+      />
+
+      <ResetPasswordModal
+        open={Boolean(resetPasswordUser)}
+        user={resetPasswordUser}
+        submitting={false}
+        onCancel={closeResetPasswordModal}
+        onConfirm={(payload) => handleResetPasswordConfirm(resetPassword, payload)}
       />
     </div>
   );

@@ -33,11 +33,6 @@ const CreateNurseAccountModalContent = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  const isFormValid = useMemo(() => {
-    const nextErrors = validateUserForm({ values: form, isEdit: false });
-    return Object.keys(nextErrors).length === 0;
-  }, [form]);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button type="button" className="absolute inset-0 bg-on-surface/32" onClick={onClose} aria-label="Đóng" />
@@ -93,7 +88,7 @@ const CreateNurseAccountModalContent = ({
               error={mergedErrors.email}
             />
             <EditableField
-              label="Số điện thoại (không bắt buộc)"
+              label="Số điện thoại *"
               value={form.phoneNumber}
               onChange={(value) => setForm((prev) => ({ ...prev, phoneNumber: value }))}
               placeholder="Ví dụ: 0905123456"
@@ -114,7 +109,7 @@ const CreateNurseAccountModalContent = ({
             </button>
             <button
               type="button"
-              disabled={submitting || !isFormValid}
+              disabled={submitting}
               onClick={async () => {
                 const nextErrors = validateUserForm({ values: form, isEdit: false });
                 setErrors(nextErrors);

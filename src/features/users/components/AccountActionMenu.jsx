@@ -10,7 +10,7 @@ const toneClassMap = {
 
 const AccountActionMenu = ({ items }) => {
   const [open, setOpen] = useState(false);
-  const [openUpward, setOpenUpward] = useState(false);
+  const [menuStyle, setMenuStyle] = useState({});
   const containerRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -31,8 +31,13 @@ const AccountActionMenu = ({ items }) => {
       const viewportHeight = window.innerHeight;
       const spaceBelow = viewportHeight - buttonRect.bottom;
       const menuHeight = 200;
+      const menuWidth = 182;
+      const top = spaceBelow < menuHeight && buttonRect.top > menuHeight
+        ? Math.max(8, buttonRect.top - menuHeight)
+        : Math.min(viewportHeight - 8, buttonRect.bottom + 4);
+      const left = Math.max(8, Math.min(buttonRect.right - menuWidth, window.innerWidth - menuWidth - 8));
 
-      setOpenUpward(spaceBelow < menuHeight && buttonRect.top > menuHeight);
+      setMenuStyle({ top, left, minWidth: menuWidth });
     }
   }, [open]);
 
@@ -49,7 +54,11 @@ const AccountActionMenu = ({ items }) => {
       </button>
 
       {open ? (
-        <div className={`absolute right-0 z-30 min-w-[182px] rounded-lg border bg-surface p-1.5 shadow-[0_16px_30px_-20px_rgba(15,23,42,0.55)] ${ACCOUNT_BASE_CLASS.border} ${openUpward ? 'bottom-9' : 'top-9'}`}>
+        <div
+          style={menuStyle}
+          className={`fixed z-50 rounded-lg border bg-surface p-1.5 shadow-[0_16px_30px_-20px_rgba(15,23,42,0.55)] ${ACCOUNT_BASE_CLASS.border}`}
+          data-row-click-stop="true"
+        >
           {items.map((item) => (
             <button
               key={item.id}

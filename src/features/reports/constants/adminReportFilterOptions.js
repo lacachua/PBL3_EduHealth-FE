@@ -1,7 +1,7 @@
 export const adminReportFilterOptions = {
   reportTypes: [
     'Đánh giá sức khỏe tổng hợp định kỳ',
-    'Giám sát tiêm chủng & Miễn dịch',
+    'Giám sát tiêm chủng & miễn dịch',
     'Theo dõi biến động bệnh truyền nhiễm',
     'Hiệu quả quản lý dược phẩm học đường',
   ],

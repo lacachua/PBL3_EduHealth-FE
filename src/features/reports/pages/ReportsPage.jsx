@@ -13,7 +13,6 @@ import ExportActions from '../components/ExportActions';
 import { useAdminReportsDashboard } from '../hooks/useAdminReportsDashboard';
 import { adminReportFilterOptions } from '../constants/adminReportFilterOptions';
 import { ADMIN_REPORT_CAPABILITIES } from '../schemas/adminReportsSchema';
-import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
 import '../styles/reports.css';
 
 const createInitialFilters = () => ({
@@ -27,17 +26,9 @@ const createInitialFilters = () => ({
 });
 
 const ReportsPage = () => {
-  const isMockReportsSource = resolveModuleDataSource(DATA_MODULES.ADMIN_REPORTS) === 'mock';
-  const disableDirectiveWrites = isMockReportsSource || !ADMIN_REPORT_CAPABILITIES.supportsDirectiveWrite;
-  const disableNotificationWrites = isMockReportsSource || !ADMIN_REPORT_CAPABILITIES.supportsNotificationSend;
-
-  const directiveDisabledMessage = isMockReportsSource
-    ? 'Chức năng ghi chú đang ở chế độ mô phỏng và tạm khóa thao tác ghi.'
-    : 'Backend hiện chưa hỗ trợ endpoint lưu ghi chú nội bộ từ báo cáo quản trị.';
-
-  const notificationDisabledMessage = isMockReportsSource
-    ? 'Chức năng gửi thông báo đang ở chế độ mô phỏng và tạm khóa thao tác gửi.'
-    : 'Backend hiện chưa hỗ trợ gửi thông báo trực tiếp từ màn báo cáo quản trị cho role admin.';
+  const disableDirectiveWrites = !ADMIN_REPORT_CAPABILITIES.supportsDirectiveWrite;
+  const disableNotificationWrites = !ADMIN_REPORT_CAPABILITIES.supportsNotificationSend;
+  const disableServerExport = !ADMIN_REPORT_CAPABILITIES.supportsServerExport;
 
   const {
     filters,
@@ -53,30 +44,24 @@ const ReportsPage = () => {
     fetchClassDetail,
     fetchDashboard,
   } = useAdminReportsDashboard(createInitialFilters());
-  const [selectedClassId, setSelectedClassId] = useState('class-1-1');
+
+  const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedClassDetail, setSelectedClassDetail] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [directiveNotes, setDirectiveNotes] = useState({});
 
-  const handleApplyFilters = (nextFilters) => {
-    applyFilters(nextFilters);
-  };
-
   const handleRefreshData = () => {
-    resetFilters();
-    fetchDashboard(createInitialFilters());
+    fetchDashboard(filters);
   };
 
   const handleAnalyzeClass = async (classId) => {
-    if (!classId) {
-      return;
-    }
+    if (!classId) return;
 
     setSelectedClassId(classId);
     try {
       const detail = await fetchClassDetail(classId);
       setSelectedClassDetail(detail);
-      setIsDrawerOpen(true);
+      setIsDrawerOpen(Boolean(detail));
     } catch {
       setSelectedClassDetail(null);
     }
@@ -94,19 +79,13 @@ const ReportsPage = () => {
     await saveDirective({ classId: selectedClassId, note });
   };
 
-  const handleSendNotification = async () => {
-    return Promise.resolve();
-  };
-
-  const currentDirective = directiveNotes[selectedClassId] || '';
-
   const safeHeader = useMemo(() => ({
     title: dashboard.header?.title || 'Báo cáo quản trị y tế học đường',
     description: dashboard.header?.description || 'Đánh giá tổng quát sức khỏe học sinh toàn trường và theo dõi biến động bệnh lý định kỳ.',
   }), [dashboard.header?.description, dashboard.header?.title]);
 
   return (
-    <div className="app-page-bg relative space-y-4 rounded-xl p-4 sm:p-5">
+    <div className="app-page-bg relative max-w-full min-w-0 space-y-4 overflow-x-hidden rounded-xl p-4 sm:p-5">
       <PageHeader
         title={safeHeader.title}
         description={safeHeader.description}
@@ -122,24 +101,22 @@ const ReportsPage = () => {
         )}
       />
 
-      {isMockReportsSource ? (
-        <div className="inline-flex items-center gap-1.5 rounded-lg border border-info/20 bg-info-soft px-3 py-1.5 text-xs font-medium text-info">
-          <span className="material-symbols-outlined text-[15px]">info</span>
-          Dữ liệu báo cáo hiện chạy ở chế độ mô phỏng, thao tác ghi đã tạm khóa.
-        </div>
-      ) : null}
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <div className="text-xs font-semibold uppercase tracking-wider text-on-surface-muted">
           Chế độ báo cáo quản trị
         </div>
-        <ExportActions exporting={exporting} onExport={exportReports} />
+        <ExportActions
+          exporting={exporting}
+          disabled={disableServerExport}
+          disabledMessage="Chưa có API export từ Backend"
+          onExport={exportReports}
+        />
       </div>
 
       <AdminReportFilters
         filters={filters}
         options={dashboard.filterOptions || adminReportFilterOptions}
-        onApply={handleApplyFilters}
+        onApply={applyFilters}
         onReset={resetFilters}
       />
 
@@ -156,13 +133,12 @@ const ReportsPage = () => {
       ) : null}
 
       {status === 'success' ? (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-          <div className="space-y-6 xl:col-span-9">
+        <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-12">
+          <div className="min-w-0 space-y-6 xl:col-span-9">
             <AdminReportMainChart data={dashboard.chartData} meta={dashboard.chartMeta} />
-            <AdminReportDetailTable rows={dashboard.classRows} onAnalyzeClass={handleAnalyzeClass} />
           </div>
 
-          <div className="xl:col-span-3">
+          <div className="min-w-0 xl:col-span-3">
             <AdminReportSidePanel
               highPriorityAlerts={dashboard.sidePanel.highPriorityAlerts}
               lowSupplies={dashboard.sidePanel.lowSupplies}
@@ -170,25 +146,29 @@ const ReportsPage = () => {
               onOpenClassDetail={handleAnalyzeClass}
             />
           </div>
+
+          <div className="col-span-full w-full max-w-none min-w-0">
+            <AdminReportDetailTable rows={dashboard.classRows} onAnalyzeClass={handleAnalyzeClass} />
+          </div>
         </div>
       ) : null}
 
       <AdminReportDetailDrawer
         isOpen={isDrawerOpen}
         detail={selectedClassDetail}
-        directiveNote={currentDirective}
+        directiveNote={directiveNotes[selectedClassId] || ''}
         onDirectiveChange={handleDirectiveChange}
         onClose={() => {
           setIsDrawerOpen(false);
           setSelectedClassDetail(null);
         }}
         onSaveDirective={handleSaveDirective}
-        onSendNotification={handleSendNotification}
+        onSendNotification={() => Promise.resolve()}
         saving={savingDirective}
         writeActionsDisabled={disableDirectiveWrites}
         notificationActionsDisabled={disableNotificationWrites}
-        directiveDisabledMessage={directiveDisabledMessage}
-        notificationDisabledMessage={notificationDisabledMessage}
+        directiveDisabledMessage="Backend chưa hỗ trợ endpoint lưu ghi chú nội bộ từ báo cáo quản trị."
+        notificationDisabledMessage="Chưa nối API gửi thông báo trực tiếp từ màn báo cáo quản trị."
       />
     </div>
   );

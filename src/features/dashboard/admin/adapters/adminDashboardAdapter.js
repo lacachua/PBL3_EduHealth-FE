@@ -97,9 +97,6 @@ export const adaptAdminDashboardEnvelope = (responseOrEnvelope) => {
 
   const dataRoot = envelope?.data && typeof envelope.data === 'object' ? envelope.data : {};
 
-  // The BE returns AdminDashboardOverviewDto directly in envelope.data
-  // (flat fields like totalStudents, totalClasses, etc.), not nested under data.overview.
-  // Support both flat (BE contract) and nested (legacy/mock) shapes.
   const source = dataRoot?.overview && typeof dataRoot.overview === 'object'
     ? dataRoot.overview
     : dataRoot;

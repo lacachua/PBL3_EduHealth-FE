@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const SELECT_CLASS_NAME = 'w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none transition focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10';
+const FIELD_CLASS_NAME = 'w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none transition focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10';
 
 const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
   const [draft, setDraft] = useState(filters);
@@ -18,52 +18,51 @@ const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
     onApply(draft);
   };
 
-  const resetFilters = () => {
-    onReset();
-  };
-
   return (
-    <form onSubmit={applyFilters} className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <div className="space-y-1.5 lg:col-span-4">
+    <form onSubmit={applyFilters} className="min-w-0 rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
+        <div className="space-y-1.5 xl:col-span-3">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Lớp học</label>
-          <select className={SELECT_CLASS_NAME} value={draft.classId} onChange={(event) => updateDraft('classId', event.target.value)}>
+          <select className={FIELD_CLASS_NAME} value={draft.classId} onChange={(event) => updateDraft('classId', event.target.value)}>
             {(options.classOptions || []).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
           </select>
         </div>
 
-        <div className="space-y-1.5 lg:col-span-3">
-          <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Chu kỳ báo cáo</label>
-          <select className={SELECT_CLASS_NAME} value={draft.period} onChange={(event) => updateDraft('period', event.target.value)}>
-            {options.periods.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
+        <div className="space-y-1.5 xl:col-span-2">
+          <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Từ ngày</label>
+          <input className={FIELD_CLASS_NAME} type="date" value={draft.fromDate || ''} onChange={(event) => updateDraft('fromDate', event.target.value)} />
         </div>
 
-        <div className="space-y-1.5 lg:col-span-3">
+        <div className="space-y-1.5 xl:col-span-2">
+          <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Đến ngày</label>
+          <input className={FIELD_CLASS_NAME} type="date" value={draft.toDate || ''} onChange={(event) => updateDraft('toDate', event.target.value)} />
+        </div>
+
+        <div className="space-y-1.5 xl:col-span-3">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Ngưỡng rủi ro</label>
-          <select className={SELECT_CLASS_NAME} value={draft.riskThreshold} onChange={(event) => updateDraft('riskThreshold', event.target.value)}>
-            {options.riskThresholds.map((item) => <option key={item} value={item}>{item}</option>)}
+          <select className={FIELD_CLASS_NAME} value={draft.riskThreshold} onChange={(event) => updateDraft('riskThreshold', event.target.value)}>
+            {(options.riskThresholds || []).map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
 
-        <div className="space-y-1.5 lg:col-span-2">
+        <div className="space-y-1.5 xl:col-span-2">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Loại báo cáo</label>
-          <select className={SELECT_CLASS_NAME} value={draft.reportType} onChange={(event) => updateDraft('reportType', event.target.value)}>
-            {options.reportTypes.map((item) => <option key={item} value={item}>{item}</option>)}
+          <select className={FIELD_CLASS_NAME} value={draft.reportType} onChange={(event) => updateDraft('reportType', event.target.value)}>
+            {(options.reportTypes || []).map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
 
         {options.supportsGradeScope ? (
-          <div className="space-y-1.5 lg:col-span-3">
-            <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Khối (nếu có dữ liệu)</label>
-            <select className={SELECT_CLASS_NAME} value={draft.gradeScope} onChange={(event) => updateDraft('gradeScope', event.target.value)}>
+          <div className="space-y-1.5 xl:col-span-3">
+            <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Khối</label>
+            <select className={FIELD_CLASS_NAME} value={draft.gradeScope} onChange={(event) => updateDraft('gradeScope', event.target.value)}>
               {(options.gradeScopes || []).map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </div>
         ) : null}
 
-        <div className="flex items-end justify-end gap-2 lg:col-span-12">
-          <button type="button" onClick={resetFilters} className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-high">
+        <div className="flex items-end justify-end gap-2 md:col-span-2 xl:col-span-12">
+          <button type="button" onClick={onReset} className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-high">
             Đặt lại
           </button>
           <button type="submit" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover">

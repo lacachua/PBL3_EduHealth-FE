@@ -41,7 +41,31 @@ const getListMock = async (query = {}) => {
   return getStudentManagementMockEnvelope(query);
 };
 
-const createLive = async (payload) => apiPostEnvelope(STUDENT_ENDPOINTS.list, payload);
+const logCreateFailure = (scope, error) => {
+  const response = error?.response;
+  if (!response) {
+    console.error(`[${scope}] Network error`, error);
+    return;
+  }
+
+  console.error(`[${scope}] Response`, {
+    status: response.status,
+    message: response.data?.message || response.data?.title || error.message,
+    errors: response.data?.errors || null,
+    data: response.data,
+  });
+};
+
+const createLive = async (payload) => {
+  console.debug('[Admin Students] POST /api/v1/students payload', payload);
+
+  try {
+    return await apiPostEnvelope(STUDENT_ENDPOINTS.list, payload);
+  } catch (error) {
+    logCreateFailure('Admin Students create', error);
+    throw error;
+  }
+};
 const createMock = async (payload) => {
   await waitForMock();
   return buildMockSuccessEnvelope('Tạo học sinh thành công', { student: payload });
@@ -87,12 +111,7 @@ export const studentManagementRepository = {
     return isMock ? getListMock(query) : getListLive(query);
   },
   create: async (payload, options = {}) => {
-    const isMock = resolveMockSource({
-      moduleKey: options.moduleKey || DATA_MODULES.ADMIN_STUDENTS,
-      forceMock: options.mockEnabled,
-    });
-
-    return isMock ? createMock(payload) : createLive(payload);
+    return createLive(payload);
   },
   update: async (studentId, payload, options = {}) => {
     const isMock = resolveMockSource({
