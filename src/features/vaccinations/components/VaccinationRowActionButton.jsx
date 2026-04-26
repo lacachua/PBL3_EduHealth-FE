@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const VARIANT_CLASS_MAP = {
   neutral: 'app-row-action',

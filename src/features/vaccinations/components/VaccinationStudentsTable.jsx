@@ -1,4 +1,4 @@
-import React from 'react';
+
 import VaccinationStatusBadge from './VaccinationStatusBadge';
 import VaccinationRowActionButton from './VaccinationRowActionButton';
 
