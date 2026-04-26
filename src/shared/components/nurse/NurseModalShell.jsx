@@ -16,7 +16,7 @@ const NurseModalShell = ({
   cancelLabel = 'Hủy',
 }) => {
   const submitButtonLabel = submitting ? 'Đang xử lý...' : (submitLabel || 'Xác nhận');
-  const resolvedSubmitButtonClassName = `${submitButtonClassName} inline-flex min-w-[136px] items-center justify-center text-white disabled:bg-[#94A3B8] disabled:text-white`;
+  const resolvedSubmitButtonClassName = `${submitButtonClassName} inline-flex min-w-[136px] items-center justify-center text-white disabled:bg-outline-variant disabled:text-white`;
 
   useEffect(() => {
     if (!open) {
@@ -54,23 +54,23 @@ const NurseModalShell = ({
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-[#0F172A]/35"
+        className="absolute inset-0 bg-on-surface/35"
         onClick={onClose}
         aria-label="Đóng cửa sổ"
         disabled={submitting}
       />
 
-      <section className={`relative z-10 flex w-full ${maxWidthClass} max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-2xl border border-[#D7ECDD] bg-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] md:max-h-[calc(100dvh-2rem)]`}>
-        <header className="sticky top-0 z-10 shrink-0 border-b border-[#D7ECDD] bg-[#EDF7F1] px-4 py-3 md:px-5">
+      <section className={`relative z-10 flex w-full ${maxWidthClass} max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-2xl border border-success/30 bg-white shadow-[0_24px_48px_rgba(15,23,42,0.18)] md:max-h-[calc(100dvh-2rem)]`}>
+        <header className="sticky top-0 z-10 shrink-0 border-b border-success/30 bg-success-soft px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold text-[#14532D] md:text-xl">{title}</h2>
-              {subtitle ? <p className="mt-0.5 text-sm text-[#4B5563]">{subtitle}</p> : null}
+              <h2 className="text-lg font-bold text-success md:text-xl">{title}</h2>
+              {subtitle ? <p className="mt-0.5 text-sm text-on-surface-variant">{subtitle}</p> : null}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D7ECDD] bg-white text-[#64748B] hover:bg-[#F8FAFC]"
+              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-success/30 bg-white text-on-surface-variant hover:bg-surface-container-low"
               aria-label="Đóng"
               disabled={submitting}
             >
@@ -82,13 +82,13 @@ const NurseModalShell = ({
         <form onSubmit={onSubmit} className="min-h-0 flex flex-1 flex-col">
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3 md:px-5 md:py-4">
             {error ? (
-              <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{error}</p>
+              <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>
             ) : null}
 
             {children}
           </div>
 
-          <footer className="sticky bottom-0 z-10 flex shrink-0 justify-end gap-2 border-t border-[#E2E8F0] bg-white px-4 py-3 md:px-5">
+          <footer className="sticky bottom-0 z-10 flex shrink-0 justify-end gap-2 border-t border-outline-variant bg-white px-4 py-3 md:px-5">
             <button
               type="button"
               onClick={onClose}

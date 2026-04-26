@@ -76,6 +76,8 @@ const UserManagementPage = () => {
     setSelectedUser,
     setCreateFieldErrors,
     fetchUserDetail,
+    fetchList,
+    currentPage: tableData.page,
     createUser,
     updateUser,
     toggleStatus,

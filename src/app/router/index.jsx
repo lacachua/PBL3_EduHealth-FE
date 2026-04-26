@@ -9,8 +9,8 @@ import NurseLayout from "../../layouts/NurseLayout";
 import StudentLayout from "../../layouts/StudentLayout";
 
 // Guards
-import RequireAuth from "../guards/RequireAuth";
-import RequireRole from "../guards/RequireRole";
+import AuthRoleGuard from "../guards/AuthRoleGuard";
+
 import {
   AdminNotificationsInboxPage,
   AdminDashboardPage,
@@ -54,11 +54,12 @@ import {
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      {/* Public + Auth Routes */}
+      {/* Public Routes */}
       <Route element={<SiteLayout />}>
         <Route path="/" element={<Lazy><LandingPage /></Lazy>} />
       </Route>
 
+      {/* Auth Routes */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Lazy><LoginPage /></Lazy>} />
         <Route path="/forgot-password" element={<Lazy><ForgotPasswordPage /></Lazy>} />
@@ -67,64 +68,53 @@ export const router = createBrowserRouter(
       </Route>
 
       {/* Protected Admin Routes */}
-      <Route element={<RequireAuth />}>
-        <Route element={<RequireRole allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<Lazy><AdminDashboardPage /></Lazy>} />
-            <Route path="students" element={<Lazy><StudentManagementPage /></Lazy>} />
-            <Route path="students/create" element={<Navigate to="/admin/students" replace />} />
-            <Route path="users" element={<Lazy><UserManagementPage /></Lazy>} />
-            <Route path="catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
-            <Route path="medicines" element={<Lazy><MedicinesPage /></Lazy>} />
-            <Route path="reports" element={<Lazy><ReportsPage /></Lazy>} />
-            <Route path="notifications" element={<Lazy><AdminNotificationsInboxPage /></Lazy>} />
-            <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
-            <Route
-              path="settings"
-              element={<Lazy><AdminSettingsPage /></Lazy>}
-            />
-          </Route>
+      <Route element={<AuthRoleGuard allowedRoles={["admin"]} />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Lazy><AdminDashboardPage /></Lazy>} />
+          <Route path="students" element={<Lazy><StudentManagementPage /></Lazy>} />
+          <Route path="students/create" element={<Navigate to="/admin/students" replace />} />
+          <Route path="users" element={<Lazy><UserManagementPage /></Lazy>} />
+          <Route path="catalogs" element={<Lazy><CatalogManagementPage /></Lazy>} />
+          <Route path="medicines" element={<Lazy><MedicinesPage /></Lazy>} />
+          <Route path="reports" element={<Lazy><ReportsPage /></Lazy>} />
+          <Route path="notifications" element={<Lazy><AdminNotificationsInboxPage /></Lazy>} />
+          <Route path="system-logs" element={<Lazy><SystemLogsPage /></Lazy>} />
+          <Route path="settings" element={<Lazy><AdminSettingsPage /></Lazy>} />
         </Route>
       </Route>
 
       {/* Protected Nurse Routes */}
-      <Route element={<RequireAuth />}>
-        <Route element={<RequireRole allowedRoles={["nurse"]} />}>
-          <Route path="/nurse" element={<NurseLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<Lazy><NurseDashboardPage /></Lazy>} />
-            <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
-            <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
-            <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
-            <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
-            <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
-            <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
-            <Route path="students/:studentUserId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
-            <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
-            <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
-            <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
-            <Route path="notifications" element={<Lazy><NurseNotificationsInboxPage /></Lazy>} />
-            <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
-            <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
-          </Route>
+      <Route element={<AuthRoleGuard allowedRoles={["nurse"]} />}>
+        <Route path="/nurse" element={<NurseLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Lazy><NurseDashboardPage /></Lazy>} />
+          <Route path="students" element={<Lazy><NurseStudentsPage /></Lazy>} />
+          <Route path="health-profiles" element={<Lazy><NurseHealthProfilesPage /></Lazy>} />
+          <Route path="health-profiles/:studentId" element={<Lazy><NurseHealthProfileDetailPage /></Lazy>} />
+          <Route path="medicines" element={<Lazy><NurseMedicinesPage /></Lazy>} />
+          <Route path="examinations" element={<Lazy><ExaminationLandingPage /></Lazy>} />
+          <Route path="examinations/:examinationId" element={<Lazy><ExaminationDetailPage /></Lazy>} />
+          <Route path="students/:studentUserId/examinations/create" element={<Lazy><CreateExaminationPage /></Lazy>} />
+          <Route path="vaccinations" element={<Lazy><NurseVaccinationCampaignsPage /></Lazy>} />
+          <Route path="vaccinations/pending" element={<Lazy><NursePendingVaccinationsPage /></Lazy>} />
+          <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
+          <Route path="notifications" element={<Lazy><NurseNotificationsInboxPage /></Lazy>} />
+          <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
+          <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
         </Route>
       </Route>
 
       {/* Protected Student Routes */}
-      <Route element={<RequireAuth />}>
-        <Route element={<RequireRole allowedRoles={["student"]} />}>
-          <Route path="/student" element={<StudentLayout />}>
-            <Route index element={<Navigate to="overview" replace />} />
-            <Route path="overview" element={<Lazy><StudentOverviewPage /></Lazy>} />
-            <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
-            <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
-            <Route path="notifications" element={<Lazy><StudentNotificationsInboxPage /></Lazy>} />
-            <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
-
-            {/* Compatibility alias */}
-            <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
-          </Route>
+      <Route element={<AuthRoleGuard allowedRoles={["student"]} />}>
+        <Route path="/student" element={<StudentLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<Lazy><StudentOverviewPage /></Lazy>} />
+          <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
+          <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
+          <Route path="notifications" element={<Lazy><StudentNotificationsInboxPage /></Lazy>} />
+          <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
+          <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
         </Route>
       </Route>
 

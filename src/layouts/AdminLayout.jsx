@@ -6,7 +6,7 @@ import AdminSidebar from './components/AdminSidebar';
 import { useRoleShell } from './hooks/useRoleShell';
 
 const AdminLayout = () => {
-  const { key: locationKey } = useLocation();
+  const { pathname } = useLocation();
 
   const {
     user,
@@ -26,6 +26,15 @@ const AdminLayout = () => {
 
   return (
     <div className="admin-shell min-h-screen bg-background text-on-surface">
+      {/* Overlay mobile — nhất quán với NurseLayout / StudentLayout */}
+      <div
+        aria-hidden="true"
+        onClick={closeSidebar}
+        className={`fixed inset-0 z-30 bg-on-surface/30 transition-opacity duration-200 md:hidden ${
+          isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      />
+
       <AdminSidebar
         isSidebarOpen={isSidebarOpen}
         isSidebarCollapsed={isSidebarCollapsed}
@@ -43,7 +52,7 @@ const AdminLayout = () => {
           onLogout={handleLogout}
           showNotifications
           hasUnreadNotifications={unreadNotificationsCount > 0}
-          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
+          onNotificationClick={() => setIsNotificationsOpen((prev) => !prev)}
         />
 
         <NotificationsBellController
@@ -56,7 +65,7 @@ const AdminLayout = () => {
         />
 
         <div className="px-4 pb-4 pt-3 sm:px-5">
-          <Outlet key={locationKey} />
+          <Outlet key={pathname} />
         </div>
       </main>
     </div>

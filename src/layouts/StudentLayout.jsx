@@ -1,26 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import NotificationsBellController from '../features/notifications/inbox/components/NotificationsBellController';
 import StudentSidebar from '../features/student-portal/components/layout/StudentSidebar';
 import StudentMobileBottomNav from '../features/student-portal/components/layout/StudentMobileBottomNav';
-import { studentPortalService } from '../features/student-portal/services/studentPortalService';
+import { useStudentIdentity } from '../features/student-portal/hooks/useStudentIdentity';
 import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import { useRoleShell } from './hooks/useRoleShell';
 import './styles/student-shell.css';
 
-const resolveFallbackIdentity = (user) => {
-  const rawName = user?.fullName || user?.name || 'Học sinh';
-
-  return {
-    fullName: rawName,
-    className: 'Chưa cập nhật',
-    studentCode: 'Chưa cập nhật',
-    avatar: user?.avatar || user?.avatarUrl || '',
-  };
-};
-
 const StudentLayout = () => {
-  const { key: locationKey } = useLocation();
+  // pathname thay đổi khi navigate sang trang khác → Outlet reset đúng
+  // location.key thay đổi cả khi query params thay đổi → reset thừa
+  const { pathname } = useLocation();
 
   const {
     user,
@@ -38,56 +29,25 @@ const StudentLayout = () => {
     mainOffsetClass,
   } = useRoleShell({ accountPath: '/student/account' });
 
-  const fallbackIdentity = useMemo(() => resolveFallbackIdentity(user), [user]);
-  const [identityOverrides, setIdentityOverrides] = useState(null);
+  // Business logic fetch đã tách ra hook riêng — layout chỉ dùng kết quả
+  const identity = useStudentIdentity(user);
 
-  const identity = useMemo(() => {
-    return {
-      ...fallbackIdentity,
-      ...(identityOverrides || {}),
-    };
-  }, [fallbackIdentity, identityOverrides]);
-
-  const headerUser = useMemo(() => {
-    return {
-      ...user,
-      fullName: identity?.fullName || user?.fullName || user?.name || '',
-      avatar: identity?.avatar || user?.avatar || user?.avatarUrl || '',
-      role: 'STUDENT',
-      roleLabel: String(identity?.roleLabel || user?.roleLabel || 'Học sinh'),
-    };
-  }, [identity?.avatar, identity?.fullName, identity?.roleLabel, user]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const loadIdentity = async () => {
-      try {
-        const response = await studentPortalService.getIdentity();
-        if (!isActive || !response?.data) {
-          return;
-        }
-
-        setIdentityOverrides(response.data);
-      } catch {
-        // Keep fallback identity when student profile source is unavailable.
-      }
-    };
-
-    loadIdentity();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const headerUser = useMemo(() => ({
+    ...user,
+    fullName: identity?.fullName || user?.fullName || user?.name || '',
+    avatar: identity?.avatar || user?.avatar || user?.avatarUrl || '',
+    role: 'STUDENT',
+    roleLabel: String(identity?.roleLabel || user?.roleLabel || 'Học sinh'),
+  }), [identity, user]);
 
   return (
     <div className="student-shell app-page-bg min-h-screen text-on-surface">
       <div
         aria-hidden="true"
         onClick={closeSidebar}
-        className={`fixed inset-0 z-30 bg-slate-900/30 transition-opacity duration-200 md:hidden ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-          }`}
+        className={`fixed inset-0 z-30 bg-slate-900/30 transition-opacity duration-200 md:hidden ${
+          isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
       />
 
       <StudentSidebar
@@ -107,7 +67,7 @@ const StudentLayout = () => {
           onLogout={handleLogout}
           showNotifications
           hasUnreadNotifications={unreadNotificationsCount > 0}
-          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
+          onNotificationClick={() => setIsNotificationsOpen((prev) => !prev)}
           containerClassName="student-layout-content"
         />
 
@@ -121,7 +81,7 @@ const StudentLayout = () => {
         />
 
         <div className="student-layout-content px-4 pb-20 pt-3 sm:px-5 sm:pt-4 md:pb-5">
-          <Outlet key={locationKey} context={{ identity }} />
+          <Outlet key={pathname} context={{ identity }} />
         </div>
       </main>
 

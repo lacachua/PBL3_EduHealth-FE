@@ -32,7 +32,7 @@ const DisposeMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
       submitting={submitting}
       maxWidthClass="max-w-[620px]"
       submitLabel="Xác nhận hủy"
-      submitButtonClassName="bg-[#B91C1C] text-white hover:bg-[#991B1B]"
+      submitButtonClassName="app-btn-danger app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit({

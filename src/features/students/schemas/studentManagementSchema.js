@@ -1,6 +1,7 @@
 import {
   STUDENT_CREATE_CLASS_OPTIONS,
 } from '../constants/studentCreateOptions';
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
 
 export const STUDENT_STATUS_OPTIONS = [
   { label: 'Tất cả trạng thái', value: 'all' },
@@ -47,7 +48,7 @@ export const STUDENT_HEALTH_EDITABLE_FIELDS = [
 ];
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+// REMOVED: phoneRegex - now using centralized validation from shared utils
 
 export const buildStudentBasicPatchPayload = (values = {}) => ({
   fullName: values.fullName?.trim() || '',
@@ -93,8 +94,11 @@ export const validateStudentBasicForm = (values = {}) => {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 
-  if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
-    errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
+  if (values.phoneNumber?.trim()) {
+    const phoneError = validatePhoneNumber(values.phoneNumber.trim());
+    if (phoneError) {
+      errors.phoneNumber = phoneError;
+    }
   }
 
   return errors;

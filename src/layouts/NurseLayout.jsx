@@ -6,7 +6,9 @@ import RoleTopHeader from '../shared/components/shell/RoleTopHeader';
 import { useRoleShell } from './hooks/useRoleShell';
 
 const NurseLayout = () => {
-  const { key: locationKey } = useLocation();
+  // pathname thay đổi khi navigate sang trang khác → Outlet reset đúng
+  // location.key thay đổi cả khi query params thay đổi → reset thừa
+  const { pathname } = useLocation();
 
   const {
     user,
@@ -51,7 +53,7 @@ const NurseLayout = () => {
           onLogout={handleLogout}
           showNotifications
           hasUnreadNotifications={unreadNotificationsCount > 0}
-          onNotificationClick={() => setIsNotificationsOpen((previous) => !previous)}
+          onNotificationClick={() => setIsNotificationsOpen((prev) => !prev)}
         />
 
         <NotificationsBellController
@@ -64,7 +66,7 @@ const NurseLayout = () => {
         />
 
         <div className="px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
-          <Outlet key={locationKey} />
+          <Outlet key={pathname} />
         </div>
       </main>
     </div>

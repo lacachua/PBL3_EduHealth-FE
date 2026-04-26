@@ -1,5 +1,4 @@
-import React from 'react';
-import AccountActionMenu from '../../users/components/AccountActionMenu';
+import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 
 const StudentActionsMenu = ({
   row,
@@ -49,7 +48,7 @@ const StudentActionsMenu = ({
     });
   }
 
-  return <AccountActionMenu items={items} />;
+  return <ActionDropdown items={items} />;
 };
 
 export default StudentActionsMenu;

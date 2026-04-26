@@ -1,11 +1,11 @@
 const HTTP_ERROR_MESSAGES = {
-  400: "Yeu cau khong hop le.",
-  401: "Phien dang nhap da het han. Vui long dang nhap lai.",
-  403: "Ban khong co quyen thuc hien thao tac nay.",
-  404: "Khong tim thay du lieu yeu cau.",
-  409: "Du lieu dang xung dot. Vui long kiem tra lai.",
-  422: "Du lieu chua hop le. Vui long kiem tra lai thong tin.",
-  500: "He thong dang ban. Vui long thu lai sau.",
+  400: "Yêu cầu không hợp lệ.",
+  401: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  403: "Bạn không có quyền thực hiện thao tác này.",
+  404: "Không tìm thấy dữ liệu yêu cầu.",
+  409: "Dữ liệu đang xung đột. Vui lòng kiểm tra lại.",
+  422: "Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại thông tin.",
+  500: "Hệ thống đang bận. Vui lòng thử lại sau.",
 };
 
 const extractPayload = (responseOrPayload) => {
@@ -62,7 +62,7 @@ export const normalizeApiData = (responseOrPayload) => {
   return envelope.data;
 };
 
-export const normalizeApiMessage = (error, fallback = "Khong the ket noi may chu") => {
+export const normalizeApiMessage = (error, fallback = "Không thể kết nối máy chủ") => {
   const status = error?.response?.status;
   const envelope = normalizeApiEnvelope(error?.response);
   const firstErrorMessage = Array.isArray(envelope.errors) ? envelope.errors[0]?.message : null;

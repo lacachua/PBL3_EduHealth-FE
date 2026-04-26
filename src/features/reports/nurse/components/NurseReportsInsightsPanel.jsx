@@ -22,14 +22,14 @@ const NurseReportsInsightsPanel = ({ insights }) => {
     <section className="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <SectionCard
         title="Nhóm thuốc sử dụng nhiều"
-        subtitle="Phát hiện nhóm thuốc cần bổ sung"
+        subtitle="Theo dõi số lượng thuốc đã cấp trong khoảng thời gian báo cáo."
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="app-section-title"
         subtitleClassName="app-meta-text mt-0.5 leading-4"
       >
         <div className="space-y-1.5 p-4 pt-3">
-          <p className="app-overline">Mức tiêu thụ & tồn kho</p>
+          <p className="app-overline">Mức sử dụng và tồn kho</p>
           {!medicines.length ? (
             <EmptyState
               title="Không có dữ liệu thuốc"
@@ -54,7 +54,9 @@ const NurseReportsInsightsPanel = ({ insights }) => {
                       {item.stockLabel}
                     </span>
                   </div>
-                  <p className="mt-1 text-[12px] text-on-surface-variant">Số lượt dùng: <span className="font-semibold text-on-surface">{item.usedQuantity}</span></p>
+                  <p className="mt-1 text-[12px] text-on-surface-variant">
+                    Số lượng thuốc cấp: <span className="font-semibold text-on-surface">{item.usedQuantity}</span>
+                  </p>
                 </article>
               );
             })
@@ -63,8 +65,8 @@ const NurseReportsInsightsPanel = ({ insights }) => {
       </SectionCard>
 
       <SectionCard
-        title="Cảnh báo & gợi ý"
-        subtitle="Điểm cần ưu tiên xử lý trong kỳ"
+        title="Cảnh báo và gợi ý"
+        subtitle="Các điểm cần ưu tiên xử lý trong khoảng thời gian báo cáo."
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="app-section-title"

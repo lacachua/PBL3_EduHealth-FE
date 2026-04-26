@@ -1,3 +1,5 @@
+import { validatePhoneNumber, PHONE_VALIDATION_MESSAGE } from '../../../shared/utils/phoneValidation';
+
 const USER_ENDPOINTS_SINGLETON = Object.freeze({
   list: '/api/v1/users',
   detail: (userId) => `/api/v1/users/${userId}`,
@@ -71,7 +73,7 @@ export const USER_FILTER_DEFAULTS = {
 };
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+// REMOVED: phoneRegex - now using centralized validation from shared utils
 
 export const validateUserForm = ({ values, isEdit }) => {
   const errors = {};
@@ -108,8 +110,11 @@ export const validateUserForm = ({ values, isEdit }) => {
 
   if (!isEdit && !values.phoneNumber?.trim()) {
     errors.phoneNumber = 'Vui lòng nhập số điện thoại';
-  } else if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
-    errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
+  } else if (values.phoneNumber?.trim()) {
+    const phoneError = validatePhoneNumber(values.phoneNumber.trim());
+    if (phoneError) {
+      errors.phoneNumber = phoneError;
+    }
   }
 
   return errors;

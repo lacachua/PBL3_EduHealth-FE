@@ -1,5 +1,5 @@
 import React from 'react';
-import AccountActionMenu from './AccountActionMenu';
+import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 
 const UserActionsMenu = ({ row, currentUserId, onView, onEdit, onToggleStatus, onResetPassword }) => {
   const isLocked = row.status === 'LOCKED';
@@ -31,7 +31,7 @@ const UserActionsMenu = ({ row, currentUserId, onView, onEdit, onToggleStatus, o
     onClick: () => onResetPassword(row),
   });
 
-  return <AccountActionMenu items={items} />;
+  return <ActionDropdown items={items} />;
 };
 
 export default UserActionsMenu;

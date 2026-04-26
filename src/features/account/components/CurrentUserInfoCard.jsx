@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { validatePhoneNumber, PHONE_VALIDATION_MESSAGE } from '../../../shared/utils/phoneValidation';
 import { useAuth } from '../../../app/providers/useAuth';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 import ProfileField from './ProfileField';
@@ -31,7 +32,7 @@ const variantClassMap = {
   },
 };
 
-const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{8,15}$/;
 
 const createFormState = (currentUser) => ({
   fullName: currentUser?.fullName || '',
@@ -48,8 +49,9 @@ const validateForm = (values) => {
   }
 
   const phone = String(values.phone || '').trim();
-  if (phone && !PHONE_PATTERN.test(phone)) {
-    nextErrors.phone = 'Số điện thoại không hợp lệ.';
+  const phoneError = validatePhoneNumber(phone);
+  if (phoneError) {
+    nextErrors.phone = phoneError;
   }
 
   return nextErrors;
@@ -115,8 +117,8 @@ const CurrentUserInfoCard = ({
         phone: formValues.phone,
       });
 
-      // Sync updated profile fields into the global auth context so that
-      // the header greeting name updates immediately.
+      // FIXED: Only update auth context AFTER successful API response
+      // This prevents state inconsistency when API calls fail
       if (typeof updateUser === 'function') {
         updateUser({
           fullName: formValues.fullName,
@@ -132,6 +134,7 @@ const CurrentUserInfoCard = ({
         onFeedback({ type: 'success', message: response?.message || 'Cập nhật thông tin thành công.' });
       }
     } catch (error) {
+      // FIXED: Auth context is NOT updated on error, preserving original state
       setFormErrors(mapApiFieldErrors(error));
       setSubmitError(normalizeApiMessage(error, 'Không thể cập nhật thông tin.'));
 

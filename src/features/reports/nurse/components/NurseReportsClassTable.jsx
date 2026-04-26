@@ -21,6 +21,9 @@ const NurseReportsClassTable = ({
   onStatusFilterChange,
   onExport,
   exporting,
+  exportingFormat = '',
+  exportDisabled = false,
+  exportDisabledMessage = '',
 }) => {
   const normalizedKeyword = String(searchValue || '').trim().toLowerCase();
 
@@ -63,27 +66,27 @@ const NurseReportsClassTable = ({
     {
       key: 'className',
       header: 'Lớp học',
-      headerClassName: 'w-[110px]',
+      headerClassName: 'w-[112px]',
       render: (row) => <p className="text-sm font-semibold text-on-surface">{row.className}</p>,
     },
     {
       key: 'gradeLabel',
       header: 'Khối',
-      headerClassName: 'w-[92px]',
+      headerClassName: 'w-[88px]',
       cellClassName: 'text-sm text-on-surface-variant',
       render: (row) => row.gradeLabel,
     },
     {
       key: 'studentCount',
       header: 'Sĩ số',
-      headerClassName: 'w-[80px] text-right',
+      headerClassName: 'w-[76px] text-right',
       cellClassName: 'text-right font-semibold text-on-surface',
       render: (row) => row.studentCount,
     },
     {
       key: 'examinationCount',
       header: 'Lượt khám',
-      headerClassName: 'w-[92px] text-right',
+      headerClassName: 'w-[96px] text-right',
       cellClassName: 'text-right text-sm font-semibold text-on-surface',
       render: (row) => row.examinationCount,
     },
@@ -96,22 +99,22 @@ const NurseReportsClassTable = ({
     },
     {
       key: 'medicineDispenseCount',
-      header: 'Cấp thuốc',
-      headerClassName: 'w-[92px] text-right',
+      header: 'Số lượng thuốc cấp',
+      headerClassName: 'w-[132px] text-right',
       cellClassName: 'text-right text-sm text-on-surface-variant',
       render: (row) => row.medicineDispenseCount,
     },
     {
       key: 'vaccinationRateLabel',
-      header: 'Tiêm chủng',
-      headerClassName: 'w-[106px] text-right',
+      header: 'Tỷ lệ tiêm chủng',
+      headerClassName: 'w-[132px] text-right',
       cellClassName: 'text-right text-sm font-semibold text-on-surface',
       render: (row) => row.vaccinationRateLabel,
     },
     {
       key: 'statusLabel',
       header: 'Trạng thái',
-      headerClassName: 'w-[116px]',
+      headerClassName: 'w-[126px]',
       render: (row) => <StatusBadge tone={row.statusTone}>{row.statusLabel}</StatusBadge>,
     },
   ]), []);
@@ -119,21 +122,37 @@ const NurseReportsClassTable = ({
   return (
     <SectionCard
       title="Theo dõi theo lớp học"
-      subtitle="Tra cứu nhanh theo lớp, trạng thái và xuất báo cáo Excel"
+      subtitle="Tra cứu nhanh theo lớp, trạng thái và xuất báo cáo."
       className="app-card-shell rounded-xl p-0"
       headerClassName="mb-0 flex flex-col gap-2 px-4 pt-3.5 md:flex-row md:items-center md:justify-between"
       titleClassName="app-section-title"
       subtitleClassName="app-meta-text mt-0.5"
       actions={(
-        <button
-          type="button"
-          onClick={() => onExport(filteredRows)}
-          disabled={exporting || !filteredRows.length}
-          className="app-focus-ring app-btn-primary px-3 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <span className="material-symbols-outlined text-[17px]">file_download</span>
-          Xuất Excel
-        </button>
+        <div className="flex overflow-hidden rounded-xl border border-outline-variant" title={exportDisabled ? exportDisabledMessage : undefined}>
+          <button
+            type="button"
+            onClick={() => onExport('pdf')}
+            disabled={exporting || exportDisabled || !filteredRows.length}
+            className="app-focus-ring inline-flex items-center gap-1.5 bg-surface-container-lowest px-2.5 py-2 text-xs font-semibold text-on-surface-variant transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span className={`material-symbols-outlined text-[17px] ${exportingFormat === 'pdf' ? 'animate-spin' : ''}`}>
+              {exportingFormat === 'pdf' ? 'progress_activity' : 'picture_as_pdf'}
+            </span>
+            PDF
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onExport('xlsx')}
+            disabled={exporting || exportDisabled || !filteredRows.length}
+            className="app-focus-ring inline-flex items-center gap-1.5 border-l border-outline-variant bg-primary px-2.5 py-2 text-xs font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span className={`material-symbols-outlined text-[17px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
+              {exportingFormat === 'xlsx' ? 'progress_activity' : 'file_download'}
+            </span>
+            Excel
+          </button>
+        </div>
       )}
     >
       <div className="space-y-2.5 p-4 pt-3">
@@ -162,10 +181,6 @@ const NurseReportsClassTable = ({
               ))}
             </select>
           </div>
-
-          <p className="text-[12px] font-semibold text-on-surface-variant">
-            Hiển thị {pagedRows.length}/{totalItems} lớp
-          </p>
         </div>
 
         {!filteredRows.length ? (
@@ -188,6 +203,11 @@ const NurseReportsClassTable = ({
               bodyClassName="divide-y divide-outline-variant bg-surface"
               rowClassName="app-interactive transition-[background-color] duration-150 hover:bg-surface-container-low"
             />
+
+            <div className="flex flex-col gap-2 text-[12px] font-semibold text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
+              <span>Hiển thị {pagedRows.length}/{totalItems} lớp</span>
+              <span>Trang {safePage}/{totalPages}</span>
+            </div>
 
             <Pagination
               compact

@@ -1,9 +1,11 @@
 export const nurseReportFilterOptions = Object.freeze({
   timeRanges: [
+    { value: 'today', label: 'Hôm nay' },
     { value: 'this-week', label: 'Tuần này' },
     { value: 'this-month', label: 'Tháng này' },
     { value: 'this-quarter', label: 'Quý này' },
-    { value: 'custom-range', label: 'Khoảng ngày' },
+    { value: 'this-year', label: 'Năm nay' },
+    { value: 'custom', label: 'Tùy chọn' },
   ],
   grades: [
     { value: 'all', label: 'Tất cả khối' },
@@ -15,22 +17,22 @@ export const nurseReportFilterOptions = Object.freeze({
   ],
   reportTypes: [
     { value: 'overview', label: 'Tổng hợp' },
-    { value: 'health', label: 'Sức khỏe' },
+    { value: 'health', label: 'Khám bệnh' },
     { value: 'vaccination', label: 'Tiêm chủng' },
     { value: 'medicine', label: 'Cấp thuốc' },
   ],
   tableStatus: [
     { value: 'all', label: 'Tất cả trạng thái' },
-    { value: 'safe', label: 'An toàn' },
-    { value: 'watch', label: 'Đang theo dõi' },
-    { value: 'alert', label: 'Cảnh báo' },
+    { value: 'stable', label: 'Ổn định' },
+    { value: 'watch', label: 'Cần theo dõi' },
+    { value: 'unknown', label: 'Chưa đủ dữ liệu' },
   ],
   pageSize: 6,
 });
 
 export const createNurseReportFilters = () => ({
-  timeRange: nurseReportFilterOptions.timeRanges[1].value,
-  grade: nurseReportFilterOptions.grades[0].value,
+  timeRange: 'this-month',
+  grade: 'all',
   classId: 'all',
-  reportType: nurseReportFilterOptions.reportTypes[0].value,
+  reportType: 'overview',
 });
