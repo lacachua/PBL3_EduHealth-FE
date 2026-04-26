@@ -3,7 +3,7 @@ import AdminAsyncState from '../../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
 import {
-  exportNurseReportsRowsToExcel,
+  downloadNurseReportsBlob,
 } from '../adapters/nurseReportsAdapter';
 import NurseReportsClassTable from '../components/NurseReportsClassTable';
 import NurseReportsDiseasePanel from '../components/NurseReportsDiseasePanel';
@@ -13,6 +13,7 @@ import NurseReportsSummaryCards from '../components/NurseReportsSummaryCards';
 import NurseReportsTrendPanel from '../components/NurseReportsTrendPanel';
 import { nurseReportFilterOptions } from '../config/nurseReportFilterOptions';
 import { useNurseReportsDashboard } from '../hooks/useNurseReportsDashboard';
+import { nurseReportsRepository } from '../repositories/nurseReportsRepository';
 
 const TOAST_CLASS_MAP = {
   success: 'border-success/25 bg-success-soft text-success',
@@ -94,17 +95,23 @@ const NurseReportsPage = () => {
     reportSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleExportRows = async (rows) => {
+  const handleExportRows = async () => {
     setExporting(true);
     try {
-      const exported = exportNurseReportsRowsToExcel(rows);
+      const exportResult = await nurseReportsRepository.export(filters);
+      const exported = downloadNurseReportsBlob(exportResult);
       if (!exported) {
-        showFeedback('Không có dữ liệu phù hợp để xuất báo cáo.', 'error');
+        showFeedback('Không nhận được file Excel từ máy chủ.', 'error');
         return;
       }
 
       showFeedback('Xuất báo cáo Excel thành công.', 'success');
-    } catch {
+    } catch (exportError) {
+      if (exportError?.response?.status === 403) {
+        showFeedback('Endpoint xuất báo cáo từ chối quyền NURSE hoặc FE đang gọi sai endpoint.', 'error');
+        return;
+      }
+
       showFeedback('Xuất báo cáo thất bại. Vui lòng thử lại.', 'error');
     } finally {
       setExporting(false);

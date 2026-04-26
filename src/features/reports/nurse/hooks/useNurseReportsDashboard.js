@@ -61,12 +61,8 @@ export const useNurseReportsDashboard = () => {
       return 'error';
     }
 
-    if (!viewModel.classRows.length) {
-      return 'empty';
-    }
-
     return 'success';
-  }, [error, hasLoaded, loading, viewModel.classRows.length]);
+  }, [error, hasLoaded, loading]);
 
   return {
     filters,

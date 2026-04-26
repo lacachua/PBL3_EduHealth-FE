@@ -13,6 +13,7 @@ export const STUDENT_BASE_CLASS = {
 
 export const STUDENT_STATUS_BADGE_CLASS_MAP = {
   ACTIVE: 'border-success/25 bg-success-soft text-success',
+  LOCKED: 'border-danger/25 bg-danger-soft text-danger',
   INACTIVE: 'border-danger/25 bg-danger-soft text-danger',
 };
 

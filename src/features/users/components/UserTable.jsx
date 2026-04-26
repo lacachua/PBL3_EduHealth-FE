@@ -3,10 +3,13 @@ import { ACCOUNT_BASE_CLASS, ACCOUNT_STATUS_BADGE_CLASS_MAP } from '../constants
 import AccountPill from './AccountPill';
 import RoleBadge from './RoleBadge';
 import UserActionsMenu from './UserActionsMenu';
+import { useAuth } from '../../../app/providers/useAuth';
 
 const UserTable = ({ rows, onView, onEdit, onToggleStatus, onResetPassword }) => {
+  const { user: currentUser } = useAuth();
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
+    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin] min-h-[360px]">
       <table className="min-w-[840px] w-full text-left text-sm">
         <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
           <tr>
@@ -42,6 +45,7 @@ const UserTable = ({ rows, onView, onEdit, onToggleStatus, onResetPassword }) =>
                 <div className="flex justify-end">
                   <UserActionsMenu
                     row={row}
+                    currentUserId={currentUser?.id}
                     onView={onView}
                     onEdit={onEdit}
                     onToggleStatus={onToggleStatus}

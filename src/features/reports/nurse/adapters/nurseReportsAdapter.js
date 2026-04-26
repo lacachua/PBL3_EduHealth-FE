@@ -1,52 +1,53 @@
 import { normalizeApiEnvelope } from '../../../../shared/api/normalizeResponse';
 
 const STATUS_META = {
-  safe: { label: 'An toàn', tone: 'success' },
-  watch: { label: 'Đang theo dõi', tone: 'warning' },
-  alert: { label: 'Cảnh báo', tone: 'danger' },
+  safe: { label: 'An toan', tone: 'success' },
+  watch: { label: 'Dang theo doi', tone: 'warning' },
+  alert: { label: 'Canh bao', tone: 'danger' },
 };
 
 const KPI_META = {
-  examinations: {
-    id: 'total-examinations',
-    title: 'Tổng lượt khám',
-    icon: 'clinical_notes',
+  students: {
+    id: 'managed-students',
+    title: 'Hoc sinh quan ly',
+    icon: 'groups',
     valueClassName: 'text-on-surface',
     chipClassName: 'border-success/25 bg-success-soft text-success',
   },
-  tracking: {
-    id: 'tracking-students',
-    title: 'Đang theo dõi',
-    icon: 'monitoring',
-    valueClassName: 'text-warning',
-    chipClassName: 'border-warning/25 bg-warning-soft text-warning',
+  examinations: {
+    id: 'total-examinations',
+    title: 'Luot kham',
+    icon: 'clinical_notes',
+    valueClassName: 'text-info',
+    chipClassName: 'border-info/25 bg-info-soft text-info',
   },
-  stock: {
+  medicines: {
     id: 'medicine-low-stock',
-    title: 'Tồn kho thuốc',
+    title: 'Thuoc can bo sung',
     icon: 'inventory_2',
     valueClassName: 'text-danger',
     chipClassName: 'border-danger/25 bg-danger-soft text-danger',
   },
   vaccination: {
     id: 'vaccination-rate',
-    title: 'Tỷ lệ tiêm chủng',
+    title: 'Tiem chung TB',
     icon: 'vaccines',
-    valueClassName: 'text-info',
-    chipClassName: 'border-info/25 bg-info-soft text-info',
+    valueClassName: 'text-warning',
+    chipClassName: 'border-warning/25 bg-warning-soft text-warning',
   },
 };
 
 const EMPTY_MODEL = {
   header: {
-    title: 'Báo cáo y tế tổng hợp',
-    description: 'Phân tích tình hình sức khỏe học sinh và hiệu quả hoạt động của trạm y tế.',
+    title: 'Bao cao y te tong hop',
+    description: 'Phan tich tinh hinh suc khoe hoc sinh va hoat dong y te theo lop hoc.',
   },
-  source: 'mock',
+  source: 'live',
   sourceNote: '',
   generatedAtLabel: '--',
+  appliedFilters: {},
   filterOptions: {
-    classOptions: [{ value: 'all', label: 'Tất cả lớp' }],
+    classOptions: [{ value: 'all', label: 'Tat ca lop' }],
   },
   summaryCards: [],
   trend: {
@@ -63,6 +64,14 @@ const EMPTY_MODEL = {
   },
   classRows: [],
 };
+
+const DISEASE_COLORS = [
+  'var(--success)',
+  'var(--warning)',
+  'var(--danger)',
+  'var(--info)',
+  'var(--primary)',
+];
 
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
 
@@ -84,53 +93,56 @@ const toDateTimeLabel = (value) => {
 
 const toPercentageLabel = (value) => `${toPositiveNumber(value)}%`;
 
-const buildSummaryCards = ({ trendItems, classRows, topMedicines }) => {
-  const totalExaminations = classRows.reduce((sum, item) => sum + toPositiveNumber(item.examinationCount), 0);
-  const totalTracking = classRows.reduce((sum, item) => sum + toPositiveNumber(item.trackingCount), 0);
-  const lowStockCount = topMedicines.filter((item) => item.stockStatus === 'low').length;
+const calculateSummary = (data) => {
+  const classRows = ensureArray(data.classRows);
+  const topMedicines = ensureArray(data.topMedicines);
+  const diseaseBreakdown = ensureArray(data.diseaseBreakdown);
 
-  const totalStudents = classRows.reduce((sum, item) => sum + toPositiveNumber(item.studentCount), 0);
-  const weightedVaccination = classRows.reduce(
-    (sum, item) => sum + (toPositiveNumber(item.studentCount) * toPositiveNumber(item.vaccinationRate)),
-    0
-  );
-  const vaccinationRate = totalStudents ? Math.round(weightedVaccination / totalStudents) : 0;
+  return {
+    studentCount: classRows.reduce((sum, row) => sum + toPositiveNumber(row.studentCount), 0),
+    classCount: classRows.length,
+    examinationCount: classRows.reduce((sum, row) => sum + toPositiveNumber(row.examinationCount), 0),
+    trackingCount: classRows.reduce((sum, row) => sum + toPositiveNumber(row.trackingCount), 0),
+    lowStockCount: topMedicines.filter((item) => item.stockStatus === 'low').length,
+    diseaseCount: diseaseBreakdown.reduce((sum, item) => sum + toPositiveNumber(item.count), 0),
+    vaccinationRate: classRows.length
+      ? Math.round(classRows.reduce((sum, row) => sum + toPositiveNumber(row.vaccinationRate), 0) / classRows.length)
+      : 0,
+  };
+};
 
-  const latestTrend = trendItems[trendItems.length - 1]?.value || 0;
-  const previousTrend = trendItems[trendItems.length - 2]?.value || 0;
-  const trendDelta = previousTrend > 0
-    ? Math.round(((latestTrend - previousTrend) / previousTrend) * 100)
-    : 0;
+const buildSummaryCardsFromDto = (data) => {
+  const summary = calculateSummary(data);
 
   return [
     {
-      ...KPI_META.examinations,
-      value: `${totalExaminations}`,
-      hint: 'Theo bộ lọc hiện tại',
-      badge: `${trendDelta >= 0 ? '+' : ''}${trendDelta}%`,
-      badgeTone: trendDelta >= 0 ? 'positive' : 'negative',
+      ...KPI_META.students,
+      value: `${summary.studentCount}`,
+      hint: `${summary.classCount} lop hoc`,
+      badge: 'Tu API',
+      badgeTone: 'positive',
     },
     {
-      ...KPI_META.tracking,
-      value: `${totalTracking}`,
-      hint: 'Học sinh cần theo dõi',
-      badge: 'Theo thời gian thực',
+      ...KPI_META.examinations,
+      value: `${summary.examinationCount}`,
+      hint: `${summary.trackingCount} hoc sinh dang theo doi`,
+      badge: 'Theo bo loc',
       badgeTone: 'neutral',
     },
     {
-      ...KPI_META.stock,
-      value: `${lowStockCount}`,
-      hint: 'Thuốc tồn kho thấp',
-      badge: lowStockCount ? 'Cần bổ sung' : 'Ổn định',
-      badgeTone: lowStockCount ? 'negative' : 'positive',
+      ...KPI_META.medicines,
+      value: `${summary.lowStockCount}`,
+      hint: `${summary.diseaseCount} ca benh ly ghi nhan`,
+      badge: summary.lowStockCount > 0 ? 'Can kiem tra' : 'On dinh',
+      badgeTone: summary.lowStockCount > 0 ? 'negative' : 'positive',
     },
     {
       ...KPI_META.vaccination,
-      value: toPercentageLabel(vaccinationRate),
-      hint: 'Tỷ lệ tiêm hoàn thành',
-      badge: 'Đã đồng bộ',
-      badgeTone: 'neutral',
-      progress: vaccinationRate,
+      value: `${summary.vaccinationRate}%`,
+      hint: 'Trung binh theo lop hoc',
+      badge: summary.vaccinationRate >= 80 ? 'Dat' : 'Theo doi',
+      badgeTone: summary.vaccinationRate >= 80 ? 'positive' : 'neutral',
+      progress: summary.vaccinationRate,
     },
   ];
 };
@@ -138,7 +150,7 @@ const buildSummaryCards = ({ trendItems, classRows, topMedicines }) => {
 const mapTrend = (trendRows) => {
   const items = trendRows.map((item, index) => ({
     id: item.id || `trend-${index + 1}`,
-    label: item.label || `Mốc ${index + 1}`,
+    label: item.label || `Moc ${index + 1}`,
     value: toPositiveNumber(item.value),
   }));
 
@@ -150,21 +162,20 @@ const mapTrend = (trendRows) => {
   };
 };
 
-const mapDisease = (diseaseRows) => {
-  const rows = diseaseRows.map((item, index) => ({
+const mapDiseaseBreakdown = (rows) => {
+  const items = rows.map((item, index) => ({
     id: item.id || `disease-${index + 1}`,
-    label: item.label || 'Khác',
+    label: item.label || '--',
     count: toPositiveNumber(item.count),
-    color: item.color || 'var(--app-border)',
+    color: DISEASE_COLORS[index % DISEASE_COLORS.length],
   }));
-
-  const totalCases = rows.reduce((sum, item) => sum + item.count, 0);
+  const total = items.reduce((sum, item) => sum + item.count, 0);
 
   return {
-    totalCases,
-    items: rows.map((item) => ({
+    totalCases: total,
+    items: items.map((item) => ({
       ...item,
-      ratio: totalCases ? Math.round((item.count / totalCases) * 100) : 0,
+      ratio: total ? Math.round((item.count / total) * 100) : 0,
     })),
   };
 };
@@ -178,7 +189,7 @@ const mapTopMedicines = (rows) => {
     deltaPercent: Number(item.deltaPercent || 0),
     trend: item.trend || 'stable',
     stockStatus: item.stockStatus || 'normal',
-    stockLabel: item.stockStatus === 'low' ? 'Tồn kho thấp' : 'Ổn định',
+    stockLabel: item.stockStatus === 'low' ? 'Ton kho thap' : 'On dinh',
   }));
 };
 
@@ -236,6 +247,14 @@ const triggerFileDownload = (blob, fileName) => {
   return true;
 };
 
+export const downloadNurseReportsBlob = ({ blob, filename }) => {
+  if (!blob || typeof document === 'undefined') {
+    return false;
+  }
+
+  return triggerFileDownload(blob, filename || 'bao-cao-y-te-dieu-duong.xlsx');
+};
+
 export const exportNurseReportsRowsToExcel = (rows, fileName = 'bao-cao-y-te-tong-hop.xls') => {
   if (!Array.isArray(rows) || rows.length === 0) {
     return false;
@@ -246,14 +265,14 @@ export const exportNurseReportsRowsToExcel = (rows, fileName = 'bao-cao-y-te-ton
   }
 
   const headers = [
-    'Lớp học',
-    'Khối',
-    'Sĩ số',
-    'Lượt khám',
-    'Đang theo dõi',
-    'Cấp thuốc',
-    'Tỷ lệ tiêm chủng',
-    'Trạng thái',
+    'Lop hoc',
+    'Khoi',
+    'Si so',
+    'Luot kham',
+    'Dang theo doi',
+    'Cap thuoc',
+    'Ty le tiem chung',
+    'Trang thai',
   ];
 
   const contentRows = rows.map((row) => [
@@ -303,40 +322,32 @@ export const adaptNurseReportsDashboardResponse = (payload) => {
   const envelope = normalizeApiEnvelope(payload);
 
   if (!envelope || envelope.success === false) {
-    return EMPTY_MODEL;
+    throw new Error(envelope?.message || 'Khong the tai bao cao y te tong hop.');
   }
 
   const data = envelope.data || {};
-  const classRows = mapClassRows(ensureArray(data.classRows));
-  const trend = mapTrend(ensureArray(data.trend));
-  const disease = mapDisease(ensureArray(data.diseaseBreakdown));
-  const medicines = mapTopMedicines(ensureArray(data.topMedicines));
+  const classOptions = ensureArray(data.filterOptions?.classOptions);
 
   return {
     header: {
       title: data.header?.title || EMPTY_MODEL.header.title,
       description: data.header?.description || EMPTY_MODEL.header.description,
     },
-    source: envelope.meta?.source || 'mock',
+    source: envelope.meta?.source || 'live',
     sourceNote: envelope.meta?.note || '',
     generatedAtLabel: toDateTimeLabel(data.generatedAt),
+    appliedFilters: data.appliedFilters || {},
     filterOptions: {
-      classOptions: ensureArray(data.filterOptions?.classOptions).length
-        ? ensureArray(data.filterOptions?.classOptions)
-        : EMPTY_MODEL.filterOptions.classOptions,
+      classOptions: classOptions.length ? classOptions : EMPTY_MODEL.filterOptions.classOptions,
     },
-    summaryCards: buildSummaryCards({
-      trendItems: trend.items,
-      classRows,
-      topMedicines: medicines,
-    }),
-    trend,
-    disease,
+    summaryCards: buildSummaryCardsFromDto(data),
+    trend: mapTrend(ensureArray(data.trend)),
+    disease: mapDiseaseBreakdown(ensureArray(data.diseaseBreakdown)),
     insights: {
-      topMedicines: medicines,
+      topMedicines: mapTopMedicines(ensureArray(data.topMedicines)),
       alerts: mapAlerts(ensureArray(data.riskAlerts)),
     },
-    classRows,
+    classRows: mapClassRows(ensureArray(data.classRows)),
   };
 };
 

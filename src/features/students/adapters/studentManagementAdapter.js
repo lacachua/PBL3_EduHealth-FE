@@ -4,21 +4,14 @@ import { formatDate, formatDateTime } from '../../../shared/utils/dateFormat';
 
 const statusToneMap = {
   ACTIVE: 'success',
+  LOCKED: 'danger',
   INACTIVE: 'danger',
 };
 
 const statusLabelMap = {
   ACTIVE: 'Hoạt động',
+  LOCKED: 'Đã khóa',
   INACTIVE: 'Ngưng hoạt động',
-};
-
-const toStudentStatus = (item = {}) => {
-  if (typeof item.isActive === 'boolean') {
-    return item.isActive ? 'ACTIVE' : 'INACTIVE';
-  }
-
-  const rawStatus = String(item.status || '').toUpperCase();
-  return rawStatus === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE';
 };
 
 const defaultModel = {
@@ -29,29 +22,53 @@ const defaultModel = {
   totalPages: 1,
 };
 
-const resolveStudentIdentity = (item = {}) => {
-  const candidate = item.userId ?? item.studentId ?? item.id ?? null;
-  const parsed = Number(candidate);
-  if (Number.isInteger(parsed) && parsed > 0) {
-    return parsed;
+const hasOwn = (item, key) => Object.prototype.hasOwnProperty.call(item || {}, key);
+
+const toNullableText = (value) => {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  return text || null;
+};
+
+const toNullableNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+export const formatStudentNumber = (value) => {
+  const parsed = toNullableNumber(value);
+  if (parsed === null) return null;
+
+  return parsed.toLocaleString('vi-VN', { maximumFractionDigits: 1 });
+};
+
+const toStudentStatus = (item = {}) => {
+  const rawStatus = typeof item.status === 'string' ? item.status.trim().toUpperCase() : null;
+
+  if (rawStatus === 'ACTIVE' || rawStatus === 'LOCKED' || rawStatus === 'INACTIVE') {
+    return rawStatus;
   }
 
-  const normalized = String(candidate || '').trim();
-  if (!normalized) {
-    return null;
-  }
-
-  const digits = normalized.replace(/\D/g, '');
-  if (!digits) {
-    return null;
-  }
-
-  const fromDigits = Number(digits);
-  if (Number.isInteger(fromDigits) && fromDigits > 0) {
-    return fromDigits;
-  }
+  if (item.isActive === true) return 'ACTIVE';
+  if (item.isActive === false) return 'INACTIVE';
 
   return null;
+};
+
+const resolveStudentIdentity = (item = {}) => {
+  const parsed = Number(item.userId);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const buildStatusFields = (item) => {
+  const status = toStudentStatus(item);
+
+  return {
+    status,
+    statusLabel: status ? statusLabelMap[status] || status : null,
+    statusTone: status ? statusToneMap[status] || 'neutral' : 'neutral',
+  };
 };
 
 export const adaptStudentManagementResponse = (responseOrPayload) => {
@@ -63,54 +80,51 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
 
   const sourceRows = extractRows(envelope, { itemKeys: ['students'] });
 
-  const rows = sourceRows.length
-    ? sourceRows.map((item) => ({
-      id: resolveStudentIdentity(item),
-      studentId: resolveStudentIdentity(item),
-      userId: resolveStudentIdentity(item),
-      studentCode: item.studentCode || null,
-      fullName: item.fullName || '--',
-      dateOfBirth: item.dateOfBirth || '--',
-      dateOfBirthLabel: formatDate(item.dateOfBirth),
-      gender: item.gender || '--',
-      genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : '--',
-      classId: item.classId || '--',
-      className: item.className || '--',
-      username: item.username || null,
-      email: item.email || '--',
-      phoneNumber: item.phoneNumber || item.phone || '--',
-      phone: item.phone || item.phoneNumber || '--',
-      guardian: item.guardian || '--',
-      heightCm: item.currentHeight ?? item.heightCm ?? null,
-      weightKg: item.currentWeight ?? item.weightKg ?? null,
-      currentHeight: item.currentHeight ?? item.heightCm ?? null,
-      currentWeight: item.currentWeight ?? item.weightKg ?? null,
-      eyeStatus: '',
-      allergies: '',
-      chronicNote: '',
-      medicalHistoryNotes: item.medicalHistoryNotes || item.medicalHistory || '',
-      status: toStudentStatus(item),
-      statusLabel: item.statusLabel || statusLabelMap[toStudentStatus(item)] || '--',
-      statusTone: statusToneMap[toStudentStatus(item)] || 'neutral',
-      createdAt: item.createdAt || null,
-      createdAtLabel: formatDateTime(item.createdAt),
-      updatedAt: item.updatedAt || null,
-      updatedAtLabel: formatDateTime(item.updatedAt),
-      apiId: resolveStudentIdentity(item),
-    }))
-    : [];
+  const rows = sourceRows.map((item) => {
+    const resolvedId = resolveStudentIdentity(item);
 
-  const normalizedRows = rows.map((item) => ({
-    ...item,
-    hasHealthWarning: Boolean(item.medicalHistoryNotes),
-    hasMissingHealthData: item.currentHeight === null || item.currentWeight === null,
-    id: item.id || item.studentId,
-  }));
+    return {
+      id: resolvedId,
+      userId: resolvedId,
+      accountUserId: resolvedId,
+      apiId: resolvedId,
+      imageUrl: hasOwn(item, 'imageUrl') ? toNullableText(item.imageUrl) : null,
+      fullName: hasOwn(item, 'fullName') ? toNullableText(item.fullName) : null,
+      dateOfBirth: hasOwn(item, 'dateOfBirth') ? item.dateOfBirth || null : null,
+      dateOfBirthLabel: hasOwn(item, 'dateOfBirth') ? formatDate(item.dateOfBirth) : null,
+      classId: hasOwn(item, 'classId') ? item.classId : null,
+      className: hasOwn(item, 'className') ? toNullableText(item.className) : null,
+      email: hasOwn(item, 'email') ? toNullableText(item.email) : null,
+      phoneNumber: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
+      phone: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
+      guardian: hasOwn(item, 'guardian') ? toNullableText(item.guardian) : null,
+      currentHeight: hasOwn(item, 'currentHeight') ? toNullableNumber(item.currentHeight) : null,
+      currentWeight: hasOwn(item, 'currentWeight') ? toNullableNumber(item.currentWeight) : null,
+      currentHeightLabel: hasOwn(item, 'currentHeight') ? formatStudentNumber(item.currentHeight) : null,
+      currentWeightLabel: hasOwn(item, 'currentWeight') ? formatStudentNumber(item.currentWeight) : null,
+      ...buildStatusFields(item),
+      fields: {
+        userId: hasOwn(item, 'userId'),
+        imageUrl: hasOwn(item, 'imageUrl'),
+        fullName: hasOwn(item, 'fullName'),
+        dateOfBirth: hasOwn(item, 'dateOfBirth'),
+        classId: hasOwn(item, 'classId'),
+        className: hasOwn(item, 'className'),
+        email: hasOwn(item, 'email'),
+        phone: hasOwn(item, 'phone'),
+        guardian: hasOwn(item, 'guardian'),
+        currentHeight: hasOwn(item, 'currentHeight'),
+        currentWeight: hasOwn(item, 'currentWeight'),
+        status: hasOwn(item, 'status'),
+        isActive: hasOwn(item, 'isActive'),
+      },
+    };
+  });
 
   const meta = extractMeta(envelope, defaultModel);
 
   return {
-    rows: normalizedRows,
+    rows,
     ...meta,
   };
 };
@@ -124,44 +138,53 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
 
   const item = envelope.data;
   const resolvedStudentId = resolveStudentIdentity(item);
-  const status = toStudentStatus(item);
+
   return {
     id: resolvedStudentId,
-    studentId: resolvedStudentId,
     userId: resolvedStudentId,
-    studentCode: item.studentCode || '--',
-    fullName: item.fullName || '--',
-    dateOfBirth: item.dateOfBirth || '--',
-    dateOfBirthLabel: formatDate(item.dateOfBirth),
-    gender: item.gender || '--',
-    genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : '--',
-    classId: item.classId || '--',
-    className: item.className || '--',
-    username: item.username || '--',
-    email: item.email || '--',
-    phoneNumber: item.phoneNumber || item.phone || '--',
-    phone: item.phone || item.phoneNumber || '--',
-    heightCm: item.currentHeight ?? item.heightCm ?? '',
-    weightKg: item.currentWeight ?? item.weightKg ?? '',
-    currentHeight: item.currentHeight ?? item.heightCm ?? '',
-    currentWeight: item.currentWeight ?? item.weightKg ?? '',
-    eyeStatus: '',
-    allergies: '',
-    chronicNote: '',
-    medicalHistoryNotes: item.medicalHistoryNotes || item.medicalHistory || '',
-    identifier: item.identifier || '--',
-    address: item.address || '--',
-    guardian: item.guardian || item.parentName || '--',
-    guardianPhone: item.guardianPhone || item.parentPhoneNumber || item.phone || '--',
-    emergencyContactNote: item.emergencyContactNote || '--',
-    status,
-    statusLabel: item.statusLabel || statusLabelMap[status] || '--',
-    statusTone: statusToneMap[status] || 'neutral',
-    createdAt: item.createdAt || null,
-    createdAtLabel: formatDateTime(item.createdAt),
-    updatedAt: item.updatedAt || null,
-    updatedAtLabel: formatDateTime(item.updatedAt),
+    accountUserId: resolvedStudentId,
     apiId: resolvedStudentId,
+    imageUrl: hasOwn(item, 'imageUrl') ? toNullableText(item.imageUrl) : null,
+    classId: hasOwn(item, 'classId') ? item.classId : null,
+    className: hasOwn(item, 'className') ? toNullableText(item.className) : null,
+    fullName: hasOwn(item, 'fullName') ? toNullableText(item.fullName) : null,
+    dateOfBirth: hasOwn(item, 'dateOfBirth') ? item.dateOfBirth || null : null,
+    dateOfBirthLabel: hasOwn(item, 'dateOfBirth') ? formatDate(item.dateOfBirth) : null,
+    currentHeight: hasOwn(item, 'currentHeight') ? toNullableNumber(item.currentHeight) : null,
+    currentWeight: hasOwn(item, 'currentWeight') ? toNullableNumber(item.currentWeight) : null,
+    currentHeightLabel: hasOwn(item, 'currentHeight') ? formatStudentNumber(item.currentHeight) : null,
+    currentWeightLabel: hasOwn(item, 'currentWeight') ? formatStudentNumber(item.currentWeight) : null,
+    medicalHistoryNotes: hasOwn(item, 'medicalHistoryNotes') ? toNullableText(item.medicalHistoryNotes) : null,
+    guardian: hasOwn(item, 'guardian') ? toNullableText(item.guardian) : null,
+    phone: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
+    phoneNumber: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
+    email: hasOwn(item, 'email') ? toNullableText(item.email) : null,
+    gender: hasOwn(item, 'gender') ? toNullableText(item.gender) : null,
+    genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : null,
+    ...buildStatusFields(item),
+    fields: {
+      userId: hasOwn(item, 'userId'),
+      imageUrl: hasOwn(item, 'imageUrl'),
+      classId: hasOwn(item, 'classId'),
+      className: hasOwn(item, 'className'),
+      fullName: hasOwn(item, 'fullName'),
+      dateOfBirth: hasOwn(item, 'dateOfBirth'),
+      currentHeight: hasOwn(item, 'currentHeight'),
+      currentWeight: hasOwn(item, 'currentWeight'),
+      medicalHistoryNotes: hasOwn(item, 'medicalHistoryNotes'),
+      guardian: hasOwn(item, 'guardian'),
+      phone: hasOwn(item, 'phone'),
+      email: hasOwn(item, 'email'),
+      gender: hasOwn(item, 'gender'),
+      status: hasOwn(item, 'status'),
+      isActive: hasOwn(item, 'isActive'),
+      createdAt: hasOwn(item, 'createdAt'),
+      updatedAt: hasOwn(item, 'updatedAt'),
+      username: hasOwn(item, 'username'),
+      user: hasOwn(item, 'user'),
+      allergies: hasOwn(item, 'allergies'),
+      studentAllergies: hasOwn(item, 'studentAllergies'),
+    },
   };
 };
 
@@ -194,50 +217,60 @@ export const adaptStudentHealthProfileResponse = (responseOrPayload) => {
   };
 
   const allergyItems = Array.isArray(profileSource.allergies)
-    ? profileSource.allergies.map((allergy, index) => ({
-      id: allergy?.id || `allergy-${index + 1}`,
+    ? profileSource.allergies.map((allergy) => ({
+      id: allergy?.id || null,
       allergyId: parseAllergyId(allergy?.allergyId ?? allergy?.allergyTypeId),
-      allergyTypeId: allergy?.allergyTypeId || '',
-      allergyTypeName: allergy?.allergyTypeName || allergy?.name || allergy?.label || '',
-      note: allergy?.note || '',
+      allergyTypeId: allergy?.allergyTypeId || null,
+      allergyTypeName: allergy?.allergyTypeName || null,
+      note: allergy?.note || null,
     }))
     : [];
 
-  const allergies = Array.isArray(profileSource.allergies)
-    ? profileSource.allergies
-      .map((allergy) => allergy?.allergyTypeName || allergy?.name || allergy?.label || '')
-      .filter(Boolean)
-      .join(', ')
-    : (profileSource.allergies || '');
+  const allergies = allergyItems
+    .map((allergy) => allergy.allergyTypeName)
+    .filter(Boolean)
+    .join(', ');
 
   const updatedBy = typeof profileSource.updatedBy === 'object'
-    ? profileSource.updatedBy?.fullName || ''
-    : (profileSource.updatedBy || item.updatedBy || '');
+    ? profileSource.updatedBy?.fullName || null
+    : (profileSource.updatedBy || item.updatedBy || null);
 
   return {
-    studentId: item.studentId || '',
-    studentCode: item.studentCode || '',
-    fullName: item.fullName || '',
-    classId: item.classId || '',
-    className: item.className || '',
-    currentHeight: profileSource.heightCm ?? profileSource.currentHeight ?? '',
-    currentWeight: profileSource.weightKg ?? profileSource.currentWeight ?? '',
-    heightCm: profileSource.heightCm ?? profileSource.currentHeight ?? '',
-    weightKg: profileSource.weightKg ?? profileSource.currentWeight ?? '',
-    medicalHistoryNotes: item.medicalHistoryNotes || '',
-    bloodType: profileSource.bloodType || '',
-    eyeStatus: profileSource.eyeStatus || '',
-    chronicNote: profileSource.chronicNote || '',
-    generalHealthNote: profileSource.generalHealthNote || '',
-    allergies,
+    studentId: item.studentId || null,
+    studentCode: item.studentCode || null,
+    fullName: item.fullName || null,
+    classId: item.classId || null,
+    className: item.className || null,
+    currentHeight: toNullableNumber(profileSource.heightCm ?? profileSource.currentHeight),
+    currentWeight: toNullableNumber(profileSource.weightKg ?? profileSource.currentWeight),
+    heightCm: toNullableNumber(profileSource.heightCm ?? profileSource.currentHeight),
+    weightKg: toNullableNumber(profileSource.weightKg ?? profileSource.currentWeight),
+    heightCmLabel: formatStudentNumber(profileSource.heightCm ?? profileSource.currentHeight),
+    weightKgLabel: formatStudentNumber(profileSource.weightKg ?? profileSource.currentWeight),
+    medicalHistoryNotes: item.medicalHistoryNotes || null,
+    bloodType: profileSource.bloodType || null,
+    eyeStatus: profileSource.eyeStatus || null,
+    chronicNote: profileSource.chronicNote || null,
+    generalHealthNote: profileSource.generalHealthNote || null,
+    allergies: allergies || null,
     allergyItems,
-    medicalHistory: item.medicalHistoryNotes || '',
-    lastExaminationDate: item.lastExaminationDate || '',
+    medicalHistory: item.medicalHistoryNotes || null,
+    lastExaminationDate: item.lastExaminationDate || null,
     lastExaminationDateLabel: formatDate(item.lastExaminationDate),
     updatedBy,
     healthProfileUpdatedAt: profileSource.updatedAt || item.healthProfileUpdatedAt || item.updatedAt || null,
     healthProfileUpdatedAtLabel: formatDateTime(profileSource.updatedAt || item.healthProfileUpdatedAt || item.updatedAt),
     updatedAt: item.updatedAt || null,
     updatedAtLabel: formatDateTime(item.updatedAt),
+    fields: {
+      studentId: hasOwn(item, 'studentId'),
+      studentCode: hasOwn(item, 'studentCode'),
+      fullName: hasOwn(item, 'fullName'),
+      classId: hasOwn(item, 'classId'),
+      className: hasOwn(item, 'className'),
+      healthProfile: hasOwn(item, 'healthProfile'),
+      allergies: hasOwn(profileSource, 'allergies'),
+      updatedAt: hasOwn(profileSource, 'updatedAt') || hasOwn(item, 'updatedAt'),
+    },
   };
 };

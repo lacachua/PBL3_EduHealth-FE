@@ -27,7 +27,7 @@ const AdminReportSummaryCardItem = ({ card }) => {
   const hasNote = Boolean(card.note);
 
   return (
-    <article className="group rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-[border-color,box-shadow] duration-200 ease-out hover:border-secondary/20">
+    <article className="group min-w-0 rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-[border-color,box-shadow] duration-200 ease-out hover:border-secondary/20">
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconToneClass}`}>
           <span
@@ -37,12 +37,12 @@ const AdminReportSummaryCardItem = ({ card }) => {
             {card.icon}
           </span>
         </div>
-        {hasNote ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${noteToneClass}`}>{card.note}</span> : null}
+        {hasNote ? <span className={`max-w-[58%] truncate rounded-full px-2 py-0.5 text-[10px] font-bold ${noteToneClass}`} title={card.note}>{card.note}</span> : null}
       </div>
 
       <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-on-surface-muted">{card.label}</p>
 
-      {card.progress ? (
+      {card.progress !== null && card.progress !== undefined ? (
         <div className="flex items-center gap-3">
           <h3 className={`text-3xl font-black ${valueToneClass}`}>{card.value}</h3>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-container-highest">

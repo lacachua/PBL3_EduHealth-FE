@@ -126,7 +126,31 @@ const getUserByIdMockSource = async (userId) => {
   return getUserByIdMock(userId);
 };
 
-const createUserLive = async (payload) => apiPostEnvelope(USER_ENDPOINTS.list, payload);
+const logCreateFailure = (scope, error) => {
+  const response = error?.response;
+  if (!response) {
+    console.error(`[${scope}] Network error`, error);
+    return;
+  }
+
+  console.error(`[${scope}] Response`, {
+    status: response.status,
+    message: response.data?.message || response.data?.title || error.message,
+    errors: response.data?.errors || null,
+    data: response.data,
+  });
+};
+
+const createUserLive = async (payload) => {
+  console.debug('[Admin Users] POST /api/v1/users payload', payload);
+
+  try {
+    return await apiPostEnvelope(USER_ENDPOINTS.list, payload);
+  } catch (error) {
+    logCreateFailure('Admin Users create', error);
+    throw error;
+  }
+};
 const createUserMockSource = async (payload) => {
   await waitForMock('users');
   return createUserMock(payload);
@@ -160,7 +184,7 @@ export const userManagementRepository = {
     return isMockSource() ? getUserByIdMockSource(userId) : getUserByIdLive(userId);
   },
   createUser: async (payload) => {
-    return isMockSource() ? createUserMockSource(payload) : createUserLive(payload);
+    return createUserLive(payload);
   },
   updateUser: async (userId, payload) => {
     return isMockSource() ? updateUserMockSource(userId, payload) : updateUserLive(userId, payload);

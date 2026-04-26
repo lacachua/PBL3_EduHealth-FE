@@ -1,17 +1,22 @@
-import { adminReportsRepository } from '../repositories/adminReportsRepository';
+import { apiGetEnvelope, apiPostEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
 
-export const getAdminReportsDashboardApi = async (filters = {}) => {
-  return adminReportsRepository.getDashboard(filters);
-};
+export const getAdminReportsDashboardApi = async (params = {}) => (
+  apiGetEnvelope('/api/v1/reports/admin/dashboard', { params })
+);
 
-export const getAdminClassDetailApi = async ({ classId, filters = {} }) => {
-  return adminReportsRepository.getClassDetail({ classId, filters });
-};
+export const getAdminClassDetailApi = async (classId) => (
+  apiGetEnvelope(`/api/v1/reports/admin/classes/${classId}`)
+);
 
-export const exportAdminReportsApi = async ({ filters, format }) => {
-  return adminReportsRepository.export({ filters, format });
-};
+export const exportAdminReportsApi = async (params = {}) => (
+  apiRequestRaw({
+    method: 'get',
+    url: '/api/v1/reports/admin/export',
+    params,
+    responseType: 'blob',
+  })
+);
 
-export const saveAdminClassDirectiveApi = async ({ classId, note, filters }) => {
-  return adminReportsRepository.saveDirective({ classId, note, filters });
-};
+export const saveAdminClassDirectiveApi = async (payload) => (
+  apiPostEnvelope('/api/v1/reports/admin/directives', payload)
+);

@@ -106,7 +106,9 @@ export const validateUserForm = ({ values, isEdit }) => {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 
-  if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
+  if (!isEdit && !values.phoneNumber?.trim()) {
+    errors.phoneNumber = 'Vui lòng nhập số điện thoại';
+  } else if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
     errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
   }
 
@@ -122,7 +124,7 @@ export const buildCreateUserPayload = (values) => ({
   password: values.password?.trim(),
   fullName: values.fullName?.trim(),
   email: values.email?.trim(),
-  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : {}),
+  phoneNumber: values.phoneNumber?.trim() || '',
   role: USER_ROLES.NURSE,
 });
 

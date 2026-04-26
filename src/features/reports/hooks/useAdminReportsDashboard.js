@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiEnvelope, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { adaptAdminReportsDashboardResponse } from '../adapters/adminReportsAdapter';
-import {
-  exportAdminReportsApi,
-  getAdminClassDetailApi,
-  getAdminReportsDashboardApi,
-  saveAdminClassDirectiveApi,
-} from '../services/adminReportsApi';
+import { adminReportsRepository } from '../repositories/adminReportsRepository';
 
 const triggerBlobDownload = ({ blob, filename }) => {
   const objectUrl = URL.createObjectURL(blob);
@@ -59,8 +54,8 @@ export const useAdminReportsDashboard = (initialFilters) => {
     setError('');
 
     try {
-      const response = await getAdminReportsDashboardApi(nextFilters);
-      const model = adaptAdminReportsDashboardResponse(response);
+      const response = await adminReportsRepository.getDashboard(nextFilters);
+      const model = adaptAdminReportsDashboardResponse(response, nextFilters);
       setDashboard(model);
     } catch (apiError) {
       setError(normalizeApiMessage(apiError));
@@ -85,7 +80,7 @@ export const useAdminReportsDashboard = (initialFilters) => {
   const exportReports = async (format) => {
     setExporting(true);
     try {
-      const result = await exportAdminReportsApi({ filters, format });
+      const result = await adminReportsRepository.export({ filters, format });
 
       if (result?.mode === 'blob' && result.blob) {
         triggerBlobDownload({
@@ -108,14 +103,14 @@ export const useAdminReportsDashboard = (initialFilters) => {
   const saveDirective = async ({ classId, note }) => {
     setSavingDirective(true);
     try {
-      return await saveAdminClassDirectiveApi({ classId, note, filters });
+      return await adminReportsRepository.saveDirective({ classId, note, filters });
     } finally {
       setSavingDirective(false);
     }
   };
 
   const fetchClassDetail = async (classId) => {
-    const response = await getAdminClassDetailApi({ classId, filters });
+    const response = await adminReportsRepository.getClassDetail({ classId, filters });
     const envelope = normalizeApiEnvelope(response);
     return envelope.data?.detail || null;
   };

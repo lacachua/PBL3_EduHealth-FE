@@ -105,44 +105,85 @@ const buildClassOptions = (classRows) => {
   return [{ id: 'all', label: 'Toàn bộ lớp' }, ...options];
 };
 
-export const adaptAdminReportsDashboardResponse = (payload) => {
+const filterRowsByRiskThreshold = (rows, riskThreshold) => {
+  const normalized = String(riskThreshold || '').toLowerCase();
+
+  if (normalized.includes('cao') || normalized.includes('đỏ')) {
+    return rows.filter((row) => row.riskTone === 'danger');
+  }
+
+  if (normalized.includes('trung') || normalized.includes('theo')) {
+    return rows.filter((row) => row.riskTone === 'warning');
+  }
+
+  if (normalized.includes('ổn') || normalized.includes('on')) {
+    return rows.filter((row) => row.riskTone === 'success');
+  }
+
+  return rows;
+};
+
+const mapClassRowToChartData = (row) => {
+  const total = Number(row.classSize || 0);
+  const stable = Number(row.stable || 0);
+  const followUp = Number(row.followUp || 0);
+  const highRisk = Number(row.highRisk || 0);
+
+  return {
+    id: row.id,
+    classId: row.classId,
+    label: `Lớp ${row.className}`,
+    stable,
+    followUp,
+    highRisk,
+    stablePct: total ? Math.round((stable * 100) / total) : 0,
+    followUpPct: total ? Math.round((followUp * 100) / total) : 0,
+    highRiskPct: total ? Math.round((highRisk * 100) / total) : 0,
+  };
+};
+
+const emptyDashboardModel = () => ({
+  header: null,
+  filterOptions: null,
+  summaryCards: [],
+  chartData: [],
+  classRows: [],
+  sidePanel: {
+    highPriorityAlerts: [],
+    lowSupplies: [],
+    lowVaccinationCoverage: [],
+  },
+  classDetails: {},
+  chartMeta: null,
+});
+
+export const adaptAdminReportsDashboardResponse = (payload, filters = {}) => {
   const envelope = normalizeApiEnvelope(payload);
 
   if (!envelope || envelope.success === false) {
-    return {
-      header: null,
-      filterOptions: null,
-      summaryCards: [],
-      chartData: [],
-      classRows: [],
-      sidePanel: {
-        highPriorityAlerts: [],
-        lowSupplies: [],
-        lowVaccinationCoverage: [],
-      },
-      classDetails: {},
-      chartMeta: null,
-    };
+    return emptyDashboardModel();
   }
 
   const data = envelope.data || {};
-
-  const mappedClassRows = ensureArray(data.classRows).map(mapClassRow).filter(Boolean);
-  const mappedChartData = ensureArray(data.chartData).map(mapChartData).filter(Boolean);
-
-  const filterOptions = {
-    ...adminReportFilterOptions,
-    classOptions: buildClassOptions(mappedClassRows),
-  };
+  const allClassRows = ensureArray(data.classRows).map(mapClassRow).filter(Boolean);
+  const mappedClassRows = filterRowsByRiskThreshold(allClassRows, filters.riskThreshold);
+  const visibleClassIds = new Set(mappedClassRows.map((row) => row.classId));
+  const mappedChartData = ensureArray(data.chartData)
+    .map(mapChartData)
+    .filter(Boolean)
+    .filter((item) => visibleClassIds.has(item.classId));
 
   return {
     header: data.header || {
       title: 'Báo cáo quản trị y tế học đường',
       description: 'Đánh giá tổng quát sức khỏe học sinh toàn trường.',
     },
-    filterOptions,
+    filterOptions: {
+      ...adminReportFilterOptions,
+      classOptions: buildClassOptions(allClassRows),
+    },
     summaryCards: ensureArray(data.summaryCards).map(mapSummaryCard).filter(Boolean),
-    chartData: mappedChartData,
+    chartData: mappedChartData.length ? mappedChartData : mappedClassRows.map(mapClassRowToChartData),
     classRows: mappedClassRows,
     sidePanel: {
       highPriorityAlerts: ensureArray(data.sidePanel?.highPriorityAlerts).map(mapHighPriorityAlert).filter(Boolean),

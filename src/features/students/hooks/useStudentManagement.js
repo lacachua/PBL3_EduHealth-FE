@@ -12,6 +12,7 @@ import {
   getStudentHealthProfileApi,
   getStudentManagementListApi,
 } from '../services/studentManagementApi';
+import { userManagementRepository } from '../../users/repositories/userManagementRepository';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
   STUDENT_FILTER_DEFAULTS,
@@ -153,6 +154,26 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     return basic;
   };
 
+  const toggleStatus = async (userRow, reason) => {
+    if (!userRow?.userId) {
+      throw new Error('Tài khoản học sinh chưa có userId hợp lệ.');
+    }
+
+    const payload = {
+      status: userRow.status === 'ACTIVE' ? 'LOCKED' : 'ACTIVE',
+      ...(reason?.trim() ? { reason: reason.trim() } : {}),
+    };
+
+    return userManagementRepository.toggleUserStatus(userRow.userId, payload);
+  };
+
+  const resetPassword = async (userRow, payload) => {
+    if (!userRow?.userId) {
+      throw new Error('Tài khoản học sinh chưa có userId hợp lệ.');
+    }
+    return userManagementRepository.resetUserPassword(userRow.userId, payload);
+  };
+
   const status = useMemo(() => {
     if (loading) return 'loading';
     if (error) return 'error';
@@ -178,6 +199,8 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     onPageChange,
     fetchList,
     fetchStudentDetail,
+    toggleStatus,
+    resetPassword,
     setSelectedStudent,
     setSelectedHealthProfile,
   };

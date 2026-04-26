@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_CREATE_INITIAL_VALUES } from '../constants/studentCreateOptions';
 import { createStudentManagementApi } from '../services/studentManagementApi';
 
@@ -236,6 +236,16 @@ export const useCreateStudentForm = () => {
           ...prev,
           ...mapBackendFieldErrors(backendErrors),
         }));
+      } else {
+        const mappedErrors = mapApiFieldErrors(error);
+        if (Object.keys(mappedErrors).length) {
+          setFieldErrors((prev) => ({
+            ...prev,
+            ...mapBackendFieldErrors(
+              Object.entries(mappedErrors).map(([field, message]) => ({ field, message }))
+            ),
+          }));
+        }
       }
 
       setSubmitError(normalizeApiMessage(error, 'Không thể tạo học sinh. Vui lòng thử lại.'));
