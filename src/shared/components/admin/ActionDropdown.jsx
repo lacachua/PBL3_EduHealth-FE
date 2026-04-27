@@ -96,6 +96,7 @@ const ActionDropdown = ({ items, menuWidth = 176 }) => {
         className="app-focus-ring app-btn-secondary gap-1 px-2.5 text-[12px]"
         aria-label="Mở menu hành động"
         aria-expanded={open}
+        data-row-click-stop="true"
       >
         <span className="material-symbols-outlined text-sm">more_horiz</span>
       </button>

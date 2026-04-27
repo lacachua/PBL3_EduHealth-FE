@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
 
 const PageFallback = () => (
-  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-    <span style={{ fontSize: "1rem", color: "#516C77", fontWeight: 600 }}>Đang tải...</span>
+  <div className="flex min-h-[60vh] items-center justify-center">
+    <span className="text-base font-semibold text-on-surface-variant">Đang tải...</span>
   </div>
 );
 

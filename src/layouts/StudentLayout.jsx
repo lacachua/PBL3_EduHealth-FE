@@ -45,9 +45,8 @@ const StudentLayout = () => {
       <div
         aria-hidden="true"
         onClick={closeSidebar}
-        className={`fixed inset-0 z-30 bg-slate-900/30 transition-opacity duration-200 md:hidden ${
-          isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        className={`fixed inset-0 z-30 bg-on-surface/30 transition-opacity duration-200 md:hidden ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`}
       />
 
       <StudentSidebar

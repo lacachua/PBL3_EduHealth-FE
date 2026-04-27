@@ -1,5 +1,3 @@
-import React from 'react';
-
 const toneClassMap = {
   info: 'border-info/30 bg-info-soft text-info',
   warning: 'border-warning/30 bg-warning-soft text-warning',

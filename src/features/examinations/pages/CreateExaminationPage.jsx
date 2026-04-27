@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
@@ -339,24 +339,24 @@ const CreateExaminationPage = () => {
   };
 
   return (
-    <div className="space-y-3.5 text-[#0F172A]">
+    <div className="space-y-3.5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
         closeAriaLabel="Đóng thông báo"
         closeLabel="Đóng"
-        fallbackClassName="border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]"
+        fallbackClassName="border-success/25 bg-success-soft text-success"
         classMap={{
-          error: 'border-[#DC2626]/25 bg-[#FEE2E2] text-[#B91C1C]',
-          success: 'border-[#15803D]/25 bg-[#DCFCE7] text-[#166534]',
+          error: 'border-danger/25 bg-danger-soft text-danger',
+          success: 'border-success/25 bg-success-soft text-success',
         }}
       />
 
       <section className="app-banner-soft rounded-2xl px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.03)] sm:px-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-[#163126] sm:text-[1.62rem]">Tạo phiếu khám</h1>
-            <p className="mt-1 text-sm text-[#5F746B]">Ghi nhận tình trạng sức khỏe, chẩn đoán và phương án chăm sóc cho học sinh.</p>
+            <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-on-surface sm:text-[1.62rem]">Tạo phiếu khám</h1>
+            <p className="mt-1 text-sm text-on-surface-variant">Ghi nhận tình trạng sức khỏe, chẩn đoán và phương án chăm sóc cho học sinh.</p>
           </div>
           <button
             type="button"
@@ -386,36 +386,36 @@ const CreateExaminationPage = () => {
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-12">
           <aside className="space-y-3.5 xl:col-span-4">
             <section className="app-card-shell rounded-xl p-4">
-              <h2 className="text-sm font-bold text-[#163126]">Thông tin học sinh</h2>
-              <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155]">
+              <h2 className="text-sm font-bold text-on-surface">Thông tin học sinh</h2>
+              <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface">
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Họ tên</dt>
-                  <dd className="font-medium text-[#163126]">{selectedStudentName}</dd>
+                  <dt className="text-xs text-on-surface-variant">Họ tên</dt>
+                  <dd className="font-medium text-on-surface">{selectedStudentName}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Mã học sinh</dt>
-                  <dd className="font-medium text-[#163126]">{studentCodeForDisplay || '--'}</dd>
+                  <dt className="text-xs text-on-surface-variant">Mã học sinh</dt>
+                  <dd className="font-medium text-on-surface">{studentCodeForDisplay || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Mã hồ sơ</dt>
-                  <dd className="font-medium text-[#163126]">{studentRecordIdForSubmit || '--'}</dd>
+                  <dt className="text-xs text-on-surface-variant">Mã hồ sơ</dt>
+                  <dd className="font-medium text-on-surface">{studentRecordIdForSubmit || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Lớp</dt>
-                  <dd className="font-medium text-[#163126]">{contextData.profile?.className || contextData.detail?.className || '--'}</dd>
+                  <dt className="text-xs text-on-surface-variant">Lớp</dt>
+                  <dd className="font-medium text-on-surface">{contextData.profile?.className || contextData.detail?.className || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Ngày sinh</dt>
-                  <dd className="font-medium text-[#163126]">{dateLabel(contextData.detail?.dateOfBirth)}</dd>
+                  <dt className="text-xs text-on-surface-variant">Ngày sinh</dt>
+                  <dd className="font-medium text-on-surface">{dateLabel(contextData.detail?.dateOfBirth)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#5F746B]">Phụ huynh</dt>
-                  <dd className="font-medium text-[#163126]">{contextData.detail?.guardian || '--'}</dd>
+                  <dt className="text-xs text-on-surface-variant">Phụ huynh</dt>
+                  <dd className="font-medium text-on-surface">{contextData.detail?.guardian || '--'}</dd>
                 </div>
               </dl>
             </section>
 
-            <section className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-4 text-[#B91C1C]">
+            <section className="rounded-xl border border-danger/30 bg-danger-soft p-4 text-danger">
               <h2 className="text-sm font-bold">Cảnh báo dị ứng và lưu ý sức khỏe</h2>
               <div className="mt-2 space-y-2 text-sm">
                 <div>
@@ -438,19 +438,19 @@ const CreateExaminationPage = () => {
             </section>
 
             <section className="app-card-shell rounded-xl p-4">
-              <h2 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h2>
+              <h2 className="text-sm font-bold text-on-surface">Lịch sử khám gần đây</h2>
               {contextData.history.length ? (
                 <ul className="mt-2 space-y-2">
                   {contextData.history.slice(0, 4).map((item) => (
-                    <li key={item.visitId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm">
-                      <p className="text-xs text-[#5F746B]">{dateLabel(item.visitDate)}</p>
-                      <p className="font-semibold text-[#163126]">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
-                      <p className="text-xs text-[#5F746B]">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
+                    <li key={item.visitId} className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm">
+                      <p className="text-xs text-on-surface-variant">{dateLabel(item.visitDate)}</p>
+                      <p className="font-semibold text-on-surface">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
+                      <p className="text-xs text-on-surface-variant">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-[#5F746B]">Chưa có dữ liệu lịch sử khám.</p>
+                <p className="mt-2 text-sm text-on-surface-variant">Chưa có dữ liệu lịch sử khám.</p>
               )}
             </section>
           </aside>
@@ -458,27 +458,27 @@ const CreateExaminationPage = () => {
           <section className="app-card-shell rounded-xl p-4 xl:col-span-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               {fieldErrors.studentId ? (
-                <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{fieldErrors.studentId}</p>
+                <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{fieldErrors.studentId}</p>
               ) : null}
 
               {submitError ? (
-                <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{submitError}</p>
+                <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{submitError}</p>
               ) : null}
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Ngày khám</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Ngày khám</span>
                   <input
                     type="date"
                     value={formValues.visitDate}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, visitDate: event.target.value }))}
                     className="app-focus-ring app-input h-10 rounded-lg px-3 text-sm"
                   />
-                  {fieldErrors.visitDate ? <span className="text-xs text-[#B91C1C]">{fieldErrors.visitDate}</span> : null}
+                  {fieldErrors.visitDate ? <span className="text-xs text-danger">{fieldErrors.visitDate}</span> : null}
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Mã nhóm bệnh (tùy chọn)</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Mã nhóm bệnh (tùy chọn)</span>
                   <input
                     type="text"
                     value={formValues.diseaseTypeId}
@@ -491,7 +491,7 @@ const CreateExaminationPage = () => {
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Triệu chứng lâm sàng *</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Triệu chứng lâm sàng *</span>
                   <textarea
                     value={formValues.symptoms}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, symptoms: event.target.value }))}
@@ -499,11 +499,11 @@ const CreateExaminationPage = () => {
                     className="app-focus-ring app-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập triệu chứng"
                   />
-                  {fieldErrors.symptoms ? <span className="text-xs text-[#B91C1C]">{fieldErrors.symptoms}</span> : null}
+                  {fieldErrors.symptoms ? <span className="text-xs text-danger">{fieldErrors.symptoms}</span> : null}
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Chẩn đoán *</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Chẩn đoán *</span>
                   <textarea
                     value={formValues.diagnosis}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, diagnosis: event.target.value }))}
@@ -511,13 +511,13 @@ const CreateExaminationPage = () => {
                     className="app-focus-ring app-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập chẩn đoán"
                   />
-                  {fieldErrors.diagnosis ? <span className="text-xs text-[#B91C1C]">{fieldErrors.diagnosis}</span> : null}
+                  {fieldErrors.diagnosis ? <span className="text-xs text-danger">{fieldErrors.diagnosis}</span> : null}
                 </label>
               </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Hướng xử lý *</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Hướng xử lý *</span>
                   <textarea
                     value={formValues.treatment}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, treatment: event.target.value }))}
@@ -525,11 +525,11 @@ const CreateExaminationPage = () => {
                     className="app-focus-ring app-input rounded-lg px-3 py-2 text-sm"
                     placeholder="Nhập hướng xử lý"
                   />
-                  {fieldErrors.treatment ? <span className="text-xs text-[#B91C1C]">{fieldErrors.treatment}</span> : null}
+                  {fieldErrors.treatment ? <span className="text-xs text-danger">{fieldErrors.treatment}</span> : null}
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-[#5F746B]">Ghi chú thêm</span>
+                  <span className="text-[11px] font-semibold text-on-surface-variant">Ghi chú thêm</span>
                   <textarea
                     value={formValues.note}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, note: event.target.value }))}
@@ -540,9 +540,9 @@ const CreateExaminationPage = () => {
                 </label>
               </div>
 
-              <section className="space-y-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+              <section className="space-y-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-bold text-[#163126]">Thuốc cấp cho học sinh</h3>
+                  <h3 className="text-sm font-bold text-on-surface">Thuốc cấp cho học sinh</h3>
                   <button
                     type="button"
                     onClick={addPrescriptionRow}
@@ -554,11 +554,11 @@ const CreateExaminationPage = () => {
                 </div>
 
                 {medicineLoadError ? (
-                  <p className="rounded-md border border-[#FECACA] bg-[#FEF2F2] px-2.5 py-1.5 text-xs text-[#B91C1C]">Không thể tải danh mục thuốc: {medicineLoadError}</p>
+                  <p className="rounded-md border border-danger/30 bg-danger-soft px-2.5 py-1.5 text-xs text-danger">Không thể tải danh mục thuốc: {medicineLoadError}</p>
                 ) : null}
 
                 {!medicineLoadError && !medicines.length ? (
-                  <p className="rounded-md border border-[#FCD34D] bg-[#FFFBEB] px-2.5 py-2 text-xs text-[#92400E]">Hiện không có thuốc còn tồn kho để cấp phát cho lượt khám này.</p>
+                  <p className="rounded-md border border-warning/50 bg-warning-soft px-2.5 py-2 text-xs text-warning">Hiện không có thuốc còn tồn kho để cấp phát cho lượt khám này.</p>
                 ) : null}
 
                 {prescriptions.length ? (
@@ -567,10 +567,10 @@ const CreateExaminationPage = () => {
                       const selectedMedicine = medicinesById.get(item.medicineId);
 
                       return (
-                        <article key={`prescription-${index}`} className="rounded-md border border-[#E2E8F0] bg-white p-3">
+                        <article key={`prescription-${index}`} className="rounded-md border border-outline-variant bg-white p-3">
                           <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
                             <label className="md:col-span-4 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-[#5F746B]">Thuốc *</span>
+                              <span className="text-[11px] font-semibold text-on-surface-variant">Thuốc *</span>
                               <select
                                 value={item.medicineId}
                                 onChange={(event) => updatePrescriptionRow(index, { medicineId: event.target.value })}
@@ -588,18 +588,18 @@ const CreateExaminationPage = () => {
                                 ))}
                               </select>
                               {selectedMedicine ? (
-                                <span className={`text-[11px] ${selectedMedicine.isLowStock ? 'text-[#9A6700]' : 'text-[#5F746B]'}`}>
+                                <span className={`text-[11px] ${selectedMedicine.isLowStock ? 'text-warning' : 'text-on-surface-variant'}`}>
                                   Tồn kho còn: {selectedMedicine.currentStock}
                                 </span>
                               ) : null}
-                              {selectedMedicine?.isLowStock ? <span className="inline-flex w-fit rounded-md border border-[#FCD34D] bg-[#FFFBEB] px-1.5 py-0.5 text-[10px] font-semibold text-[#92400E]">Sắp hết thuốc</span> : null}
+                              {selectedMedicine?.isLowStock ? <span className="inline-flex w-fit rounded-md border border-warning/50 bg-warning-soft px-1.5 py-0.5 text-[10px] font-semibold text-warning">Sắp hết thuốc</span> : null}
                               {fieldErrors[`prescriptions[${index}].medicineId`] ? (
-                                <span className="text-xs text-[#B91C1C]">{fieldErrors[`prescriptions[${index}].medicineId`]}</span>
+                                <span className="text-xs text-danger">{fieldErrors[`prescriptions[${index}].medicineId`]}</span>
                               ) : null}
                             </label>
 
                             <label className="md:col-span-2 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-[#5F746B]">Số lượng *</span>
+                              <span className="text-[11px] font-semibold text-on-surface-variant">Số lượng *</span>
                               <input
                                 type="number"
                                 min="1"
@@ -608,12 +608,12 @@ const CreateExaminationPage = () => {
                                 className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
                               />
                               {fieldErrors[`prescriptions[${index}].quantity`] ? (
-                                <span className="text-xs text-[#B91C1C]">{fieldErrors[`prescriptions[${index}].quantity`]}</span>
+                                <span className="text-xs text-danger">{fieldErrors[`prescriptions[${index}].quantity`]}</span>
                               ) : null}
                             </label>
 
                             <label className="md:col-span-2 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-[#5F746B]">Liều dùng</span>
+                              <span className="text-[11px] font-semibold text-on-surface-variant">Liều dùng</span>
                               <input
                                 type="text"
                                 value={item.dosage}
@@ -624,7 +624,7 @@ const CreateExaminationPage = () => {
                             </label>
 
                             <label className="md:col-span-3 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-[#5F746B]">Hướng dẫn sử dụng</span>
+                              <span className="text-[11px] font-semibold text-on-surface-variant">Hướng dẫn sử dụng</span>
                               <input
                                 type="text"
                                 value={item.usageInstruction}
@@ -639,7 +639,7 @@ const CreateExaminationPage = () => {
                               <button
                                 type="button"
                                 onClick={() => removePrescriptionRow(index)}
-                                className="app-focus-ring inline-flex h-10 w-10 items-center justify-center self-end rounded-lg border border-[#D9E2DE] bg-white text-[#B42318] transition hover:bg-[#FDECEC]"
+                                className="app-focus-ring inline-flex h-10 w-10 items-center justify-center self-end rounded-lg border border-outline-variant bg-white text-danger transition hover:bg-danger-soft"
                                 aria-label="Xóa thuốc"
                               >
                                 <span className="material-symbols-outlined text-[17px]">delete</span>
@@ -651,13 +651,13 @@ const CreateExaminationPage = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-md border border-dashed border-[#D9E2DE] bg-white px-3 py-4 text-sm text-[#5F746B]">
+                  <div className="rounded-md border border-dashed border-outline-variant bg-white px-3 py-4 text-sm text-on-surface-variant">
                     Chưa có thuốc được thêm. Bạn có thể để trống phần này nếu lượt khám không cần cấp thuốc.
                   </div>
                 )}
               </section>
 
-              <div className="sticky bottom-0 -mx-4 border-t border-[#D9E2DE] bg-[#F8FAF9] px-4 py-3">
+              <div className="sticky bottom-0 -mx-4 border-t border-outline-variant bg-surface-container-lowest px-4 py-3">
                 <div className="flex flex-wrap justify-end gap-2">
                   <button
                     type="button"

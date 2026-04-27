@@ -43,8 +43,8 @@ const CatalogDetailDrawer = ({ open, item, loading, error, onClose }) => (
             <StatusBadge tone={item.statusTone}>{item.statusLabel}</StatusBadge>
           </div>
         </DetailRow>
-        <DetailRow label="Ngày tạo" value={item.createdAtLabel} />
-        <DetailRow label="Cập nhật gần nhất" value={item.updatedAtLabel} />
+        <DetailRow label="Ngày tạo" value={item.createdAt} />
+        <DetailRow label="Cập nhật gần nhất" value={item.updatedAt} />
       </div>
     ) : null}
   </RightDrawer>

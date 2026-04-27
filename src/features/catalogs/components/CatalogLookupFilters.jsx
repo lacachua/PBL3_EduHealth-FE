@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import FilterBar from '../../../shared/components/admin/FilterBar';
 import SearchInput from '../../../shared/components/core/SearchInput';
 import { CATALOG_STATUS_OPTIONS } from '../constants/catalogConstants';
@@ -40,7 +40,7 @@ const CatalogLookupFilters = ({ initialValue, onApply, onReset }) => {
           type="submit"
           className="app-focus-ring app-btn-primary w-full px-3.5 md:w-auto"
         >
-          Áp dụng
+          Lọc
         </button>
 
         <button

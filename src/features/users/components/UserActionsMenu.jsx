@@ -1,4 +1,3 @@
-import React from 'react';
 import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 
 const UserActionsMenu = ({ row, currentUserId, onView, onEdit, onToggleStatus, onResetPassword }) => {

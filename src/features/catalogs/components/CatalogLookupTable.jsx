@@ -6,12 +6,12 @@ const CatalogLookupTable = ({ rows, onViewDetail }) => {
   const columns = [
     { key: 'code', header: 'Mã danh mục', headerClassName: 'w-[15%] min-w-[120px]', cellClassName: 'whitespace-nowrap font-semibold text-on-surface' },
     { key: 'name', header: 'Tên danh mục', headerClassName: 'w-[25%] min-w-[180px]', cellClassName: 'font-medium text-on-surface' },
-    { 
-      key: 'shortDescription', 
-      header: 'Mô tả', 
-      headerClassName: 'w-[35%] min-w-[240px]', 
+    {
+      key: 'description',
+      header: 'Mô tả',
+      headerClassName: 'w-[35%] min-w-[240px]',
       cellClassName: 'text-on-surface-variant',
-      render: (row) => <p className="line-clamp-2">{row.shortDescription || row.description || '--'}</p>
+      render: (row) => <p className="line-clamp-2">{row.description || '--'}</p>
     },
     { key: 'updatedAt', header: 'Cập nhật gần nhất', headerClassName: 'w-[15%] min-w-[140px]', cellClassName: 'whitespace-nowrap text-on-surface-variant' },
     {

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const InlineError = ({ message }) => {
   if (!message) return null;
 

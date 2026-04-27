@@ -75,10 +75,6 @@ const MedicinesPage = () => {
               initialValue={filters}
               onApply={onFiltersChange}
               onReset={onResetFilters}
-              onRefresh={() => {
-                fetchList();
-                fetchAlerts();
-              }}
             />
           )}
           actions={null}

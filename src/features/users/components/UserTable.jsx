@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import DataTable from '../../../shared/components/core/DataTable';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
 import { useAuth } from '../../../app/providers/useAuth';
@@ -72,6 +72,7 @@ const UserTable = ({ rows, onView, onEdit, onToggleStatus, onResetPassword }) =>
       columns={columns}
       rows={rows}
       getRowKey={(row) => row.id}
+      onRowClick={onView}
       containerClassName="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin] min-h-[360px]"
       tableClassName="min-w-[840px] w-full text-left text-sm"
     />

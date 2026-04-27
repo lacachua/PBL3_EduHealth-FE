@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CREATE_CAMPAIGN_INITIAL_VALUES,
   validateCreateCampaignValues,
@@ -520,8 +520,8 @@ const CreateVaccinationCampaignModal = ({
                         type="button"
                         onClick={() => toggleClassCode(option.value)}
                         className={`app-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${selected
-                            ? 'border-success bg-success-soft text-success ring-1 ring-success/50'
-                            : 'border-outline-variant bg-white text-on-surface-variant hover:border-success/50 hover:bg-surface-container-low'
+                          ? 'border-success bg-success-soft text-success ring-1 ring-success/50'
+                          : 'border-outline-variant bg-white text-on-surface-variant hover:border-success/50 hover:bg-surface-container-low'
                           }`}
                         title={option.value}
                         aria-pressed={selected}

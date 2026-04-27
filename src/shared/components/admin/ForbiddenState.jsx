@@ -1,4 +1,3 @@
-import React from 'react';
 
 const ForbiddenState = ({ message = 'Bạn không có quyền truy cập dữ liệu này.' }) => (
   <div className="rounded-lg border border-warning/25 bg-warning-soft px-4 py-5">

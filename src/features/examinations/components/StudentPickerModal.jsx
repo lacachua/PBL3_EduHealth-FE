@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import Pagination from '../../../shared/components/core/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
@@ -322,8 +322,8 @@ const StudentPickerModal = ({
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-[#163126]">{row.fullName}</p>
-                              <p className="mt-0.5 text-xs text-[#5F746B]">Lớp {row.className}</p>
+                              <p className="truncate text-sm font-semibold text-on-surface">{row.fullName}</p>
+                              <p className="mt-0.5 text-xs text-on-surface-variant">Lớp {row.className}</p>
                             </div>
                             <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.isActive ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                               {row.isActive ? 'Hoạt động' : 'Đã khóa'}
@@ -413,23 +413,23 @@ const StudentPickerModal = ({
                   ) : null}
 
                   <article className="app-card-shell rounded-lg p-3">
-                    <h4 className="text-sm font-bold text-[#163126]">Tóm tắt hồ sơ sức khỏe</h4>
-                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
+                    <h4 className="text-sm font-bold text-on-surface">Tóm tắt hồ sơ sức khỏe</h4>
+                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface sm:grid-cols-2">
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Chiều cao</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.heightCm ?? '--'} cm</dd>
+                        <dt className="text-xs text-on-surface-variant">Chiều cao</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.heightCm ?? '--'} cm</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Cân nặng</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.weightKg ?? '--'} kg</dd>
+                        <dt className="text-xs text-on-surface-variant">Cân nặng</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.weightKg ?? '--'} kg</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Nhóm máu</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.bloodType || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Nhóm máu</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.bloodType || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Dị ứng</dt>
-                        <dd className="font-medium text-[#163126]">
+                        <dt className="text-xs text-on-surface-variant">Dị ứng</dt>
+                        <dd className="font-medium text-on-surface">
                           {allergies.length
                             ? allergies.map((item) => item.allergyTypeName).join(', ')
                             : '--'}
@@ -439,32 +439,32 @@ const StudentPickerModal = ({
                   </article>
 
                   <article className="app-card-shell rounded-lg p-3">
-                    <h4 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h4>
+                    <h4 className="text-sm font-bold text-on-surface">Lịch sử khám gần đây</h4>
                     {previewData.history.length ? (
                       <ul className="mt-2 space-y-2">
                         {previewData.history.slice(0, 3).map((item) => (
-                          <li key={item.visitId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-                            <p className="text-xs text-[#5F746B]">{dateLabel(item.visitDate)}</p>
-                            <p className="text-sm font-semibold text-[#163126]">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
-                            <p className="text-xs text-[#5F746B]">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
+                          <li key={item.visitId} className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2">
+                            <p className="text-xs text-on-surface-variant">{dateLabel(item.visitDate)}</p>
+                            <p className="text-sm font-semibold text-on-surface">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
+                            <p className="text-xs text-on-surface-variant">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2 text-sm text-[#5F746B]">Chưa có dữ liệu lịch sử khám.</p>
+                      <p className="mt-2 text-sm text-on-surface-variant">Chưa có dữ liệu lịch sử khám.</p>
                     )}
                   </article>
                 </div>
               </div>
             ) : (
-              <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-[#D9E2DE] bg-[#F8FAF9] p-6 text-sm text-[#5F746B]">
+              <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
                 Chọn một học sinh để xem thông tin chi tiết.
               </div>
             )}
           </section>
         </div>
 
-        <footer className="shrink-0 flex items-center justify-end gap-2 border-t border-[#D9E2DE] bg-white px-4 py-3 md:px-5">
+        <footer className="shrink-0 flex items-center justify-end gap-2 border-t border-outline-variant bg-white px-4 py-3 md:px-5">
           <button
             type="button"
             onClick={onClose}

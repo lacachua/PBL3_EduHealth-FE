@@ -1,4 +1,3 @@
-import React from 'react';
 import InlineError from './InlineError';
 
 const baseInputClass = 'w-full rounded-lg border border-[var(--color-field-editable-border)] bg-[var(--color-field-editable-bg)] px-3 py-2 text-sm text-on-surface outline-none transition placeholder:text-[var(--color-field-placeholder)] hover:border-outline focus:border-[var(--color-field-focus)] focus:ring-2 focus:ring-[var(--color-field-focus)]/20';

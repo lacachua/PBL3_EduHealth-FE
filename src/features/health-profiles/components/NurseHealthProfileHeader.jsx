@@ -1,15 +1,14 @@
-import React from 'react';
 import EntityAvatar from '../../../shared/components/core/EntityAvatar';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
 
-const metaItemClass = 'inline-flex items-center gap-1.5 text-[12px] text-[#64748B]';
+const metaItemClass = 'inline-flex items-center gap-1.5 text-[12px] text-on-surface-variant';
 
 const statusClassMap = {
-  success: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
-  info: 'bg-[#DBEAFE] text-[#2563EB] border-[#93C5FD]',
-  warning: 'bg-[#FFEDD5] text-[#EA580C] border-[#FDBA74]',
-  danger: 'bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]',
-  default: 'bg-[#F1F5F9] text-[#334155] border-[#CBD5E1]',
+  success: 'bg-success-soft text-success border-success/30',
+  info: 'bg-info-soft text-info border-info/30',
+  warning: 'bg-warning-soft text-warning border-warning/30',
+  danger: 'bg-danger-soft text-danger border-danger/30',
+  default: 'bg-surface-container-low text-on-surface-variant border-outline-variant',
 };
 
 const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) => {
@@ -25,13 +24,13 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
             imageUrl={header.avatarUrl}
             sizeClass="h-20 w-20 sm:h-24 sm:w-24"
             textClass="text-lg"
-            borderClass="border border-[#D1FAE5]"
-            backgroundClass="bg-[#DCFCE7] text-[#166534]"
+            borderClass="border border-success/20"
+            backgroundClass="bg-success-soft text-success"
           />
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-headline text-[1.5rem] font-bold leading-tight tracking-[-0.015em] text-[#0F172A] sm:text-[1.7rem]">{header.fullName}</h2>
+              <h2 className="font-headline text-[1.5rem] font-bold leading-tight tracking-[-0.015em] text-on-surface sm:text-[1.7rem]">{header.fullName}</h2>
               <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}`}>
                 {header.statusLabel || 'Hoạt động'}
               </span>
@@ -61,7 +60,7 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
         <button
           type="button"
           onClick={onEditHealthProfile}
-          className="app-focus-ring inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#15803D] px-4 text-sm font-semibold text-white transition-[background-color,box-shadow,transform] duration-180 ease-out hover:bg-[#166534] hover:shadow-[0_4px_10px_rgba(21,128,61,0.2)] hover:-translate-y-px"
+          className="app-focus-ring app-btn-primary inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-semibold"
         >
           <span className="material-symbols-outlined text-[17px]">edit_square</span>
           Cập nhật hồ sơ sức khỏe

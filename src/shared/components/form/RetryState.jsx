@@ -1,4 +1,3 @@
-import React from 'react';
 
 const RetryState = ({ title, description, onRetry, retryLabel = 'Thử lại' }) => (
   <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 text-center">

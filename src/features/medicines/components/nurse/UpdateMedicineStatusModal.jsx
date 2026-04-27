@@ -29,11 +29,11 @@ const UpdateMedicineStatusModal = ({ open, medicine, onClose, onSubmit, submitti
       }}
     >
       <label className="block space-y-1 text-sm">
-        <span className="font-medium text-slate-700">Trạng thái mới *</span>
+        <span className="font-medium text-on-surface-variant">Trạng thái mới *</span>
         <select
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
         >
           <option value="ACTIVE">Đang sử dụng</option>
           <option value="INACTIVE">Ngưng sử dụng</option>
@@ -41,12 +41,12 @@ const UpdateMedicineStatusModal = ({ open, medicine, onClose, onSubmit, submitti
       </label>
 
       <label className="block space-y-1 text-sm">
-        <span className="font-medium text-slate-700">Lý do</span>
+        <span className="font-medium text-on-surface-variant">Lý do</span>
         <textarea
           rows={3}
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
           placeholder="Ví dụ: Tạm ngưng do không còn nhu cầu"
         />
       </label>

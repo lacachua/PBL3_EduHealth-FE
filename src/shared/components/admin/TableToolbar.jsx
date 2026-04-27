@@ -1,4 +1,3 @@
-import React from 'react';
 
 const TableToolbar = ({ filters, actions }) => (
   <div className="app-filter-toolbar mb-3 flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
