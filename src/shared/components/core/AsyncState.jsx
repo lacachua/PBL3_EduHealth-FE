@@ -1,4 +1,3 @@
-import React from 'react';
 import EmptyState from './EmptyState';
 import ErrorState from './ErrorState';
 import LoadingSpinner from './LoadingSpinner';

@@ -1,6 +1,8 @@
 import { mockAuthAccounts } from '../../auth/constants/mockAuthAccounts';
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { getStoredUser } from '../../../shared/services/tokenClient';
+import { PHONE_REGEX } from '../../../shared/utils/phoneValidation';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 
 const normalizeIdentifier = (value) => String(value || '').trim().toLowerCase();
 const normalizeRole = (value) => String(value || '').trim().toUpperCase();
@@ -103,36 +105,10 @@ export const getCurrentUserMock = async () => {
   return buildMockCurrentUser();
 };
 
-const validatePasswordPayload = ({ oldPassword, newPassword, confirmPassword }) => {
-  const errors = {};
-
-  if (!oldPassword) {
-    errors.oldPassword = ['Mật khẩu hiện tại là bắt buộc.'];
-  }
-
-  if (!newPassword) {
-    errors.newPassword = ['Mật khẩu mới là bắt buộc.'];
-  } else {
-    if (newPassword.length < 8) {
-      errors.newPassword = ['Mật khẩu mới phải có ít nhất 8 ký tự.'];
-    } else if (oldPassword && oldPassword === newPassword) {
-      errors.newPassword = ['Mật khẩu mới phải khác mật khẩu hiện tại.'];
-    }
-  }
-
-  if (!confirmPassword) {
-    errors.confirmPassword = ['Vui lòng xác nhận mật khẩu mới.'];
-  } else if (newPassword && confirmPassword !== newPassword) {
-    errors.confirmPassword = ['Xác nhận mật khẩu chưa khớp.'];
-  }
-
-  return errors;
-};
-
 export const changeCurrentUserPasswordMock = async ({ oldPassword, newPassword, confirmPassword }) => {
   await waitForMock('auth');
 
-  const fieldErrors = validatePasswordPayload({ oldPassword, newPassword, confirmPassword });
+  const fieldErrors = validateChangePasswordForm({ oldPassword, newPassword, confirmPassword });
   if (Object.keys(fieldErrors).length > 0) {
     throw createMockApiError({
       status: 400,
@@ -183,7 +159,7 @@ export const updateCurrentUserProfileMock = async ({ fullName, phone }) => {
     fieldErrors.fullName = ['Họ và tên không được để trống.'];
   }
 
-  if (nextPhone && !/^[0-9+\-\s]{9,15}$/.test(nextPhone)) {
+  if (nextPhone && !PHONE_REGEX.test(nextPhone)) {
     fieldErrors.phone = ['Số điện thoại không hợp lệ.'];
   }
 

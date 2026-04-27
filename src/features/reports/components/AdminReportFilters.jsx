@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const FIELD_CLASS_NAME = 'w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface-variant outline-none transition focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10';
 
@@ -62,11 +62,11 @@ const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
         ) : null}
 
         <div className="flex items-end justify-end gap-2 md:col-span-2 xl:col-span-12">
-          <button type="button" onClick={onReset} className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-high">
+          <button type="button" onClick={onReset} className="app-btn-secondary app-focus-ring rounded-xl px-4 py-2.5 text-sm font-semibold">
             Đặt lại
           </button>
-          <button type="submit" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover">
-            Áp dụng
+          <button type="submit" className="app-btn-primary app-focus-ring rounded-xl px-4 py-2.5 text-sm font-semibold">
+            Lọc
           </button>
         </div>
       </div>

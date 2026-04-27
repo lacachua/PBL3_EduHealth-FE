@@ -22,7 +22,7 @@ export const useNurseReportsDashboard = () => {
 
     try {
       const response = await nurseReportsRepository.getDashboard(nextFilters);
-      const mapped = adaptNurseReportsDashboardResponse(response);
+      const mapped = adaptNurseReportsDashboardResponse(response, nextFilters);
       setViewModel(mapped);
       setHasLoaded(true);
       return mapped;

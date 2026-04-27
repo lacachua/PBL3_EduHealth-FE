@@ -1,4 +1,3 @@
-import React from 'react';
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => {
   const baseStyles = 'app-focus-ring inline-flex items-center justify-center gap-2 px-4';

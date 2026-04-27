@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useMemo, useState } from "react";
 import {
   clearAuthStorage,
   getAccessToken,
+  getActiveStorageScope,
   getStoredUser,
   setAccessToken,
   setStoredUser,
@@ -9,9 +10,18 @@ import {
 
 const AuthContext = createContext(null);
 
+const initAuthState = () => {
+  const token = getAccessToken();
+  const storedUser = getStoredUser();
+  const isValid = Boolean(token && storedUser);
+  return {
+    user: isValid ? storedUser : null,
+    isAuthenticated: isValid,
+  };
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => getStoredUser());
-  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(getAccessToken()));
+  const [{ user, isAuthenticated }, setAuthState] = useState(initAuthState);
 
   const login = (payload) => {
     const normalizedUser = payload?.user ?? payload ?? null;
@@ -23,45 +33,35 @@ export const AuthProvider = ({ children }) => {
     setStoredUser(normalizedUser, remember);
     setAccessToken(token, remember);
 
-    setUser(normalizedUser);
-    setIsAuthenticated(true);
+    setAuthState({ user: normalizedUser, isAuthenticated: true });
   };
 
   const logout = () => {
     clearAuthStorage();
-    setUser(null);
-    setIsAuthenticated(false);
+    setAuthState({ user: null, isAuthenticated: false });
   };
 
   /**
-   * Merge partial updates into the current user object and persist to storage.
-   * Used after profile/avatar changes so the header and other consumers
-   * see the latest data without requiring a full re-login.
+   * Merge partial updates vào user hiện tại và persist đúng scope.
+   * Dùng getActiveStorageScope() thay vì đoán mò từ getStoredUser().
    */
   const updateUser = useCallback((partialUser) => {
     if (!partialUser || typeof partialUser !== 'object') return;
 
-    setUser((prev) => {
-      if (!prev) return prev;
+    setAuthState((prev) => {
+      if (!prev.user) return prev;
 
-      const merged = { ...prev, ...partialUser };
+      const merged = { ...prev.user, ...partialUser };
+      const activeScope = getActiveStorageScope();
+      const remember = activeScope === 'local';
+      setStoredUser(merged, remember);
 
-      // Persist to whichever storage scope is currently active.
-      const hasLocal = Boolean(getStoredUser());
-      setStoredUser(merged, hasLocal);
-
-      return merged;
+      return { ...prev, user: merged };
     });
   }, []);
 
   const value = useMemo(
-    () => ({
-      user,
-      login,
-      logout,
-      updateUser,
-      isAuthenticated,
-    }),
+    () => ({ user, login, logout, updateUser, isAuthenticated }),
     [user, isAuthenticated, updateUser]
   );
 

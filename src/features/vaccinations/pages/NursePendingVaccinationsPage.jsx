@@ -13,7 +13,7 @@ import StudentVaccinationHistoryDrawer from '../components/StudentVaccinationHis
 import UpdateStudentVaccinationModal from '../components/UpdateStudentVaccinationModal';
 import VaccinationStudentsTable from '../components/VaccinationStudentsTable';
 import VaccinationStudentsToolbar from '../components/VaccinationStudentsToolbar';
-import { PENDING_FILTER_DEFAULTS } from '../schemas/vaccinationSchema';
+import { PENDING_FILTER_DEFAULTS } from '../constants/vaccinationConstants';
 import {
   getPendingVaccinationsApi,
   getStudentVaccinationHistoryApi,

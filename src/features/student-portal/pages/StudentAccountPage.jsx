@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 import { useAuth } from '../../../app/providers/useAuth';
 import StudentAccountInfoCard from '../components/account/StudentAccountInfoCard';
 import StudentAccountPasswordCard from '../components/account/StudentAccountPasswordCard';
-import StudentAccountProfileCard from '../components/account/StudentAccountProfileCard';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
-import StudentFeedbackToast from '../components/common/StudentFeedbackToast';
+import FeedbackToast from '../../../shared/components/core/FeedbackToast';
+import StudentAccountProfileCard from '../components/account/StudentAccountProfileCard';
 import { studentPortalService } from '../services/studentPortalService';
 import '../styles/student-portal.css';
-
-const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
 
 const createProfileFormState = (profile) => ({
   fullName: profile?.fullName || '',
@@ -30,39 +30,15 @@ const validateProfileForm = (values) => {
   }
 
   const phoneValue = String(values.phone || '').trim();
-  if (phoneValue && !PHONE_PATTERN.test(phoneValue)) {
-    nextErrors.phone = 'Số điện thoại không hợp lệ.';
+  const phoneError = validatePhoneNumber(phoneValue);
+  if (phoneError) {
+    nextErrors.phone = phoneError;
   }
 
   return nextErrors;
 };
 
-const validatePasswordForm = (values) => {
-  const nextErrors = {};
-
-  if (!String(values.oldPassword || '').trim()) {
-    nextErrors.oldPassword = 'Vui lòng nhập mật khẩu hiện tại.';
-  }
-
-  const newPassword = String(values.newPassword || '').trim();
-  const confirmPassword = String(values.confirmPassword || '').trim();
-
-  if (!newPassword) {
-    nextErrors.newPassword = 'Vui lòng nhập mật khẩu mới.';
-  } else if (newPassword.length < 8) {
-    nextErrors.newPassword = 'Mật khẩu mới phải có ít nhất 8 ký tự.';
-  } else if (newPassword === values.oldPassword) {
-    nextErrors.newPassword = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
-  }
-
-  if (!confirmPassword) {
-    nextErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới.';
-  } else if (newPassword !== confirmPassword) {
-    nextErrors.confirmPassword = 'Xác nhận mật khẩu chưa khớp.';
-  }
-
-  return nextErrors;
-};
+const validatePasswordForm = validateChangePasswordForm;
 
 const StudentAccountPage = () => {
   const { updateUser } = useAuth();
@@ -430,7 +406,15 @@ const StudentAccountPage = () => {
         </div>
       </section>
 
-      <StudentFeedbackToast feedback={feedback} onClose={() => setFeedback(null)} />
+      <FeedbackToast
+        feedback={feedback}
+        onClose={() => setFeedback(null)}
+        classMap={{
+          success: 'border-success/35 bg-success-soft text-success',
+          error: 'border-danger/35 bg-danger-soft text-danger',
+          info: 'border-info/35 bg-info-soft text-info',
+        }}
+      />
     </div>
   );
 };

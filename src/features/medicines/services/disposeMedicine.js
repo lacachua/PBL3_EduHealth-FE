@@ -1,7 +1,7 @@
 import { apiPostEnvelope } from '../../../shared/api/apiClient';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import { mockDisposeMedicine } from '../mocks/medicineInventoryMockApi';
-import { MEDICINES_ENDPOINTS } from '../schemas/medicinesSchema';
+import { MEDICINES_ENDPOINTS } from '../constants/medicinesApiContract';
 import { shouldUseMockInventoryApi, waitForInventoryMock } from './inventoryServiceShared';
 
 export const disposeMedicine = async (medicineId, payload, options = {}) => {

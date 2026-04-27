@@ -1,4 +1,3 @@
-import React from 'react';
 import DataTable from '../../../shared/components/core/DataTable';
 
 const MedicineMovementsTable = ({ rows }) => {

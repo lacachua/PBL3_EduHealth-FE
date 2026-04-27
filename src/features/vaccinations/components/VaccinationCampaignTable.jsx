@@ -1,4 +1,4 @@
-import React from 'react';
+
 import VaccinationStatusBadge from './VaccinationStatusBadge';
 
 const VaccinationCampaignTable = ({ rows, loading, error, onRetry, onViewDetail }) => {

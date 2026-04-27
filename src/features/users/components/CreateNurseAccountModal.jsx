@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { USER_ROLES, validateUserForm } from '../schemas/userManagementSchema';
+import { USER_ROLES } from '../constants/userManagementConstants';
+import { validateUserForm } from '../schemas/userManagementSchema';
 import EditableField from '../../../shared/components/form/EditableField';
 import ReadonlyField from '../../../shared/components/form/ReadonlyField';
 
@@ -22,6 +23,14 @@ const CreateNurseAccountModalContent = ({
   const [errors, setErrors] = useState({});
 
   const mergedErrors = useMemo(() => ({ ...apiErrors, ...errors }), [apiErrors, errors]);
+
+  const handleSubmit = async () => {
+    const nextErrors = validateUserForm({ values: form, isEdit: false });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+    await onSubmit(form);
+    onClose();
+  };
 
   useEffect(() => {
     const handleEscape = (event) => {
@@ -110,15 +119,7 @@ const CreateNurseAccountModalContent = ({
             <button
               type="button"
               disabled={submitting}
-              onClick={async () => {
-                const nextErrors = validateUserForm({ values: form, isEdit: false });
-                setErrors(nextErrors);
-                if (Object.keys(nextErrors).length) {
-                  return;
-                }
-                await onSubmit(form);
-                onClose();
-              }}
+              onClick={handleSubmit}
               className="app-focus-ring rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
             >
               {submitting ? 'Đang xử lý...' : 'Tạo tài khoản'}

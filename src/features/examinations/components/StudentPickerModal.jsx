@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import Pagination from '../../../shared/components/core/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import { STUDENT_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
+import { STUDENT_PICKER_PAGE_SIZE } from '../constants/examinationConstants';
 import {
   getNurseStudentDetailApi,
   getNurseStudentHealthHistoryApi,
@@ -246,22 +246,22 @@ const StudentPickerModal = ({
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 md:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-[#0F172A]/35 opacity-100 transition-opacity duration-150"
+        className="absolute inset-0 bg-on-surface/30 opacity-100 transition-opacity duration-150"
         onClick={onClose}
         aria-label="Đóng cửa sổ"
       />
 
-      <div className="relative z-10 flex h-[85vh] w-full max-w-6xl translate-y-0 flex-col overflow-hidden rounded-2xl border border-[#D9E2DE] bg-white opacity-100 shadow-[0_24px_48px_rgba(15,23,42,0.18)] transition duration-150">
-        <header className="shrink-0 border-b border-[#D9E2DE] bg-[#F8FAF9] px-4 py-3 md:px-5">
+      <div className="relative z-10 flex h-[85vh] w-full max-w-6xl translate-y-0 flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface opacity-100 shadow-[0_24px_48px_rgba(15,23,42,0.18)] transition duration-150">
+        <header className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-3 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-bold text-[#163126]">Chọn học sinh để lập phiếu khám</h3>
-              <p className="mt-0.5 text-sm text-[#5F746B]">Xác nhận đúng hồ sơ học sinh trước khi sang bước ghi nhận khám.</p>
+              <h3 className="text-lg font-bold text-on-surface">Chọn học sinh để lập phiếu khám</h3>
+              <p className="mt-0.5 text-sm text-on-surface-variant">Xác nhận đúng hồ sơ học sinh trước khi sang bước ghi nhận khám.</p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#D9E2DE] text-[#5F746B] hover:bg-white"
+              className="app-focus-ring inline-flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface"
               aria-label="Đóng"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
@@ -269,11 +269,11 @@ const StudentPickerModal = ({
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 grid-cols-1 gap-0 lg:grid lg:grid-cols-5 bg-[#F4F7F6]">
-          <section className="min-h-0 border-r border-[#D9E2DE] bg-white p-4 lg:col-span-2">
+        <div className="min-h-0 flex-1 grid-cols-1 gap-0 lg:grid lg:grid-cols-5 bg-surface-container-low">
+          <section className="min-h-0 border-r border-outline-variant bg-surface p-4 lg:col-span-2">
             <div className="space-y-2.5">
               <label className="relative block">
-                <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#5F746B]">search</span>
+                <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">search</span>
                 <input
                   type="search"
                   value={search}
@@ -300,7 +300,7 @@ const StudentPickerModal = ({
               </select>
             </div>
 
-            <div className="mt-3 min-h-0 h-[calc(100%-6.75rem)] overflow-hidden rounded-xl border border-[#D9E2DE] bg-white">
+            <div className="mt-3 min-h-0 h-[calc(100%-6.75rem)] overflow-hidden rounded-xl border border-outline-variant bg-surface">
               <AdminAsyncState
                 status={listStatus}
                 error={listError}
@@ -318,14 +318,14 @@ const StudentPickerModal = ({
                         <button
                           type="button"
                           onClick={() => setSelectedStudentId(row.userId)}
-                          className={`w-full px-3 py-3 text-left transition ${active ? 'border border-[#BBF7D0] bg-[#DCFCE7]' : 'hover:bg-[#F8FAF9]'}`}
+                          className={`w-full px-3 py-3 text-left transition ${active ? 'border border-success bg-success-soft' : 'hover:bg-surface-container-low'}`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-[#163126]">{row.fullName}</p>
-                              <p className="mt-0.5 text-xs text-[#5F746B]">Lớp {row.className}</p>
+                              <p className="truncate text-sm font-semibold text-on-surface">{row.fullName}</p>
+                              <p className="mt-0.5 text-xs text-on-surface-variant">Lớp {row.className}</p>
                             </div>
-                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.isActive ? 'bg-[#E8F6EE] text-[#0B6F3C]' : 'bg-[#FDECEC] text-[#B42318]'}`}>
+                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.isActive ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                               {row.isActive ? 'Hoạt động' : 'Đã khóa'}
                             </span>
                           </div>
@@ -336,7 +336,7 @@ const StudentPickerModal = ({
                 </ul>
 
                 {listData.totalPages > 1 ? (
-                  <div className="border-t border-[#D9E2DE] bg-white px-3 py-2">
+                  <div className="border-t border-outline-variant bg-surface px-3 py-2">
                     <Pagination
                       page={listData.page}
                       pageSize={listData.pageSize}
@@ -351,57 +351,57 @@ const StudentPickerModal = ({
 
           <section className="min-h-0 p-4 lg:col-span-3">
             {selectedStudentId ? (
-              <div className="h-full overflow-y-auto rounded-xl border border-[#D9E2DE] bg-[#F8FAF9] p-4 animate-[appFadeSlideIn_180ms_ease-out]">
+              <div className="h-full overflow-y-auto rounded-xl border border-outline-variant bg-surface-container-low p-4 animate-[appFadeSlideIn_180ms_ease-out]">
                 {previewLoading ? (
-                  <p className="text-sm text-[#5F746B]">Đang tải thông tin học sinh...</p>
+                  <p className="text-sm text-on-surface-variant">Đang tải thông tin học sinh...</p>
                 ) : null}
 
                 {previewError ? (
-                  <p className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-sm text-[#B91C1C]">{previewError}</p>
+                  <p className="rounded-lg border border-danger-soft bg-danger-soft px-3 py-2 text-sm text-danger">{previewError}</p>
                 ) : null}
 
                 <div className="space-y-4">
                   <article className="app-card-shell rounded-lg p-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <h4 className="text-sm font-bold text-[#163126]">Thông tin cơ bản</h4>
+                      <h4 className="text-sm font-bold text-on-surface">Thông tin cơ bản</h4>
                       <button
                         type="button"
                         onClick={() => onViewProfile?.(selectedStudentId)}
-                        className="app-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#175CD3] hover:text-[#1248AC]"
+                        className="app-focus-ring rounded-md px-1.5 py-0.5 text-xs font-semibold text-primary hover:text-primary-hover"
                       >
                         Xem hồ sơ học sinh
                       </button>
                     </div>
-                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
+                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface sm:grid-cols-2">
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Họ tên</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.detail?.fullName || selectedStudent?.fullName || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Họ tên</dt>
+                        <dd className="font-medium text-on-surface">{previewData.detail?.fullName || selectedStudent?.fullName || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Mã học sinh</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentCode || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Mã học sinh</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.studentCode || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Mã hồ sơ</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.studentId || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Mã hồ sơ</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.studentId || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Lớp</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.className || selectedStudent?.className || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Lớp</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.className || selectedStudent?.className || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Ngày sinh</dt>
-                        <dd className="font-medium text-[#163126]">{dateLabel(previewData.detail?.dateOfBirth || selectedRow?.dateOfBirth)}</dd>
+                        <dt className="text-xs text-on-surface-variant">Ngày sinh</dt>
+                        <dd className="font-medium text-on-surface">{dateLabel(previewData.detail?.dateOfBirth || selectedRow?.dateOfBirth)}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Phụ huynh</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.detail?.guardian || selectedRow?.guardian || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Phụ huynh</dt>
+                        <dd className="font-medium text-on-surface">{previewData.detail?.guardian || selectedRow?.guardian || '--'}</dd>
                       </div>
                     </dl>
                   </article>
 
                   {hasMedicalWarning ? (
-                    <article className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2.5 text-[#B91C1C]">
+                    <article className="rounded-lg border border-danger-soft bg-danger-soft px-3 py-2.5 text-danger">
                       <p className="text-xs font-semibold uppercase tracking-[0.02em]">Cảnh báo y tế</p>
                       {allergies.length ? (
                         <p className="mt-1 text-sm">Dị ứng: {allergies.map((item) => item.allergyTypeName).join(', ')}</p>
@@ -413,23 +413,23 @@ const StudentPickerModal = ({
                   ) : null}
 
                   <article className="app-card-shell rounded-lg p-3">
-                    <h4 className="text-sm font-bold text-[#163126]">Tóm tắt hồ sơ sức khỏe</h4>
-                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-[#334155] sm:grid-cols-2">
+                    <h4 className="text-sm font-bold text-on-surface">Tóm tắt hồ sơ sức khỏe</h4>
+                    <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface sm:grid-cols-2">
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Chiều cao</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.heightCm ?? '--'} cm</dd>
+                        <dt className="text-xs text-on-surface-variant">Chiều cao</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.heightCm ?? '--'} cm</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Cân nặng</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.weightKg ?? '--'} kg</dd>
+                        <dt className="text-xs text-on-surface-variant">Cân nặng</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.weightKg ?? '--'} kg</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Nhóm máu</dt>
-                        <dd className="font-medium text-[#163126]">{previewData.profile?.healthProfile?.bloodType || '--'}</dd>
+                        <dt className="text-xs text-on-surface-variant">Nhóm máu</dt>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.bloodType || '--'}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-[#5F746B]">Dị ứng</dt>
-                        <dd className="font-medium text-[#163126]">
+                        <dt className="text-xs text-on-surface-variant">Dị ứng</dt>
+                        <dd className="font-medium text-on-surface">
                           {allergies.length
                             ? allergies.map((item) => item.allergyTypeName).join(', ')
                             : '--'}
@@ -439,32 +439,32 @@ const StudentPickerModal = ({
                   </article>
 
                   <article className="app-card-shell rounded-lg p-3">
-                    <h4 className="text-sm font-bold text-[#163126]">Lịch sử khám gần đây</h4>
+                    <h4 className="text-sm font-bold text-on-surface">Lịch sử khám gần đây</h4>
                     {previewData.history.length ? (
                       <ul className="mt-2 space-y-2">
                         {previewData.history.slice(0, 3).map((item) => (
-                          <li key={item.visitId} className="rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-                            <p className="text-xs text-[#5F746B]">{dateLabel(item.visitDate)}</p>
-                            <p className="text-sm font-semibold text-[#163126]">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
-                            <p className="text-xs text-[#5F746B]">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
+                          <li key={item.visitId} className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2">
+                            <p className="text-xs text-on-surface-variant">{dateLabel(item.visitDate)}</p>
+                            <p className="text-sm font-semibold text-on-surface">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
+                            <p className="text-xs text-on-surface-variant">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2 text-sm text-[#5F746B]">Chưa có dữ liệu lịch sử khám.</p>
+                      <p className="mt-2 text-sm text-on-surface-variant">Chưa có dữ liệu lịch sử khám.</p>
                     )}
                   </article>
                 </div>
               </div>
             ) : (
-              <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-[#D9E2DE] bg-[#F8FAF9] p-6 text-sm text-[#5F746B]">
+              <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
                 Chọn một học sinh để xem thông tin chi tiết.
               </div>
             )}
           </section>
         </div>
 
-        <footer className="shrink-0 flex items-center justify-end gap-2 border-t border-[#D9E2DE] bg-white px-4 py-3 md:px-5">
+        <footer className="shrink-0 flex items-center justify-end gap-2 border-t border-outline-variant bg-white px-4 py-3 md:px-5">
           <button
             type="button"
             onClick={onClose}

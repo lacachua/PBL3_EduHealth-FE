@@ -285,11 +285,10 @@ const StudentVaccinationsPage = () => {
                 key={option.id}
                 type="button"
                 onClick={() => setActiveFilter(option.id)}
-                className={`app-focus-ring app-interactive rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
-                  option.id === activeFilter
-                    ? 'bg-primary-soft text-primary shadow-sm'
-                    : 'text-on-surface-variant'
-                }`}
+                className={`app-focus-ring app-interactive rounded-lg px-2.5 py-1.5 text-xs font-semibold ${option.id === activeFilter
+                  ? 'bg-primary-soft text-primary shadow-sm'
+                  : 'text-on-surface-variant'
+                  }`}
               >
                 {option.label}
               </button>
@@ -311,11 +310,10 @@ const StudentVaccinationsPage = () => {
                   key={record.id}
                   type="button"
                   onClick={() => openDrawer(record.id)}
-                  className={`app-focus-ring app-interactive relative w-full rounded-2xl border px-3.5 py-3 text-left ${
-                    isActive
-                      ? 'student-list-item-active'
-                      : `${statusClassMap[record.status]?.card || statusClassMap.pending.card}`
-                  }`}
+                  className={`app-focus-ring app-interactive relative w-full rounded-2xl border px-3.5 py-3 text-left ${isActive
+                    ? 'student-list-item-active'
+                    : `${statusClassMap[record.status]?.card || statusClassMap.pending.card}`
+                    }`}
                 >
                   {isActive ? <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-primary" /> : null}
 
@@ -362,9 +360,8 @@ const StudentVaccinationsPage = () => {
         <div className="pointer-events-none fixed inset-0 z-40">
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-0 bg-slate-900/26 transition-opacity duration-200 ${
-              isDrawerOpen ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`pointer-events-none absolute inset-0 bg-on-surface/25 transition-opacity duration-200 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'
+              }`}
           />
 
           <aside
@@ -372,9 +369,8 @@ const StudentVaccinationsPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Chi tiết mũi tiêm"
-            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${
-              isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
-            }`}
+            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
+              }`}
           >
             <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl">
               <header className="student-drawer-header relative shrink-0 border-b border-outline-variant px-4 py-3.5">
@@ -400,7 +396,7 @@ const StudentVaccinationsPage = () => {
                 </div>
               </header>
 
-              <div className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-4 py-4 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.9)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/85 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400/85">
+              <div className="app-scrollbar-thin min-h-0 flex-1 space-y-3.5 overflow-y-auto px-4 py-4">
                 <section className="space-y-2 rounded-xl border border-outline-variant/90 bg-surface-container-low/85 px-3.5 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.07em] text-on-surface-muted">Thông tin lịch tiêm</p>
                   <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import InventoryActionModal from './InventoryActionModal';
 
 const INITIAL_FORM = {
@@ -42,58 +42,58 @@ const StockInMedicineModal = ({ open, medicine, onClose, onSubmit, submitting, e
     >
       {medicine?.id ? (
         <label className="block space-y-1 text-sm">
-          <span className="font-medium text-slate-700">Mã thuốc</span>
+          <span className="font-medium text-on-surface-variant">Mã thuốc</span>
           <input
             readOnly
             value={medicine.id}
-            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
           />
         </label>
       ) : null}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <label className="space-y-1 text-sm">
-          <span className="font-medium text-slate-700">Số lượng nhập *</span>
+          <span className="font-medium text-on-surface-variant">Số lượng nhập *</span>
           <input
             type="number"
             min={1}
             required
             value={form.quantity}
             onChange={(event) => updateField('quantity', event.target.value)}
-            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
             placeholder="Nhập số lượng"
           />
         </label>
 
         <label className="space-y-1 text-sm">
-          <span className="font-medium text-slate-700">Hạn sử dụng *</span>
+          <span className="font-medium text-on-surface-variant">Hạn sử dụng *</span>
           <input
             type="date"
             required
             value={form.expiryDate}
             onChange={(event) => updateField('expiryDate', event.target.value)}
-            className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+            className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
           />
         </label>
       </div>
 
       <label className="block space-y-1 text-sm">
-        <span className="font-medium text-slate-700">Số lô</span>
+        <span className="font-medium text-on-surface-variant">Số lô</span>
         <input
           value={form.batchNumber}
           onChange={(event) => updateField('batchNumber', event.target.value)}
-          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
           placeholder="Ví dụ: LOT-2026-001"
         />
       </label>
 
       <label className="block space-y-1 text-sm">
-        <span className="font-medium text-slate-700">Ghi chú</span>
+        <span className="font-medium text-on-surface-variant">Ghi chú</span>
         <textarea
           rows={3}
           value={form.note}
           onChange={(event) => updateField('note', event.target.value)}
-          className="app-input w-full rounded-lg px-3 py-2 text-slate-900"
+          className="app-input w-full rounded-lg px-3 py-2 text-on-surface"
           placeholder="Ghi chú thêm nếu cần"
         />
       </label>

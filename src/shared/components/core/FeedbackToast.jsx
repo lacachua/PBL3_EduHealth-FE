@@ -1,19 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-const AdminFeedbackToast = ({
+/**
+ * @param {object}   feedback        - { type, message } | null
+ * @param {function} onClose         - callback khi toast đóng (manual hoặc auto)
+ * @param {number}   duration        - ms trước khi tự đóng; 0 = không tự đóng
+ * @param {string}   closeAriaLabel
+ * @param {string}   closeLabel
+ * @param {object}   classMap        - { success, error, warning, info }
+ * @param {string}   fallbackClassName
+ */
+const FeedbackToast = ({
   feedback,
   onClose,
+  duration = 4000,
   closeAriaLabel = 'Đóng thông báo',
   closeLabel = 'Đóng',
   classMap,
   fallbackClassName,
 }) => {
-  if (!feedback) {
-    return null;
-  }
+  // Auto-dismiss: reset timer mỗi khi feedback thay đổi
+  useEffect(() => {
+    if (!feedback || !duration) return undefined;
+
+    const timerId = setTimeout(() => {
+      onClose?.();
+    }, duration);
+
+    return () => clearTimeout(timerId);
+  }, [feedback, duration, onClose]);
+
+  if (!feedback) return null;
 
   const toneClass = classMap?.[feedback.type] || fallbackClassName || classMap?.success || '';
+
   const toastNode = (
     <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[120] flex justify-center px-3 sm:inset-x-auto sm:right-4 sm:justify-end">
       <div
@@ -36,11 +56,9 @@ const AdminFeedbackToast = ({
     </div>
   );
 
-  if (typeof document === 'undefined') {
-    return toastNode;
-  }
+  if (typeof document === 'undefined') return toastNode;
 
   return createPortal(toastNode, document.body);
 };
 
-export default AdminFeedbackToast;
+export default FeedbackToast;

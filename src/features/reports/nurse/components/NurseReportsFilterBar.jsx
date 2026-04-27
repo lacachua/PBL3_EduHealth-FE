@@ -43,7 +43,7 @@ const NurseReportsFilterBar = ({
 
       <div className="flex flex-wrap items-end gap-2.5">
         <FilterSelect
-          label="Mốc thời gian"
+          label="Thời gian"
           value={filters.timeRange}
           options={nurseReportFilterOptions.timeRanges}
           onChange={(nextValue) => onFiltersChange({ timeRange: nextValue })}

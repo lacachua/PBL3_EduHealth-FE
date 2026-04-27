@@ -5,6 +5,8 @@ export const useUserManagementPageState = ({
   setSelectedUser,
   setCreateFieldErrors,
   fetchUserDetail,
+  fetchList,
+  currentPage,
   createUser,
   updateUser,
   toggleStatus,
@@ -52,15 +54,14 @@ export const useUserManagementPageState = ({
   };
 
   const handleSubmitEdit = async (payload) => {
-    if (!activeUser?.id) {
-      return;
-    }
-
+    if (!activeUser?.id) return;
     await updateUser(activeUser.id, payload);
+    await fetchList({ page: currentPage });
   };
 
   const handleSubmitCreate = async (payload) => {
     await createUser(payload);
+    await fetchList({ page: 1 });
   };
 
   const askToggleStatus = (user) => {
@@ -72,11 +73,9 @@ export const useUserManagementPageState = ({
   };
 
   const handleConfirmStatus = async (reason) => {
-    if (!statusConfirmUser) {
-      return;
-    }
-
+    if (!statusConfirmUser) return;
     await toggleStatus(statusConfirmUser, reason);
+    await fetchList({ page: currentPage });
     setStatusConfirmUser(null);
   };
 

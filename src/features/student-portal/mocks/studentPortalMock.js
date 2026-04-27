@@ -1,5 +1,7 @@
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { getStoredUser } from '../../../shared/services/tokenClient';
+import { PHONE_REGEX } from '../../../shared/utils/phoneValidation';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 import {
   STUDENT_PORTAL_ACCOUNT_BASE,
   STUDENT_PORTAL_CARE_HISTORY_BASE,
@@ -8,8 +10,6 @@ import {
   STUDENT_PORTAL_ROLE_LABELS,
   STUDENT_PORTAL_VACCINATIONS_BASE,
 } from './studentPortalMockData';
-
-const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
 
 const accountOverrides = {
   fullName: '',
@@ -190,7 +190,7 @@ export const updateStudentAccountMock = async (payload = {}) => {
     fieldErrors.fullName = ['Ho va ten khong duoc de trong.'];
   }
 
-  if (phone && !PHONE_PATTERN.test(phone)) {
+  if (phone && !PHONE_REGEX.test(phone)) {
     fieldErrors.phone = ['So dien thoai khong hop le.'];
   }
 
@@ -256,29 +256,7 @@ export const uploadStudentAvatarMock = async (avatarFile) => {
 export const changeStudentPasswordMock = async (payload = {}) => {
   await waitForMock('studentPortal');
 
-  const oldPassword = String(payload.oldPassword || '').trim();
-  const newPassword = String(payload.newPassword || '').trim();
-  const confirmPassword = String(payload.confirmPassword || '').trim();
-
-  const fieldErrors = {};
-
-  if (!oldPassword) {
-    fieldErrors.oldPassword = ['Vui long nhap mat khau hien tai.'];
-  }
-
-  if (!newPassword) {
-    fieldErrors.newPassword = ['Vui long nhap mat khau moi.'];
-  } else if (newPassword.length < 8) {
-    fieldErrors.newPassword = ['Mat khau moi phai co it nhat 8 ky tu.'];
-  } else if (oldPassword && oldPassword === newPassword) {
-    fieldErrors.newPassword = ['Mat khau moi phai khac mat khau hien tai.'];
-  }
-
-  if (!confirmPassword) {
-    fieldErrors.confirmPassword = ['Vui long xac nhan mat khau moi.'];
-  } else if (newPassword && confirmPassword !== newPassword) {
-    fieldErrors.confirmPassword = ['Xac nhan mat khau chua khop.'];
-  }
+  const fieldErrors = validateChangePasswordForm(payload);
 
   if (Object.keys(fieldErrors).length > 0) {
     throw createMockApiError({

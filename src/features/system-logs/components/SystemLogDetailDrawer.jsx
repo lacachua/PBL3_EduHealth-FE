@@ -1,4 +1,3 @@
-import React from 'react';
 import RightDrawer from '../../../shared/components/core/RightDrawer';
 
 const formatFullDateTime = (value) => {

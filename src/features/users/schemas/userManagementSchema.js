@@ -1,77 +1,7 @@
-const USER_ENDPOINTS_SINGLETON = Object.freeze({
-  list: '/api/v1/users',
-  detail: (userId) => `/api/v1/users/${userId}`,
-  status: (userId) => `/api/v1/users/${userId}/status`,
-  resetPassword: (userId) => `/api/v1/users/${userId}/reset-password`,
-});
-
-export const USER_ENDPOINTS = USER_ENDPOINTS_SINGLETON;
-
-export const USER_ROLES = {
-  ADMIN: 'ADMIN',
-  NURSE: 'NURSE',
-};
-
-export const ACCOUNT_ROLES = [USER_ROLES.ADMIN, USER_ROLES.NURSE];
-
-export const USER_STATUSES = {
-  ACTIVE: 'ACTIVE',
-  LOCKED: 'LOCKED',
-};
-
-export const USER_ROLE_OPTIONS = [
-  { label: 'Tất cả vai trò', value: 'all' },
-  { label: 'Quản trị viên', value: 'ADMIN' },
-  { label: 'Nhân viên y tế', value: 'NURSE' },
-];
-
-export const USER_ROLE_FORM_OPTIONS = [
-  { label: 'Nhân viên y tế', value: 'NURSE' },
-];
-
-export const USER_STATUS_OPTIONS = [
-  { label: 'Tất cả trạng thái', value: 'all' },
-  { label: 'Hoạt động', value: 'ACTIVE' },
-  { label: 'Đã khóa', value: 'LOCKED' },
-];
-
-export const GENDER_OPTIONS = [
-  { label: 'Không xác định', value: '' },
-  { label: 'Nam', value: 'MALE' },
-  { label: 'Nữ', value: 'FEMALE' },
-  { label: 'Khác', value: 'OTHER' },
-];
-
-export const USER_PAGE_SIZE = 10;
-
-export const ROLE_LABEL_MAP = {
-  ADMIN: 'Quản trị viên',
-  NURSE: 'Nhân viên y tế',
-};
-
-export const STATUS_LABEL_MAP = {
-  ACTIVE: 'Hoạt động',
-  LOCKED: 'Đã khóa',
-};
-
-export const ROLE_TONE_MAP = {
-  ADMIN: 'danger',
-  NURSE: 'info',
-};
-
-export const STATUS_TONE_MAP = {
-  ACTIVE: 'success',
-  LOCKED: 'danger',
-};
-
-export const USER_FILTER_DEFAULTS = {
-  keyword: '',
-  role: 'all',
-  status: 'all',
-};
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
+import { PASSWORD_CREATE_MIN_LENGTH } from '../../../shared/utils/passwordValidation';
+import { USER_ROLES } from '../constants/userManagementConstants';
 
 export const validateUserForm = ({ values, isEdit }) => {
   const errors = {};
@@ -100,44 +30,23 @@ export const validateUserForm = ({ values, isEdit }) => {
 
   if (!isEdit && !values.password?.trim()) {
     errors.password = 'Vui lòng nhập mật khẩu';
+  } else if (!isEdit && values.password?.trim() && values.password.trim().length < PASSWORD_CREATE_MIN_LENGTH) {
+    errors.password = `Mật khẩu phải có ít nhất ${PASSWORD_CREATE_MIN_LENGTH} ký tự`;
   }
 
-  if (values.email?.trim() && !emailRegex.test(values.email.trim())) {
+  if (values.email?.trim() && !EMAIL_REGEX.test(values.email.trim())) {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 
   if (!isEdit && !values.phoneNumber?.trim()) {
     errors.phoneNumber = 'Vui lòng nhập số điện thoại';
-  } else if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
-    errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
+  } else if (values.phoneNumber?.trim()) {
+    const phoneError = validatePhoneNumber(values.phoneNumber.trim());
+    if (phoneError) {
+      errors.phoneNumber = phoneError;
+    }
   }
 
   return errors;
 };
 
-export const toStatusValue = (isActive) => (isActive ? USER_STATUSES.ACTIVE : USER_STATUSES.LOCKED);
-
-export const toIsActive = (status) => status === USER_STATUSES.ACTIVE;
-
-export const buildCreateUserPayload = (values) => ({
-  username: values.username?.trim(),
-  password: values.password?.trim(),
-  fullName: values.fullName?.trim(),
-  email: values.email?.trim(),
-  phoneNumber: values.phoneNumber?.trim() || '',
-  role: USER_ROLES.NURSE,
-});
-
-export const buildUpdateUserPayload = (values) => ({
-  fullName: values.fullName?.trim(),
-  email: values.email?.trim(),
-  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : { phoneNumber: null }),
-});
-
-export const buildStatusPayload = ({ status, reason }) => {
-  const payload = { status };
-  if (reason?.trim()) {
-    payload.reason = reason.trim();
-  }
-  return payload;
-};

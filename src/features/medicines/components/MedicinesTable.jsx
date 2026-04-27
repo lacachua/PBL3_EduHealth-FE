@@ -1,12 +1,17 @@
-import React from 'react';
 import DataTable from '../../../shared/components/core/DataTable';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
+import { MEDICINE_UNIT_LABELS } from '../constants/nurseMedicineConstants';
 
 const MedicinesTable = ({ rows, onViewDetail }) => {
   const columns = [
     { key: 'name', header: 'Tên thuốc', cellClassName: 'font-semibold text-on-surface' },
     { key: 'activeIngredient', header: 'Hoạt chất', cellClassName: 'text-on-surface' },
-    { key: 'unit', header: 'Đơn vị', cellClassName: 'text-on-surface-variant' },
+    {
+      key: 'unit',
+      header: 'Đơn vị',
+      cellClassName: 'text-on-surface-variant',
+      render: (row) => MEDICINE_UNIT_LABELS[row.unit] || row.unit || '--',
+    },
     { key: 'currentStock', header: 'Tồn kho', cellClassName: 'text-on-surface' },
     { key: 'nearestExpiryDate', header: 'Hạn gần nhất', cellClassName: 'text-on-surface-variant' },
     { key: 'status', header: 'Trạng thái', render: (row) => <StatusBadge tone={row.statusTone}>{row.statusLabel}</StatusBadge> },

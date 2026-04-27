@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseCatalogApiError } from '../adapters/catalogErrorParser';
 import { mapCatalogGroupsResponse, mapCatalogListResponse } from '../adapters/catalogResponseMapper';
 import { getCatalogGroupsApi, getCatalogListApi } from '../services/catalogsApi';
-import { CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
+import { CATALOG_GROUPS } from '../constants/catalogConstants';
 
 const defaultFilters = {
   keyword: '',
@@ -50,7 +50,7 @@ export const useCatalogList = () => {
 
     fetchGroups();
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchList = useCallback(async () => {

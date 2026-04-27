@@ -1,4 +1,3 @@
-import React from 'react';
 import Pagination from '../../../shared/components/core/Pagination';
 import RightDrawer from '../../../shared/components/core/RightDrawer';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
@@ -56,8 +55,8 @@ const MedicineDetailDrawer = ({
             <div><StatusBadge tone={medicine.alertTone}>{medicine.alertLabel}</StatusBadge></div>
           </div>
           <DetailRow label="Ghi chú" value={medicine.note} />
-          <DetailRow label="Ngày tạo" value={medicine.createdAtLabel} />
-          <DetailRow label="Cập nhật" value={medicine.updatedAtLabel} />
+          <DetailRow label="Ngày tạo" value={medicine.createdAt} />
+          <DetailRow label="Cập nhật" value={medicine.updatedAt} />
         </div>
 
         <section>

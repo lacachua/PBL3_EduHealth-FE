@@ -12,7 +12,7 @@ import {
   getStudentManagementDetailMockEnvelope,
   getStudentManagementMockEnvelope,
 } from '../mocks/studentManagementMock';
-import { STUDENT_ENDPOINTS } from '../schemas/studentManagementSchema';
+import { STUDENT_ENDPOINTS } from '../constants/studentApiContract';
 
 const resolveMockSource = ({ moduleKey, forceMock }) => {
   if (typeof forceMock === 'boolean') {

@@ -403,17 +403,39 @@
 
   .app-tone-surface {
     border-color: color-mix(in srgb, var(--app-tone) 26%, var(--app-border));
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--app-tone-soft) 88%, var(--app-surface) 12%) 0%,
-      color-mix(in srgb, var(--app-tone-soft) 70%, var(--app-surface) 30%) 100%
-    );
+    background: linear-gradient(145deg,
+        color-mix(in srgb, var(--app-tone-soft) 88%, var(--app-surface) 12%) 0%,
+        color-mix(in srgb, var(--app-tone-soft) 70%, var(--app-surface) 30%) 100%);
   }
 
   .app-tone-chip {
     border: 1px solid color-mix(in srgb, var(--app-tone) 36%, var(--app-border));
     background: color-mix(in srgb, var(--app-tone-soft) 82%, var(--app-surface) 18%);
     color: var(--app-tone);
+  }
+
+  /* Thin scrollbar using system border tokens */
+  .app-scrollbar-thin {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--app-border-strong) 85%, transparent) transparent;
+  }
+
+  .app-scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .app-scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .app-scrollbar-thin::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--app-border-strong) 85%, transparent);
+  }
+
+  .app-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--app-border-strong) 100%, transparent);
   }
 }
 
@@ -463,6 +485,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .app-card-shell:hover,
   .app-kpi-card:hover {
     box-shadow: var(--sys-shadow-card);

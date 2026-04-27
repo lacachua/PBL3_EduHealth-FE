@@ -1,64 +1,72 @@
 import {
-	clearByKeys,
-	getItem,
-	removeItem,
-	setItem,
-	storageScope,
+  clearByKeys,
+  getItem,
+  removeItem,
+  setItem,
+  storageScope,
 } from "./storageService";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const USER_KEY = "user";
 
 const parseJson = (value) => {
-	if (!value) return null;
-
-	try {
-		return JSON.parse(value);
-	} catch {
-		return null;
-	}
+  if (!value) return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 };
 
 export const getAccessToken = () =>
-	getItem(ACCESS_TOKEN_KEY, storageScope.local) ||
-	getItem(ACCESS_TOKEN_KEY, storageScope.session);
+  getItem(ACCESS_TOKEN_KEY, storageScope.local) ||
+  getItem(ACCESS_TOKEN_KEY, storageScope.session);
+
+/**
+ * Trả về scope đang active dựa trên nơi lưu accessToken.
+ * Dùng để updateUser đúng scope thay vì đoán mò.
+ */
+export const getActiveStorageScope = () => {
+  if (getItem(ACCESS_TOKEN_KEY, storageScope.local)) return 'local';
+  if (getItem(ACCESS_TOKEN_KEY, storageScope.session)) return 'session';
+  return null;
+};
 
 export const setAccessToken = (token, remember = false) => {
-	if (!token) return;
+  if (!token) return;
 
-	if (remember) {
-		setItem(ACCESS_TOKEN_KEY, token, storageScope.local);
-		removeItem(ACCESS_TOKEN_KEY, storageScope.session);
-		return;
-	}
+  if (remember) {
+    setItem(ACCESS_TOKEN_KEY, token, storageScope.local);
+    removeItem(ACCESS_TOKEN_KEY, storageScope.session);
+    return;
+  }
 
-	setItem(ACCESS_TOKEN_KEY, token, storageScope.session);
-	removeItem(ACCESS_TOKEN_KEY, storageScope.local);
+  setItem(ACCESS_TOKEN_KEY, token, storageScope.session);
+  removeItem(ACCESS_TOKEN_KEY, storageScope.local);
 };
 
 export const getStoredUser = () => {
-	const localUser = parseJson(getItem(USER_KEY, storageScope.local));
-	const sessionUser = parseJson(getItem(USER_KEY, storageScope.session));
-	return localUser || sessionUser;
+  const localUser = parseJson(getItem(USER_KEY, storageScope.local));
+  const sessionUser = parseJson(getItem(USER_KEY, storageScope.session));
+  return localUser || sessionUser;
 };
 
 export const setStoredUser = (user, remember = false) => {
-	if (!user) return;
+  if (!user) return;
 
-	const serializedUser = JSON.stringify(user);
+  const serializedUser = JSON.stringify(user);
 
-	if (remember) {
-		setItem(USER_KEY, serializedUser, storageScope.local);
-		removeItem(USER_KEY, storageScope.session);
-		return;
-	}
+  if (remember) {
+    setItem(USER_KEY, serializedUser, storageScope.local);
+    removeItem(USER_KEY, storageScope.session);
+    return;
+  }
 
-	setItem(USER_KEY, serializedUser, storageScope.session);
-	removeItem(USER_KEY, storageScope.local);
+  setItem(USER_KEY, serializedUser, storageScope.session);
+  removeItem(USER_KEY, storageScope.local);
 };
 
 export const clearAuthStorage = () => {
-	clearByKeys([ACCESS_TOKEN_KEY, USER_KEY], storageScope.local);
-	clearByKeys([ACCESS_TOKEN_KEY, USER_KEY], storageScope.session);
+  clearByKeys([ACCESS_TOKEN_KEY, USER_KEY], storageScope.local);
+  clearByKeys([ACCESS_TOKEN_KEY, USER_KEY], storageScope.session);
 };
-

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import SearchInput from '../../../shared/components/core/SearchInput';
 
 const VaccinationStudentsToolbar = ({

@@ -12,6 +12,7 @@ import {
   updateStudentAccountMock,
   uploadStudentAvatarMock,
 } from '../mocks/studentPortalMock';
+import { STUDENT_PORTAL_READ_APIS } from '../constants/studentPortalApiContract';
 
 const isStudentPortalMockSource = () => resolveModuleDataSource(DATA_MODULES.STUDENT_PORTAL) === 'mock';
 const isCurrentUserMockSource = () => resolveModuleDataSource(DATA_MODULES.CURRENT_USER_ACCOUNT) === 'mock';
@@ -21,12 +22,6 @@ const ROLE_LABELS = {
   NURSE: 'Nhân viên y tế',
   STUDENT: 'Học sinh',
 };
-
-export const STUDENT_PORTAL_READ_APIS = Object.freeze({
-  healthProfile: (studentUserId) => `/api/v1/students/${studentUserId}/health-profile`,
-  healthHistory: (studentUserId) => `/api/v1/students/${studentUserId}/health-history`,
-  vaccinations: (studentUserId) => `/api/v1/students/${studentUserId}/vaccinations`,
-});
 
 const DEFAULT_HISTORY_QUERY = Object.freeze({
   page: 1,

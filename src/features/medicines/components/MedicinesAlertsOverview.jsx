@@ -1,5 +1,3 @@
-import React from 'react';
-
 const AlertStat = ({ label, value, stripClass, chipClass }) => (
   <div className="rounded-lg border border-outline-variant bg-surface p-3">
     <span className={`mb-2 block h-1 w-full rounded ${stripClass}`} />

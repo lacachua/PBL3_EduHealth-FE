@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchInput from '../../../shared/components/core/SearchInput';
-import { MEDICINE_STATUS_OPTIONS } from '../schemas/medicinesSchema';
+import { MEDICINE_STATUS_OPTIONS } from '../constants/nurseMedicineConstants';
 
-const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
+const MedicinesFilters = ({ initialValue, onApply, onReset }) => {
   const [draft, setDraft] = useState(initialValue);
 
   useEffect(() => {
@@ -59,12 +59,10 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-            type="button"
-            onClick={onRefresh}
-            className="app-focus-ring app-btn-secondary whitespace-nowrap px-3.5"
+            type="submit"
+            className="app-focus-ring app-btn-primary whitespace-nowrap px-3.5"
           >
-            <span className="material-symbols-outlined text-[16px]">refresh</span>
-            Làm mới
+            Lọc
           </button>
 
           <button
@@ -73,13 +71,6 @@ const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
             className="app-focus-ring app-btn-secondary whitespace-nowrap px-3.5"
           >
             Đặt lại
-          </button>
-
-          <button
-            type="submit"
-            className="app-focus-ring app-btn-primary whitespace-nowrap px-3.5"
-          >
-            Áp dụng
           </button>
         </div>
       </div>

@@ -13,7 +13,7 @@ import {
   updateUserMock,
   updateUserStatusMock,
 } from '../mocks/userManagementMock';
-import { USER_ENDPOINTS } from '../schemas/userManagementSchema';
+import { USER_ENDPOINTS } from '../constants/userApiContract';
 
 const STAFF_ROLES = new Set(['ADMIN', 'NURSE']);
 const STAFF_SCOPE_SERVER_PAGE_SIZE = 100;

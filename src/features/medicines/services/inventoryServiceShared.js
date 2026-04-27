@@ -5,4 +5,4 @@ export const shouldUseMockInventoryApi = (moduleKey = DATA_MODULES.ADMIN_MEDICIN
 	return resolveModuleDataSource(moduleKey) === 'mock';
 };
 
-export const waitForInventoryMock = () => waitForMock('adminDashboard');
+export const waitForInventoryMock = () => waitForMock('medicines');

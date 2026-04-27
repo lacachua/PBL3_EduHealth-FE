@@ -1,5 +1,3 @@
-import React from 'react';
-
 const toneClassMap = {
   neutral: 'border-outline-variant bg-surface-container-low text-on-surface-variant',
   info: 'border-info/35 bg-info-soft text-info',

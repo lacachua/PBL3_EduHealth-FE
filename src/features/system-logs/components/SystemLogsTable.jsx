@@ -1,12 +1,11 @@
-import React from 'react';
-
 import DataTable from '../../../shared/components/core/DataTable';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 
-const roleToneClass = {
-  admin: 'border border-info/25 bg-info-soft text-info',
-  nurse: 'border border-success/25 bg-success-soft text-success',
-  student: 'border border-primary/25 bg-primary-soft text-primary',
-  system: 'border border-outline-variant bg-surface-container-high text-on-surface-variant',
+const ROLE_TONE = {
+  admin: 'danger',
+  nurse: 'info',
+  student: 'neutral',
+  system: 'neutral',
 };
 
 const actionToneClass = {
@@ -36,7 +35,7 @@ const SystemLogsTable = ({ rows, onSelect }) => {
     {
       key: 'createdAt',
       header: 'Thời gian',
-      headerClassName: 'w-[15%] min-w-[120px]',
+      headerClassName: 'w-[13%] min-w-[120px]',
       cellClassName: 'whitespace-nowrap',
       render: (row) => {
         const { dateLabel, timeLabel } = formatDateParts(row.createdAt);
@@ -51,7 +50,7 @@ const SystemLogsTable = ({ rows, onSelect }) => {
     {
       key: 'user',
       header: 'Người dùng',
-      headerClassName: 'w-[15%] min-w-[140px]',
+      headerClassName: 'w-[15%] min-w-[130px]',
       cellClassName: 'whitespace-nowrap',
       render: (row) => (
         <>
@@ -67,14 +66,11 @@ const SystemLogsTable = ({ rows, onSelect }) => {
       header: 'Vai trò',
       headerClassName: 'w-[10%] min-w-[100px]',
       cellClassName: 'whitespace-nowrap',
-      render: (row) => {
-        const roleClass = roleToneClass[row.actorRole] || 'border border-outline-variant bg-surface-container-high text-on-surface-variant';
-        return (
-          <span className={`inline-flex rounded px-2.5 py-0.5 text-[10px] font-semibold ${roleClass}`}>
-            {row.roleLabel || '--'}
-          </span>
-        );
-      },
+      render: (row) => (
+        <StatusBadge tone={ROLE_TONE[String(row.actorRole || '').toLowerCase()] || 'neutral'}>
+          {row.roleLabel || '--'}
+        </StatusBadge>
+      ),
     },
     {
       key: 'action',
@@ -94,20 +90,23 @@ const SystemLogsTable = ({ rows, onSelect }) => {
     {
       key: 'target',
       header: 'Đối tượng',
-      headerClassName: 'w-[15%] min-w-[140px]',
-      cellClassName: 'whitespace-nowrap',
-      render: (row) => (
-        <>
-          <div className="text-[13px] font-medium text-on-surface">{row.targetLabel || row.targetTypeLabel || '--'}</div>
-          <div className="text-[11px] text-on-surface-muted">{row.targetTypeLabel || '--'}</div>
-        </>
-      ),
+      headerClassName: 'w-[15%] min-w-[130px]',
+      cellClassName: 'max-w-[180px]',
+      render: (row) => {
+        const label = row.targetLabel || row.targetTypeLabel || '--';
+        return (
+          <>
+            <div className="truncate text-[13px] font-medium text-on-surface" title={label}>{label}</div>
+            <div className="text-[11px] text-on-surface-muted">{row.targetTypeLabel || '--'}</div>
+          </>
+        );
+      },
     },
     {
       key: 'detail',
       header: 'Chi tiết',
-      headerClassName: 'w-[30%] min-w-[220px]',
-      cellClassName: 'text-[13px] text-on-surface-variant 2xl:max-w-[360px]',
+      headerClassName: 'w-[32%] min-w-[220px]',
+      cellClassName: 'text-[13px] text-on-surface-variant max-w-[360px]',
       render: (row) => <p className="line-clamp-2" title={row.description}>{row.description}</p>,
     },
   ];
@@ -118,6 +117,7 @@ const SystemLogsTable = ({ rows, onSelect }) => {
       rows={rows}
       getRowKey={(row) => row.id}
       onRowClick={onSelect}
+      containerClassName="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin] min-h-[360px]"
       tableClassName="min-w-[960px] w-full text-left text-sm"
     />
   );

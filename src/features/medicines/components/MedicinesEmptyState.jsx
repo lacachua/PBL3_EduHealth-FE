@@ -1,5 +1,3 @@
-import React from 'react';
-
 const MedicinesEmptyState = () => (
   <div className="rounded-lg border border-dashed border-outline-variant bg-surface px-4 py-7 text-center">
     <span className="material-symbols-outlined text-[28px] text-on-surface-variant/70">medication</span>

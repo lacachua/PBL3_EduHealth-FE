@@ -2,8 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { STUDENT_CREATE_INITIAL_VALUES } from '../constants/studentCreateOptions';
 import { createStudentManagementApi } from '../services/studentManagementApi';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
 
 const cloneInitialValues = () => ({
   account: { ...STUDENT_CREATE_INITIAL_VALUES.account },

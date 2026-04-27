@@ -4,7 +4,7 @@ import {
   USER_FILTER_DEFAULTS,
   USER_ROLE_OPTIONS,
   USER_STATUS_OPTIONS,
-} from '../schemas/userManagementSchema';
+} from '../constants/userManagementConstants';
 import { ACCOUNT_BASE_CLASS } from '../constants/accountUiTokens';
 
 const controlClass = `app-input app-focus-ring w-full text-[13px] ${ACCOUNT_BASE_CLASS.bodyText}`;

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import VaccinationStatusBadge from './VaccinationStatusBadge';
 import VaccinationRowActionButton from './VaccinationRowActionButton';
 
@@ -115,7 +115,7 @@ const VaccinationStudentsTable = ({
                   </td>
                 ) : null}
                 <td className="px-3 py-3 whitespace-nowrap">
-                  <div className="flex justify-end gap-1.5">
+                  <div className="flex justify-end gap-1.5" data-row-click-stop="true">
                     <VaccinationRowActionButton
                       icon="history"
                       label="Lịch sử tiêm tổng hợp"

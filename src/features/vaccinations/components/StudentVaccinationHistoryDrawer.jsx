@@ -1,4 +1,4 @@
-import React from 'react';
+
 import EmptyState from '../../../shared/components/core/EmptyState';
 import ErrorState from '../../../shared/components/core/ErrorState';
 import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';

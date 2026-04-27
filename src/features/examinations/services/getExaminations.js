@@ -2,7 +2,7 @@ import { apiGetEnvelope } from '../../../shared/api/apiClient';
 import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataMode';
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { getExaminationsMockEnvelope } from '../mocks/examinationsMock';
-import { EXAMINATION_ENDPOINTS } from '../schemas/examinationsSchema';
+import { EXAMINATION_ENDPOINTS } from '../constants/examinationApiContract';
 
 const toPositiveNumber = (value, fallback) => {
   const parsed = Number(value);

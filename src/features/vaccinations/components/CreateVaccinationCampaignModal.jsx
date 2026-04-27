@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CREATE_CAMPAIGN_INITIAL_VALUES,
   validateCreateCampaignValues,
@@ -413,14 +413,14 @@ const CreateVaccinationCampaignModal = ({
       submitButtonClassName="app-btn-primary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
     >
       <div className="space-y-4">
-        <section className="space-y-3 rounded-xl border border-[#E2E8F0] bg-white p-3 md:p-4">
+        <section className="space-y-3 rounded-xl border border-outline-variant bg-white p-3 md:p-4">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-[#0F172A]">1. Thông tin đợt tiêm</h3>
+            <h3 className="text-sm font-bold text-on-surface">1. Thông tin đợt tiêm</h3>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-[#334155]">Tên đợt tiêm</span>
+              <span className="text-sm font-semibold text-on-surface-variant">Tên đợt tiêm</span>
               <input
                 type="text"
                 value={values.name}
@@ -428,11 +428,11 @@ const CreateVaccinationCampaignModal = ({
                 className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="Ví dụ: Cúm mùa học kỳ II"
               />
-              {fieldErrors.name ? <span className="text-xs text-[#B91C1C]">{fieldErrors.name}</span> : null}
+              {fieldErrors.name ? <span className="text-xs text-danger">{fieldErrors.name}</span> : null}
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-[#334155]">Tên vaccine</span>
+              <span className="text-sm font-semibold text-on-surface-variant">Tên vaccine</span>
               <input
                 type="text"
                 value={values.vaccineName}
@@ -440,11 +440,11 @@ const CreateVaccinationCampaignModal = ({
                 className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="Ví dụ: MMR II"
               />
-              {fieldErrors.vaccineName ? <span className="text-xs text-[#B91C1C]">{fieldErrors.vaccineName}</span> : null}
+              {fieldErrors.vaccineName ? <span className="text-xs text-danger">{fieldErrors.vaccineName}</span> : null}
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-[#334155]">Mũi số</span>
+              <span className="text-sm font-semibold text-on-surface-variant">Mũi số</span>
               <input
                 type="number"
                 min="1"
@@ -453,46 +453,46 @@ const CreateVaccinationCampaignModal = ({
                 className="app-input rounded-xl px-3 py-2.5 text-sm"
                 placeholder="1"
               />
-              {fieldErrors.doseNumber ? <span className="text-xs text-[#B91C1C]">{fieldErrors.doseNumber}</span> : null}
+              {fieldErrors.doseNumber ? <span className="text-xs text-danger">{fieldErrors.doseNumber}</span> : null}
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-[#334155]">Ngày thực hiện dự kiến</span>
+              <span className="text-sm font-semibold text-on-surface-variant">Ngày thực hiện dự kiến</span>
               <input
                 type="date"
                 value={values.scheduledDate}
                 onChange={(event) => updateField('scheduledDate', event.target.value)}
                 className="app-input rounded-xl px-3 py-2.5 text-sm"
               />
-              {fieldErrors.scheduledDate ? <span className="text-xs text-[#B91C1C]">{fieldErrors.scheduledDate}</span> : null}
+              {fieldErrors.scheduledDate ? <span className="text-xs text-danger">{fieldErrors.scheduledDate}</span> : null}
             </label>
           </div>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 md:p-4">
-          <h3 className="text-sm font-bold text-[#0F172A]">2. Chọn đối tượng áp dụng</h3>
+        <section className="space-y-3 rounded-xl border border-outline-variant bg-surface-container-low p-3 md:p-4">
+          <h3 className="text-sm font-bold text-on-surface">2. Chọn đối tượng áp dụng</h3>
 
           <div className="flex flex-wrap items-center gap-3">
             {VACCINATION_TARGET_TYPE_OPTIONS.map((option) => (
-              <label key={option.value} className="inline-flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm font-semibold text-[#334155]">
+              <label key={option.value} className="inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-white px-3 py-2 text-sm font-semibold text-on-surface-variant">
                 <input
                   type="radio"
                   name="targetType"
                   checked={values.targetType === option.value}
                   onChange={() => updateField('targetType', option.value)}
-                  className="h-4 w-4 accent-[#15803D]"
+                  className="h-4 w-4 accent-success"
                 />
                 {option.label}
               </label>
             ))}
           </div>
-          {fieldErrors.targetType ? <p className="text-xs text-[#B91C1C]">{fieldErrors.targetType}</p> : null}
+          {fieldErrors.targetType ? <p className="text-xs text-danger">{fieldErrors.targetType}</p> : null}
 
           {values.targetType === 'CLASS' ? (
-            <div className="space-y-3 rounded-xl border border-[#E2E8F0] bg-white p-3">
+            <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
               <div className="grid gap-2 md:grid-cols-[220px_1fr] md:items-center">
                 <label className="space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Lọc theo khối</span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">Lọc theo khối</span>
                   <select
                     value={gradeFilter}
                     onChange={(event) => setGradeFilter(event.target.value)}
@@ -504,14 +504,14 @@ const CreateVaccinationCampaignModal = ({
                     ))}
                   </select>
                 </label>
-                <p className="text-xs text-[#64748B]">Chọn lớp theo tên quen thuộc, ví dụ 4/2 hoặc 5/1.</p>
+                <p className="text-xs text-on-surface-variant">Chọn lớp theo tên quen thuộc, ví dụ 4/2 hoặc 5/1.</p>
               </div>
 
-              {classLookupStatus === 'loading' ? <p className="text-xs text-[#64748B]">Đang tải danh sách lớp...</p> : null}
-              {classLookupError ? <p className="text-xs text-[#B91C1C]">{classLookupError}</p> : null}
+              {classLookupStatus === 'loading' ? <p className="text-xs text-on-surface-variant">Đang tải danh sách lớp...</p> : null}
+              {classLookupError ? <p className="text-xs text-danger">{classLookupError}</p> : null}
 
               {filteredClassOptions.length ? (
-                <div className="grid max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-[#E2E8F0] bg-white p-2 sm:grid-cols-3">
+                <div className="grid max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-outline-variant bg-white p-2 sm:grid-cols-3">
                   {filteredClassOptions.map((option) => {
                     const selected = values.targetClassIds.includes(option.value);
                     return (
@@ -519,27 +519,26 @@ const CreateVaccinationCampaignModal = ({
                         key={option.value}
                         type="button"
                         onClick={() => toggleClassCode(option.value)}
-                        className={`app-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${
-                          selected
-                            ? 'border-[#4ADE80] bg-[#DCFCE7] text-[#14532D] ring-1 ring-[#86EFAC]'
-                            : 'border-[#E2E8F0] bg-white text-[#334155] hover:border-[#86EFAC] hover:bg-[#F8FAFC]'
-                        }`}
+                        className={`app-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${selected
+                          ? 'border-success bg-success-soft text-success ring-1 ring-success/50'
+                          : 'border-outline-variant bg-white text-on-surface-variant hover:border-success/50 hover:bg-surface-container-low'
+                          }`}
                         title={option.value}
                         aria-pressed={selected}
                       >
                         <span>
                           <span>{option.label}</span>
-                          <span className="ml-1 text-[11px] font-medium text-[#64748B]">{option.gradeLabel}</span>
+                          <span className="ml-1 text-[11px] font-medium text-on-surface-variant">{option.gradeLabel}</span>
                         </span>
-                        {selected ? <span className="material-symbols-outlined text-[16px] text-[#166534]">check_circle</span> : null}
+                        {selected ? <span className="material-symbols-outlined text-[16px] text-success">check_circle</span> : null}
                       </button>
                     );
                   })}
                 </div>
               ) : null}
 
-              <details className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-3 py-2 opacity-90">
-                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+              <details className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-3 py-2 opacity-90">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">
                   Nâng cao: nhập mã lớp thủ công
                 </summary>
 
@@ -563,8 +562,8 @@ const CreateVaccinationCampaignModal = ({
               </details>
             </div>
           ) : (
-            <div className="space-y-3 rounded-xl border border-[#E2E8F0] bg-white p-3">
-              <p className="text-xs text-[#64748B]">Tìm học sinh theo tên hoặc mã, sau đó bấm Chọn để thêm vào danh sách.</p>
+            <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
+              <p className="text-xs text-on-surface-variant">Tìm học sinh theo tên hoặc mã, sau đó bấm Chọn để thêm vào danh sách.</p>
 
               <div className="flex flex-wrap gap-2">
                 <input
@@ -583,11 +582,11 @@ const CreateVaccinationCampaignModal = ({
                 </button>
               </div>
 
-              {lookupStatus === 'loading' ? <p className="text-xs text-[#64748B]">Đang tìm học sinh...</p> : null}
-              {lookupError ? <p className="text-xs text-[#B91C1C]">{lookupError}</p> : null}
+              {lookupStatus === 'loading' ? <p className="text-xs text-on-surface-variant">Đang tìm học sinh...</p> : null}
+              {lookupError ? <p className="text-xs text-danger">{lookupError}</p> : null}
 
               {lookupRows.length ? (
-                <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border border-[#E2E8F0] bg-white p-2">
+                <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border border-outline-variant bg-white p-2">
                   {lookupRows.map((student) => {
                     const selected = values.targetStudentIds.includes(student.id);
 
@@ -597,21 +596,21 @@ const CreateVaccinationCampaignModal = ({
                         type="button"
                         disabled={selected}
                         onClick={() => addStudentCandidate(student.id, student)}
-                        className="app-focus-ring flex w-full items-center justify-between rounded-lg border border-[#E2E8F0] px-2.5 py-2 text-left text-sm text-[#334155] hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-70"
+                        className="app-focus-ring flex w-full items-center justify-between rounded-lg border border-outline-variant px-2.5 py-2 text-left text-sm text-on-surface-variant hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <span>
-                          <span className="font-semibold text-[#0F172A]">{student.fullName}</span>
-                          <span className="ml-1 text-xs text-[#64748B]">({student.studentCode} • {student.className})</span>
+                          <span className="font-semibold text-on-surface">{student.fullName}</span>
+                          <span className="ml-1 text-xs text-on-surface-variant">({student.studentCode} • {student.className})</span>
                         </span>
-                        <span className="text-xs font-semibold text-[#166534]">{selected ? 'Đã chọn' : 'Chọn'}</span>
+                        <span className="text-xs font-semibold text-success">{selected ? 'Đã chọn' : 'Chọn'}</span>
                       </button>
                     );
                   })}
                 </div>
               ) : null}
 
-              <details className="rounded-xl border border-dashed border-[#D1D5DB] bg-[#F8FAFC] px-3 py-2">
-                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+              <details className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-3 py-2">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">
                   Nâng cao: nhập mã học sinh thủ công
                 </summary>
 
@@ -636,16 +635,16 @@ const CreateVaccinationCampaignModal = ({
           )}
         </section>
 
-        <section className="space-y-2 rounded-xl border border-[#E2E8F0] bg-white p-3 md:p-4">
-          <h3 className="text-sm font-bold text-[#0F172A]">3. Xác nhận danh sách đã chọn</h3>
-          <p className="text-xs text-[#64748B]">{selectedCountLabel}</p>
+        <section className="space-y-2 rounded-xl border border-outline-variant bg-white p-3 md:p-4">
+          <h3 className="text-sm font-bold text-on-surface">3. Xác nhận danh sách đã chọn</h3>
+          <p className="text-xs text-on-surface-variant">{selectedCountLabel}</p>
 
           {values.targetType === 'CLASS' ? (
             <div className="flex flex-wrap gap-2">
               {values.targetClassIds.length ? values.targetClassIds.map((classCode) => {
                 const classLabel = classLabelMap.get(classCode) || classCode;
                 return (
-                  <span key={classCode} className="inline-flex items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-1 text-xs font-semibold text-[#166534]" title={classCode}>
+                  <span key={classCode} className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2.5 py-1 text-xs font-semibold text-success" title={classCode}>
                     {classLabel}
                     <button
                       type="button"
@@ -657,14 +656,14 @@ const CreateVaccinationCampaignModal = ({
                     </button>
                   </span>
                 );
-              }) : <p className="text-sm text-[#64748B]">Chưa chọn lớp nào.</p>}
+              }) : <p className="text-sm text-on-surface-variant">Chưa chọn lớp nào.</p>}
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
               {selectedStudents.length ? selectedStudents.map((student) => {
                 const label = `${student.fullName} (${student.studentCode} • ${student.className})`;
                 return (
-                  <span key={student.id} className="inline-flex items-center gap-1 rounded-full bg-[#DBEAFE] px-2.5 py-1 text-xs font-semibold text-[#1D4ED8]" title={label}>
+                  <span key={student.id} className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-xs font-semibold text-info" title={label}>
                     {label}
                     <button
                       type="button"
@@ -676,16 +675,16 @@ const CreateVaccinationCampaignModal = ({
                     </button>
                   </span>
                 );
-              }) : <p className="text-sm text-[#64748B]">Chưa chọn học sinh nào.</p>}
+              }) : <p className="text-sm text-on-surface-variant">Chưa chọn học sinh nào.</p>}
             </div>
           )}
 
-          {fieldErrors.targetClassIds ? <p className="text-xs text-[#B91C1C]">{fieldErrors.targetClassIds}</p> : null}
-          {fieldErrors.targetStudentIds ? <p className="text-xs text-[#B91C1C]">{fieldErrors.targetStudentIds}</p> : null}
+          {fieldErrors.targetClassIds ? <p className="text-xs text-danger">{fieldErrors.targetClassIds}</p> : null}
+          {fieldErrors.targetStudentIds ? <p className="text-xs text-danger">{fieldErrors.targetStudentIds}</p> : null}
         </section>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm font-semibold text-[#334155]">Ghi chú</span>
+          <span className="text-sm font-semibold text-on-surface-variant">Ghi chú</span>
           <textarea
             value={values.note}
             onChange={(event) => updateField('note', event.target.value)}
@@ -693,7 +692,7 @@ const CreateVaccinationCampaignModal = ({
             placeholder="Nhập hướng dẫn bổ sung cho phụ huynh hoặc nhân viên y tế"
             rows={3}
           />
-          {fieldErrors.note ? <span className="text-xs text-[#B91C1C]">{fieldErrors.note}</span> : null}
+          {fieldErrors.note ? <span className="text-xs text-danger">{fieldErrors.note}</span> : null}
         </label>
       </div>
     </NurseModalShell>

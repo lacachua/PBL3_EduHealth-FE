@@ -1,11 +1,11 @@
 import React from 'react';
-import { ACCOUNT_ROLE_BADGE_CLASS_MAP } from '../constants/accountUiTokens';
-import AccountPill from './AccountPill';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
+import { ROLE_TONE_MAP } from '../constants/userManagementConstants';
 
 const RoleBadge = ({ role, label }) => (
-  <AccountPill className={ACCOUNT_ROLE_BADGE_CLASS_MAP[role] || 'border-outline-variant bg-surface-container-high text-on-surface-variant'}>
+  <StatusBadge tone={ROLE_TONE_MAP[role] || 'neutral'}>
     {label}
-  </AccountPill>
+  </StatusBadge>
 );
 
 export default RoleBadge;

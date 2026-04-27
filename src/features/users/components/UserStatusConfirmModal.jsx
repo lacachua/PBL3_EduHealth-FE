@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ACCOUNT_BASE_CLASS, ACCOUNT_STATUS_BADGE_CLASS_MAP } from '../constants/accountUiTokens';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import RoleBadge from './RoleBadge';
-import AccountPill from './AccountPill';
 
 const UserStatusConfirmModalContent = ({ user, submitting, onCancel, onConfirm }) => {
   const [reason, setReason] = useState('');
@@ -58,9 +58,9 @@ const UserStatusConfirmModalContent = ({ user, submitting, onCancel, onConfirm }
             <p className={ACCOUNT_BASE_CLASS.mutedText}>Vai trò</p>
             <RoleBadge role={user.role} label={user.roleLabel} />
             <p className={ACCOUNT_BASE_CLASS.mutedText}>Trạng thái hiện tại</p>
-            <AccountPill className={ACCOUNT_STATUS_BADGE_CLASS_MAP[user.status] || 'border-outline-variant bg-surface-container-high text-on-surface-variant'}>
+            <StatusBadge tone={ACCOUNT_STATUS_BADGE_CLASS_MAP[user.status]?.includes('success') ? 'success' : ACCOUNT_STATUS_BADGE_CLASS_MAP[user.status]?.includes('danger') ? 'danger' : ACCOUNT_STATUS_BADGE_CLASS_MAP[user.status]?.includes('warning') ? 'warning' : 'neutral'}>
               {user.statusLabel}
-            </AccountPill>
+            </StatusBadge>
           </div>
         </div>
 

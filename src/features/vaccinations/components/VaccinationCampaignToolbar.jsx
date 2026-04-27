@@ -1,4 +1,4 @@
-import React from 'react';
+
 import SearchInput from '../../../shared/components/core/SearchInput';
 import { VACCINATION_CAMPAIGN_STATUS_OPTIONS } from '../constants/vaccinationConstants';
 
@@ -48,8 +48,8 @@ const VaccinationCampaignToolbar = ({
           onClick={() => updateField('incompleteOnly', !value.incompleteOnly)}
           aria-pressed={Boolean(value.incompleteOnly)}
           className={`app-focus-ring inline-flex h-10 w-full shrink-0 items-center justify-center gap-1 rounded-lg border px-3 text-sm font-semibold transition xl:w-[156px] ${value.incompleteOnly
-              ? 'border-success/30 bg-success-soft text-success'
-              : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface'
+            ? 'border-success/30 bg-success-soft text-success'
+            : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface'
             }`}
         >
           <span className="material-symbols-outlined text-[15px]">pending_actions</span>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SearchInput from '../../../shared/components/core/SearchInput';
-import { STUDENT_FILTER_DEFAULTS, STUDENT_CLASS_FILTER_OPTIONS, STUDENT_STATUS_OPTIONS } from '../schemas/studentManagementSchema';
+import { STUDENT_FILTER_DEFAULTS, STUDENT_CLASS_FILTER_OPTIONS, STUDENT_STATUS_OPTIONS } from '../constants/studentManagementConstants';
 import {
   STUDENT_BASE_CLASS,
 } from '../constants/studentUiTokens';

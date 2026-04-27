@@ -2,9 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import AdminAsyncState from '../../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
-import {
-  downloadNurseReportsBlob,
-} from '../adapters/nurseReportsAdapter';
+import { downloadNurseReportsBlob } from '../adapters/nurseReportsAdapter';
 import NurseReportsClassTable from '../components/NurseReportsClassTable';
 import NurseReportsDiseasePanel from '../components/NurseReportsDiseasePanel';
 import NurseReportsFilterBar from '../components/NurseReportsFilterBar';
@@ -22,6 +20,9 @@ const TOAST_CLASS_MAP = {
 };
 
 const FEEDBACK_TIMEOUT_MS = 2600;
+const UNSUPPORTED_EXPORT_FILTER_MESSAGE = 'BE export hiện chưa hỗ trợ bộ lọc từ khóa/trạng thái. Vui lòng bỏ bộ lọc này trước khi xuất file.';
+
+const contains = (source, keyword) => String(source || '').toLowerCase().includes(keyword);
 
 const NurseReportsPage = () => {
   const {
@@ -39,10 +40,13 @@ const NurseReportsPage = () => {
   const [searchValue, setSearchValue] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
-  const [exporting, setExporting] = useState(false);
+  const [exportingFormat, setExportingFormat] = useState('');
   const [feedback, setFeedback] = useState(null);
   const feedbackTimerRef = useRef(null);
   const reportSectionRef = useRef(null);
+
+  const exporting = Boolean(exportingFormat);
+  const hasUnsupportedExportFilter = Boolean(String(searchValue || '').trim()) || statusFilter !== 'all';
 
   useEffect(() => () => {
     window.clearTimeout(feedbackTimerRef.current);
@@ -61,7 +65,7 @@ const NurseReportsPage = () => {
     if (source === 'mock') {
       return {
         badgeClassName: 'border-info/20 bg-info-soft text-info',
-        label: 'Nguồn dữ liệu: Mô phỏng (chờ dữ liệu thật)',
+        label: 'Nguồn dữ liệu: Mô phỏng',
         note: viewModel.sourceNote || 'Nguồn dữ liệu thật cho báo cáo điều dưỡng chưa sẵn sàng',
       };
     }
@@ -69,13 +73,36 @@ const NurseReportsPage = () => {
     return {
       badgeClassName: 'border-success/20 bg-success-soft text-success',
       label: 'Nguồn dữ liệu: Đồng bộ hệ thống',
-      note: 'Dữ liệu đang được đồng bộ từ hệ thống',
+      note: 'Dữ liệu gốc được lấy từ API báo cáo của hệ thống.',
     };
   }, [viewModel.source, viewModel.sourceNote]);
 
   const classOptions = useMemo(() => {
     return viewModel.filterOptions?.classOptions || [{ value: 'all', label: 'Tất cả lớp' }];
   }, [viewModel.filterOptions?.classOptions]);
+
+  const filteredClassRows = useMemo(() => {
+    const normalizedKeyword = String(searchValue || '').trim().toLowerCase();
+
+    return viewModel.classRows.filter((row) => {
+      const matchesClass = filters.classId === 'all' || String(row.id) === String(filters.classId);
+      const matchesGrade = filters.grade === 'all' || String(row.grade) === String(filters.grade);
+      const matchesStatus = statusFilter === 'all' || row.statusKey === statusFilter;
+      if (!matchesClass || !matchesGrade || !matchesStatus) {
+        return false;
+      }
+
+      if (!normalizedKeyword) {
+        return true;
+      }
+
+      return [
+        row.className,
+        row.gradeLabel,
+        row.statusLabel,
+      ].some((candidate) => contains(candidate, normalizedKeyword));
+    });
+  }, [filters.classId, filters.grade, searchValue, statusFilter, viewModel.classRows]);
 
   const handleFiltersChange = (partialFilters) => {
     applyFilters(partialFilters);
@@ -95,17 +122,28 @@ const NurseReportsPage = () => {
     reportSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleExportRows = async () => {
-    setExporting(true);
+  const handleExportRows = async (format = 'xlsx') => {
+    if (hasUnsupportedExportFilter) {
+      showFeedback(UNSUPPORTED_EXPORT_FILTER_MESSAGE, 'error');
+      return;
+    }
+
+    const normalizedFormat = String(format || 'xlsx').trim().toLowerCase();
+    setExportingFormat(normalizedFormat);
+
     try {
-      const exportResult = await nurseReportsRepository.export(filters);
+      const exportResult = await nurseReportsRepository.export({
+        filters,
+        format: normalizedFormat,
+      });
       const exported = downloadNurseReportsBlob(exportResult);
+
       if (!exported) {
-        showFeedback('Không nhận được file Excel từ máy chủ.', 'error');
+        showFeedback('Không nhận được file từ máy chủ.', 'error');
         return;
       }
 
-      showFeedback('Xuất báo cáo Excel thành công.', 'success');
+      showFeedback(`Xuất báo cáo ${normalizedFormat.toUpperCase()} từ hệ thống thành công.`, 'success');
     } catch (exportError) {
       if (exportError?.response?.status === 403) {
         showFeedback('Endpoint xuất báo cáo từ chối quyền NURSE hoặc FE đang gọi sai endpoint.', 'error');
@@ -114,7 +152,7 @@ const NurseReportsPage = () => {
 
       showFeedback('Xuất báo cáo thất bại. Vui lòng thử lại.', 'error');
     } finally {
-      setExporting(false);
+      setExportingFormat('');
     }
   };
 
@@ -134,17 +172,31 @@ const NurseReportsPage = () => {
               Xem báo cáo
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleExportRows(viewModel.classRows)}
-              disabled={exporting || !viewModel.classRows.length}
-              className="app-focus-ring app-btn-primary px-3.5 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span className={`material-symbols-outlined text-[18px] ${exporting ? 'animate-spin' : ''}`}>
-                {exporting ? 'progress_activity' : 'table_view'}
-              </span>
-              Xuất Excel
-            </button>
+            <div className="flex overflow-hidden rounded-xl border border-outline-variant" title={hasUnsupportedExportFilter ? UNSUPPORTED_EXPORT_FILTER_MESSAGE : undefined}>
+              <button
+                type="button"
+                onClick={() => handleExportRows('pdf')}
+                disabled={exporting || hasUnsupportedExportFilter || !filteredClassRows.length}
+                className="app-focus-ring inline-flex items-center gap-2 bg-surface-container-lowest px-3 py-2 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'pdf' ? 'animate-spin' : ''}`}>
+                  {exportingFormat === 'pdf' ? 'progress_activity' : 'picture_as_pdf'}
+                </span>
+                PDF
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleExportRows('xlsx')}
+                disabled={exporting || hasUnsupportedExportFilter || !filteredClassRows.length}
+                className="app-focus-ring inline-flex items-center gap-2 border-l border-outline-variant bg-primary px-3.5 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
+                  {exportingFormat === 'xlsx' ? 'progress_activity' : 'table_view'}
+                </span>
+                Excel
+              </button>
+            </div>
           </>
         )}
       />
@@ -152,7 +204,14 @@ const NurseReportsPage = () => {
       <section className="app-panel-shell app-filter-toolbar flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="app-overline">Phiên dữ liệu báo cáo</p>
+          <p className="app-meta-text mt-0.5">{viewModel.reportPeriodLabel}</p>
           <p className="app-meta-text mt-0.5">Cập nhật lúc: {viewModel.generatedAtLabel}</p>
+          <p className="app-meta-text mt-0.5">{viewModel.filterSummaryLabel}</p>
+          {hasUnsupportedExportFilter ? (
+            <p className="mt-1 text-[12px] font-semibold text-warning">
+              {UNSUPPORTED_EXPORT_FILTER_MESSAGE}
+            </p>
+          ) : null}
         </div>
         <span
           title={sourceTag.note}
@@ -164,7 +223,7 @@ const NurseReportsPage = () => {
 
       {String(viewModel.source || '').toLowerCase() === 'mock' ? (
         <section className="rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
-          Báo cáo điều dưỡng hiện đang dùng dữ liệu mô phỏng. Dữ liệu thật sẽ tự động thay thế khi tích hợp hoàn tất.
+          Báo cáo điều dưỡng hiện đang dùng dữ liệu mô phỏng.
         </section>
       ) : null}
 
@@ -202,7 +261,7 @@ const NurseReportsPage = () => {
 
           <div ref={reportSectionRef}>
             <NurseReportsClassTable
-              rows={viewModel.classRows}
+              rows={filteredClassRows}
               searchValue={searchValue}
               onSearchValueChange={(nextValue) => {
                 setSearchValue(nextValue);
@@ -219,6 +278,9 @@ const NurseReportsPage = () => {
               onPageChange={setPage}
               onExport={handleExportRows}
               exporting={exporting}
+              exportingFormat={exportingFormat}
+              exportDisabled={hasUnsupportedExportFilter}
+              exportDisabledMessage={UNSUPPORTED_EXPORT_FILTER_MESSAGE}
             />
           </div>
         </div>

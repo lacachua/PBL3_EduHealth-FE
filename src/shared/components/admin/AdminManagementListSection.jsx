@@ -1,4 +1,3 @@
-import React from 'react';
 import AdminAsyncState from '../core/AsyncState';
 import Pagination from '../core/Pagination';
 

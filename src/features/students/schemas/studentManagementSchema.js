@@ -1,72 +1,5 @@
-import {
-  STUDENT_CREATE_CLASS_OPTIONS,
-} from '../constants/studentCreateOptions';
-
-export const STUDENT_STATUS_OPTIONS = [
-  { label: 'Tất cả trạng thái', value: 'all' },
-  { label: 'Hoạt động', value: 'ACTIVE' },
-  { label: 'Ngưng hoạt động', value: 'INACTIVE' },
-];
-
-export const STUDENT_CLASS_FILTER_OPTIONS = [
-  { label: 'Tất cả lớp', value: 'all' },
-  ...STUDENT_CREATE_CLASS_OPTIONS,
-];
-
-export const STUDENT_FILTER_DEFAULTS = {
-  keyword: '',
-  classId: 'all',
-  status: 'all',
-};
-
-export const STUDENT_PAGE_SIZE = 10;
-
-const STUDENT_ENDPOINTS_SINGLETON = Object.freeze({
-  list: '/api/v1/students',
-  detail: (studentId) => `/api/v1/students/${studentId}`,
-  healthProfile: (studentId) => `/api/v1/students/${studentId}/health-profile`,
-});
-
-export const STUDENT_ENDPOINTS = STUDENT_ENDPOINTS_SINGLETON;
-
-export const STUDENT_BASIC_EDITABLE_FIELDS = [
-  'fullName',
-  'dateOfBirth',
-  'gender',
-  'classId',
-  'email',
-  'phoneNumber',
-];
-
-export const STUDENT_HEALTH_EDITABLE_FIELDS = [
-  'heightCm',
-  'weightKg',
-  'eyeStatus',
-  'chronicNote',
-  'allergies',
-];
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^[0-9+\-\s()]{8,15}$/;
-
-export const buildStudentBasicPatchPayload = (values = {}) => ({
-  fullName: values.fullName?.trim() || '',
-  dateOfBirth: values.dateOfBirth || null,
-  gender: values.gender || null,
-  classId: values.classId ? Number(values.classId) : null,
-  email: values.email?.trim() || '',
-  ...(values.phoneNumber?.trim() ? { phone: values.phoneNumber.trim() } : { phone: null }),
-});
-
-export const buildStudentHealthPatchPayload = (values = {}) => ({
-  ...(values.heightCm === '' || values.heightCm === null || values.heightCm === undefined ? { currentHeight: null } : { currentHeight: Number(values.heightCm) }),
-  ...(values.weightKg === '' || values.weightKg === null || values.weightKg === undefined ? { currentWeight: null } : { currentWeight: Number(values.weightKg) }),
-  medicalHistoryNotes: [
-    values.eyeStatus?.trim() ? `Tình trạng mắt: ${values.eyeStatus.trim()}` : null,
-    values.chronicNote?.trim() ? `Ghi chú bệnh mãn tính: ${values.chronicNote.trim()}` : null,
-    values.allergies?.trim() ? `Dị ứng: ${values.allergies.trim()}` : null,
-  ].filter(Boolean).join('\n') || null,
-});
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
 
 export const validateStudentBasicForm = (values = {}) => {
   const errors = {};
@@ -89,12 +22,15 @@ export const validateStudentBasicForm = (values = {}) => {
 
   if (!values.email?.trim()) {
     errors.email = 'Vui lòng nhập email';
-  } else if (!emailRegex.test(values.email.trim())) {
+  } else if (!EMAIL_REGEX.test(values.email.trim())) {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 
-  if (values.phoneNumber?.trim() && !phoneRegex.test(values.phoneNumber.trim())) {
-    errors.phoneNumber = 'Số điện thoại chưa hợp lệ';
+  if (values.phoneNumber?.trim()) {
+    const phoneError = validatePhoneNumber(values.phoneNumber.trim());
+    if (phoneError) {
+      errors.phoneNumber = phoneError;
+    }
   }
 
   return errors;

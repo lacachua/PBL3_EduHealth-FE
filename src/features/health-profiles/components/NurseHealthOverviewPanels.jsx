@@ -1,55 +1,36 @@
-import React from 'react';
 import SectionCard from '../../../shared/components/core/SectionCard';
+import { formatDate } from '../../../shared/utils/dateFormat';
 
 const sectionCardClass = 'app-card-shell rounded-xl p-4';
 const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
-const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-[#163126]';
-const sectionSubtitleClass = 'mt-0.5 text-[11px] text-[#5F746B]';
+const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-on-surface';
+const sectionSubtitleClass = 'mt-0.5 text-[11px] text-on-surface-variant';
+const historyCardClass = 'rounded-lg border border-outline-variant bg-surface-container-lowest p-3';
+
 const alertChipClassMap = {
-  allergy: 'bg-[#FEE2E2] text-[#DC2626]',
-  vision: 'bg-[#DBEAFE] text-[#2563EB]',
-  chronic: 'bg-[#F3E8FF] text-[#9333EA]',
-  nutrition: 'bg-[#FFEDD5] text-[#EA580C]',
+  allergy: 'bg-danger-soft text-danger',
+  vision: 'bg-info-soft text-info',
+  chronic: 'bg-surface-container-low text-on-surface-variant',
+  nutrition: 'bg-warning-soft text-warning',
 };
 
-const getAlertChipClass = (variant) => alertChipClassMap[variant] || 'bg-[#DCFCE7] text-[#166534]';
-
-import { formatDate } from '../../../shared/utils/dateFormat';
+const getAlertChipClass = (variant) => alertChipClassMap[variant] || 'bg-success-soft text-success';
 
 const vaccinationStatusMeta = (status) => {
   const normalized = String(status || '').toUpperCase();
   if (normalized === 'DONE') {
-    return {
-      label: 'Đã tiêm',
-      className: 'bg-[#DCFCE7] text-[#166534]',
-    };
+    return { label: 'Đã tiêm', className: 'bg-success-soft text-success' };
   }
-
   if (normalized === 'POSTPONED') {
-    return {
-      label: 'Hoãn tiêm',
-      className: 'bg-[#FEF3C7] text-[#B45309]',
-    };
+    return { label: 'Hoãn tiêm', className: 'bg-warning-soft text-warning' };
   }
-
   if (normalized === 'CONTRAINDICATED') {
-    return {
-      label: 'Chống chỉ định',
-      className: 'bg-[#FEE2E2] text-[#B91C1C]',
-    };
+    return { label: 'Chống chỉ định', className: 'bg-danger-soft text-danger' };
   }
-
   if (normalized === 'ABSENT') {
-    return {
-      label: 'Vắng mặt',
-      className: 'bg-[#E2E8F0] text-[#334155]',
-    };
+    return { label: 'Vắng mặt', className: 'bg-surface-container-low text-on-surface-variant' };
   }
-
-  return {
-    label: 'Chờ tiêm',
-    className: 'bg-[#DBEAFE] text-[#1D4ED8]',
-  };
+  return { label: 'Chờ tiêm', className: 'bg-info-soft text-info' };
 };
 
 const NurseHealthOverviewPanels = ({
@@ -77,13 +58,13 @@ const NurseHealthOverviewPanels = ({
           {alerts.length ? (
             <div className="space-y-2">
               {alerts.map((alert) => (
-                <article key={alert.key} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                <article key={alert.key} className={historyCardClass}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-[18px] text-[#15803D]">{alert.icon}</span>
+                      <span className="material-symbols-outlined text-[18px] text-success">{alert.icon}</span>
                       <div>
-                        <p className="text-sm font-semibold text-[#0F172A]">{alert.title}</p>
-                        <p className="mt-0.5 text-xs text-[#64748B]">{alert.description || '--'}</p>
+                        <p className="text-sm font-semibold text-on-surface">{alert.title}</p>
+                        <p className="mt-0.5 text-xs text-on-surface-variant">{alert.description || '--'}</p>
                       </div>
                     </div>
                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${getAlertChipClass(alert.variant)}`}>
@@ -94,7 +75,7 @@ const NurseHealthOverviewPanels = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có dữ liệu cảnh báo sức khỏe.</p>
+            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu cảnh báo sức khỏe.</p>
           )}
         </SectionCard>
 
@@ -109,22 +90,22 @@ const NurseHealthOverviewPanels = ({
           {periodicItems.length ? (
             <div className="space-y-2">
               {periodicItems.slice(0, 5).map((item) => (
-                <article key={item.id} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                <article key={item.id} className={historyCardClass}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-[#0F172A]">{item.diagnosis || item.diseaseName || 'Khám định kỳ'}</p>
-                    <span className="text-[11px] text-[#64748B]">{item.visitDateLabel || formatDate(item.visitDate)}</span>
+                    <p className="text-sm font-semibold text-on-surface">{item.diagnosis || item.diseaseName || 'Khám định kỳ'}</p>
+                    <span className="text-[11px] text-on-surface-variant">{item.visitDateLabel || formatDate(item.visitDate)}</span>
                   </div>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Triệu chứng</p>
-                  <p className="text-sm text-[#0F172A]">{item.symptoms || '--'}</p>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Điều trị</p>
-                  <p className="text-sm text-[#0F172A]">{item.treatment || '--'}</p>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Phụ trách</p>
-                  <p className="text-sm text-[#0F172A]">{item.nurseName || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Triệu chứng</p>
+                  <p className="text-sm text-on-surface">{item.symptoms || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Điều trị</p>
+                  <p className="text-sm text-on-surface">{item.treatment || '--'}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Phụ trách</p>
+                  <p className="text-sm text-on-surface">{item.nurseName || '--'}</p>
                 </article>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có dữ liệu khám sức khỏe định kỳ.</p>
+            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu khám sức khỏe định kỳ.</p>
           )}
         </SectionCard>
       </div>
@@ -141,19 +122,19 @@ const NurseHealthOverviewPanels = ({
           {vaccinations.length ? (
             <div className="space-y-2">
               {vaccinations.slice(0, 4).map((record) => (
-                <article key={record.id} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                <article key={record.id} className={historyCardClass}>
                   {(() => {
                     const statusMeta = vaccinationStatusMeta(record.status);
                     return (
                       <>
-                        <p className="text-sm font-semibold text-[#0F172A]">{record.vaccineName}</p>
-                        <p className="mt-0.5 text-[11px] text-[#64748B]">{formatDate(record.administeredAt)}</p>
+                        <p className="text-sm font-semibold text-on-surface">{record.vaccineName}</p>
+                        <p className="mt-0.5 text-[11px] text-on-surface-variant">{formatDate(record.administeredAt)}</p>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusMeta.className}`}>
                             {statusMeta.label}
                           </span>
                           {(record.campaignName || record.doseNumber) && (
-                            <span className="text-[11px] font-medium text-[#64748B]">
+                            <span className="text-[11px] font-medium text-on-surface-variant">
                               • {[record.doseNumber && `Mũi ${record.doseNumber}`, record.campaignName].filter(Boolean).join(' - ')}
                             </span>
                           )}
@@ -165,7 +146,7 @@ const NurseHealthOverviewPanels = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có dữ liệu tiêm chủng gần đây.</p>
+            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu tiêm chủng gần đây.</p>
           )}
         </SectionCard>
 
@@ -180,22 +161,22 @@ const NurseHealthOverviewPanels = ({
           {emergencyContacts.length ? (
             <div className="space-y-2">
               {emergencyContacts.map((contact) => (
-                <article key={contact.id} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                <article key={contact.id} className={historyCardClass}>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-[#0F172A]">{contact.fullName}</p>
+                    <p className="text-sm font-semibold text-on-surface">{contact.fullName}</p>
                     {contact.primary ? (
-                      <span className="inline-flex items-center rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-semibold text-[#15803D]">
+                      <span className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success">
                         Ưu tiên
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-0.5 text-xs text-[#64748B]">{contact.relation}</p>
-                  <p className="mt-1 text-sm font-semibold text-[#15803D]">{contact.phone}</p>
+                  <p className="mt-0.5 text-xs text-on-surface-variant">{contact.relation}</p>
+                  <p className="mt-1 text-sm font-semibold text-success">{contact.phone}</p>
                 </article>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Chưa có dữ liệu liên hệ khẩn cấp.</p>
+            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu liên hệ khẩn cấp.</p>
           )}
         </SectionCard>
       </div>

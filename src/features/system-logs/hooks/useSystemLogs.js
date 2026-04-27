@@ -8,8 +8,6 @@ export const SYSTEM_LOGS_DEFAULT_FILTERS = {
   fromDate: '',
   toDate: '',
   role: 'all',
-  module: 'all',
-  action: 'all',
 };
 
 const normalizeFilters = (nextFilters = {}) => ({

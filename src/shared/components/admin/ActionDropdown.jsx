@@ -3,6 +3,13 @@ import { createPortal } from 'react-dom';
 
 const EDGE_OFFSET = 8;
 
+const toneClassMap = {
+  default: 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+  danger: 'text-danger hover:bg-danger-soft',
+  warning: 'text-warning hover:bg-warning-soft',
+  success: 'text-success hover:bg-success-soft',
+};
+
 const ActionDropdown = ({ items, menuWidth = 176 }) => {
   const [open, setOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -89,6 +96,7 @@ const ActionDropdown = ({ items, menuWidth = 176 }) => {
         className="app-focus-ring app-btn-secondary gap-1 px-2.5 text-[12px]"
         aria-label="Mở menu hành động"
         aria-expanded={open}
+        data-row-click-stop="true"
       >
         <span className="material-symbols-outlined text-sm">more_horiz</span>
       </button>
@@ -114,7 +122,7 @@ const ActionDropdown = ({ items, menuWidth = 176 }) => {
                   setOpen(false);
                   item.onClick?.();
                 }}
-                className="app-focus-ring flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] font-medium text-on-surface-variant transition-[background-color,color] duration-150 ease-out hover:bg-surface-container-low focus-visible:bg-surface-container-low"
+                className={`app-focus-ring flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] font-medium transition-[background-color,color] duration-150 ease-out ${toneClassMap[item.tone || 'default'] || toneClassMap.default}`}
               >
                 {item.icon ? <span className="material-symbols-outlined text-sm">{item.icon}</span> : null}
                 {item.label}

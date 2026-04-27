@@ -1,13 +1,58 @@
 import { apiGetEnvelope, apiRequestRaw } from '../../../../shared/api/apiClient';
+import { NURSE_REPORTS_ENDPOINTS } from '../config/nurseReportsApiContract';
 
-const sanitizeFilters = (filters = {}) => ({
-  timeRange: String(filters.timeRange || 'this-month'),
-  grade: String(filters.grade || 'all'),
-  classId: String(filters.classId || 'all'),
-  reportType: String(filters.reportType || 'overview'),
-  ...(filters.fromDate ? { fromDate: filters.fromDate } : {}),
-  ...(filters.toDate ? { toDate: filters.toDate } : {}),
-});
+const toIsoString = (date) => date.toISOString();
+
+const startOfDay = (date) => {
+  const nextDate = new Date(date);
+  nextDate.setHours(0, 0, 0, 0);
+  return nextDate;
+};
+
+const buildCustomRangeParams = (filters, timeRange) => {
+  const now = new Date();
+  let fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
+  let toDate = filters.toDate ? new Date(filters.toDate) : now;
+
+  if (!fromDate) {
+    if (timeRange === 'today') {
+      fromDate = startOfDay(now);
+    } else if (timeRange === 'this-year') {
+      fromDate = new Date(now.getFullYear(), 0, 1);
+    } else {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+  }
+
+  if (Number.isNaN(fromDate.getTime())) {
+    fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  if (Number.isNaN(toDate.getTime())) {
+    toDate = now;
+  }
+
+  return {
+    timeRange: 'custom-range',
+    fromDate: toIsoString(fromDate),
+    toDate: toIsoString(toDate),
+  };
+};
+
+const sanitizeFilters = (filters = {}) => {
+  const rawTimeRange = String(filters.timeRange || 'this-month');
+  const timeRange = rawTimeRange === 'custom' ? 'custom-range' : rawTimeRange;
+  const needsCustomRange = ['today', 'this-year', 'custom-range'].includes(timeRange);
+
+  return {
+    ...(needsCustomRange ? buildCustomRangeParams(filters, timeRange) : { timeRange }),
+    grade: String(filters.grade || 'all'),
+    classId: String(filters.classId || 'all'),
+    reportType: String(filters.reportType || 'overview'),
+    ...(!needsCustomRange && filters.fromDate ? { fromDate: filters.fromDate } : {}),
+    ...(!needsCustomRange && filters.toDate ? { toDate: filters.toDate } : {}),
+  };
+};
 
 const extractFilenameFromContentDisposition = (contentDisposition) => {
   if (!contentDisposition) return null;
@@ -25,18 +70,19 @@ const extractFilenameFromContentDisposition = (contentDisposition) => {
 
 export const nurseReportsRepository = {
   getDashboard: async (filters = {}) => {
-    return apiGetEnvelope('/api/v1/reports/nurse/dashboard', {
+    return apiGetEnvelope(NURSE_REPORTS_ENDPOINTS.dashboard, {
       params: sanitizeFilters(filters),
     });
   },
 
-  export: async (filters = {}) => {
+  export: async ({ filters = {}, format = 'xlsx' } = {}) => {
+    const normalizedFormat = String(format || 'xlsx').trim().toLowerCase();
     const response = await apiRequestRaw({
       method: 'get',
-      url: '/api/v1/reports/nurse/export',
+      url: NURSE_REPORTS_ENDPOINTS.export,
       params: {
         ...sanitizeFilters(filters),
-        format: 'xlsx',
+        format: normalizedFormat,
       },
       responseType: 'blob',
     });
@@ -44,8 +90,12 @@ export const nurseReportsRepository = {
     return {
       blob: response.data,
       filename: extractFilenameFromContentDisposition(response.headers['content-disposition'])
-        || 'bao-cao-y-te-dieu-duong.xlsx',
-      mimeType: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        || `bao-cao-y-te-dieu-duong.${normalizedFormat === 'pdf' ? 'pdf' : 'xlsx'}`,
+      mimeType: response.headers['content-type'] || (
+        normalizedFormat === 'pdf'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ),
     };
   },
 };

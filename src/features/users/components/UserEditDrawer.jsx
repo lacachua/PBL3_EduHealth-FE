@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import EntityAvatar from '../../../shared/components/core/EntityAvatar';
 import RightDrawer from '../../../shared/components/core/RightDrawer';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import EditableField from '../../../shared/components/form/EditableField';
 import ReadonlyField from '../../../shared/components/form/ReadonlyField';
 import { validateUserForm } from '../schemas/userManagementSchema';
-import { ACCOUNT_STATUS_BADGE_CLASS_MAP } from '../constants/accountUiTokens';
-import AccountPill from './AccountPill';
+import { STATUS_TONE_MAP } from '../constants/userManagementConstants';
 import RoleBadge from './RoleBadge';
 
 const createInitial = (user) => ({
@@ -27,6 +27,14 @@ const UserEditDrawerContent = ({
   const [errors, setErrors] = useState({});
 
   const mergedErrors = useMemo(() => ({ ...apiErrors, ...errors }), [apiErrors, errors]);
+
+  const handleSubmit = async () => {
+    const nextErrors = validateUserForm({ values: form, isEdit: true });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+    await onSubmit(form);
+    onClose();
+  };
 
   const readonlyValues = useMemo(() => ({
     id: user?.id || '--',
@@ -58,8 +66,6 @@ const UserEditDrawerContent = ({
   ];
 
   const avatarSrc = user?.avatarUrl || user?.photoUrl || user?.profileImageUrl || '';
-  const statusBadgeClass = ACCOUNT_STATUS_BADGE_CLASS_MAP[user?.status]
-    || 'border-outline-variant bg-surface-container-low text-on-surface-variant';
 
   const footer = (
     <div className="flex justify-end gap-2.5">
@@ -73,15 +79,7 @@ const UserEditDrawerContent = ({
       <button
         type="button"
         disabled={submitting || !hasChanges}
-        onClick={async () => {
-          const nextErrors = validateUserForm({ values: form, isEdit: true });
-          setErrors(nextErrors);
-          if (Object.keys(nextErrors).length) {
-            return;
-          }
-          await onSubmit(form);
-          onClose();
-        }}
+        onClick={handleSubmit}
         className="app-focus-ring rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
       >
         {submitting ? 'Đang xử lý...' : 'Lưu thay đổi'}
@@ -108,7 +106,9 @@ const UserEditDrawerContent = ({
               <p className="mt-0.5 text-sm text-on-surface-variant">{user?.email || user?.username || '--'}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <RoleBadge role={user?.role} label={user?.roleLabel} />
-                <AccountPill className={statusBadgeClass}>{user?.statusLabel || user?.status || '--'}</AccountPill>
+                <StatusBadge tone={STATUS_TONE_MAP[user?.status] || 'neutral'}>
+                  {user?.statusLabel || user?.status || '--'}
+                </StatusBadge>
               </div>
             </div>
           </div>

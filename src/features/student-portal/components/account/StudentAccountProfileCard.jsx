@@ -81,7 +81,7 @@ const StudentAccountProfileCard = ({
                   type="button"
                   onClick={triggerAvatarPicker}
                   disabled={isUploadingAvatar}
-                  className="app-focus-ring app-interactive absolute inset-0 flex items-center justify-center bg-slate-900/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 disabled:cursor-not-allowed"
+                  className="app-focus-ring app-interactive absolute inset-0 flex items-center justify-center bg-on-surface/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 disabled:cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-3xl text-white">
                     {isUploadingAvatar ? 'hourglass_top' : 'photo_camera'}

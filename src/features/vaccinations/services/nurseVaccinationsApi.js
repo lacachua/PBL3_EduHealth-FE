@@ -5,7 +5,7 @@ import {
   buildCreateCampaignPayload,
   buildPendingQuery,
   buildUpdateStudentVaccinationPayload,
-} from '../schemas/vaccinationSchema';
+} from '../adapters/vaccinationPayloadMapper';
 
 export const getVaccinationCampaignsApi = async (query = {}) => {
   return nurseVaccinationsRepository.getCampaigns(buildCampaignListQuery(query));

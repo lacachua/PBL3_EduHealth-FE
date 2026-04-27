@@ -14,7 +14,7 @@ import VaccinationSummaryCards from '../components/VaccinationSummaryCards';
 import CreateVaccinationCampaignModal from '../components/CreateVaccinationCampaignModal';
 import {
   CAMPAIGN_FILTER_DEFAULTS,
-} from '../schemas/vaccinationSchema';
+} from '../constants/vaccinationConstants';
 import {
   createVaccinationCampaignApi,
   getVaccinationCampaignsApi,

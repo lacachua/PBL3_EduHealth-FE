@@ -1,4 +1,3 @@
-import React from 'react';
 import Pagination from '../../../../shared/components/core/Pagination';
 import { MOVEMENT_TYPE_OPTIONS } from '../../constants/nurseMedicineConstants';
 
@@ -15,7 +14,7 @@ const MedicineMovementTable = ({
 }) => {
   return (
     <section className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2" data-row-click-stop="true">
         <select
           value={filters.type}
           onChange={(event) => onFiltersChange({ ...filters, type: event.target.value })}

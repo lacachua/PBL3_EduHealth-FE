@@ -3,7 +3,8 @@ import { DATA_MODULES, resolveModuleDataSource } from '../../../app/config/dataM
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { buildCatalogDetailQueryParams, buildCatalogListQueryParams } from '../adapters/catalogQueryParams';
 import { getCatalogDetailMockEnvelope, getCatalogListMockEnvelope } from '../mocks/catalogsMock';
-import { CATALOG_ENDPOINTS, CATALOG_GROUPS } from '../schemas/catalogManagementSchema';
+import { CATALOG_ENDPOINTS } from '../constants/catalogApiContract';
+import { CATALOG_GROUPS } from '../constants/catalogConstants';
 
 const shouldUseMock = () => resolveModuleDataSource(DATA_MODULES.ADMIN_CATALOGS) === 'mock';
 

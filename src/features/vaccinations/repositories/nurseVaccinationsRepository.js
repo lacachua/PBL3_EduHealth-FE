@@ -14,7 +14,7 @@ import {
   createVaccinationCampaignMockEnvelope,
   updateStudentVaccinationMockEnvelope,
 } from '../mocks/nurseVaccinationsMock';
-import { VACCINATION_ENDPOINTS } from '../schemas/vaccinationSchema';
+import { VACCINATION_ENDPOINTS } from '../constants/vaccinationApiContract';
 
 const isMockSource = () => resolveModuleDataSource(DATA_MODULES.NURSE_VACCINATIONS) === 'mock';
 

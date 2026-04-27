@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useChangeCurrentUserPassword } from '../hooks/useChangeCurrentUserPassword';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 
 const variantClassMap = {
   admin: {
@@ -34,34 +35,6 @@ const variantClassMap = {
     actionButton: 'app-btn-primary app-focus-ring inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70',
     cancelButton: 'app-btn-secondary app-focus-ring inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold',
   },
-};
-
-const validatePasswordForm = (values) => {
-  const nextErrors = {};
-
-  if (!values.oldPassword.trim()) {
-    nextErrors.oldPassword = 'Vui lòng nhập mật khẩu hiện tại.';
-  }
-
-  if (!values.newPassword.trim()) {
-    nextErrors.newPassword = 'Vui lòng nhập mật khẩu mới.';
-  } else if (values.newPassword.length < 8) {
-    nextErrors.newPassword = 'Mật khẩu mới phải có ít nhất 8 ký tự.';
-  }
-
-  if (!values.confirmPassword.trim()) {
-    nextErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới.';
-  }
-
-  if (values.oldPassword && values.newPassword && values.oldPassword === values.newPassword) {
-    nextErrors.newPassword = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
-  }
-
-  if (values.newPassword && values.confirmPassword && values.newPassword !== values.confirmPassword) {
-    nextErrors.confirmPassword = 'Xác nhận mật khẩu chưa khớp.';
-  }
-
-  return nextErrors;
 };
 
 const ChangePasswordCard = ({ variant = 'admin', onFeedback }) => {
@@ -124,7 +97,7 @@ const ChangePasswordCard = ({ variant = 'admin', onFeedback }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const nextErrors = validatePasswordForm(formValues);
+    const nextErrors = validateChangePasswordForm(formValues);
     setFormErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
