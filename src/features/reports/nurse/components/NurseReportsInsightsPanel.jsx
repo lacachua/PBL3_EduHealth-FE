@@ -1,4 +1,3 @@
-import React from 'react';
 import EmptyState from '../../../../shared/components/core/EmptyState';
 import SectionCard from '../../../../shared/components/core/SectionCard';
 
@@ -22,7 +21,6 @@ const NurseReportsInsightsPanel = ({ insights }) => {
     <section className="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <SectionCard
         title="Nhóm thuốc sử dụng nhiều"
-        subtitle="Theo dõi số lượng thuốc đã cấp trong khoảng thời gian báo cáo."
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="app-section-title"
@@ -65,8 +63,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
       </SectionCard>
 
       <SectionCard
-        title="Cảnh báo và gợi ý"
-        subtitle="Các điểm cần ưu tiên xử lý trong khoảng thời gian báo cáo."
+        title="Cảnh báo"
         className="app-card-shell rounded-xl p-0"
         headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
         titleClassName="app-section-title"
@@ -77,7 +74,7 @@ const NurseReportsInsightsPanel = ({ insights }) => {
           {!alerts.length ? (
             <EmptyState
               title="Chưa có cảnh báo"
-              description="Các cảnh báo tự động sẽ hiển thị tại đây khi hệ thống phát hiện bất thường."
+              description="Cảnh báo sẽ hiển thị khi hệ thống phát hiện bất thường."
             />
           ) : (
             alerts.map((alert) => (

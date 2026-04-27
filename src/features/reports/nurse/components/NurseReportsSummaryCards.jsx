@@ -1,11 +1,3 @@
-import React from 'react';
-
-const BADGE_CLASS_MAP = {
-  positive: 'border-success/25 bg-success-soft text-success',
-  negative: 'border-danger/25 bg-danger-soft text-danger',
-  neutral: 'border-outline-variant bg-surface text-on-surface-variant',
-};
-
 const renderProgress = (value = 0) => {
   const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
 
@@ -30,8 +22,6 @@ const NurseReportsSummaryCards = ({ cards = [] }) => {
   return (
     <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => {
-        const badgeClassName = BADGE_CLASS_MAP[card.badgeTone] || BADGE_CLASS_MAP.neutral;
-
         return (
           <article key={card.id} className="app-kpi-card rounded-xl">
             <div className="flex items-start justify-between gap-2">
@@ -46,14 +36,7 @@ const NurseReportsSummaryCards = ({ cards = [] }) => {
               </span>
             </div>
 
-            <div className="mt-1.5 flex items-start justify-between gap-2">
-              <p className="min-h-[30px] text-[12px] leading-[1.2rem] text-on-surface-variant">{card.hint || '--'}</p>
-              {card.badge ? (
-                <span className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${badgeClassName}`}>
-                  {card.badge}
-                </span>
-              ) : null}
-            </div>
+            <p className="mt-1.5 text-[12px] leading-[1.2rem] text-on-surface-variant">{card.hint || '--'}</p>
 
             {typeof card.progress === 'number' ? renderProgress(card.progress) : null}
           </article>

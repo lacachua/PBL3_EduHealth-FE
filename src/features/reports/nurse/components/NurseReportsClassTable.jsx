@@ -1,52 +1,20 @@
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import DataTable from '../../../../shared/components/core/DataTable';
 import EmptyState from '../../../../shared/components/core/EmptyState';
 import Pagination from '../../../../shared/components/core/Pagination';
 import SectionCard from '../../../../shared/components/core/SectionCard';
 import StatusBadge from '../../../../shared/components/core/StatusBadge';
 
-const contains = (source, keyword) => {
-  return String(source || '').toLowerCase().includes(keyword);
-};
-
 const NurseReportsClassTable = ({
   rows,
-  searchValue,
-  onSearchValueChange,
-  statusFilter,
-  statusOptions,
   page,
   pageSize,
   onPageChange,
-  onStatusFilterChange,
   onExport,
   exporting,
   exportingFormat = '',
-  exportDisabled = false,
-  exportDisabledMessage = '',
 }) => {
-  const normalizedKeyword = String(searchValue || '').trim().toLowerCase();
-
-  const filteredRows = useMemo(() => {
-    return rows.filter((row) => {
-      const matchesStatus = statusFilter === 'all' || row.statusKey === statusFilter;
-      if (!matchesStatus) {
-        return false;
-      }
-
-      if (!normalizedKeyword) {
-        return true;
-      }
-
-      return [
-        row.className,
-        row.gradeLabel,
-        row.statusLabel,
-      ].some((candidate) => contains(candidate, normalizedKeyword));
-    });
-  }, [normalizedKeyword, rows, statusFilter]);
-
-  const totalItems = filteredRows.length;
+  const totalItems = Array.isArray(rows) ? rows.length : 0;
   const safePageSize = Math.max(1, Number(pageSize) || 6);
   const totalPages = Math.max(1, Math.ceil(totalItems / safePageSize));
   const safePage = Math.min(Math.max(1, page), totalPages);
@@ -58,9 +26,10 @@ const NurseReportsClassTable = ({
   }, [onPageChange, page, safePage]);
 
   const pagedRows = useMemo(() => {
+    const safeRows = Array.isArray(rows) ? rows : [];
     const start = (safePage - 1) * safePageSize;
-    return filteredRows.slice(start, start + safePageSize);
-  }, [filteredRows, safePage, safePageSize]);
+    return safeRows.slice(start, start + safePageSize);
+  }, [rows, safePage, safePageSize]);
 
   const columns = useMemo(() => ([
     {
@@ -99,15 +68,15 @@ const NurseReportsClassTable = ({
     },
     {
       key: 'medicineDispenseCount',
-      header: 'Số lượng thuốc cấp',
-      headerClassName: 'w-[132px] text-right',
+      header: 'Thuốc cấp',
+      headerClassName: 'w-[100px] text-right',
       cellClassName: 'text-right text-sm text-on-surface-variant',
       render: (row) => row.medicineDispenseCount,
     },
     {
       key: 'vaccinationRateLabel',
-      header: 'Tỷ lệ tiêm chủng',
-      headerClassName: 'w-[132px] text-right',
+      header: 'Tiêm chủng',
+      headerClassName: 'w-[100px] text-right',
       cellClassName: 'text-right text-sm font-semibold text-on-surface',
       render: (row) => row.vaccinationRateLabel,
     },
@@ -122,71 +91,29 @@ const NurseReportsClassTable = ({
   return (
     <SectionCard
       title="Theo dõi theo lớp học"
-      subtitle="Tra cứu nhanh theo lớp, trạng thái và xuất báo cáo."
       className="app-card-shell rounded-xl p-0"
       headerClassName="mb-0 flex flex-col gap-2 px-4 pt-3.5 md:flex-row md:items-center md:justify-between"
       titleClassName="app-section-title"
       subtitleClassName="app-meta-text mt-0.5"
       actions={(
-        <div className="flex overflow-hidden rounded-xl border border-outline-variant" title={exportDisabled ? exportDisabledMessage : undefined}>
-          <button
-            type="button"
-            onClick={() => onExport('pdf')}
-            disabled={exporting || exportDisabled || !filteredRows.length}
-            className="app-focus-ring inline-flex items-center gap-1.5 bg-surface-container-lowest px-2.5 py-2 text-xs font-semibold text-on-surface-variant transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <span className={`material-symbols-outlined text-[17px] ${exportingFormat === 'pdf' ? 'animate-spin' : ''}`}>
-              {exportingFormat === 'pdf' ? 'progress_activity' : 'picture_as_pdf'}
-            </span>
-            PDF
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onExport('xlsx')}
-            disabled={exporting || exportDisabled || !filteredRows.length}
-            className="app-focus-ring inline-flex items-center gap-1.5 border-l border-outline-variant bg-primary px-2.5 py-2 text-xs font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <span className={`material-symbols-outlined text-[17px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
-              {exportingFormat === 'xlsx' ? 'progress_activity' : 'file_download'}
-            </span>
-            Excel
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onExport('xlsx')}
+          disabled={exporting || !totalItems}
+          className="app-focus-ring inline-flex items-center gap-1.5 rounded-xl border border-outline-variant bg-primary px-2.5 py-2 text-xs font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <span className={`material-symbols-outlined text-[17px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
+            {exportingFormat === 'xlsx' ? 'progress_activity' : 'file_download'}
+          </span>
+          Excel
+        </button>
       )}
     >
       <div className="space-y-2.5 p-4 pt-3">
-        <p className="app-overline">Bảng dữ liệu chốt báo cáo</p>
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div className="flex w-full flex-col gap-2 md:flex-row md:items-center">
-            <label className="relative w-full md:max-w-[360px]">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-              <input
-                type="search"
-                value={searchValue}
-                onChange={(event) => onSearchValueChange(event.target.value)}
-                placeholder="Tìm theo lớp hoặc khối"
-                className="app-focus-ring app-input h-10 w-full rounded-xl pl-9 pr-3"
-              />
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(event) => onStatusFilterChange(event.target.value)}
-              className="app-input app-focus-ring h-10 rounded-xl px-3 md:w-[210px]"
-            >
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {!filteredRows.length ? (
+        {!totalItems ? (
           <EmptyState
-            title="Không có lớp phù hợp"
-            description="Hãy thử thay đổi từ khóa hoặc bộ lọc trạng thái."
+            title="Không có dữ liệu lớp học"
+            description="Bộ lọc hiện tại chưa có bản ghi phù hợp."
           />
         ) : (
           <>

@@ -11,12 +11,10 @@
   background:
     radial-gradient(560px 220px at 14% -12%, color-mix(in srgb, var(--app-surface) 54%, transparent), transparent 72%),
     radial-gradient(460px 250px at 108% 0%, color-mix(in srgb, var(--app-info) 13%, transparent), transparent 62%),
-    linear-gradient(
-      126deg,
+    linear-gradient(126deg,
       color-mix(in srgb, var(--app-primary-soft) 66%, var(--app-surface)) 0%,
       color-mix(in srgb, var(--app-info-soft) 62%, var(--app-surface)) 47%,
-      color-mix(in srgb, var(--app-warning-soft) 58%, var(--app-surface)) 100%
-    );
+      color-mix(in srgb, var(--app-warning-soft) 58%, var(--app-surface)) 100%);
 }
 
 .student-overview-hero {
@@ -149,51 +147,6 @@
   background: linear-gradient(180deg, var(--app-surface) 0%, color-mix(in srgb, var(--app-surface-soft) 70%, var(--app-surface)) 100%);
 }
 
-.student-chart-gridline {
-  stroke: color-mix(in srgb, var(--app-text-muted) 30%, transparent);
-}
-
-.student-chart-axis-line {
-  stroke: color-mix(in srgb, var(--app-text-muted) 36%, transparent);
-}
-
-.student-chart-gridline,
-.student-chart-axis-line {
-  stroke-width: 1;
-}
-
-.student-chart-axis-label {
-  fill: var(--app-text-muted);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.student-chart-series-height {
-  --student-chart-color: var(--app-primary);
-}
-
-.student-chart-series-weight {
-  --student-chart-color: var(--app-info);
-}
-
-.student-chart-area {
-  fill: color-mix(in srgb, var(--student-chart-color, var(--app-primary)) 17%, transparent);
-}
-
-.student-chart-line {
-  fill: none;
-  stroke: var(--student-chart-color, var(--app-primary));
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3;
-}
-
-.student-chart-dot {
-  fill: var(--student-chart-color, var(--app-primary));
-  stroke: var(--sys-on-primary);
-  stroke-width: 2;
-}
-
 .student-health-pill {
   border: 1px solid color-mix(in srgb, var(--app-border-strong) 64%, var(--app-border));
   border-radius: 0.8rem;
@@ -234,11 +187,9 @@
 
 .student-list-item-active {
   border-color: color-mix(in srgb, var(--app-primary) 42%, var(--app-border));
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--app-primary-soft) 82%, var(--app-surface)) 0%,
-    color-mix(in srgb, var(--app-info-soft) 62%, var(--app-surface)) 100%
-  );
+  background: linear-gradient(135deg,
+      color-mix(in srgb, var(--app-primary-soft) 82%, var(--app-surface)) 0%,
+      color-mix(in srgb, var(--app-info-soft) 62%, var(--app-surface)) 100%);
   box-shadow: var(--sys-shadow-card);
 }
 
@@ -248,9 +199,7 @@
 }
 
 .student-drawer-header {
-  background: linear-gradient(
-    140deg,
-    color-mix(in srgb, var(--app-primary-soft) 82%, var(--app-surface)) 0%,
-    color-mix(in srgb, var(--app-info-soft) 60%, var(--app-surface)) 100%
-  );
+  background: linear-gradient(140deg,
+      color-mix(in srgb, var(--app-primary-soft) 82%, var(--app-surface)) 0%,
+      color-mix(in srgb, var(--app-info-soft) 60%, var(--app-surface)) 100%);
 }

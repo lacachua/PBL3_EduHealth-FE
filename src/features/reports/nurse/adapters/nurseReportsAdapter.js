@@ -2,36 +2,36 @@
 import { nurseReportFilterOptions } from '../config/nurseReportFilterOptions';
 
 const STATUS_META = {
-  stable: { label: 'á»”n Ä‘á»‹nh', tone: 'success' },
-  watch: { label: 'Cáº§n theo dÃµi', tone: 'warning' },
-  unknown: { label: 'ChÆ°a Ä‘á»§ dá»¯ liá»‡u', tone: 'neutral' },
+  stable: { label: 'Ổn định', tone: 'success' },
+  watch: { label: 'Cần theo dõi', tone: 'warning' },
+  unknown: { label: 'Chưa đủ dữ liệu', tone: 'neutral' },
 };
 
 const KPI_META = {
   students: {
     id: 'managed-students',
-    title: 'Há»c sinh quáº£n lÃ½',
+    title: 'Học sinh quản lý',
     icon: 'groups',
     valueClassName: 'text-on-surface',
     chipClassName: 'border-success/25 bg-success-soft text-success',
   },
   examinations: {
     id: 'total-examinations',
-    title: 'LÆ°á»£t khÃ¡m',
+    title: 'Lượt khám',
     icon: 'clinical_notes',
     valueClassName: 'text-info',
     chipClassName: 'border-info/25 bg-info-soft text-info',
   },
   medicines: {
     id: 'medicine-dispenses',
-    title: 'LÆ°á»£t cáº¥p thuá»‘c',
+    title: 'Lượt cấp thuốc',
     icon: 'medication',
     valueClassName: 'text-danger',
     chipClassName: 'border-danger/25 bg-danger-soft text-danger',
   },
   vaccination: {
     id: 'vaccination-rate',
-    title: 'Tá»· lá»‡ tiÃªm chá»§ng TB',
+    title: 'Tỷ lệ tiêm chủng TB',
     icon: 'vaccines',
     valueClassName: 'text-warning',
     chipClassName: 'border-warning/25 bg-warning-soft text-warning',
@@ -40,18 +40,18 @@ const KPI_META = {
 
 const EMPTY_MODEL = {
   header: {
-    title: 'BÃ¡o cÃ¡o y táº¿ tá»•ng há»£p',
-    description: 'PhÃ¢n tÃ­ch tÃ¬nh hÃ¬nh sá»©c khá»e há»c sinh vÃ  hoáº¡t Ä‘á»™ng y táº¿ theo lá»›p há»c.',
+    title: 'Báo cáo y tế tổng hợp',
+    description: 'Phân tích tình hình sức khỏe học sinh và hoạt động y tế theo lớp học.',
   },
   source: 'live',
   sourceNote: '',
   generatedAt: null,
   generatedAtLabel: '--',
-  reportPeriodLabel: 'Thá»i gian bÃ¡o cÃ¡o: --',
-  filterSummaryLabel: 'Bá»™ lá»c: Tá»•ng há»£p, táº¥t cáº£ khá»‘i, táº¥t cáº£ lá»›p',
+  reportPeriodLabel: 'Thời gian báo cáo: --',
+  filterSummaryLabel: 'Bộ lọc: Tổng hợp, tất cả khối, tất cả lớp',
   appliedFilters: {},
   filterOptions: {
-    classOptions: [{ value: 'all', label: 'Táº¥t cáº£ lá»›p' }],
+    classOptions: [{ value: 'all', label: 'Tất cả lớp' }],
   },
   summaryCards: [],
   trend: {
@@ -70,14 +70,27 @@ const EMPTY_MODEL = {
 };
 
 const DISEASE_COLORS = [
-  'var(--success)',
-  'var(--warning)',
-  'var(--danger)',
-  'var(--info)',
-  'var(--primary)',
+  'var(--app-success)',
+  'var(--app-warning)',
+  'var(--app-danger)',
+  'var(--app-info)',
+  'var(--app-primary)',
 ];
 
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
+
+const normalizeAlertMessage = (message) => {
+  if (!message || typeof message !== 'string') {
+    return message;
+  }
+
+  return message
+    .replace(/\bDONE\b/g, 'hoàn thành')
+    .replace(/\bPENDING\b/g, 'chưa hoàn thành')
+    .replace(/\bACTIVE\b/g, 'đang hoạt động')
+    .replace(/\bINACTIVE\b/g, 'ngưng hoạt động')
+    .replace(/chưa đạt hoàn thành/g, 'chưa hoàn thành');
+};
 
 const toPositiveNumber = (value) => {
   const parsed = Number(value);
@@ -99,7 +112,7 @@ export const formatNurseReportDateTime = (value) => {
 const toPercentageLabel = (value) => `${toPositiveNumber(value)}%`;
 
 const findOptionLabel = (options, value, fallback) => {
-  if (value === 'examination') return 'KhÃ¡m bá»‡nh';
+  if (value === 'examination') return 'Khám bệnh';
   return options.find((option) => option.value === value)?.label || fallback;
 };
 
@@ -147,16 +160,16 @@ const buildReportPeriodLabel = ({ filters = {}, generatedAt }) => {
   const safeStart = Number.isNaN(start.getTime()) ? startOfDay(safeEnd) : start;
   const safeToDate = Number.isNaN(toDate.getTime()) ? safeEnd : toDate;
 
-  return `Thá»i gian bÃ¡o cÃ¡o: ${formatNurseReportDateTime(safeStart)} - ${formatNurseReportDateTime(safeToDate)}`;
+  return `Thời gian báo cáo: ${formatNurseReportDateTime(safeStart)} - ${formatNurseReportDateTime(safeToDate)}`;
 };
 
 const buildFilterSummary = ({ filters = {}, classOptions = [] }) => {
   const timeRange = normalizeTimeRange(filters.timeRange);
-  const timeLabel = findOptionLabel(nurseReportFilterOptions.timeRanges, timeRange, 'ThÃ¡ng nÃ y');
-  const reportTypeLabel = findOptionLabel(nurseReportFilterOptions.reportTypes, filters.reportType, 'Tá»•ng há»£p');
-  const gradeLabel = findOptionLabel(nurseReportFilterOptions.grades, filters.grade, 'Táº¥t cáº£ khá»‘i');
-  const classLabel = findOptionLabel(classOptions, filters.classId, 'Táº¥t cáº£ lá»›p');
-  return `Bá»™ lá»c: ${timeLabel}, ${reportTypeLabel}, ${gradeLabel}, ${classLabel}`;
+  const timeLabel = findOptionLabel(nurseReportFilterOptions.timeRanges, timeRange, 'Tháng này');
+  const reportTypeLabel = findOptionLabel(nurseReportFilterOptions.reportTypes, filters.reportType, 'Tổng hợp');
+  const gradeLabel = findOptionLabel(nurseReportFilterOptions.grades, filters.grade, 'Tất cả khối');
+  const classLabel = findOptionLabel(classOptions, filters.classId, 'Tất cả lớp');
+  return `Bộ lọc: ${timeLabel}, ${reportTypeLabel}, ${gradeLabel}, ${classLabel}`;
 };
 
 const calculateSummary = (data) => {
@@ -181,30 +194,22 @@ const buildSummaryCardsFromDto = (data) => {
     {
       ...KPI_META.students,
       value: `${summary.studentCount}`,
-      hint: `${summary.classCount} lá»›p há»c`,
-      badge: 'ÄÃ£ Ä‘á»“ng bá»™',
-      badgeTone: 'positive',
+      hint: `${summary.classCount} lớp học`,
     },
     {
       ...KPI_META.examinations,
       value: `${summary.examinationCount}`,
-      hint: `${summary.trackingCount} há»c sinh Ä‘ang theo dÃµi`,
-      badge: 'Theo bá»™ lá»c',
-      badgeTone: 'neutral',
+      hint: `${summary.trackingCount} đang theo dõi`,
     },
     {
       ...KPI_META.medicines,
       value: `${summary.medicineDispenseCount}`,
-      hint: 'Sá»‘ lÆ°á»£ng thuá»‘c Ä‘Ã£ cáº¥p trong ká»³',
-      badge: 'Theo bá»™ lá»c',
-      badgeTone: 'neutral',
+      hint: 'Cấp trong kỳ',
     },
     {
       ...KPI_META.vaccination,
       value: `${summary.vaccinationRate}%`,
-      hint: 'Trung bÃ¬nh theo lá»›p há»c',
-      badge: summary.vaccinationRate >= 80 ? 'á»”n Ä‘á»‹nh' : 'Cáº§n theo dÃµi',
-      badgeTone: summary.vaccinationRate >= 80 ? 'positive' : 'negative',
+      hint: 'TB theo lớp',
       progress: summary.vaccinationRate,
     },
   ];
@@ -213,7 +218,7 @@ const buildSummaryCardsFromDto = (data) => {
 const mapTrend = (trendRows) => {
   const items = trendRows.map((item, index) => ({
     id: item.id || `trend-${index + 1}`,
-    label: item.label || `Tuáº§n ${index + 1}`,
+    label: item.label || `Tuần ${index + 1}`,
     value: toPositiveNumber(item.value),
   }));
 
@@ -228,7 +233,7 @@ const mapTrend = (trendRows) => {
 const mapDiseaseBreakdown = (rows) => {
   const items = rows.map((item, index) => ({
     id: item.id || `disease-${index + 1}`,
-    label: item.label || 'ChÆ°a phÃ¢n loáº¡i',
+    label: item.label || 'Chưa phân loại',
     count: toPositiveNumber(item.count),
     color: DISEASE_COLORS[index % DISEASE_COLORS.length],
   }));
@@ -246,13 +251,13 @@ const mapDiseaseBreakdown = (rows) => {
 const mapTopMedicines = (rows) => {
   return rows.map((item, index) => ({
     id: item.id || `medicine-${index + 1}`,
-    name: item.name || 'ChÆ°a rÃµ tÃªn thuá»‘c',
-    category: item.category || 'ChÆ°a phÃ¢n loáº¡i',
+    name: item.name || 'Chưa rõ tên thuốc',
+    category: item.category || 'Chưa phân loại',
     usedQuantity: toPositiveNumber(item.usedQuantity),
     deltaPercent: Number(item.deltaPercent || 0),
     trend: item.trend || 'stable',
     stockStatus: item.stockStatus || 'normal',
-    stockLabel: item.stockStatus === 'low' ? 'Tá»“n kho tháº¥p' : 'á»”n Ä‘á»‹nh',
+    stockLabel: item.stockStatus === 'low' ? 'Tồn kho thấp' : 'Ổn định',
   }));
 };
 
@@ -260,9 +265,9 @@ const mapAlerts = (rows) => {
   return rows.map((item, index) => ({
     id: item.id || `alert-${index + 1}`,
     tone: item.tone || 'info',
-    title: item.title || 'Cáº§n rÃ  soÃ¡t dá»¯ liá»‡u',
-    message: item.message || 'ChÆ°a cÃ³ mÃ´ táº£ chi tiáº¿t.',
-    timeLabel: item.timeLabel || 'Trong ká»³ bÃ¡o cÃ¡o',
+    title: normalizeAlertMessage(item.title) || 'Cần rà soát dữ liệu',
+    message: normalizeAlertMessage(item.message) || 'Chưa có mô tả chi tiết.',
+    timeLabel: item.timeLabel || 'Trong kỳ báo cáo',
   }));
 };
 
@@ -298,9 +303,9 @@ const mapClassRows = (rows) => {
 
     return {
       id: row.id || `class-${index + 1}`,
-      className: row.className || 'ChÆ°a rÃµ lá»›p',
+      className: row.className || 'Chưa rõ lớp',
       grade: row.grade || 'all',
-      gradeLabel: row.gradeLabel || 'ChÆ°a rÃµ khá»‘i',
+      gradeLabel: row.gradeLabel || 'Chưa rõ khối',
       studentCount: toPositiveNumber(row.studentCount),
       examinationCount: toPositiveNumber(row.examinationCount),
       trackingCount: toPositiveNumber(row.trackingCount),
@@ -338,7 +343,7 @@ export const adaptNurseReportsDashboardResponse = (payload, filters = {}) => {
   const envelope = normalizeApiEnvelope(payload);
 
   if (!envelope || envelope.success === false) {
-    throw new Error(envelope?.message || 'KhÃ´ng thá»ƒ táº£i bÃ¡o cÃ¡o y táº¿ tá»•ng há»£p.');
+    throw new Error(envelope?.message || 'Không thể tải báo cáo y tế tổng hợp.');
   }
 
   const data = envelope.data || {};
@@ -353,7 +358,7 @@ export const adaptNurseReportsDashboardResponse = (payload, filters = {}) => {
   };
   const classOptions = ensureArray(data.filterOptions?.classOptions).map((option) => ({
     value: option.value,
-    label: option.value === 'all' ? 'Táº¥t cáº£ lá»›p' : option.label,
+    label: option.value === 'all' ? 'Tất cả lớp' : option.label,
   }));
   const resolvedClassOptions = classOptions.length ? classOptions : EMPTY_MODEL.filterOptions.classOptions;
   const generatedAt = data.generatedAt || null;
