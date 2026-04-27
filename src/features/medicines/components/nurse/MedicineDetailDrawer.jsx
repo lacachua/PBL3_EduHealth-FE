@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import NurseDrawerShell from '../../../../shared/components/nurse/NurseDrawerShell';
 import MedicineMovementTable from './MedicineMovementTable';
 

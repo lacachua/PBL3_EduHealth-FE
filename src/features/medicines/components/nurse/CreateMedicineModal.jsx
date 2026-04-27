@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MEDICINE_UNIT_OPTIONS } from '../../constants/nurseMedicineConstants';
 import InventoryActionModal from './InventoryActionModal';
 

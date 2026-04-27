@@ -1,14 +1,5 @@
 import { validatePhoneNumber, PHONE_VALIDATION_MESSAGE } from '../../../shared/utils/phoneValidation';
 
-const USER_ENDPOINTS_SINGLETON = Object.freeze({
-  list: '/api/v1/users',
-  detail: (userId) => `/api/v1/users/${userId}`,
-  status: (userId) => `/api/v1/users/${userId}/status`,
-  resetPassword: (userId) => `/api/v1/users/${userId}/reset-password`,
-});
-
-export const USER_ENDPOINTS = USER_ENDPOINTS_SINGLETON;
-
 export const USER_ROLES = {
   ADMIN: 'ADMIN',
   NURSE: 'NURSE',
@@ -124,25 +115,3 @@ export const toStatusValue = (isActive) => (isActive ? USER_STATUSES.ACTIVE : US
 
 export const toIsActive = (status) => status === USER_STATUSES.ACTIVE;
 
-export const buildCreateUserPayload = (values) => ({
-  username: values.username?.trim(),
-  password: values.password?.trim(),
-  fullName: values.fullName?.trim(),
-  email: values.email?.trim(),
-  phoneNumber: values.phoneNumber?.trim() || '',
-  role: USER_ROLES.NURSE,
-});
-
-export const buildUpdateUserPayload = (values) => ({
-  fullName: values.fullName?.trim(),
-  email: values.email?.trim(),
-  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : { phoneNumber: null }),
-});
-
-export const buildStatusPayload = ({ status, reason }) => {
-  const payload = { status };
-  if (reason?.trim()) {
-    payload.reason = reason.trim();
-  }
-  return payload;
-};

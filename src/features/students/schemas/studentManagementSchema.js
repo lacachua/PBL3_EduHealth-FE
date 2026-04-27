@@ -22,14 +22,6 @@ export const STUDENT_FILTER_DEFAULTS = {
 
 export const STUDENT_PAGE_SIZE = 10;
 
-const STUDENT_ENDPOINTS_SINGLETON = Object.freeze({
-  list: '/api/v1/students',
-  detail: (studentId) => `/api/v1/students/${studentId}`,
-  healthProfile: (studentId) => `/api/v1/students/${studentId}/health-profile`,
-});
-
-export const STUDENT_ENDPOINTS = STUDENT_ENDPOINTS_SINGLETON;
-
 export const STUDENT_BASIC_EDITABLE_FIELDS = [
   'fullName',
   'dateOfBirth',
@@ -49,25 +41,6 @@ export const STUDENT_HEALTH_EDITABLE_FIELDS = [
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // REMOVED: phoneRegex - now using centralized validation from shared utils
-
-export const buildStudentBasicPatchPayload = (values = {}) => ({
-  fullName: values.fullName?.trim() || '',
-  dateOfBirth: values.dateOfBirth || null,
-  gender: values.gender || null,
-  classId: values.classId ? Number(values.classId) : null,
-  email: values.email?.trim() || '',
-  ...(values.phoneNumber?.trim() ? { phone: values.phoneNumber.trim() } : { phone: null }),
-});
-
-export const buildStudentHealthPatchPayload = (values = {}) => ({
-  ...(values.heightCm === '' || values.heightCm === null || values.heightCm === undefined ? { currentHeight: null } : { currentHeight: Number(values.heightCm) }),
-  ...(values.weightKg === '' || values.weightKg === null || values.weightKg === undefined ? { currentWeight: null } : { currentWeight: Number(values.weightKg) }),
-  medicalHistoryNotes: [
-    values.eyeStatus?.trim() ? `Tình trạng mắt: ${values.eyeStatus.trim()}` : null,
-    values.chronicNote?.trim() ? `Ghi chú bệnh mãn tính: ${values.chronicNote.trim()}` : null,
-    values.allergies?.trim() ? `Dị ứng: ${values.allergies.trim()}` : null,
-  ].filter(Boolean).join('\n') || null,
-});
 
 export const validateStudentBasicForm = (values = {}) => {
   const errors = {};

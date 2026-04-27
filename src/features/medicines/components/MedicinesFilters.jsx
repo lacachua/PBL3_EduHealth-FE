@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchInput from '../../../shared/components/core/SearchInput';
-import { MEDICINE_STATUS_OPTIONS } from '../schemas/medicinesSchema';
+import { MEDICINE_STATUS_OPTIONS } from '../constants/nurseMedicineConstants';
 
 const MedicinesFilters = ({ initialValue, onApply, onReset, onRefresh }) => {
   const [draft, setDraft] = useState(initialValue);

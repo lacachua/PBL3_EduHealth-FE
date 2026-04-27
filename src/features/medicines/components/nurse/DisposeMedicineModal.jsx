@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DISPOSE_REASON_OPTIONS } from '../../constants/nurseMedicineConstants';
 import InventoryActionModal from './InventoryActionModal';
 

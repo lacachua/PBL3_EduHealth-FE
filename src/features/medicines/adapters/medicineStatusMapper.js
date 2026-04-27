@@ -1,6 +1,6 @@
 const STATUS_LABELS = {
-  ACTIVE: 'Hoạt động',
-  INACTIVE: 'Ngưng dùng',
+  ACTIVE: 'Đang sử dụng',
+  INACTIVE: 'Ngưng sử dụng',
 };
 
 const STATUS_TONES = {
@@ -10,14 +10,14 @@ const STATUS_TONES = {
 
 const ALERT_TONES = {
   none: 'neutral',
-  low_stock: 'warning',
-  expiring: 'info',
+  lowStock: 'warning',
+  expiring: 'danger',
   mixed: 'danger',
 };
 
 const ALERT_LABELS = {
   none: 'Ổn định',
-  low_stock: 'Sắp hết',
+  lowStock: 'Sắp hết',
   expiring: 'Sắp hết hạn',
   mixed: 'Sắp hết và sắp hết hạn',
 };
@@ -27,7 +27,7 @@ export const mapMedicineStatusTone = (status) => STATUS_TONES[status] || 'neutra
 
 export const mapMedicineAlertKey = (isLowStock, isExpiringSoon) => {
   if (isLowStock && isExpiringSoon) return 'mixed';
-  if (isLowStock) return 'low_stock';
+  if (isLowStock) return 'lowStock';
   if (isExpiringSoon) return 'expiring';
   return 'none';
 };

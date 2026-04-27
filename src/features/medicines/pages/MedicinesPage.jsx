@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate } from 'react-router-dom';
 import ErrorState from '../../../shared/components/core/ErrorState';
 import ForbiddenState from '../../../shared/components/admin/ForbiddenState';

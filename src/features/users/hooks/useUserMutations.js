@@ -7,12 +7,14 @@ import {
     updateUser,
 } from '../services/userManagementApi';
 import {
-    buildCreateUserPayload,
-    buildStatusPayload,
-    buildUpdateUserPayload,
     USER_STATUSES,
     validateUserForm,
 } from '../schemas/userManagementSchema';
+import {
+    buildCreateUserPayload,
+    buildStatusPayload,
+    buildUpdateUserPayload,
+} from '../adapters/userManagementAdapter';
 
 const autoDismissDelay = 2600;
 

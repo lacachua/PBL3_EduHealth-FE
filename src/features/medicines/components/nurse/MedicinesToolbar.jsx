@@ -1,4 +1,3 @@
-import React from 'react';
 import SearchInput from '../../../../shared/components/core/SearchInput';
 import { MEDICINE_STATUS_OPTIONS } from '../../constants/nurseMedicineConstants';
 

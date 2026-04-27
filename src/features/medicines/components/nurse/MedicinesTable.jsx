@@ -1,5 +1,3 @@
-import React from 'react';
-
 const MedicinesTable = ({ rows, loading, error, onRetry, onView }) => {
   if (loading) {
     return <p className="app-panel-shell px-3 py-4 text-sm text-on-surface-variant">Đang tải danh mục thuốc...</p>;

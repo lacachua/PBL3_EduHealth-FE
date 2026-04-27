@@ -1,4 +1,5 @@
 import { apiGetEnvelope, apiRequestRaw } from '../../../../shared/api/apiClient';
+import { NURSE_REPORTS_ENDPOINTS } from '../config/nurseReportsApiContract';
 
 const toIsoString = (date) => date.toISOString();
 
@@ -69,7 +70,7 @@ const extractFilenameFromContentDisposition = (contentDisposition) => {
 
 export const nurseReportsRepository = {
   getDashboard: async (filters = {}) => {
-    return apiGetEnvelope('/api/v1/reports/nurse/dashboard', {
+    return apiGetEnvelope(NURSE_REPORTS_ENDPOINTS.dashboard, {
       params: sanitizeFilters(filters),
     });
   },
@@ -78,7 +79,7 @@ export const nurseReportsRepository = {
     const normalizedFormat = String(format || 'xlsx').trim().toLowerCase();
     const response = await apiRequestRaw({
       method: 'get',
-      url: '/api/v1/reports/nurse/export',
+      url: NURSE_REPORTS_ENDPOINTS.export,
       params: {
         ...sanitizeFilters(filters),
         format: normalizedFormat,

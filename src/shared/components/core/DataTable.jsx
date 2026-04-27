@@ -1,5 +1,3 @@
-import React from 'react';
-
 const DataTable = ({
   columns,
   rows,
@@ -62,28 +60,27 @@ const DataTable = ({
               onClick={
                 onRowClick
                   ? (event) => {
-                      if (shouldIgnoreRowClick(event)) return;
-                      onRowClick(row, index);
-                    }
+                    if (shouldIgnoreRowClick(event)) return;
+                    onRowClick(row, index);
+                  }
                   : undefined
               }
               onKeyDown={
                 onRowClick
                   ? (event) => {
-                      if (event.target !== event.currentTarget) return;
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        onRowClick(row, index);
-                      }
+                    if (event.target !== event.currentTarget) return;
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onRowClick(row, index);
                     }
+                  }
                   : undefined
               }
               role={onRowClick ? 'button' : undefined}
               tabIndex={onRowClick ? 0 : undefined}
-              className={`${
-                rowClassName ||
+              className={`${rowClassName ||
                 'group app-interactive cursor-pointer hover:bg-surface-container-low'
-              } ${onRowClick ? 'cursor-pointer' : ''}`}
+                } ${onRowClick ? 'cursor-pointer' : ''}`}
             >
               {columns.map((column) => (
                 <td

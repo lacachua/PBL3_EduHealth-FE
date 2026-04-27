@@ -1,6 +1,4 @@
-﻿import React from 'react';
-
-const buildPageTokens = (currentPage, totalPages) => {
+﻿const buildPageTokens = (currentPage, totalPages) => {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
@@ -73,11 +71,10 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
                 key={token}
                 type="button"
                 onClick={() => onPageChange(token)}
-                className={`${pageButtonClassName} ${
-                  isActive
+                className={`${pageButtonClassName} ${isActive
                     ? 'border border-primary/25 bg-primary-soft text-primary'
                     : 'border border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-                }`}
+                  }`}
               >
                 {token}
               </button>

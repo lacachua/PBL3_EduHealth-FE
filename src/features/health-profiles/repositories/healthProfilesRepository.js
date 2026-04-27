@@ -8,6 +8,7 @@ import {
   getNurseHealthStudentDetailMockEnvelope,
 } from '../mocks/nurseHealthProfileDetailMock';
 import { getNurseHealthProfileSupplementaryMock } from '../mocks/nurseHealthProfileSupplementaryMock';
+import { HEALTH_PROFILES_ENDPOINTS } from '../constants/healthProfilesApiContract';
 
 const toPositiveNumber = (value, fallback) => {
   const parsed = Number(value);
@@ -28,19 +29,19 @@ const buildMockEnvelope = ({
 
 const shouldUseMock = (moduleKey) => resolveModuleDataSource(moduleKey) === 'mock';
 
-const getHealthProfileLive = async (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}/health-profile`);
+const getHealthProfileLive = async (studentId) => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.studentHealthProfile(studentId));
 const getHealthProfileMock = async (studentId) => {
   await waitForMock('adminDashboard');
   return getNurseHealthProfileMockEnvelope(studentId);
 };
 
-const getDetailLive = async (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}`);
+const getDetailLive = async (studentId) => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.studentDetail(studentId));
 const getDetailMock = async (studentId) => {
   await waitForMock('adminDashboard');
   return getNurseHealthStudentDetailMockEnvelope(studentId);
 };
 
-const updateHealthProfileLive = async (studentId, payload) => apiPatchEnvelope(`/api/v1/students/${studentId}/health-profile`, payload);
+const updateHealthProfileLive = async (studentId, payload) => apiPatchEnvelope(HEALTH_PROFILES_ENDPOINTS.studentHealthProfile(studentId), payload);
 const updateHealthProfileMock = async (studentId, payload) => {
   await waitForMock('adminDashboard');
   return buildMockEnvelope({
@@ -53,13 +54,13 @@ const updateHealthProfileMock = async (studentId, payload) => {
   });
 };
 
-const getHistoryLive = async (studentId, params) => apiGetEnvelope(`/api/v1/students/${studentId}/health-history`, { params });
+const getHistoryLive = async (studentId, params) => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.studentHealthHistory(studentId), { params });
 const getHistoryMock = async (studentId, params) => {
   await waitForMock('adminDashboard');
   return getNurseHealthHistoryMockEnvelope(studentId, params);
 };
 
-const getVaccinationsLive = async (studentId) => apiGetEnvelope(`/api/v1/students/${studentId}/vaccinations`);
+const getVaccinationsLive = async (studentId) => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.studentVaccinations(studentId));
 const getVaccinationsMock = async (studentId) => {
   await waitForMock('adminDashboard');
   const supplementary = getNurseHealthProfileSupplementaryMock(studentId);
@@ -70,7 +71,7 @@ const getVaccinationsMock = async (studentId) => {
   });
 };
 
-const getAllergyTypesLive = async () => apiGetEnvelope('/api/v1/students/allergy-types');
+const getAllergyTypesLive = async () => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.allergyTypes);
 const getAllergyTypesMock = async () => {
   await waitForMock('adminDashboard');
   return buildMockEnvelope({
@@ -84,7 +85,7 @@ const getAllergyTypesMock = async () => {
   });
 };
 
-const getStudentsLookupLive = async (params) => apiGetEnvelope('/api/v1/students', { params });
+const getStudentsLookupLive = async (params) => apiGetEnvelope(HEALTH_PROFILES_ENDPOINTS.studentsLookup, { params });
 const getStudentsLookupMock = async (params) => {
   await waitForMock('adminDashboard');
 

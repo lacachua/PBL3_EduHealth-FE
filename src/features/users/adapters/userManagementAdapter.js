@@ -1,6 +1,6 @@
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 import { formatDateTime } from '../../../shared/utils/dateFormat';
-import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP } from '../schemas/userManagementSchema';
+import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP, USER_ROLES } from '../schemas/userManagementSchema';
 
 import { normalizeAccountStatus } from '../../../shared/utils/statusHelper';
 
@@ -64,4 +64,27 @@ export const adaptUserDetailResponse = (payload) => {
   }
 
   return adaptUserRow(item);
+};
+
+export const buildCreateUserPayload = (values) => ({
+  username: values.username?.trim(),
+  password: values.password?.trim(),
+  fullName: values.fullName?.trim(),
+  email: values.email?.trim(),
+  phoneNumber: values.phoneNumber?.trim() || '',
+  role: USER_ROLES.NURSE,
+});
+
+export const buildUpdateUserPayload = (values) => ({
+  fullName: values.fullName?.trim(),
+  email: values.email?.trim(),
+  ...(values.phoneNumber?.trim() ? { phoneNumber: values.phoneNumber.trim() } : { phoneNumber: null }),
+});
+
+export const buildStatusPayload = ({ status, reason }) => {
+  const payload = { status };
+  if (reason?.trim()) {
+    payload.reason = reason.trim();
+  }
+  return payload;
 };
