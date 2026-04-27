@@ -20,7 +20,7 @@ import VaccinationStudentsTable from '../components/VaccinationStudentsTable';
 import VaccinationStudentsToolbar from '../components/VaccinationStudentsToolbar';
 import {
   CAMPAIGN_STUDENT_FILTER_DEFAULTS,
-} from '../schemas/vaccinationSchema';
+} from '../constants/vaccinationConstants';
 import {
   getPendingVaccinationsApi,
   getStudentVaccinationHistoryApi,

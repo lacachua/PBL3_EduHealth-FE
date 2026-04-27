@@ -1,6 +1,6 @@
 import React from 'react';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
-import { ROLE_TONE_MAP } from '../schemas/userManagementSchema';
+import { ROLE_TONE_MAP } from '../constants/userManagementConstants';
 
 const RoleBadge = ({ role, label }) => (
   <StatusBadge tone={ROLE_TONE_MAP[role] || 'neutral'}>

@@ -4,7 +4,7 @@ import RightDrawer from '../../../shared/components/core/RightDrawer';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
 import RetryState from '../../../shared/components/form/RetryState';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
-import { STATUS_TONE_MAP } from '../schemas/userManagementSchema';
+import { STATUS_TONE_MAP } from '../constants/userManagementConstants';
 import RoleBadge from './RoleBadge';
 
 const infoRowClass = 'grid grid-cols-[145px_1fr] gap-x-3 gap-y-1.5 py-1.5 text-sm';

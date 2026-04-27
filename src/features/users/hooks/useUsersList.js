@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { adaptUserListResponse } from '../adapters/userManagementAdapter';
 import { getUsers } from '../services/userManagementApi';
-import { USER_FILTER_DEFAULTS, USER_PAGE_SIZE } from '../schemas/userManagementSchema';
+import { USER_FILTER_DEFAULTS, USER_PAGE_SIZE } from '../constants/userManagementConstants';
 
 const defaultTableData = {
     rows: [],

@@ -10,7 +10,7 @@ import {
   getNurseStudentHealthHistoryApi,
   getNurseStudentHealthProfileApi,
 } from '../../health-profiles/services/healthProfilesApi';
-import { MEDICINE_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
+import { MEDICINE_PICKER_PAGE_SIZE } from '../constants/examinationConstants';
 import { createExamination } from '../services/createExamination';
 
 const toDateInputValue = (date = new Date()) => {

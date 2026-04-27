@@ -5,7 +5,7 @@ import StatusBadge from '../../../shared/components/core/StatusBadge';
 import EditableField from '../../../shared/components/form/EditableField';
 import ReadonlyField from '../../../shared/components/form/ReadonlyField';
 import { validateUserForm } from '../schemas/userManagementSchema';
-import { STATUS_TONE_MAP } from '../schemas/userManagementSchema';
+import { STATUS_TONE_MAP } from '../constants/userManagementConstants';
 import RoleBadge from './RoleBadge';
 
 const createInitial = (user) => ({

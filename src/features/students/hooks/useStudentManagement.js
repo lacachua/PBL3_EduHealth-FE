@@ -17,7 +17,7 @@ import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
   STUDENT_FILTER_DEFAULTS,
   STUDENT_PAGE_SIZE,
-} from '../schemas/studentManagementSchema';
+} from '../constants/studentManagementConstants';
 
 const defaultTableData = {
   rows: [],

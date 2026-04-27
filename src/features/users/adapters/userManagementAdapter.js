@@ -1,6 +1,6 @@
 import { normalizeApiEnvelope } from '../../../shared/api/normalizeResponse';
 import { formatDateTime } from '../../../shared/utils/dateFormat';
-import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP, USER_ROLES } from '../schemas/userManagementSchema';
+import { ROLE_LABEL_MAP, ROLE_TONE_MAP, STATUS_LABEL_MAP, STATUS_TONE_MAP, USER_ROLES } from '../constants/userManagementConstants';
 
 import { normalizeAccountStatus } from '../../../shared/utils/statusHelper';
 

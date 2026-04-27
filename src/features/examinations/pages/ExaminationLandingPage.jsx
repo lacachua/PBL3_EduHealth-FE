@@ -8,7 +8,7 @@ import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import StudentPickerModal from '../components/StudentPickerModal';
-import { EXAMINATION_PAGE_SIZE } from '../schemas/examinationsSchema';
+import { EXAMINATION_PAGE_SIZE } from '../constants/examinationConstants';
 import { getExaminations } from '../services/getExaminations';
 import { adaptExaminationListResponse } from '../adapters/examinationAdapter';
 

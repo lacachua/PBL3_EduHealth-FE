@@ -1,26 +1,4 @@
-import {
-  VACCINATION_CAMPAIGN_PAGE_SIZE,
-  VACCINATION_PENDING_PAGE_SIZE,
-  VACCINATION_STUDENT_PAGE_SIZE,
-} from '../constants/vaccinationConstants';
 
-export const CAMPAIGN_FILTER_DEFAULTS = {
-  keyword: '',
-  status: 'all',
-  incompleteOnly: false,
-};
-
-export const CAMPAIGN_STUDENT_FILTER_DEFAULTS = {
-  keyword: '',
-  status: 'all',
-};
-
-export const PENDING_FILTER_DEFAULTS = {
-  keyword: '',
-  classId: '',
-  campaignId: '',
-  status: 'all',
-};
 
 export const CREATE_CAMPAIGN_INITIAL_VALUES = {
   name: '',

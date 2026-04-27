@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import DataTable from '../../../shared/components/core/DataTable';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
 import { useAuth } from '../../../app/providers/useAuth';
-import { STATUS_TONE_MAP } from '../schemas/userManagementSchema';
+import { STATUS_TONE_MAP } from '../constants/userManagementConstants';
 import RoleBadge from './RoleBadge';
 import UserActionsMenu from './UserActionsMenu';
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { USER_ROLES, validateUserForm } from '../schemas/userManagementSchema';
+import { USER_ROLES } from '../constants/userManagementConstants';
+import { validateUserForm } from '../schemas/userManagementSchema';
 import EditableField from '../../../shared/components/form/EditableField';
 import ReadonlyField from '../../../shared/components/form/ReadonlyField';
 

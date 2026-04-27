@@ -90,3 +90,20 @@ export const TARGET_TYPE_META = {
   CLASS: 'Theo lớp',
   STUDENT: 'Theo học sinh',
 };
+export const CAMPAIGN_FILTER_DEFAULTS = {
+  keyword: '',
+  status: 'all',
+  incompleteOnly: false,
+};
+
+export const CAMPAIGN_STUDENT_FILTER_DEFAULTS = {
+  keyword: '',
+  status: 'all',
+};
+
+export const PENDING_FILTER_DEFAULTS = {
+  keyword: '',
+  classId: '',
+  campaignId: '',
+  status: 'all',
+};

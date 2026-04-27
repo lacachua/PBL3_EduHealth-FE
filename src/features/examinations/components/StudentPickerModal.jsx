@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import Pagination from '../../../shared/components/core/Pagination';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import { STUDENT_PICKER_PAGE_SIZE } from '../schemas/examinationsSchema';
+import { STUDENT_PICKER_PAGE_SIZE } from '../constants/examinationConstants';
 import {
   getNurseStudentDetailApi,
   getNurseStudentHealthHistoryApi,

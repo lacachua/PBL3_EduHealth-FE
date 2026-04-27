@@ -1,0 +1,3 @@
+export const EXAMINATION_PAGE_SIZE = 10;
+export const STUDENT_PICKER_PAGE_SIZE = 10;
+export const MEDICINE_PICKER_PAGE_SIZE = 100;
