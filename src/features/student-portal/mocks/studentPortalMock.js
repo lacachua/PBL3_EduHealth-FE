@@ -1,5 +1,6 @@
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { getStoredUser } from '../../../shared/services/tokenClient';
+import { PHONE_REGEX } from '../../../shared/utils/phoneValidation';
 import {
   STUDENT_PORTAL_ACCOUNT_BASE,
   STUDENT_PORTAL_CARE_HISTORY_BASE,
@@ -8,8 +9,6 @@ import {
   STUDENT_PORTAL_ROLE_LABELS,
   STUDENT_PORTAL_VACCINATIONS_BASE,
 } from './studentPortalMockData';
-
-const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
 
 const accountOverrides = {
   fullName: '',
@@ -190,7 +189,7 @@ export const updateStudentAccountMock = async (payload = {}) => {
     fieldErrors.fullName = ['Ho va ten khong duoc de trong.'];
   }
 
-  if (phone && !PHONE_PATTERN.test(phone)) {
+  if (phone && !PHONE_REGEX.test(phone)) {
     fieldErrors.phone = ['So dien thoai khong hop le.'];
   }
 

@@ -1,7 +1,6 @@
 
 
 import StatusBadge from '../../../shared/components/core/StatusBadge';
-import { VACCINATION_STATUS_META, CAMPAIGN_STATUS_META } from '../constants/vaccinationConstants';
 
 const statusToToneMap = {
   // Vaccination statuses

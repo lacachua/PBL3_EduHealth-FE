@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
-import { validatePhoneNumber, PHONE_VALIDATION_MESSAGE } from '../../../shared/utils/phoneValidation';
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
 import { useAuth } from '../../../app/providers/useAuth';
 import { currentUserRepository } from '../repositories/currentUserRepository';
 import ProfileField from './ProfileField';
@@ -31,8 +31,6 @@ const variantClassMap = {
     errorText: 'text-xs font-medium text-danger',
   },
 };
-
-const PHONE_PATTERN = /^[0-9+\-\s()]{8,15}$/;
 
 const createFormState = (currentUser) => ({
   fullName: currentUser?.fullName || '',

@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
 import { useAuth } from '../../../app/providers/useAuth';
 import StudentAccountInfoCard from '../components/account/StudentAccountInfoCard';
 import StudentAccountPasswordCard from '../components/account/StudentAccountPasswordCard';
-import StudentAccountProfileCard from '../components/account/StudentAccountProfileCard';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
-import StudentFeedbackToast from '../components/common/StudentFeedbackToast';
+import FeedbackToast from '../../../shared/components/core/FeedbackToast';
+import StudentAccountProfileCard from '../components/account/StudentAccountProfileCard';
 import { studentPortalService } from '../services/studentPortalService';
 import '../styles/student-portal.css';
-
-const PHONE_PATTERN = /^[0-9+\-\s]{9,15}$/;
 
 const createProfileFormState = (profile) => ({
   fullName: profile?.fullName || '',
@@ -30,8 +29,9 @@ const validateProfileForm = (values) => {
   }
 
   const phoneValue = String(values.phone || '').trim();
-  if (phoneValue && !PHONE_PATTERN.test(phoneValue)) {
-    nextErrors.phone = 'Số điện thoại không hợp lệ.';
+  const phoneError = validatePhoneNumber(phoneValue);
+  if (phoneError) {
+    nextErrors.phone = phoneError;
   }
 
   return nextErrors;
@@ -430,7 +430,15 @@ const StudentAccountPage = () => {
         </div>
       </section>
 
-      <StudentFeedbackToast feedback={feedback} onClose={() => setFeedback(null)} />
+      <FeedbackToast
+        feedback={feedback}
+        onClose={() => setFeedback(null)}
+        classMap={{
+          success: 'border-success/35 bg-success-soft text-success',
+          error: 'border-danger/35 bg-danger-soft text-danger',
+          info: 'border-info/35 bg-info-soft text-info',
+        }}
+      />
     </div>
   );
 };

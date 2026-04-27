@@ -9,7 +9,7 @@ import SectionCard from '../../../shared/components/core/SectionCard';
 import TableToolbar from '../../../shared/components/admin/TableToolbar';
 import CatalogDetailDrawer from '../components/CatalogDetailDrawer';
 import CatalogGroupTabs from '../components/CatalogGroupTabs';
-import CatalogLookupEmptyState from '../components/CatalogLookupEmptyState';
+import EmptyState from '../../../shared/components/core/EmptyState';
 import CatalogLookupFilters from '../components/CatalogLookupFilters';
 import CatalogLookupTable from '../components/CatalogLookupTable';
 import { useCatalogDetail } from '../hooks/useCatalogDetail';
@@ -92,7 +92,7 @@ const CatalogLookupPage = () => {
         {accessState === 'forbidden' ? <ForbiddenState message={error} /> : null}
         {status === 'loading' ? <LoadingSpinner label="Đang tải danh mục..." /> : null}
         {status === 'error' ? <ErrorState message={error} onRetry={fetchList} /> : null}
-        {status === 'empty' ? <CatalogLookupEmptyState /> : null}
+        {status === 'empty' ? <EmptyState title="Không tìm thấy dữ liệu phù hợp" description="Chưa có dữ liệu phù hợp với bộ lọc hiện tại." /> : null}
 
         {status === 'success' ? (
           <>
