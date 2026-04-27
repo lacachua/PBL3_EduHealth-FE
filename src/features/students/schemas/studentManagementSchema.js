@@ -1,7 +1,5 @@
 import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// REMOVED: phoneRegex - now using centralized validation from shared utils
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
 
 export const validateStudentBasicForm = (values = {}) => {
   const errors = {};
@@ -24,7 +22,7 @@ export const validateStudentBasicForm = (values = {}) => {
 
   if (!values.email?.trim()) {
     errors.email = 'Vui lòng nhập email';
-  } else if (!emailRegex.test(values.email.trim())) {
+  } else if (!EMAIL_REGEX.test(values.email.trim())) {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 

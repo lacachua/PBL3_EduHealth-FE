@@ -1,6 +1,7 @@
 import { waitForMock } from '../../../shared/config/runtimeConfig';
 import { getStoredUser } from '../../../shared/services/tokenClient';
 import { PHONE_REGEX } from '../../../shared/utils/phoneValidation';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 import {
   STUDENT_PORTAL_ACCOUNT_BASE,
   STUDENT_PORTAL_CARE_HISTORY_BASE,
@@ -255,29 +256,7 @@ export const uploadStudentAvatarMock = async (avatarFile) => {
 export const changeStudentPasswordMock = async (payload = {}) => {
   await waitForMock('studentPortal');
 
-  const oldPassword = String(payload.oldPassword || '').trim();
-  const newPassword = String(payload.newPassword || '').trim();
-  const confirmPassword = String(payload.confirmPassword || '').trim();
-
-  const fieldErrors = {};
-
-  if (!oldPassword) {
-    fieldErrors.oldPassword = ['Vui long nhap mat khau hien tai.'];
-  }
-
-  if (!newPassword) {
-    fieldErrors.newPassword = ['Vui long nhap mat khau moi.'];
-  } else if (newPassword.length < 8) {
-    fieldErrors.newPassword = ['Mat khau moi phai co it nhat 8 ky tu.'];
-  } else if (oldPassword && oldPassword === newPassword) {
-    fieldErrors.newPassword = ['Mat khau moi phai khac mat khau hien tai.'];
-  }
-
-  if (!confirmPassword) {
-    fieldErrors.confirmPassword = ['Vui long xac nhan mat khau moi.'];
-  } else if (newPassword && confirmPassword !== newPassword) {
-    fieldErrors.confirmPassword = ['Xac nhan mat khau chua khop.'];
-  }
+  const fieldErrors = validateChangePasswordForm(payload);
 
   if (Object.keys(fieldErrors).length > 0) {
     throw createMockApiError({

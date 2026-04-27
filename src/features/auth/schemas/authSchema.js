@@ -1,4 +1,6 @@
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
+
+export { EMAIL_REGEX };
 
 export const validateRequired = (value) => value.trim().length > 0;
 

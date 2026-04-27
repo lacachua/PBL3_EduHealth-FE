@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
+import { validateChangePasswordForm } from '../../../shared/utils/passwordValidation';
 import { useAuth } from '../../../app/providers/useAuth';
 import StudentAccountInfoCard from '../components/account/StudentAccountInfoCard';
 import StudentAccountPasswordCard from '../components/account/StudentAccountPasswordCard';
@@ -37,32 +38,7 @@ const validateProfileForm = (values) => {
   return nextErrors;
 };
 
-const validatePasswordForm = (values) => {
-  const nextErrors = {};
-
-  if (!String(values.oldPassword || '').trim()) {
-    nextErrors.oldPassword = 'Vui lòng nhập mật khẩu hiện tại.';
-  }
-
-  const newPassword = String(values.newPassword || '').trim();
-  const confirmPassword = String(values.confirmPassword || '').trim();
-
-  if (!newPassword) {
-    nextErrors.newPassword = 'Vui lòng nhập mật khẩu mới.';
-  } else if (newPassword.length < 8) {
-    nextErrors.newPassword = 'Mật khẩu mới phải có ít nhất 8 ký tự.';
-  } else if (newPassword === values.oldPassword) {
-    nextErrors.newPassword = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
-  }
-
-  if (!confirmPassword) {
-    nextErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới.';
-  } else if (newPassword !== confirmPassword) {
-    nextErrors.confirmPassword = 'Xác nhận mật khẩu chưa khớp.';
-  }
-
-  return nextErrors;
-};
+const validatePasswordForm = validateChangePasswordForm;
 
 const StudentAccountPage = () => {
   const { updateUser } = useAuth();

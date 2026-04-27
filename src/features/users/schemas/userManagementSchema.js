@@ -1,8 +1,7 @@
 import { validatePhoneNumber } from '../../../shared/utils/phoneValidation';
+import { EMAIL_REGEX } from '../../../shared/utils/emailValidation';
+import { PASSWORD_CREATE_MIN_LENGTH } from '../../../shared/utils/passwordValidation';
 import { USER_ROLES } from '../constants/userManagementConstants';
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// REMOVED: phoneRegex - now using centralized validation from shared utils
 
 export const validateUserForm = ({ values, isEdit }) => {
   const errors = {};
@@ -31,9 +30,11 @@ export const validateUserForm = ({ values, isEdit }) => {
 
   if (!isEdit && !values.password?.trim()) {
     errors.password = 'Vui lòng nhập mật khẩu';
+  } else if (!isEdit && values.password?.trim() && values.password.trim().length < PASSWORD_CREATE_MIN_LENGTH) {
+    errors.password = `Mật khẩu phải có ít nhất ${PASSWORD_CREATE_MIN_LENGTH} ký tự`;
   }
 
-  if (values.email?.trim() && !emailRegex.test(values.email.trim())) {
+  if (values.email?.trim() && !EMAIL_REGEX.test(values.email.trim())) {
     errors.email = 'Định dạng email chưa hợp lệ';
   }
 
