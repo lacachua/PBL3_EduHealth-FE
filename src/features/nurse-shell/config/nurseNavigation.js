@@ -58,6 +58,12 @@ export const nurseSidebarGroups = [
         to: '/nurse/notifications',
       },
       {
+        id: 'nurse-messaging',
+        label: 'Tin nhắn',
+        icon: 'chat_bubble',
+        to: '/nurse/messages',
+      },
+      {
         id: 'nurse-reports',
         label: 'Báo cáo',
         icon: 'bar_chart',

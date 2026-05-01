@@ -11,8 +11,30 @@ const defaultSupplementary = {
 const supplementaryByKey = {
   '1': {
     vaccinations: [
-      { id: 'VAC-1', vaccineName: 'Cum mua', administeredAt: '2025-10-12', location: 'Tram y te phuong', status: 'DONE' },
-      { id: 'VAC-2', vaccineName: 'Soi - Quai bi - Rubella', administeredAt: '2024-05-20', location: 'Truong tieu hoc', status: 'DONE' },
+      {
+        studentVaccinationId: 'SV001',
+        campaignId: 'CAM001',
+        campaignName: 'Chien dich tiem phong cum mua 2025',
+        vaccineName: 'Cum mua',
+        doseNumber: 1,
+        scheduledDate: '2025-10-12',
+        status: 'DONE',
+        vaccinatedAt: '2025-10-12',
+        lotNumber: 'LOT2025-001',
+        note: '',
+      },
+      {
+        studentVaccinationId: 'SV002',
+        campaignId: 'CAM002',
+        campaignName: 'Chien dich tiem phong Soi - Quai bi - Rubella',
+        vaccineName: 'Soi - Quai bi - Rubella',
+        doseNumber: 1,
+        scheduledDate: '2024-05-20',
+        status: 'DONE',
+        vaccinatedAt: '2024-05-20',
+        lotNumber: 'LOT2024-002',
+        note: '',
+      },
     ],
     emergencyContacts: [
       { id: 'EC-1', relation: 'Me', fullName: 'Nguyen Thi Lan', phone: '0901234567', primary: true },
@@ -26,7 +48,18 @@ const supplementaryByKey = {
   },
   '2': {
     vaccinations: [
-      { id: 'VAC-3', vaccineName: 'Bach hau - Ho ga - Uon van', administeredAt: '2025-03-16', location: 'Benh vien Quan', status: 'DONE' },
+      {
+        studentVaccinationId: 'SV003',
+        campaignId: 'CAM003',
+        campaignName: 'Chien dich tiem phong Bach hau - Ho ga - Uon van',
+        vaccineName: 'Bach hau - Ho ga - Uon van',
+        doseNumber: 1,
+        scheduledDate: '2025-03-16',
+        status: 'DONE',
+        vaccinatedAt: '2025-03-16',
+        lotNumber: 'LOT2025-003',
+        note: '',
+      },
     ],
     emergencyContacts: [
       { id: 'EC-3', relation: 'Me', fullName: 'Pham Thi Hoa', phone: '0913123456', primary: true },
@@ -51,7 +84,18 @@ const supplementaryByKey = {
   },
   '4': {
     vaccinations: [
-      { id: 'VAC-4', vaccineName: 'COVID-19 mui nhac lai', administeredAt: '2025-09-10', location: 'Truong tieu hoc', status: 'DONE' },
+      {
+        studentVaccinationId: 'SV004',
+        campaignId: 'CAM004',
+        campaignName: 'Chien dich tiem phong COVID-19 mui nhac lai',
+        vaccineName: 'COVID-19 mui nhac lai',
+        doseNumber: 2,
+        scheduledDate: '2025-09-10',
+        status: 'DONE',
+        vaccinatedAt: '2025-09-10',
+        lotNumber: 'LOT2025-004',
+        note: '',
+      },
     ],
     emergencyContacts: [
       { id: 'EC-6', relation: 'Me', fullName: 'Le Thi Huong', phone: '0987000111', primary: true },

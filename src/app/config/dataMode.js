@@ -29,6 +29,7 @@ export const DATA_MODULES = Object.freeze({
   NOTIFICATIONS_INBOX: 'notificationsInbox',
   NURSE_REPORTS: 'nurseReports',
   NURSE_DASHBOARD: 'nurseDashboard',
+  MESSAGING: 'messaging',
 });
 
 const MODULE_CAPABILITIES = Object.freeze({
@@ -55,6 +56,7 @@ const MODULE_CAPABILITIES = Object.freeze({
   [DATA_MODULES.NOTIFICATIONS_INBOX]: { supportsLive: true },
   [DATA_MODULES.NURSE_REPORTS]: { supportsLive: true },
   [DATA_MODULES.NURSE_DASHBOARD]: { supportsLive: true },
+  [DATA_MODULES.MESSAGING]: { supportsLive: true },
 });
 
 const getDataMode = () => {
