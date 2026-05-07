@@ -1,6 +1,6 @@
 import * as signalR from '@microsoft/signalr';
-import { env } from '../../app/config/env';
-import { getAccessToken } from '../services/tokenClient';
+import { env } from '../../app/config/env.js';
+import { getAccessToken } from '../services/tokenClient.js';
 
 const buildHubUrl = (hubPath) => {
   if (!hubPath) {

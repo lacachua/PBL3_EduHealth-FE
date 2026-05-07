@@ -173,8 +173,27 @@ export const useMessages = ({
     onMessageAdded?.(optimistic);
 
     if (!realtimeEnabled || !chatClient) {
-      setItems((prev) => updateMessageStatus(prev, optimistic.clientMessageId, 'sent'));
-      return true;
+      try {
+        const serverMessage = await messagingRepository.sendMessage(
+          conversationId,
+          {
+            content,
+            messageType: 'TEXT',
+            clientMessageId: optimistic.clientMessageId,
+          },
+          { currentUser }
+        );
+
+        setItems((prev) => updateMessageStatus(prev, optimistic.clientMessageId, 'sent', serverMessage));
+        if (serverMessage) {
+          onMessageAdded?.(serverMessage);
+        }
+        return true;
+      } catch (apiError) {
+        setItems((prev) => updateMessageStatus(prev, optimistic.clientMessageId, 'failed'));
+        setError(normalizeApiMessage(apiError, 'Không thể gửi tin nhắn.'));
+        return false;
+      }
     }
 
     try {

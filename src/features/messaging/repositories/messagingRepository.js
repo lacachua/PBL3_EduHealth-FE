@@ -5,6 +5,7 @@ import {
   adaptConversationDetailResponse,
   adaptConversationsResponse,
   adaptMessagesResponse,
+  normalizeMessage,
 } from '../adapters/messagingAdapter';
 import {
   createConversationMockEnvelope,
@@ -22,6 +23,7 @@ const isMockSource = () => resolveModuleDataSource(DATA_MODULES.MESSAGING) === '
 const getConversationsLive = async (query) => messagingApi.getConversations(query);
 const getConversationDetailLive = async (conversationId) => messagingApi.getConversationDetail(conversationId);
 const getMessagesLive = async (conversationId, query) => messagingApi.getMessages(conversationId, query);
+const sendMessageLive = async (conversationId, payload) => messagingApi.sendMessage(conversationId, payload);
 const createConversationLive = async (payload) => messagingApi.createConversation(payload);
 const markReadLive = async (conversationId, payload) => messagingApi.markConversationRead(conversationId, payload);
 const getStudentContactsLive = async (query) => messagingApi.getStudentContacts(query);
@@ -93,6 +95,18 @@ export const messagingRepository = {
       page: query.page,
       pageSize: query.pageSize,
     });
+  },
+
+  sendMessage: async (conversationId, payload, context = {}) => {
+    if (isMockSource()) {
+      const envelope = await getMessagesMock(conversationId, { page: 1, pageSize: 1 });
+      const item = envelope?.data?.items?.[0] || envelope?.items?.[0] || null;
+      return item ? normalizeMessage(item, { currentUser: context.currentUser }) : null;
+    }
+
+    const envelope = await sendMessageLive(conversationId, payload);
+    const data = envelope?.data || envelope || null;
+    return data ? normalizeMessage(data, { currentUser: context.currentUser }) : null;
   },
 
   createConversation: async (payload, context = {}) => {

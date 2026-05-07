@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { createChatHubClient } from '../realtime/chatHubClient';
+import { createChatHubClient } from '../realtime/chatHubClient.js';
 
 export const useChatConnection = ({ enabled = true } = {}) => {
   const clientRef = useRef(null);
+  const effectTokenRef = useRef(0);
   const [status, setStatus] = useState('disconnected');
   const [error, setError] = useState('');
 
@@ -17,6 +18,7 @@ export const useChatConnection = ({ enabled = true } = {}) => {
     }
 
     let isActive = true;
+    const effectToken = ++effectTokenRef.current;
     const client = clientRef.current;
 
     const handleReconnecting = () => {
@@ -58,11 +60,17 @@ export const useChatConnection = ({ enabled = true } = {}) => {
       }
     };
 
-    startConnection();
+    const startPromise = startConnection();
 
     return () => {
       isActive = false;
-      client.stop();
+      const stopIfLatest = () => {
+        if (effectTokenRef.current === effectToken) {
+          client.stop();
+        }
+      };
+
+      Promise.resolve(startPromise).finally(stopIfLatest);
     };
   }, [enabled]);
 

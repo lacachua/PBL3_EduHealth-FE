@@ -1,5 +1,5 @@
-import { createSignalRConnection } from '../../../shared/realtime/createSignalRConnection';
-import { CHAT_HUB_EVENTS, CHAT_HUB_METHODS } from '../constants/messagingEvents';
+import { createSignalRConnection } from '../../../shared/realtime/createSignalRConnection.js';
+import { CHAT_HUB_EVENTS, CHAT_HUB_METHODS } from '../constants/messagingEvents.js';
 
 const DEFAULT_HUB_PATH = '/hubs/chat';
 
