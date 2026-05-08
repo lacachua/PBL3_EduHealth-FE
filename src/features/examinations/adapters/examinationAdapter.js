@@ -103,3 +103,14 @@ export const adaptCreateExaminationResponse = (payload) => {
     const envelope = normalizeApiEnvelope(payload);
     return envelope?.data || null;
 };
+
+export const adaptDiseaseOptionsResponse = (payload) => {
+    const envelope = normalizeApiEnvelope(payload);
+    const rows = extractRows(envelope);
+
+    return rows.map((item) => ({
+        id: item?.id ?? null,
+        name: item?.name || '--',
+        description: item?.description || '',
+    }));
+};

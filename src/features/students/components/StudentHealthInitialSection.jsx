@@ -36,7 +36,7 @@ const StudentHealthInitialSection = ({ values, errors, onChange }) => {
   return (
     <>
       <div className="md:col-span-2 rounded-md border border-info/25 bg-info-soft px-3 py-2 text-xs text-info">
-        Tạo hồ sơ ban đầu theo contract hiện tại. Thông tin sức khỏe chi tiết (mắt, bệnh nền, dị ứng chi tiết) có thể cập nhật sau ở bước hồ sơ sức khỏe.
+        Có thể cập nhật thông tin sức khỏe chi tiết sau khi tạo hồ sơ.
       </div>
 
       {FIELDS.map((field) => {

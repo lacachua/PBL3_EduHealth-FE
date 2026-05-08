@@ -4,7 +4,9 @@ import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import EditableField from '../../../shared/components/form/EditableField';
 import { getMedicines } from '../../medicines/services/getMedicines';
+import { adaptDiseaseOptionsResponse } from '../adapters/examinationAdapter';
 import {
   getNurseStudentDetailApi,
   getNurseStudentHealthHistoryApi,
@@ -12,6 +14,7 @@ import {
 } from '../../health-profiles/services/healthProfilesApi';
 import { MEDICINE_PICKER_PAGE_SIZE } from '../constants/examinationConstants';
 import { createExamination } from '../services/createExamination';
+import { getDiseaseOptions } from '../services/getDiseaseOptions';
 
 const toDateInputValue = (date = new Date()) => {
   const year = date.getFullYear();
@@ -29,7 +32,7 @@ const dateLabel = (value) => {
 
 const defaultFormValues = {
   visitDate: toDateInputValue(),
-  diseaseTypeId: '',
+  diseaseId: '',
   symptoms: '',
   diagnosis: '',
   treatment: '',
@@ -55,6 +58,7 @@ const parseMedicinesEnvelope = (envelope) => {
     .map((item) => ({
       id: item.id,
       name: item.name || '--',
+      unit: item.unit || item.unitName || '--',
       currentStock: Number(item.currentStock || 0),
       status: item.status || '',
       isLowStock: Boolean(item.isLowStock),
@@ -87,6 +91,10 @@ const CreateExaminationPage = () => {
   const [medicines, setMedicines] = useState([]);
   const [medicineLoadError, setMedicineLoadError] = useState('');
 
+  const [diseaseOptions, setDiseaseOptions] = useState([]);
+  const [diseaseLoadError, setDiseaseLoadError] = useState('');
+  const [diseaseLoading, setDiseaseLoading] = useState(false);
+
   const [formValues, setFormValues] = useState(defaultFormValues);
   const [prescriptions, setPrescriptions] = useState([]);
 
@@ -108,12 +116,15 @@ const CreateExaminationPage = () => {
       setStatus('loading');
       setContextError('');
       setMedicineLoadError('');
+      setDiseaseLoadError('');
+      setDiseaseLoading(true);
 
-      const [detailResult, profileResult, historyResult, medicinesResult] = await Promise.allSettled([
+      const [detailResult, profileResult, historyResult, medicinesResult, diseasesResult] = await Promise.allSettled([
         getNurseStudentDetailApi(studentUserId),
         getNurseStudentHealthProfileApi(studentUserId),
         getNurseStudentHealthHistoryApi(studentUserId, { page: 1, pageSize: 5 }),
         getMedicines({ page: 1, pageSize: MEDICINE_PICKER_PAGE_SIZE, status: 'ACTIVE' }, NURSE_MEDICINES_OPTIONS),
+        getDiseaseOptions(),
       ]);
 
       if (!isMounted) {
@@ -134,6 +145,7 @@ const CreateExaminationPage = () => {
         const messageFromProfile = profileResult.status === 'rejected' ? normalizeApiMessage(profileResult.reason) : '';
         setStatus('error');
         setContextError(messageFromDetail || messageFromProfile || 'Không thể tải dữ liệu học sinh để lập phiếu khám.');
+        setDiseaseLoading(false);
         return;
       }
 
@@ -149,6 +161,29 @@ const CreateExaminationPage = () => {
         setMedicines([]);
         setMedicineLoadError(normalizeApiMessage(medicinesResult.reason));
       }
+
+      if (diseasesResult.status === 'fulfilled') {
+        const mapped = adaptDiseaseOptionsResponse(diseasesResult.value);
+        const options = Array.isArray(mapped)
+          ? mapped
+            .map((item) => ({
+              id: String(item.id ?? ''),
+              name: item.name || '--',
+            }))
+            .filter((item) => item.id)
+          : [];
+
+        setDiseaseOptions(options);
+      } else {
+        const statusCode = diseasesResult.reason?.response?.status;
+        const message = statusCode === 403
+          ? 'Tài khoản y tá chưa được cấp quyền xem danh mục loại bệnh.'
+          : normalizeApiMessage(diseasesResult.reason);
+        setDiseaseOptions([]);
+        setDiseaseLoadError(message);
+      }
+
+      setDiseaseLoading(false);
 
       setStatus('success');
     };
@@ -169,6 +204,17 @@ const CreateExaminationPage = () => {
     return map;
   }, [medicines]);
 
+  const diseaseOptionsById = useMemo(() => {
+    const map = new Map();
+    diseaseOptions.forEach((item) => map.set(item.id, item));
+    return map;
+  }, [diseaseOptions]);
+
+  const diseaseSelectOptions = useMemo(() => {
+    const base = diseaseOptions.map((item) => ({ value: item.id, label: item.name }));
+    return [{ value: '', label: 'Không phân loại' }, ...base];
+  }, [diseaseOptions]);
+
   const selectedMedicineCountMap = useMemo(() => {
     const map = new Map();
     prescriptions.forEach((item) => {
@@ -187,6 +233,9 @@ const CreateExaminationPage = () => {
       || location.state?.selectedStudentName
       || '--';
   }, [contextData.detail?.fullName, contextData.profile?.fullName, location.state?.selectedStudentName]);
+
+  const diseaseTypeFieldError = fieldErrors.diseaseId
+    || (diseaseLoadError ? diseaseLoadError : '');
 
   const validateForm = () => {
     const errors = {};
@@ -209,6 +258,10 @@ const CreateExaminationPage = () => {
 
     if (!formValues.treatment.trim()) {
       errors.treatment = 'Hướng xử lý là bắt buộc.';
+    }
+
+    if (formValues.diseaseId && !diseaseOptionsById.has(formValues.diseaseId)) {
+      errors.diseaseId = 'Loại bệnh đã chọn không tồn tại hoặc danh mục chưa được tải lại.';
     }
 
     prescriptions.forEach((item, index) => {
@@ -253,10 +306,13 @@ const CreateExaminationPage = () => {
       return;
     }
 
+    const parsedDiseaseId = Number(formValues.diseaseId);
+    const diseaseId = Number.isFinite(parsedDiseaseId) ? parsedDiseaseId : null;
+
     const payload = {
       studentId: studentRecordIdForSubmit,
       visitDate: `${formValues.visitDate}T00:00:00`,
-      diseaseTypeId: formValues.diseaseTypeId.trim() || null,
+      diseaseId,
       symptoms: formValues.symptoms.trim(),
       diagnosis: formValues.diagnosis.trim(),
       treatment: formValues.treatment.trim(),
@@ -294,12 +350,17 @@ const CreateExaminationPage = () => {
       }
     } catch (apiError) {
       const mapped = mapApiFieldErrors(apiError);
+      if (mapped.diseaseId || mapped.DiseaseId || mapped.diseaseTypeId || mapped.DiseaseTypeId) {
+        mapped.diseaseId = 'Loại bệnh đã chọn không tồn tại hoặc danh mục chưa được tải lại.';
+      }
       if (Object.keys(mapped).length) {
         setFieldErrors((prev) => ({ ...prev, ...mapped }));
       }
 
       const message = normalizeApiMessage(apiError);
-      setSubmitError(message);
+      if (!Object.keys(mapped).length) {
+        setSubmitError(message);
+      }
       setFeedback({ type: 'error', message });
     } finally {
       setSubmitting(false);
@@ -456,7 +517,7 @@ const CreateExaminationPage = () => {
           </aside>
 
           <section className="app-card-shell rounded-xl p-4 xl:col-span-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pb-16">
               {fieldErrors.studentId ? (
                 <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{fieldErrors.studentId}</p>
               ) : null}
@@ -477,16 +538,14 @@ const CreateExaminationPage = () => {
                   {fieldErrors.visitDate ? <span className="text-xs text-danger">{fieldErrors.visitDate}</span> : null}
                 </label>
 
-                <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-on-surface-variant">Mã nhóm bệnh (tùy chọn)</span>
-                  <input
-                    type="text"
-                    value={formValues.diseaseTypeId}
-                    onChange={(event) => setFormValues((prev) => ({ ...prev, diseaseTypeId: event.target.value }))}
-                    placeholder="Ví dụ: DIS001"
-                    className="app-focus-ring app-input h-10 rounded-lg px-3 text-sm"
-                  />
-                </label>
+                <EditableField
+                  label="Loại bệnh (tùy chọn)"
+                  type="select"
+                  value={formValues.diseaseId}
+                  onChange={(value) => setFormValues((prev) => ({ ...prev, diseaseId: value }))}
+                  options={diseaseSelectOptions}
+                  error={diseaseTypeFieldError}
+                />
               </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -583,13 +642,13 @@ const CreateExaminationPage = () => {
                                     value={medicine.id}
                                     disabled={prescriptions.some((row, rowIndex) => rowIndex !== index && row.medicineId === medicine.id)}
                                   >
-                                    {medicine.name}
+                                    {`${medicine.name} • ${medicine.unit} • Tồn ${medicine.currentStock}`}
                                   </option>
                                 ))}
                               </select>
                               {selectedMedicine ? (
                                 <span className={`text-[11px] ${selectedMedicine.isLowStock ? 'text-warning' : 'text-on-surface-variant'}`}>
-                                  Tồn kho còn: {selectedMedicine.currentStock}
+                                  Tồn kho còn: {selectedMedicine.currentStock} {selectedMedicine.unit}
                                 </span>
                               ) : null}
                               {selectedMedicine?.isLowStock ? <span className="inline-flex w-fit rounded-md border border-warning/50 bg-warning-soft px-1.5 py-0.5 text-[10px] font-semibold text-warning">Sắp hết thuốc</span> : null}
@@ -669,7 +728,7 @@ const CreateExaminationPage = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting || !studentRecordIdForSubmit}
+                    disabled={submitting || diseaseLoading || status !== 'success' || !studentRecordIdForSubmit}
                     className="app-btn-primary app-focus-ring rounded-xl px-3.5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {submitting ? 'Đang lưu...' : 'Hoàn tất phiếu khám'}
