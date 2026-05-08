@@ -4,6 +4,12 @@ const diseaseNameById = {
   DIS003: 'Dau hong',
 };
 
+const diseaseOptions = [
+  { id: 1, code: 'DIS001', name: diseaseNameById.DIS001 },
+  { id: 2, code: 'DIS002', name: diseaseNameById.DIS002 },
+  { id: 3, code: 'DIS003', name: diseaseNameById.DIS003 },
+];
+
 const studentProfileByStudentId = {
   STD001: {
     studentId: 'STD001',
@@ -221,6 +227,15 @@ export const getExaminationDetailMockEnvelope = (examinationId) => {
   });
 };
 
+export const getDiseaseOptionsMockEnvelope = () => createEnvelope({
+  message: 'Mock: Lay danh sach loai benh thanh cong.',
+  data: diseaseOptions.map((item) => ({
+    id: item.id,
+    name: item.name,
+    description: null,
+  })),
+});
+
 export const createExaminationMockEnvelope = (payload = {}) => {
   const studentId = String(payload.studentId || '').trim().toUpperCase();
   const visitDate = payload.visitDate ? new Date(payload.visitDate) : null;
@@ -255,7 +270,21 @@ export const createExaminationMockEnvelope = (payload = {}) => {
     gender: 'UNKNOWN',
   };
 
+  const parsedDiseaseId = Number(payload.diseaseId);
+  const diseaseId = Number.isFinite(parsedDiseaseId) && parsedDiseaseId > 0 ? parsedDiseaseId : null;
   const diseaseTypeId = payload.diseaseTypeId ? String(payload.diseaseTypeId).trim().toUpperCase() : '';
+
+  if (diseaseId && !diseaseOptions.some((item) => item.id === diseaseId)) {
+    throwMockApiError(404, 'Khong tim thay du lieu lien quan.', [
+      { field: 'diseaseId', code: 'DISEASE_TYPE_NOT_FOUND', message: 'diseaseId khong ton tai.' },
+    ]);
+  }
+
+  if (diseaseTypeId && !diseaseNameById[diseaseTypeId]) {
+    throwMockApiError(404, 'Khong tim thay du lieu lien quan.', [
+      { field: 'diseaseTypeId', code: 'DISEASE_TYPE_NOT_FOUND', message: 'diseaseTypeId khong ton tai.' },
+    ]);
+  }
 
   const prescriptions = Array.isArray(payload.prescriptions)
     ? payload.prescriptions.map((item) => {
@@ -280,15 +309,21 @@ export const createExaminationMockEnvelope = (payload = {}) => {
     })
     : [];
 
+  const selectedDisease = diseaseId
+    ? diseaseOptions.find((item) => item.id === diseaseId)
+    : diseaseTypeId
+      ? { code: diseaseTypeId, name: diseaseNameById[diseaseTypeId] }
+      : null;
+
   const created = {
     id: `VIS${String(examinationSequence).padStart(3, '0')}`,
     visitDate: visitDate.toISOString(),
     student: { ...studentProfile },
     nurse: { ...defaultNurse },
-    diseaseType: diseaseTypeId
+    diseaseType: selectedDisease
       ? {
-          id: diseaseTypeId,
-          name: diseaseNameById[diseaseTypeId] || diseaseTypeId,
+          id: selectedDisease.code,
+          name: selectedDisease.name,
         }
       : null,
     symptoms,

@@ -3,6 +3,7 @@ import StudentAccountSection from './StudentAccountSection';
 import StudentHealthInitialSection from './StudentHealthInitialSection';
 import StudentProfileSection from './StudentProfileSection';
 import { useCreateStudentForm } from '../hooks/useCreateStudentForm';
+import { useClassOptions } from '../hooks/useClassOptions';
 
 const AvatarPlaceholder = () => (
   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-soft bg-primary-soft text-xs font-bold text-primary">
@@ -20,6 +21,8 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
     resetForm,
     submit,
   } = useCreateStudentForm();
+
+  const { classes, loading: classesLoading, error: classesError } = useClassOptions();
 
   useEffect(() => {
     if (!open) {
@@ -57,7 +60,7 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
               <AvatarPlaceholder />
               <div>
                 <h3 className="font-headline text-lg font-semibold text-on-surface md:text-[1.2rem]">Tạo hồ sơ học sinh</h3>
-                <p className="mt-1 text-sm text-on-surface-variant">Tạo tài khoản STUDENT và hồ sơ cơ bản. Thông tin sức khỏe chi tiết có thể cập nhật sau.</p>
+                <p className="mt-1 text-sm text-on-surface-variant">Nhập thông tin cơ bản để tạo hồ sơ học sinh.</p>
               </div>
             </div>
             <button
@@ -101,7 +104,14 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
             ) : null}
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <StudentProfileSection values={formValues.profile} errors={fieldErrors} onChange={updateField} />
+              <StudentProfileSection
+                values={formValues.profile}
+                errors={fieldErrors}
+                onChange={updateField}
+                classes={classes}
+                classesLoading={classesLoading}
+                classesError={classesError}
+              />
               <StudentAccountSection values={formValues.account} errors={fieldErrors} onChange={updateField} />
               <StudentHealthInitialSection values={formValues.health} errors={fieldErrors} onChange={updateField} />
             </div>
@@ -121,7 +131,7 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
             <button
               type="submit"
               form="student-create-modal-form"
-              disabled={submitting}
+              disabled={submitting || classesLoading}
               className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-55"
             >
               {submitting ? 'Đang xử lý...' : 'Tạo học sinh'}
