@@ -131,7 +131,7 @@ const NurseHealthProfileDetailPage = () => {
 
           <article className={historyCardClass}>
             <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ghi chú sức khỏe chung</p>
-            <p className="mt-1 text-sm text-on-surface">{model.profile?.generalHealthNote || model.profile?.medicalHistoryNotes || 'Không có ghi chú bổ sung.'}</p>
+            <p className="mt-1 text-sm text-on-surface">{model.profile?.generalHealthNote || 'Không có ghi chú bổ sung.'}</p>
           </article>
         </div>
       </SectionCard>

@@ -21,12 +21,6 @@ export const nurseReportFilterOptions = Object.freeze({
     { value: 'vaccination', label: 'Tiêm chủng' },
     { value: 'medicine', label: 'Cấp thuốc' },
   ],
-  tableStatus: [
-    { value: 'all', label: 'Tất cả trạng thái' },
-    { value: 'stable', label: 'Ổn định' },
-    { value: 'watch', label: 'Cần theo dõi' },
-    { value: 'unknown', label: 'Chưa đủ dữ liệu' },
-  ],
   pageSize: 6,
 });
 

@@ -1,17 +1,14 @@
-import React from 'react';
-import EmptyState from '../../../../shared/components/core/EmptyState';
+import { AppBarChart } from '../../../../shared/components/charts';
 import SectionCard from '../../../../shared/components/core/SectionCard';
 
 const NurseReportsTrendPanel = ({ trend }) => {
   const items = Array.isArray(trend?.items) ? trend.items : [];
-  const maxValue = Math.max(1, Number(trend?.maxValue) || 0);
   const totalValue = items.reduce((sum, item) => sum + Number(item.value || 0), 0);
 
   return (
     <SectionCard
-      title="Xu hướng lượt khám theo tuần"
-      subtitle="Số lượt khám được ghi nhận trong khoảng thời gian báo cáo."
-      className="app-card-shell h-full rounded-xl p-0"
+      title="Xu hướng lượt khám"
+      className="app-card-shell flex h-full flex-col rounded-xl p-0"
       headerClassName="mb-0 flex items-start justify-between px-4 pt-3.5"
       titleClassName="app-section-title"
       subtitleClassName="app-meta-text mt-0.5 leading-4"
@@ -21,43 +18,21 @@ const NurseReportsTrendPanel = ({ trend }) => {
         </span>
       )}
     >
-      <div className="p-4 pt-3">
+      <div className="flex flex-1 flex-col p-4 pt-3">
         <p className="app-overline mb-2">Thống kê theo tuần</p>
-        {!items.length ? (
-          <EmptyState
-            title="Chưa có dữ liệu xu hướng"
-            description="Biểu đồ sẽ hiển thị khi bộ lọc trả về dữ liệu phù hợp."
+        <div className="flex min-h-[360px] flex-1 flex-col rounded-xl border border-outline-variant bg-surface-container-low px-3 pb-2 pt-3">
+          <AppBarChart
+            data={items}
+            xKey="label"
+            yKey="value"
+            valueLabel="Lượt khám"
+            color="primary"
+            height={320}
+            tooltipFormatter={(value) => [`${value} lượt khám`, 'Lượt khám']}
+            emptyTitle="Chưa có dữ liệu xu hướng"
+            emptyDescription="Biểu đồ sẽ hiển thị khi bộ lọc trả về dữ liệu phù hợp."
           />
-        ) : (
-          <div className="rounded-xl border border-outline-variant bg-surface-container-low px-3.5 pb-2.5 pt-3">
-            <div className="flex h-40 items-end gap-2 sm:h-44">
-              {items.map((item, index) => {
-                const heightPercent = Math.max(12, Math.round((item.value / maxValue) * 100));
-                const isPeak = item.value === maxValue;
-                const isLast = index === items.length - 1;
-
-                return (
-                  <div key={item.id} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
-                    <p className="text-[11px] font-semibold text-on-surface-variant">{item.value}</p>
-                    <div className="relative h-full w-full max-w-[60px] rounded-t-md bg-outline-variant/50">
-                      <div
-                        className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-[height,background-color] duration-300 ${isPeak || isLast ? 'bg-primary' : 'bg-success'}`}
-                        style={{ height: `${heightPercent}%` }}
-                        aria-label={`${item.label}: ${item.value} lượt khám`}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-2 grid gap-1 text-center text-[11px] font-semibold text-on-surface-variant" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
-              {items.map((item) => (
-                <p key={`${item.id}-label`} className="truncate">{item.label}</p>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </SectionCard>
   );

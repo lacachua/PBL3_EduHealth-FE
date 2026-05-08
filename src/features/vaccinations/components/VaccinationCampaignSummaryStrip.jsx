@@ -1,4 +1,3 @@
-import React from 'react';
 import VaccinationStatusBadge from './VaccinationStatusBadge';
 
 const VaccinationCampaignSummaryStrip = ({ campaign }) => {

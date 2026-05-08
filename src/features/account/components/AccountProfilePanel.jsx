@@ -177,8 +177,6 @@ const AccountProfilePanel = ({
 
       clearAvatarDraft();
 
-      // Sync the new avatar URL into the global auth context so that
-      // the header avatar (RoleTopHeader) updates immediately.
       if (savedAvatarUrl && typeof updateUser === 'function') {
         updateUser({ avatar: savedAvatarUrl, avatarUrl: savedAvatarUrl });
       }

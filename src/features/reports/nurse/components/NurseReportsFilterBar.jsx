@@ -1,4 +1,3 @@
-import React from 'react';
 import { nurseReportFilterOptions } from '../config/nurseReportFilterOptions';
 
 const FilterSelect = ({ label, value, options, onChange }) => {
@@ -25,8 +24,7 @@ const NurseReportsFilterBar = ({
   classOptions,
   onFiltersChange,
   onReset,
-  onRefresh,
-  refreshing,
+  onApply,
 }) => {
   const resolvedClassOptions = Array.isArray(classOptions) && classOptions.length
     ? classOptions
@@ -34,13 +32,6 @@ const NurseReportsFilterBar = ({
 
   return (
     <section className="app-panel-shell app-filter-toolbar">
-      <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <p className="app-overline">Bộ lọc báo cáo</p>
-          <p className="app-meta-text mt-0.5">Khoanh vùng dữ liệu theo thời gian, loại báo cáo và lớp học.</p>
-        </div>
-      </div>
-
       <div className="flex flex-wrap items-end gap-2.5">
         <FilterSelect
           label="Thời gian"
@@ -85,14 +76,13 @@ const NurseReportsFilterBar = ({
             <span className="material-symbols-outlined text-[18px]">restart_alt</span>
             Đặt lại
           </button>
-
           <button
             type="button"
-            onClick={onRefresh}
-            className="app-focus-ring app-btn-secondary px-3"
+            onClick={onApply}
+            className="app-focus-ring app-btn-primary px-3.5"
           >
-            <span className={`material-symbols-outlined text-[18px] ${refreshing ? 'animate-spin' : ''}`}>refresh</span>
-            Làm mới
+            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+            Lọc
           </button>
         </div>
       </div>

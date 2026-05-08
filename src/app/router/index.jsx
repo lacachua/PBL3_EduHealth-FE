@@ -36,6 +36,7 @@ import {
   NursePendingVaccinationsPage,
   NurseProfilePage,
   NurseReportsPage,
+  NurseMessagingPage,
   NurseStudentsPage,
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
@@ -45,6 +46,7 @@ import {
   StudentManagementPage,
   StudentNotificationsInboxPage,
   StudentOverviewPage,
+  StudentMessagingPage,
   StudentVaccinationsPage,
   SystemLogsPage,
   UserManagementPage,
@@ -101,6 +103,7 @@ export const router = createBrowserRouter(
           <Route path="vaccinations/:campaignId" element={<Lazy><NurseVaccinationCampaignDetailPage /></Lazy>} />
           <Route path="notifications" element={<Lazy><NurseNotificationsInboxPage /></Lazy>} />
           <Route path="reports" element={<Lazy><NurseReportsPage /></Lazy>} />
+          <Route path="messages" element={<Lazy><NurseMessagingPage /></Lazy>} />
           <Route path="profile" element={<Lazy><NurseProfilePage /></Lazy>} />
         </Route>
       </Route>
@@ -113,6 +116,7 @@ export const router = createBrowserRouter(
           <Route path="care-history" element={<Lazy><StudentCareHistoryPage /></Lazy>} />
           <Route path="vaccinations" element={<Lazy><StudentVaccinationsPage /></Lazy>} />
           <Route path="notifications" element={<Lazy><StudentNotificationsInboxPage /></Lazy>} />
+          <Route path="messages" element={<Lazy><StudentMessagingPage /></Lazy>} />
           <Route path="account" element={<Lazy><StudentAccountPage /></Lazy>} />
           <Route path="dashboard" element={<Navigate to="/student/overview" replace />} />
         </Route>

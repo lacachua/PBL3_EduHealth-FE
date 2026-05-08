@@ -18,6 +18,12 @@ export const studentNavigationItems = [
     to: '/student/vaccinations',
   },
   {
+    id: 'student-messaging',
+    label: 'Tin nhắn',
+    icon: 'chat_bubble',
+    to: '/student/messages',
+  },
+  {
     id: 'student-notifications',
     label: 'Thông báo',
     icon: 'notifications',
@@ -41,6 +47,7 @@ export const studentSidebarGroups = [
       studentNavigationItems[2],
       studentNavigationItems[3],
       studentNavigationItems[4],
+      studentNavigationItems[5],
     ],
   },
 ];

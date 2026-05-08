@@ -4,7 +4,7 @@ import {
   removeItem,
   setItem,
   storageScope,
-} from "./storageService";
+} from "./storageService.js";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const USER_KEY = "user";

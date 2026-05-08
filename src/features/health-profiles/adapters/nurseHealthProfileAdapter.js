@@ -112,7 +112,7 @@ export const adaptNurseHealthHistoryResponse = (responseOrPayload) => {
         medicineId: prescription.medicineId || '',
         medicineName: prescription.medicineName || '--',
         quantity: Number(prescription.quantity || 0),
-        usageInstruction: prescription.usageInstruction || prescription.dosage || '--',
+        usageInstruction: prescription.usageInstruction || '--',
       }))
       : [],
   }));
@@ -230,11 +230,11 @@ const deriveHealthAlerts = ({ profile, detail, allergyItems }) => {
     });
   }
 
-  if (profile?.generalHealthNote || detail?.medicalHistoryNotes) {
+  if (profile?.generalHealthNote) {
     alerts.push({
       key: 'nutrition',
       title: 'Lưu ý sức khỏe',
-      description: profile?.generalHealthNote || detail?.medicalHistoryNotes || '',
+      description: profile.generalHealthNote,
       tone: 'warning',
       variant: 'nutrition',
       icon: 'nutrition',

@@ -1,5 +1,5 @@
 import React from 'react';
-import EmptyState from '../../../../shared/components/core/EmptyState';
+import { AppBarChart } from '../../../../shared/components/charts';
 import ErrorState from '../../../../shared/components/core/ErrorState';
 import LoadingSpinner from '../../../../shared/components/core/LoadingSpinner';
 
@@ -26,42 +26,20 @@ const NurseDashboardTrendChart = ({ trend, loading, onRetry }) => {
         <ErrorState message={trend?.error || 'Không thể tải dữ liệu lượt khám trong 7 ngày.'} onRetry={onRetry} />
       ) : null}
 
-      {!loading && !hasError && !points.length ? (
-        <EmptyState
-          title="Chưa có dữ liệu biểu đồ"
-          description="Biểu đồ sẽ hiển thị khi hệ thống có dữ liệu khám theo ngày."
-        />
-      ) : null}
+      {!loading && !hasError && !points.length ? null : null}
 
       {!hasError && points.length ? (
-        <div className="flex-1 rounded-xl border border-outline-variant bg-surface-container-low px-3.5 pb-2 pt-3">
-          <div className="flex h-40 items-end gap-2 md:h-44">
-            {points.map((point, index) => {
-              const isToday = index === points.length - 1;
-
-              return (
-                <div key={point.id} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
-                  <div className="text-[11px] font-semibold text-on-surface-variant">{point.value}</div>
-                  <div className="relative h-full w-full max-w-[56px] rounded-t-md bg-outline-variant/55">
-                    <div
-                      className={`absolute bottom-0 left-0 right-0 rounded-t-md ${isToday ? 'bg-primary' : 'bg-success'}`}
-                      style={{ height: `${point.heightPercent}%` }}
-                      aria-label={`${point.weekdayLabel} ${point.dateLabel}: ${point.value} lượt khám`}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-2 grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-on-surface-variant">
-            {points.map((point) => (
-              <div key={`${point.id}-label`}>
-                <div>{point.weekdayLabel}</div>
-                <div className="text-on-surface-muted">{point.dateLabel}</div>
-              </div>
-            ))}
-          </div>
+        <div className="flex-1 rounded-xl border border-outline-variant bg-surface-container-low px-3 pb-2 pt-3">
+          <AppBarChart
+            data={points}
+            xKey="weekdayLabel"
+            yKey="value"
+            color="primary"
+            height={200}
+            tooltipFormatter={(value) => [`${value} lượt khám`, 'Lượt khám']}
+            emptyTitle="Chưa có dữ liệu biểu đồ"
+            emptyDescription="Biểu đồ sẽ hiển thị khi hệ thống có dữ liệu khám theo ngày."
+          />
         </div>
       ) : null}
     </section>

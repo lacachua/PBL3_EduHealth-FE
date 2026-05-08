@@ -29,6 +29,7 @@ export const NurseVaccinationCampaignsPage = React.lazy(() => import("../../feat
 export const NurseVaccinationCampaignDetailPage = React.lazy(() => import("../../features/vaccinations/pages/NurseVaccinationCampaignDetailPage"));
 export const NursePendingVaccinationsPage = React.lazy(() => import("../../features/vaccinations/pages/NursePendingVaccinationsPage"));
 export const NurseReportsPage = React.lazy(() => import("../../features/reports/nurse/pages/NurseReportsPage"));
+export const NurseMessagingPage = React.lazy(() => import("../../features/messaging/pages/NurseMessagingPage"));
 export const AdminNotificationsInboxPage = React.lazy(() => import("../../features/notifications/inbox/pages/AdminNotificationsInboxPage"));
 export const NurseNotificationsInboxPage = React.lazy(() => import("../../features/notifications/inbox/pages/NurseNotificationsInboxPage"));
 export const StudentNotificationsInboxPage = React.lazy(() => import("../../features/notifications/inbox/pages/StudentNotificationsInboxPage"));
@@ -39,6 +40,7 @@ export const StudentOverviewPage = React.lazy(() => import('../../features/stude
 export const StudentCareHistoryPage = React.lazy(() => import('../../features/student-portal/pages/StudentCareHistoryPage'));
 export const StudentVaccinationsPage = React.lazy(() => import('../../features/student-portal/pages/StudentVaccinationsPage'));
 export const StudentAccountPage = React.lazy(() => import('../../features/student-portal/pages/StudentAccountPage'));
+export const StudentMessagingPage = React.lazy(() => import('../../features/messaging/pages/StudentMessagingPage'));
 export const StudentManagementPage = React.lazy(() => import("../../features/students/pages/StudentManagementPage"));
 export const UserManagementPage = React.lazy(() => import("../../features/users/pages/UserManagementPage"));
 export const CatalogManagementPage = React.lazy(() => import("../../features/catalogs/pages/CatalogManagementPage"));
