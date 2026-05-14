@@ -1,9 +1,9 @@
 import React from 'react';
 import { getNotificationTypeMeta } from '../constants/notificationTypes';
-import NotificationPreviewRecipients from './NotificationPreviewRecipients';
+import NotificationPreviewSummary from './NotificationPreviewRecipients';
 import NotificationRelatedFields from './NotificationRelatedFields';
-import NotificationSourceBadge from './NotificationSourceBadge';
 import NotificationTargetSelector from './NotificationTargetSelector';
+import NotificationImageUploadField from './NotificationImageUploadField';
 
 const ErrorText = ({ text }) => {
   if (!text) {
@@ -21,10 +21,15 @@ const NotificationComposerModal = ({
   draft,
   errors = {},
   submitting,
-  source = 'MOCK',
   onFieldChange,
   onToggleRecipient,
   onSubmit,
+  onImageSelect,
+  onImageClear,
+  imageFileName,
+  imagePreviewUrl,
+  imageUploading,
+  imageUploadError,
   recipientOptions,
   classOptions,
   diseaseOptions,
@@ -32,6 +37,7 @@ const NotificationComposerModal = ({
   preview,
   previewLoading,
   previewError,
+  showRecipients,
 }) => {
   if (!open) {
     return null;
@@ -39,14 +45,14 @@ const NotificationComposerModal = ({
 
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-900/45 px-0 py-0 backdrop-blur-[1px] sm:items-center sm:px-4 sm:py-6">
-      <div className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-outline-variant bg-surface shadow-[0_14px_40px_rgba(15,23,42,0.18)] sm:rounded-3xl">
+      <div className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-outline-variant bg-surface shadow-[0_14px_40px_rgba(15,23,42,0.18)] sm:rounded-3xl">
         <header className="border-b border-outline-variant px-4 py-3.5 sm:px-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="app-overline">{role === 'STUDENT' ? 'Yêu cầu hỗ trợ' : 'Soạn thông báo'}</p>
               <h2 className="app-section-title mt-0.5">{config.modalTitle}</h2>
               <p className="mt-1 text-sm text-on-surface-variant">
-                Dữ liệu người nhận và thông tin liên quan được chọn từ danh sách, không nhập raw ID.
+                Chọn đúng phạm vi hiển thị và người nhận để thông báo được gửi đúng đối tượng.
               </p>
             </div>
 
@@ -60,13 +66,13 @@ const NotificationComposerModal = ({
             </button>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <NotificationSourceBadge source={source} label={source === 'LIVE' ? 'Gửi thật' : 'Gửi mẫu'} />
-          </div>
+          <div className="mt-3" />
         </header>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
-          <section className="space-y-3 rounded-2xl border border-outline-variant bg-surface-container-low px-3 py-3">
+        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
+            <div className="space-y-4">
+              <section className="space-y-3 rounded-2xl border border-outline-variant bg-surface-container-low px-3 py-3">
             <div>
               <h3 className="text-sm font-semibold text-on-surface">Nội dung</h3>
               <p className="mt-0.5 text-xs text-on-surface-variant">
@@ -112,6 +118,49 @@ const NotificationComposerModal = ({
               />
               <ErrorText text={errors.content} />
             </label>
+
+            <div className="space-y-2">
+              <span className="app-overline">Phạm vi hiển thị</span>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {[
+                  { value: 'INTERNAL', label: 'Nội bộ', desc: 'Gửi vào hộp thư người nhận.' },
+                  { value: 'PUBLIC', label: 'Public bản tin', desc: 'Hiển thị ngoài trang bản tin y tế.' },
+                  { value: 'BOTH', label: 'Nội bộ + Public', desc: 'Vừa gửi hộp thư, vừa hiện ngoài bản tin.' }
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                      draft.visibility === option.value
+                        ? 'border-primary bg-primary-soft/10'
+                        : 'border-outline-variant bg-surface hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value={option.value}
+                      checked={draft.visibility === option.value}
+                      onChange={(e) => onFieldChange('visibility', e.target.value)}
+                      className="mt-0.5 h-4 w-4 text-primary"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-on-surface">{option.label}</p>
+                      <p className="text-xs text-on-surface-variant">{option.desc}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <ErrorText text={errors.visibility} />
+            </div>
+
+            <NotificationImageUploadField
+              onImageSelect={onImageSelect}
+              onImageClear={onImageClear}
+              imageFileName={imageFileName}
+              imagePreviewUrl={imagePreviewUrl}
+              imageUploading={imageUploading}
+              imageUploadError={imageUploadError}
+            />
           </section>
 
           <NotificationTargetSelector
@@ -123,6 +172,7 @@ const NotificationComposerModal = ({
             recipientOptions={recipientOptions}
             onFieldChange={onFieldChange}
             onToggleRecipient={onToggleRecipient}
+            showRecipients={showRecipients}
           />
 
           <NotificationRelatedFields
@@ -133,13 +183,21 @@ const NotificationComposerModal = ({
             onFieldChange={onFieldChange}
           />
 
-          <NotificationPreviewRecipients
-            preview={preview}
-            loading={previewLoading}
-            error={previewError}
-          />
-
           <ErrorText text={errors.general} />
+            </div>
+
+            <aside className="hidden md:block">
+              <div className="sticky top-0">
+                <NotificationPreviewSummary
+                  draft={draft}
+                  preview={preview}
+                  loading={previewLoading}
+                  error={previewError}
+                  imagePreviewUrl={imagePreviewUrl}
+                />
+              </div>
+            </aside>
+          </div>
         </div>
 
         <footer className="flex items-center justify-end gap-2 border-t border-outline-variant px-4 py-3.5 sm:px-5">

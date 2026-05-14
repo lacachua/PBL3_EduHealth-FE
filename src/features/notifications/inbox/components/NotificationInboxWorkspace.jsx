@@ -5,7 +5,7 @@ import NotificationComposerModal from './NotificationComposerModal';
 import NotificationDetailModal from './NotificationDetailModal';
 import NotificationHeader from './NotificationHeader';
 import NotificationList from './NotificationList';
-import NotificationSourceBadge from './NotificationSourceBadge';
+import SentNotificationList from './SentNotificationList';
 import NotificationSummaryCards from './NotificationSummaryCards';
 import NotificationToolbar from './NotificationToolbar';
 import { useNotificationInbox } from '../hooks/useNotificationInbox';
@@ -24,13 +24,11 @@ const NotificationInboxWorkspace = ({
     error,
     feedback,
     summary,
-    inboxSource,
-    inboxSourceNote,
-    sendSource,
-    feedbackSource,
-    feedbackSourceNote,
-    lookupSourceNote,
     capabilityState,
+    currentTab,
+    sentItems,
+    sentLoading,
+    sentError,
     statusFilter,
     typeFilter,
     keyword,
@@ -38,11 +36,6 @@ const NotificationInboxWorkspace = ({
     detailOpen,
     detailLoading,
     selectedNotification,
-    feedbackItems,
-    feedbackLoading,
-    feedbackDraft,
-    feedbackError,
-    feedbackSubmitting,
     composerOpen,
     draft,
     draftErrors,
@@ -50,10 +43,16 @@ const NotificationInboxWorkspace = ({
     preview,
     previewLoading,
     previewError,
+    imageUploading,
+    imageUploadError,
+    imageFileName,
+    imagePreviewUrl,
     recipientOptions,
     classOptions,
     diseaseOptions,
     vaccinationOptions,
+    showRecipients,
+    setCurrentTab,
     setStatusFilter,
     setTypeFilter,
     setKeyword,
@@ -65,9 +64,9 @@ const NotificationInboxWorkspace = ({
     closeComposer,
     updateDraftField,
     toggleRecipient,
-    setFeedbackDraft,
+    handleImageSelect,
+    clearImageUpload,
     submitDraft,
-    submitFeedback,
   } = useNotificationInbox({
     currentUser: user,
     viewerRole,
@@ -88,8 +87,6 @@ const NotificationInboxWorkspace = ({
       <NotificationHeader
         title={config.pageTitle}
         subtitle={config.subtitle}
-        inboxSource={inboxSource}
-        sendSource={sendSource}
         onRefresh={refreshInbox}
         onMarkAllRead={markAllRead}
         onCompose={openComposer}
@@ -98,60 +95,81 @@ const NotificationInboxWorkspace = ({
         composeLabel={config.composeButtonLabel}
       />
 
-      <NotificationSummaryCards summary={summary} showSent={config.canCompose} />
+      <NotificationSummaryCards summary={summary} showSent={role !== 'STUDENT'} />
 
-      {(inboxSourceNote || lookupSourceNote || feedback) ? (
+      {feedback ? (
         <section className="flex flex-wrap items-center gap-2">
-          {inboxSourceNote ? (
-            <span className="inline-flex rounded-full border border-outline-variant bg-surface-container-low px-3 py-1.5 text-xs text-on-surface-variant">
-              {inboxSourceNote}
-            </span>
-          ) : null}
-          {lookupSourceNote ? (
-            <span className="inline-flex rounded-full border border-outline-variant bg-surface-container-low px-3 py-1.5 text-xs text-on-surface-variant">
-              {lookupSourceNote}
-            </span>
-          ) : null}
-          {feedback ? (
-            <span className="inline-flex rounded-full border border-success/25 bg-success-soft px-3 py-1.5 text-xs text-success">
-              {feedback}
-            </span>
-          ) : null}
+          <span className="inline-flex rounded-full border border-success/25 bg-success-soft px-3 py-1.5 text-xs text-success">
+            {feedback}
+          </span>
         </section>
+      ) : null}
+
+      {role !== 'STUDENT' ? (
+        <div className="flex gap-6 border-b border-outline-variant px-2 sm:px-4">
+          <button
+            type="button"
+            className={`pb-3 text-sm font-semibold border-b-2 transition ${currentTab === 'inbox' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'}`}
+            onClick={() => setCurrentTab('inbox')}
+          >
+            Hộp thư đến
+          </button>
+          <button
+            type="button"
+            className={`pb-3 text-sm font-semibold border-b-2 transition ${currentTab === 'sent' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'}`}
+            onClick={() => setCurrentTab('sent')}
+          >
+            Đã gửi
+          </button>
+        </div>
       ) : null}
 
       <article className="app-card-shell rounded-2xl p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="text-base font-semibold text-on-surface">Danh sách thông báo</h2>
+            <h2 className="text-base font-semibold text-on-surface">
+              {currentTab === 'inbox' ? 'Danh sách thông báo' : 'Thông báo đã gửi'}
+            </h2>
             <p className="mt-0.5 text-xs text-on-surface-variant">
-              Trạng thái đọc được lấy từ NotificationRecipient của người dùng hiện tại.
+              {currentTab === 'inbox' ? 'Danh sách các thông báo được gửi đến bạn.' : 'Các thông báo và bản tin bạn đã tạo và gửi đi.'}
             </p>
           </div>
-          <NotificationSourceBadge source={inboxSource} />
         </div>
 
-        <NotificationToolbar
-          role={role}
-          statusFilter={statusFilter}
-          typeFilter={typeFilter}
-          keyword={keyword}
-          availableTypes={availableTypes}
-          onStatusFilterChange={setStatusFilter}
-          onTypeFilterChange={setTypeFilter}
-          onKeywordChange={setKeyword}
-        />
+        {currentTab === 'inbox' ? (
+          <>
+            <NotificationToolbar
+              role={role}
+              statusFilter={statusFilter}
+              typeFilter={typeFilter}
+              keyword={keyword}
+              availableTypes={availableTypes}
+              onStatusFilterChange={setStatusFilter}
+              onTypeFilterChange={setTypeFilter}
+              onKeywordChange={setKeyword}
+            />
 
-        <NotificationList
-          role={role}
-          items={items}
-          loading={loading}
-          error={error}
-          emptyTitle={config.emptyTitle}
-          emptyDescription={config.emptyDescription}
-          onOpen={openDetail}
-          onRetry={refreshInbox}
-        />
+            <NotificationList
+              role={role}
+              items={items}
+              loading={loading}
+              error={error}
+              emptyTitle={config.emptyTitle}
+              emptyDescription={config.emptyDescription}
+              onOpen={openDetail}
+              onRetry={refreshInbox}
+            />
+          </>
+        ) : (
+          <SentNotificationList
+            role={role}
+            items={sentItems}
+            loading={sentLoading}
+            error={sentError}
+            onOpen={openDetail}
+            onRetry={refreshInbox}
+          />
+        )}
       </article>
 
       <NotificationComposerModal
@@ -162,10 +180,15 @@ const NotificationInboxWorkspace = ({
         draft={draft}
         errors={draftErrors}
         submitting={submitting}
-        source={sendSource}
         onFieldChange={updateDraftField}
         onToggleRecipient={toggleRecipient}
         onSubmit={submitDraft}
+        onImageSelect={handleImageSelect}
+        onImageClear={clearImageUpload}
+        imageFileName={imageFileName}
+        imagePreviewUrl={imagePreviewUrl}
+        imageUploading={imageUploading}
+        imageUploadError={imageUploadError}
         recipientOptions={recipientOptions}
         classOptions={classOptions}
         diseaseOptions={diseaseOptions}
@@ -173,6 +196,7 @@ const NotificationInboxWorkspace = ({
         preview={preview}
         previewLoading={previewLoading}
         previewError={previewError}
+        showRecipients={showRecipients}
       />
 
       <NotificationDetailModal
@@ -182,15 +206,6 @@ const NotificationInboxWorkspace = ({
         role={role}
         currentUser={user}
         onClose={closeDetail}
-        feedbackItems={feedbackItems}
-        feedbackLoading={feedbackLoading}
-        feedbackSource={feedbackSource}
-        feedbackSourceNote={feedbackSourceNote}
-        feedbackDraft={feedbackDraft}
-        feedbackError={feedbackError}
-        feedbackSubmitting={feedbackSubmitting}
-        onFeedbackDraftChange={setFeedbackDraft}
-        onFeedbackSubmit={submitFeedback}
       />
     </div>
   );

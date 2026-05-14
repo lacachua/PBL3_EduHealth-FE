@@ -12,6 +12,7 @@ const NotificationTargetSelector = ({
   recipientOptions = [],
   onFieldChange,
   onToggleRecipient,
+  showRecipients = true,
 }) => {
   const [classKeyword, setClassKeyword] = useState('');
   const isStudent = role === 'STUDENT';
@@ -21,19 +22,23 @@ const NotificationTargetSelector = ({
       return recipientOptions.filter((recipient) => recipient.role === 'ADMIN' || recipient.role === 'NURSE');
     }
 
-    if (draft.targetMode === TARGET_MODES.STAFF) {
-      return recipientOptions.filter((recipient) => recipient.role === 'ADMIN' || recipient.role === 'NURSE');
+    if (draft.targetMode === TARGET_MODES.ROLES) {
+      return recipientOptions;
     }
 
     return recipientOptions;
   }, [draft.targetMode, isStudent, recipientOptions]);
+
+  if (!showRecipients) {
+    return null;
+  }
 
   return (
     <section className="space-y-3 rounded-2xl border border-outline-variant bg-surface-container-low px-3 py-3">
       <div>
         <h3 className="text-sm font-semibold text-on-surface">Người nhận</h3>
         <p className="mt-0.5 text-xs text-on-surface-variant">
-          {isStudent ? 'Học sinh chỉ gửi yêu cầu tới quản trị hoặc điều dưỡng.' : 'Chọn lớp hoặc người nhận cụ thể, không nhập mã thô.'}
+          {isStudent ? 'Học sinh chỉ gửi yêu cầu tới quản trị hoặc điều dưỡng.' : 'Chọn lớp hoặc người nhận cụ thể.'}
         </p>
       </div>
 
@@ -82,33 +87,47 @@ const NotificationTargetSelector = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {draft.targetMode === TARGET_MODES.STAFF ? (
-            <div className="flex flex-wrap gap-2">
-              {['ADMIN', 'NURSE'].map((targetRole) => {
-                const roleIds = filteredRecipients
-                  .filter((recipient) => recipient.role === targetRole)
-                  .map((recipient) => recipient.userId);
-
-                return (
-                  <button
-                    key={targetRole}
-                    type="button"
-                    onClick={() => onFieldChange('recipientUserIds', roleIds)}
-                    className="app-focus-ring app-btn-secondary min-h-9 px-3 text-xs"
-                  >
-                    {targetRole === 'ADMIN' ? 'Chọn quản trị' : 'Chọn điều dưỡng'}
-                  </button>
-                );
-              })}
+          {draft.targetMode === TARGET_MODES.ROLES ? (
+            <div className="space-y-2">
+              <span className="app-overline">Chọn vai trò nhận thông báo</span>
+              <div className="flex flex-wrap gap-2">
+                {['ADMIN', 'NURSE', 'STUDENT'].map((targetRole) => {
+                  const isSelected = (draft.targetRoles || []).includes(targetRole);
+                  const roleLabel = targetRole === 'ADMIN' ? 'Quản trị' : targetRole === 'NURSE' ? 'Điều dưỡng' : 'Học sinh';
+                  
+                  return (
+                    <button
+                      key={targetRole}
+                      type="button"
+                      onClick={() => {
+                        const currentRoles = draft.targetRoles || [];
+                        const nextRoles = isSelected
+                          ? currentRoles.filter(r => r !== targetRole)
+                          : [...currentRoles, targetRole];
+                        onFieldChange('targetRoles', nextRoles);
+                      }}
+                      className={`app-focus-ring min-h-9 px-4 rounded-xl border text-sm font-semibold transition ${
+                        isSelected
+                          ? 'border-primary bg-primary text-on-primary'
+                          : 'border-outline-variant bg-surface text-on-surface hover:bg-surface-container-low'
+                      }`}
+                    >
+                      {roleLabel}
+                    </button>
+                  );
+                })}
+              </div>
+              {errors.targetRoles ? <p className="text-xs font-semibold text-danger">{errors.targetRoles}</p> : null}
             </div>
-          ) : null}
-          <NotificationRecipientPicker
-            label={config.recipientLabel}
-            options={filteredRecipients}
-            selectedIds={draft.recipientUserIds}
-            onToggle={onToggleRecipient}
-            error={errors.recipientUserIds}
-          />
+          ) : (
+            <NotificationRecipientPicker
+              label={config.recipientLabel}
+              options={filteredRecipients}
+              selectedIds={draft.recipientUserIds}
+              onToggle={onToggleRecipient}
+              error={errors.recipientUserIds}
+            />
+          )}
         </div>
       )}
 

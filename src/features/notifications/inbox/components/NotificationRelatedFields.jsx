@@ -50,8 +50,8 @@ const NotificationRelatedFields = ({
   vaccinationOptions = [],
   onFieldChange,
 }) => {
-  const showDisease = healthTypes.has(draft.type);
-  const showVaccination = vaccinationTypes.has(draft.type);
+  const showDisease = healthTypes.has(draft.type) && diseaseOptions.length > 0;
+  const showVaccination = vaccinationTypes.has(draft.type) && vaccinationOptions.length > 0;
 
   if (!showDisease && !showVaccination) {
     return null;

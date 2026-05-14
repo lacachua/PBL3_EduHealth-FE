@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  canReplyToNotification,
   canViewNotificationRecipients,
 } from '../constants/notificationComposeConfig';
 import {
@@ -8,8 +7,6 @@ import {
   getRoleLabel,
   TYPE_TONE_CLASS_MAP,
 } from '../constants/notificationTypes';
-import NotificationFeedbackForm from './NotificationFeedbackForm';
-import NotificationFeedbackThread from './NotificationFeedbackThread';
 
 const formatDateTime = (value) => {
   if (!value) {
@@ -44,15 +41,6 @@ const NotificationDetailModal = ({
   role,
   currentUser,
   onClose,
-  feedbackItems = [],
-  feedbackLoading = false,
-  feedbackSource = 'MOCK_READY',
-  feedbackSourceNote = '',
-  feedbackDraft = '',
-  feedbackError = '',
-  feedbackSubmitting = false,
-  onFeedbackDraftChange,
-  onFeedbackSubmit,
   onViewFullPage,
 }) => {
   if (!open) {
@@ -62,8 +50,8 @@ const NotificationDetailModal = ({
   const typeMeta = getNotificationTypeMeta(item?.type, role);
   const typeToneClassName = TYPE_TONE_CLASS_MAP[typeMeta.tone] || TYPE_TONE_CLASS_MAP.info;
   const canViewRecipients = canViewNotificationRecipients({ role, notification: item, currentUser });
-  const canReply = canReplyToNotification({ role, notification: item, currentUser });
   const recipients = item?.recipients || [];
+  const imageUrl = item?.imageUrl;
 
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-900/45 px-0 py-0 backdrop-blur-[1px] sm:items-center sm:px-4 sm:py-6">
@@ -76,9 +64,18 @@ const NotificationDetailModal = ({
               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 font-semibold ${typeToneClassName}`}>
                 {typeMeta.label}
               </span>
-              <span>{item?.createdByName || '--'} · {getRoleLabel(item?.createdByRole)}</span>
+              {item?.visibility ? (
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft/10 px-2 py-0.5 font-semibold text-primary">
+                  {item.visibility === 'PUBLIC' ? 'Public bản tin' : item.visibility === 'INTERNAL' ? 'Nội bộ' : 'Nội bộ + Public'}
+                </span>
+              ) : null}
+              {item?.isSentItem ? (
+                <span className="font-medium text-on-surface">Đã gửi</span>
+              ) : (
+                <span>{item?.createdByName || '--'} {item?.createdByRole ? `· ${getRoleLabel(item.createdByRole)}` : ''}</span>
+              )}
               <span>{formatDateTime(item?.createdAt)}</span>
-              <span>{item?.currentRecipient?.isRead ? 'Đã đọc' : 'Chưa đọc'}</span>
+              {!item?.isSentItem && item?.currentRecipient ? <span>{item.currentRecipient.isRead ? 'Đã đọc' : 'Chưa đọc'}</span> : null}
             </div>
           </div>
 
@@ -105,6 +102,20 @@ const NotificationDetailModal = ({
           ) : (
             <div className="space-y-5">
               <section className="rounded-2xl border border-outline-variant bg-surface-container-low px-4 py-3.5">
+                {imageUrl ? (
+                  <div className="mb-4 overflow-hidden rounded-2xl border border-outline-variant bg-surface" data-image-wrapper>
+                    <img
+                      src={imageUrl}
+                      alt={item?.title || 'Thông báo'}
+                      className="max-h-[420px] w-full object-contain bg-white"
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.classList.add('hidden');
+                        event.currentTarget.parentElement?.classList.add('hidden');
+                      }}
+                    />
+                  </div>
+                ) : null}
                 <p className="whitespace-pre-wrap text-sm leading-6 text-on-surface-variant">
                   {item?.content || 'Không có nội dung.'}
                 </p>
@@ -121,17 +132,29 @@ const NotificationDetailModal = ({
                 <InfoRow label="Đợt tiêm liên quan" value={item?.vaccinationName} />
               </section>
 
-              {canViewRecipients ? (
+              {canViewRecipients && (recipients.length > 0 || item?.totalRecipients > 0) ? (
                 <section className="rounded-2xl border border-outline-variant bg-surface px-3 py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <h3 className="text-sm font-semibold text-on-surface">Người nhận</h3>
                       <p className="mt-0.5 text-xs text-on-surface-variant">
-                        {recipients.length} người nhận trong thông báo này.
+                        {item?.totalRecipients > 0 ? `${item.totalRecipients} người nhận trong thông báo này.` : `${recipients.length} người nhận trong thông báo này.`}
                       </p>
                     </div>
+                    {item?.readCount !== undefined ? (
+                      <div className="flex items-center gap-3 text-xs font-semibold">
+                        <span className="flex items-center gap-1 text-success">
+                          <span className="material-symbols-outlined text-[16px]">done_all</span>
+                          {item.readCount} đã đọc
+                        </span>
+                        <span className="flex items-center gap-1 text-warning">
+                          <span className="material-symbols-outlined text-[16px]">mark_email_unread</span>
+                          {item.unreadCount} chưa đọc
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
-                  {recipients.length ? (
+                  {recipients.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {recipients.slice(0, 8).map((recipient) => (
                         <span key={`${recipient.id}-${recipient.userId}`} className="inline-flex items-center rounded-full border border-outline-variant bg-surface-container-low px-2.5 py-1 text-xs text-on-surface-variant">
@@ -144,27 +167,10 @@ const NotificationDetailModal = ({
                         </span>
                       ) : null}
                     </div>
-                  ) : (
-                    <p className="mt-3 text-sm text-on-surface-variant">Backend chưa trả danh sách người nhận chi tiết.</p>
                   )}
                 </section>
               ) : null}
 
-              <NotificationFeedbackThread
-                feedbacks={feedbackItems}
-                loading={feedbackLoading}
-                source={feedbackSource}
-                sourceNote={feedbackSourceNote}
-              />
-
-              <NotificationFeedbackForm
-                value={feedbackDraft}
-                error={feedbackError}
-                submitting={feedbackSubmitting}
-                canReply={canReply}
-                onChange={onFeedbackDraftChange}
-                onSubmit={onFeedbackSubmit}
-              />
             </div>
           )}
         </div>

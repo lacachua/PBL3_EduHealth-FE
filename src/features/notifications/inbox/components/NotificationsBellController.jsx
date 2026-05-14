@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
-import { validateFeedbackDraft } from '../adapters/notificationAdapters';
 import { useNotificationsBellPanel } from '../hooks/useNotificationsBellPanel';
 import { notificationsRepository } from '../repositories/notificationsRepository';
 import NotificationDetailModal from './NotificationDetailModal';
@@ -36,8 +35,6 @@ const NotificationsBellController = ({
   const role = String(viewerRole || currentUser?.role || 'STUDENT').toUpperCase();
   const {
     recentItems,
-    recentSource,
-    recentSourceNote,
     unreadCount,
     loading,
     error,
@@ -51,13 +48,6 @@ const NotificationsBellController = ({
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [feedbackItems, setFeedbackItems] = useState([]);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
-  const [feedbackSource, setFeedbackSource] = useState(capabilityState.feedbackSource);
-  const [feedbackSourceNote, setFeedbackSourceNote] = useState('');
-  const [feedbackDraft, setFeedbackDraft] = useState('');
-  const [feedbackError, setFeedbackError] = useState('');
-  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   React.useEffect(() => {
     onUnreadChange?.(unreadCount);
@@ -67,32 +57,7 @@ const NotificationsBellController = ({
     setDetailOpen(false);
     setDetailLoading(false);
     setSelectedNotification(null);
-    setFeedbackItems([]);
-    setFeedbackLoading(false);
-    setFeedbackDraft('');
-    setFeedbackError('');
-    setFeedbackSource(capabilityState.feedbackSource);
-    setFeedbackSourceNote('');
-  }, [capabilityState.feedbackSource]);
-
-  const loadFeedbacks = useCallback(async (notificationId) => {
-    setFeedbackLoading(true);
-    try {
-      const result = await notificationsRepository.getFeedbacks(notificationId, {
-        currentUser,
-        viewerRole: role,
-      });
-      setFeedbackItems(result.feedbacks || []);
-      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
-      setFeedbackSourceNote(String(result.sourceNote || ''));
-    } catch (apiError) {
-      setFeedbackItems([]);
-      setFeedbackSource('PENDING');
-      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
-    } finally {
-      setFeedbackLoading(false);
-    }
-  }, [capabilityState.feedbackSource, currentUser, role]);
+  }, []);
 
   const openNotificationDetail = useCallback(async (notification) => {
     const notificationId = Number(notification?.notificationId || 0);
@@ -112,16 +77,20 @@ const NotificationsBellController = ({
 
     setDetailOpen(true);
     setDetailLoading(true);
-    setFeedbackDraft('');
-    setFeedbackError('');
 
     try {
-      const detail = await notificationsRepository.getNotificationDetail(notificationId, {
-        currentUser,
-        viewerRole: role,
-      });
+      const isLive = capabilityState.recentSource === 'LIVE';
+      let nextItem = null;
 
-      let nextItem = detail.item || null;
+      if (isLive) {
+        nextItem = notification || null;
+      } else {
+        const detail = await notificationsRepository.getNotificationDetail(notificationId, {
+          currentUser,
+          viewerRole: role,
+        });
+        nextItem = detail.item || null;
+      }
 
       if (nextItem && !nextItem.currentRecipient?.isRead) {
         await notificationsRepository.markRead(nextItem.notificationId, {
@@ -132,7 +101,7 @@ const NotificationsBellController = ({
       }
 
       setSelectedNotification(nextItem);
-      await Promise.all([loadFeedbacks(notificationId), refresh()]);
+      await refresh();
     } catch (apiError) {
       setSelectedNotification({
         notificationId,
@@ -145,16 +114,13 @@ const NotificationsBellController = ({
         createdAt: new Date().toISOString(),
         currentRecipient: { isRead: true },
         recipients: [],
-        feedbackCount: 0,
+
         source: 'PENDING',
       });
-      setFeedbackItems([]);
-      setFeedbackSource('PENDING');
-      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
     } finally {
       setDetailLoading(false);
     }
-  }, [currentUser, fullPagePath, loadFeedbacks, navigate, onClose, refresh, role]);
+  }, [capabilityState.recentSource, currentUser, fullPagePath, navigate, onClose, refresh, role]);
 
   const handleMarkAllRead = useCallback(async () => {
     try {
@@ -164,42 +130,9 @@ const NotificationsBellController = ({
       });
       await refresh();
     } catch {
-      // Bell keeps the pending/mock status visible without interrupting navigation.
+      // Keep silent for bell panel.
     }
   }, [currentUser, refresh, role]);
-
-  const handleFeedbackSubmit = useCallback(async () => {
-    if (!selectedNotification?.notificationId) {
-      return;
-    }
-
-    const validation = validateFeedbackDraft({
-      notificationId: selectedNotification.notificationId,
-      content: feedbackDraft,
-    });
-
-    if (!validation.isValid) {
-      setFeedbackError(validation.error);
-      return;
-    }
-
-    setFeedbackSubmitting(true);
-    try {
-      const result = await notificationsRepository.createFeedback(
-        selectedNotification.notificationId,
-        validation.payload,
-        { currentUser, viewerRole: role },
-      );
-      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
-      setFeedbackSourceNote(String(result.sourceNote || ''));
-      setFeedbackDraft('');
-      await Promise.all([loadFeedbacks(selectedNotification.notificationId), refresh()]);
-    } catch (apiError) {
-      setFeedbackError(normalizeApiMessage(apiError, 'Không thể gửi phản hồi.'));
-    } finally {
-      setFeedbackSubmitting(false);
-    }
-  }, [capabilityState.feedbackSource, currentUser, feedbackDraft, loadFeedbacks, refresh, role, selectedNotification?.notificationId]);
 
   const canMarkAllRead = useMemo(
     () => capabilityState.markAllReadSupported,
@@ -215,8 +148,6 @@ const NotificationsBellController = ({
         unreadCount={unreadCount}
         loading={loading}
         error={error}
-        source={recentSource}
-        sourceNote={recentSourceNote}
         onViewAll={() => {
           onClose?.();
           navigate(fullPagePath);
@@ -233,20 +164,15 @@ const NotificationsBellController = ({
         role={role}
         currentUser={currentUser}
         onClose={closeDetail}
-        feedbackItems={feedbackItems}
-        feedbackLoading={feedbackLoading}
-        feedbackSource={feedbackSource}
-        feedbackSourceNote={feedbackSourceNote}
-        feedbackDraft={feedbackDraft}
-        feedbackError={feedbackError}
-        feedbackSubmitting={feedbackSubmitting}
-        onFeedbackDraftChange={setFeedbackDraft}
-        onFeedbackSubmit={handleFeedbackSubmit}
         onViewFullPage={() => {
+          if (!selectedNotification?.notificationId) {
+            return;
+          }
+
           onClose?.();
           navigate(fullPagePath, {
             state: {
-              openNotificationId: selectedNotification?.notificationId,
+              openNotificationId: selectedNotification.notificationId,
             },
           });
         }}

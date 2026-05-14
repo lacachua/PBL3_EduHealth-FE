@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
 import {
-  canReplyToNotification,
   getNotificationComposeConfig,
 } from '../constants/notificationComposeConfig';
 import {
   createInitialComposeState,
-  validateFeedbackDraft,
   validateNotificationDraft,
 } from '../adapters/notificationAdapters';
 import { notificationsRepository } from '../repositories/notificationsRepository';
+import { connectNotificationSse } from '../services/notificationSseClient';
 import { subscribeNotificationsChanged } from '../services/notificationsEvents';
 
 const buildReadNotification = (item) => ({
@@ -31,32 +30,47 @@ export const useNotificationInbox = ({
     () => notificationsRepository.getCapabilityState({ viewerRole: role }),
     [role],
   );
+  const effectiveConfig = useMemo(() => {
+    if (!capabilityState.allowedTargetModes?.length) {
+      return config;
+    }
+
+    const next = {
+      ...config,
+      allowedTargetModes: capabilityState.allowedTargetModes,
+    };
+
+    if (!next.allowedTargetModes.includes(next.defaultTargetMode)) {
+      [next.defaultTargetMode] = next.allowedTargetModes;
+    }
+
+    return next;
+  }, [capabilityState.allowedTargetModes, config]);
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState('');
 
-  const [inboxSource, setInboxSource] = useState(capabilityState.inboxSource);
-  const [inboxSourceNote, setInboxSourceNote] = useState('');
-  const [sendSource, setSendSource] = useState(capabilityState.composeSource);
-  const [feedbackSource, setFeedbackSource] = useState(capabilityState.feedbackSource);
-  const [feedbackSourceNote, setFeedbackSourceNote] = useState('');
-  const [lookupSourceNote, setLookupSourceNote] = useState('');
+
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('');
   const [keyword, setKeyword] = useState('');
 
+  const [currentTab, setCurrentTab] = useState('inbox');
+  const [sentItems, setSentItems] = useState([]);
+  const [sentLoading, setSentLoading] = useState(false);
+  const [sentError, setSentError] = useState('');
+
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const [feedbackItems, setFeedbackItems] = useState([]);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
-  const [feedbackDraft, setFeedbackDraft] = useState('');
-  const [feedbackError, setFeedbackError] = useState('');
-  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState('');
+  const [imageFileName, setImageFileName] = useState('');
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
 
   const [composerOpen, setComposerOpen] = useState(false);
   const [draft, setDraft] = useState(() => createInitialComposeState(role));
@@ -73,22 +87,14 @@ export const useNotificationInbox = ({
 
   const summary = useMemo(() => {
     const unread = items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0);
-    const sent = items.reduce((sum, item) => {
-      const currentUserId = Number(currentUser?.userId || currentUser?.id || 0);
-      if (!currentUserId) {
-        return sum + (item.createdByRole === role ? 1 : 0);
-      }
-
-      return sum + (Number(item.createdByUserId) === currentUserId ? 1 : 0);
-    }, 0);
 
     return {
       total: items.length,
       unread,
       read: Math.max(0, items.length - unread),
-      sent,
+      sent: sentItems.length,
     };
-  }, [currentUser?.id, currentUser?.userId, items, role]);
+  }, [currentUser?.id, currentUser?.userId, items, sentItems.length, role]);
 
   const availableTypes = useMemo(() => {
     const seen = new Set(config.allowedTypes);
@@ -114,9 +120,8 @@ export const useNotificationInbox = ({
       setClassOptions(classes.options || []);
       setDiseaseOptions(diseases.options || []);
       setVaccinationOptions(vaccinations.options || []);
-      setLookupSourceNote(recipients.sourceNote || classes.sourceNote || diseases.sourceNote || vaccinations.sourceNote || '');
     } catch (apiError) {
-      setLookupSourceNote(normalizeApiMessage(apiError, 'Không thể tải dữ liệu chọn.'));
+      console.error('Không thể tải dữ liệu chọn:', apiError);
     }
   }, [role]);
 
@@ -136,8 +141,6 @@ export const useNotificationInbox = ({
       }, role);
 
       setItems(data.items || []);
-      setInboxSource(String(data.source || capabilityState.inboxSource));
-      setInboxSourceNote(String(data.sourceNote || ''));
     } catch (apiError) {
       setItems([]);
       setError(normalizeApiMessage(apiError, 'Không thể tải danh sách thông báo.'));
@@ -146,27 +149,28 @@ export const useNotificationInbox = ({
     }
   }, [capabilityState.inboxSource, currentUser, keyword, role, statusFilter, typeFilter]);
 
-  const loadFeedbacks = useCallback(async (notificationId) => {
-    setFeedbackLoading(true);
-    setFeedbackError('');
+  const loadSentInbox = useCallback(async () => {
+    if (role !== 'ADMIN' && role !== 'NURSE') {
+      return;
+    }
+
+    setSentLoading(true);
+    setSentError('');
 
     try {
-      const result = await notificationsRepository.getFeedbacks(notificationId, {
-        currentUser,
-        viewerRole: role,
-      });
+      const data = await notificationsRepository.getSentNotifications({
+        page: 1,
+        pageSize: 50,
+      }, role);
 
-      setFeedbackItems(result.feedbacks || []);
-      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
-      setFeedbackSourceNote(String(result.sourceNote || ''));
+      setSentItems(data.items || []);
     } catch (apiError) {
-      setFeedbackItems([]);
-      setFeedbackSource('PENDING');
-      setFeedbackSourceNote(normalizeApiMessage(apiError, 'Không thể tải phản hồi.'));
+      setSentItems([]);
+      setSentError(normalizeApiMessage(apiError, 'Không thể tải danh sách đã gửi.'));
     } finally {
-      setFeedbackLoading(false);
+      setSentLoading(false);
     }
-  }, [capabilityState.feedbackSource, currentUser, role]);
+  }, [role]);
 
   useEffect(() => {
     loadLookups();
@@ -174,16 +178,41 @@ export const useNotificationInbox = ({
 
   useEffect(() => {
     loadInbox();
-  }, [loadInbox]);
+    loadSentInbox();
+  }, [loadInbox, loadSentInbox]);
 
   useEffect(() => {
     return subscribeNotificationsChanged(() => {
       loadInbox();
+      loadSentInbox();
     });
-  }, [loadInbox]);
+  }, [loadInbox, loadSentInbox]);
+
+  useEffect(() => {
+    if (!capabilityState.sseSupported) {
+      return undefined;
+    }
+
+    return connectNotificationSse();
+  }, [capabilityState.sseSupported]);
 
   useEffect(() => {
     if (!composerOpen) {
+      return undefined;
+    }
+
+    if (draft.visibility === 'PUBLIC') {
+      setPreview({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
+      setPreviewError('');
+      return undefined;
+    }
+
+    const hasRecipients = Array.isArray(draft.recipientUserIds) && draft.recipientUserIds.length > 0;
+    const hasClass = Number(draft.classId || 0) > 0;
+
+    if (!hasRecipients && !hasClass) {
+      setPreview({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
+      setPreviewError('');
       return undefined;
     }
 
@@ -206,50 +235,56 @@ export const useNotificationInbox = ({
     }, 180);
 
     return () => window.clearTimeout(timeoutId);
-  }, [composerOpen, currentUser, draft, role]);
+  }, [capabilityState.lookupSource, composerOpen, currentUser, draft, role]);
 
-  const openDetail = useCallback(async (notificationId) => {
+  const openDetail = useCallback(async (notificationId, mode = 'inbox') => {
     setDetailOpen(true);
     setDetailLoading(true);
-    setFeedbackDraft('');
-    setFeedbackError('');
 
     try {
-      const detail = await notificationsRepository.getNotificationDetail(notificationId, {
-        currentUser,
-        viewerRole: role,
-      });
+      let nextItem = null;
 
-      let nextItem = detail.item || null;
+      if (mode === 'sent') {
+        nextItem = sentItems.find((item) => Number(item.notificationId) === Number(notificationId)) || null;
+      } else {
+        const isLive = capabilityState.inboxSource === 'LIVE';
 
-      if (nextItem && !nextItem.currentRecipient?.isRead) {
-        await notificationsRepository.markRead(nextItem.notificationId, {
-          currentUser,
-          viewerRole: role,
-        });
-        nextItem = buildReadNotification(nextItem);
+        if (isLive) {
+          nextItem = items.find((item) => Number(item.notificationId) === Number(notificationId)) || null;
+        } else {
+          const detail = await notificationsRepository.getNotificationDetail(notificationId, {
+            currentUser,
+            viewerRole: role,
+          });
+          nextItem = detail.item || null;
+        }
+
+        if (nextItem && !nextItem.currentRecipient?.isRead) {
+          await notificationsRepository.markRead(nextItem.notificationId, {
+            currentUser,
+            viewerRole: role,
+          });
+          nextItem = buildReadNotification(nextItem);
+        }
       }
 
       setSelectedNotification(nextItem);
-      await Promise.all([loadInbox(), loadFeedbacks(notificationId)]);
+      
+      if (mode !== 'sent') {
+        await loadInbox();
+      }
     } catch (apiError) {
       setSelectedNotification(null);
-      setFeedbackItems([]);
       setError(normalizeApiMessage(apiError, 'Không thể tải chi tiết thông báo.'));
     } finally {
       setDetailLoading(false);
     }
-  }, [currentUser, loadFeedbacks, loadInbox, role]);
+  }, [capabilityState.inboxSource, currentUser, items, sentItems, loadInbox, role]);
 
   const closeDetail = useCallback(() => {
     setDetailOpen(false);
     setSelectedNotification(null);
-    setFeedbackItems([]);
-    setFeedbackDraft('');
-    setFeedbackError('');
-    setFeedbackSource(capabilityState.feedbackSource);
-    setFeedbackSourceNote('');
-  }, [capabilityState.feedbackSource]);
+  }, []);
 
   const markAllRead = useCallback(async () => {
     try {
@@ -267,12 +302,20 @@ export const useNotificationInbox = ({
     }
 
     setComposerOpen(true);
-    setDraft(createInitialComposeState(role));
+    const nextDraft = createInitialComposeState(role);
+    if (effectiveConfig?.defaultTargetMode) {
+      nextDraft.targetMode = effectiveConfig.defaultTargetMode;
+    }
+    setDraft(nextDraft);
     setDraftErrors({});
     setFeedback('');
     setPreview({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
     setPreviewError('');
-  }, [capabilityState.canCompose, capabilityState.lookupSource, role]);
+    setImageUploading(false);
+    setImageUploadError('');
+    setImageFileName('');
+    setImagePreviewUrl('');
+  }, [capabilityState.canCompose, capabilityState.lookupSource, effectiveConfig?.defaultTargetMode, role]);
 
   const closeComposer = useCallback(() => {
     setComposerOpen(false);
@@ -289,6 +332,18 @@ export const useNotificationInbox = ({
       if (field === 'targetMode') {
         next.classId = '';
         next.recipientUserIds = [];
+        next.targetRoles = [];
+      }
+
+      if (field === 'visibility' && value === 'PUBLIC') {
+        next.targetMode = '';
+        next.classId = '';
+        next.recipientUserIds = [];
+        next.targetRoles = [];
+      }
+
+      if (field === 'visibility' && value !== 'PUBLIC' && !previous.targetMode) {
+        next.targetMode = effectiveConfig?.defaultTargetMode || next.targetMode;
       }
 
       if (field === 'type') {
@@ -307,12 +362,13 @@ export const useNotificationInbox = ({
     setDraftErrors((previous) => ({
       ...previous,
       [field]: undefined,
+      visibility: field === 'visibility' ? undefined : previous.visibility,
       classId: field === 'targetMode' ? undefined : previous.classId,
       recipientUserIds: field === 'targetMode' ? undefined : previous.recipientUserIds,
       targetMode: undefined,
       general: undefined,
     }));
-  }, []);
+  }, [effectiveConfig?.defaultTargetMode]);
 
   const toggleRecipient = useCallback((userId) => {
     const parsedId = Number(userId || 0);
@@ -339,6 +395,56 @@ export const useNotificationInbox = ({
     }));
   }, []);
 
+  const handleImageSelect = useCallback(async (file) => {
+    if (!file) {
+      return;
+    }
+
+    const localPreviewUrl = URL.createObjectURL(file);
+
+    setImageUploading(true);
+    setImageUploadError('');
+    setImageFileName(file.name || '');
+    setImagePreviewUrl(localPreviewUrl);
+    setDraft((previous) => ({
+      ...previous,
+      imageUrl: '',
+    }));
+
+    try {
+      const result = await notificationsRepository.uploadImage(file, role, {
+        currentUser,
+        viewerRole: role,
+      });
+
+      if (!result?.imageUrl) {
+        throw new Error('Upload ảnh thất bại.');
+      }
+
+      setDraft((previous) => ({
+        ...previous,
+        imageUrl: result.imageUrl,
+      }));
+      // Can keep localPreviewUrl or use the remote one. Local is faster and already loaded.
+    } catch (apiError) {
+      const message = normalizeApiMessage(apiError, 'Không thể upload ảnh.');
+      console.error('Lỗi upload ảnh:', apiError);
+      setImageUploadError(message);
+    } finally {
+      setImageUploading(false);
+    }
+  }, [currentUser, role]);
+
+  const clearImageUpload = useCallback(() => {
+    setImageFileName('');
+    setImagePreviewUrl('');
+    setImageUploadError('');
+    setDraft((previous) => ({
+      ...previous,
+      imageUrl: '',
+    }));
+  }, []);
+
   const submitDraft = useCallback(async () => {
     const validation = validateNotificationDraft({
       draft,
@@ -351,6 +457,20 @@ export const useNotificationInbox = ({
       return false;
     }
 
+    if (imageUploading) {
+      setDraftErrors({
+        general: 'Đang tải ảnh lên, vui lòng chờ hoàn tất.',
+      });
+      return false;
+    }
+
+    if (imageUploadError) {
+      setDraftErrors({
+        general: 'Ảnh minh họa chưa hợp lệ. Vui lòng thử lại.',
+      });
+      return false;
+    }
+
     setSubmitting(true);
 
     try {
@@ -359,14 +479,13 @@ export const useNotificationInbox = ({
         viewerRole: role,
       });
 
-      setSendSource(String(result.source || capabilityState.composeSource));
       setComposerOpen(false);
-      setFeedback(
-        role === 'STUDENT'
-          ? 'Đã gửi yêu cầu mẫu. Chờ backend hỗ trợ lưu dữ liệu thật.'
-          : `Đã gửi thông báo${result.totalRecipients ? ` cho ${result.totalRecipients} người nhận` : ''}.`,
-      );
+      const successMessage = role === 'STUDENT'
+        ? 'Đã gửi yêu cầu hỗ trợ.'
+        : `Đã gửi thông báo${result.totalRecipients ? ` cho ${result.totalRecipients} người nhận` : ''}.`;
+      setFeedback(successMessage);
       await loadInbox();
+      await loadSentInbox();
       return true;
     } catch (apiError) {
       setDraftErrors({
@@ -376,70 +495,23 @@ export const useNotificationInbox = ({
     } finally {
       setSubmitting(false);
     }
-  }, [capabilityState.composeSource, currentUser, draft, loadInbox, recipientOptions, role]);
+  }, [currentUser, draft, imageUploadError, imageUploading, loadInbox, recipientOptions, role]);
 
-  const submitFeedback = useCallback(async () => {
-    if (!selectedNotification?.notificationId) {
-      setFeedbackError('Không tìm thấy thông báo để phản hồi.');
-      return false;
-    }
-
-    if (!canReplyToNotification({ role, notification: selectedNotification, currentUser })) {
-      setFeedbackError('Bạn không có quyền phản hồi thông báo này.');
-      return false;
-    }
-
-    const validation = validateFeedbackDraft({
-      notificationId: selectedNotification.notificationId,
-      content: feedbackDraft,
-    });
-
-    if (!validation.isValid) {
-      setFeedbackError(validation.error);
-      return false;
-    }
-
-    setFeedbackSubmitting(true);
-
-    try {
-      const result = await notificationsRepository.createFeedback(
-        selectedNotification.notificationId,
-        validation.payload,
-        { currentUser, viewerRole: role },
-      );
-
-      setFeedbackSource(String(result.source || capabilityState.feedbackSource));
-      setFeedbackSourceNote(String(result.sourceNote || ''));
-      setFeedbackDraft('');
-      setFeedback('Đã ghi nhận phản hồi mẫu. Chờ backend hỗ trợ lưu dữ liệu thật.');
-      await Promise.all([
-        loadFeedbacks(selectedNotification.notificationId),
-        loadInbox(),
-      ]);
-      return true;
-    } catch (apiError) {
-      setFeedbackError(normalizeApiMessage(apiError, 'Không thể gửi phản hồi.'));
-      return false;
-    } finally {
-      setFeedbackSubmitting(false);
-    }
-  }, [capabilityState.feedbackSource, currentUser, feedbackDraft, loadFeedbacks, loadInbox, role, selectedNotification]);
+  const showRecipients = draft.visibility !== 'PUBLIC';
 
   return {
     role,
-    config,
+    config: effectiveConfig,
     items,
     loading,
     error,
     feedback,
     summary,
-    inboxSource,
-    inboxSourceNote,
-    sendSource,
-    feedbackSource,
-    feedbackSourceNote,
-    lookupSourceNote,
     capabilityState,
+    currentTab,
+    sentItems,
+    sentLoading,
+    sentError,
     statusFilter,
     typeFilter,
     keyword,
@@ -447,11 +519,6 @@ export const useNotificationInbox = ({
     detailOpen,
     detailLoading,
     selectedNotification,
-    feedbackItems,
-    feedbackLoading,
-    feedbackDraft,
-    feedbackError,
-    feedbackSubmitting,
     composerOpen,
     draft,
     draftErrors,
@@ -459,16 +526,24 @@ export const useNotificationInbox = ({
     preview,
     previewLoading,
     previewError,
+    imageUploading,
+    imageUploadError,
+    imageFileName,
+    imagePreviewUrl,
+    showRecipients,
     recipientOptions,
     classOptions,
     diseaseOptions,
     vaccinationOptions,
+    setCurrentTab,
     setStatusFilter,
     setTypeFilter,
     setKeyword,
     setFeedback,
-    setFeedbackDraft,
-    refreshInbox: loadInbox,
+    refreshInbox: async () => {
+      await loadInbox();
+      await loadSentInbox();
+    },
     openDetail,
     closeDetail,
     markAllRead,
@@ -476,7 +551,8 @@ export const useNotificationInbox = ({
     closeComposer,
     updateDraftField,
     toggleRecipient,
+    handleImageSelect,
+    clearImageUpload,
     submitDraft,
-    submitFeedback,
   };
 };
