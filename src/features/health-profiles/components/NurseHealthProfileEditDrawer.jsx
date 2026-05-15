@@ -15,7 +15,6 @@ const bloodTypeOptions = [
   { value: 'B', label: 'B' },
   { value: 'AB', label: 'AB' },
   { value: 'O', label: 'O' },
-  { value: 'UNKNOWN', label: 'UNKNOWN' },
 ];
 
 const parseAllergyId = (value) => {
@@ -54,10 +53,17 @@ const toEditableAllergies = (profile, fallbackAllergyItems = []) => {
     .filter((item) => item.allergyId || item.note || item.label);
 };
 
+const roundForInput = (value) => {
+  if (value === '' || value === null || value === undefined) return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  return n.toFixed(1).replace(/\.0$/, '');
+};
+
 const createInitial = (profile, fallbackAllergyItems = []) => ({
-  heightCm: profile?.heightCm ?? '',
-  weightKg: profile?.weightKg ?? '',
-  bloodType: profile?.bloodType || '',
+  heightCm: roundForInput(profile?.heightCm),
+  weightKg: roundForInput(profile?.weightKg),
+  bloodType: profile?.bloodType === 'UNKNOWN' ? '' : (profile?.bloodType || ''),
   eyeStatus: profile?.eyeStatus || '',
   chronicNote: profile?.chronicNote || '',
   generalHealthNote: profile?.generalHealthNote || '',
@@ -211,8 +217,7 @@ const NurseHealthProfileEditDrawer = ({
       footer={footer}
     >
       <div className="space-y-4">
-        <p className="text-xs text-on-surface-variant">Dữ liệu được cập nhật trực tiếp qua API hồ sơ sức khỏe của học sinh.</p>
-
+        <p className="text-xs text-on-surface-variant">Cập nhật thông tin sức khỏe cơ bản của học sinh.</p>
         <section className="rounded-lg border border-outline-variant bg-surface-container-low p-3.5">
           <div className="flex items-start gap-3">
             <EntityAvatar name={student?.fullName} imageUrl={avatarSrc} sizeClass="h-11 w-11" />
@@ -292,7 +297,7 @@ const NurseHealthProfileEditDrawer = ({
             </button>
           </div>
 
-          <p className="mt-1 text-xs text-on-surface-muted">Chọn loại dị ứng từ danh mục API BE, sau đó thêm ghi chú nếu cần.</p>
+          <p className="mt-1 text-xs text-on-surface-muted">Chọn loại dị ứng và nhập ghi chú nếu cần.</p>
 
           <div className="mt-3 space-y-2">
             {form.allergies.length ? form.allergies.map((item, index) => (
@@ -313,7 +318,7 @@ const NurseHealthProfileEditDrawer = ({
                   type="text"
                   value={item.note}
                   onChange={(event) => setAllergyRow(index, { note: event.target.value })}
-                  placeholder={item.label ? `Ghi chú (${item.label})` : 'Ghi chú'}
+                  placeholder="Ghi chú"
                   className={editableInputClass}
                 />
                 <button

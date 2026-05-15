@@ -244,21 +244,10 @@ const deriveHealthAlerts = ({ profile, detail, allergyItems }) => {
   return alerts;
 };
 
-const deriveBmiIndicators = ({ heightCm, weightKg }) => {
+const deriveBmi = ({ heightCm, weightKg }) => {
   const h = toNumber(heightCm);
   const w = toNumber(weightKg);
-  const bmi = h && w ? round1(w / ((h / 100) ** 2)) : null;
-
-  return {
-    bmi,
-    bmiLabel: bmi === null
-      ? 'Chưa có dữ liệu'
-      : bmi < 14
-        ? 'Cần theo dõi dinh dưỡng'
-        : bmi <= 19
-          ? 'Bình thường'
-          : 'Cần giám sát cân nặng',
-  };
+  return h && w ? round1(w / ((h / 100) ** 2)) : null;
 };
 
 export const buildNurseHealthProfileViewModel = ({
@@ -279,7 +268,7 @@ export const buildNurseHealthProfileViewModel = ({
   const rawProfileEnvelope = normalizeApiEnvelope(profileEnvelope);
   const allergyItems = parseAllergyList(profile, rawProfileEnvelope.data);
   const medicationHistory = deriveMedicationHistory(healthHistory.items);
-  const growth = deriveBmiIndicators({
+  const growth = deriveBmi({
     heightCm: profile?.heightCm,
     weightKg: profile?.weightKg,
   });
@@ -312,9 +301,8 @@ export const buildNurseHealthProfileViewModel = ({
   const metrics = {
     height: toNumber(profile?.heightCm),
     weight: toNumber(profile?.weightKg),
-    bmi: growth.bmi,
+    bmi: growth,
     bloodType: profile?.bloodType || '--',
-    note: growth.bmiLabel,
   };
 
   const normalizedGuardianName = String(header.guardian || '').trim();

@@ -88,7 +88,7 @@ export const useNurseHealthProfileDetail = ({
             allergyTypeId,
             allergyTypeName,
             severity: item.severity || '',
-            label: `${allergyTypeName} (${allergyTypeId})`,
+            label: allergyTypeName,
           };
         });
 
