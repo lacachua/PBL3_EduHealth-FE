@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import NotificationSourceBadge from './NotificationSourceBadge';
 
 const formatRelativeTime = (value) => {
   const timestamp = new Date(value || '').getTime();
@@ -33,8 +32,6 @@ const NotificationsBellPanel = ({
   unreadCount = 0,
   loading = false,
   error = '',
-  source = 'pending',
-  sourceNote = '',
   onViewAll,
   onSelectItem,
   onMarkAllRead,
@@ -74,6 +71,8 @@ const NotificationsBellPanel = ({
     return null;
   }
 
+
+
   return createPortal(
     <div className="fixed inset-0 z-[75]">
       <div className="absolute inset-0 bg-transparent sm:bg-transparent" />
@@ -90,12 +89,7 @@ const NotificationsBellPanel = ({
                 {unreadCount > 0 ? `${unreadCount} thông báo chưa đọc` : 'Không có thông báo chưa đọc'}
               </p>
             </div>
-            <NotificationSourceBadge source={source} />
           </div>
-
-          {sourceNote ? (
-            <p className="mt-2 text-xs text-on-surface-variant">{sourceNote}</p>
-          ) : null}
         </header>
 
         <div className="flex-1 overflow-y-auto px-3 py-3">
@@ -125,6 +119,9 @@ const NotificationsBellPanel = ({
                   }`}
                 >
                   <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${item.currentRecipient?.isRead ? 'bg-outline-variant' : 'bg-primary'}`} />
+                  <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-outline-variant bg-surface text-on-surface-variant">
+                    <span className="material-symbols-outlined text-[18px]">notifications</span>
+                  </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-3">
                       <span className="line-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>

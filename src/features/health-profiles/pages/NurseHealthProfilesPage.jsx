@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import DataTable from '../../../shared/components/core/DataTable';
 import EmptyState from '../../../shared/components/core/EmptyState';
-import Pagination from '../../../shared/components/core/Pagination';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
@@ -13,6 +13,7 @@ import {
 } from '../../students/adapters/nurseStudentIdentifierAdapter';
 import { adaptStudentHealthProfileResponse } from '../../students/adapters/studentManagementAdapter';
 import { useStudentManagement } from '../../students/hooks/useStudentManagement';
+import { useClassOptions } from '../../students/hooks/useClassOptions';
 import { getNurseStudentHealthProfileApi } from '../services/healthProfilesApi';
 
 const DEFAULT_FILTERS = {
@@ -38,19 +39,19 @@ const ALERT_STATE_OPTIONS = [
 const PROFILE_STATUS_META = {
   recent: {
     label: 'Đã cập nhật gần đây',
-    className: 'bg-success-soft text-success',
+    className: 'neutral',
   },
   updated: {
     label: 'Đã cập nhật',
-    className: 'bg-surface-container-low text-on-surface-variant',
+    className: 'neutral',
   },
   'needs-review': {
     label: 'Cần rà soát',
-    className: 'bg-warning-soft text-warning',
+    className: 'warning',
   },
   incomplete: {
     label: 'Thiếu dữ liệu',
-    className: 'bg-danger-soft text-danger',
+    className: 'danger',
   },
 };
 
@@ -162,6 +163,8 @@ const NurseHealthProfilesPage = () => {
   const requestedIdsRef = useRef(new Set());
   const feedbackTimerRef = useRef(null);
 
+  const { classes: globalClasses } = useClassOptions();
+
   const {
     onFiltersChange,
     onPageChange,
@@ -271,17 +274,12 @@ const NurseHealthProfilesPage = () => {
   }, [profileByStudentId, sourceRows]);
 
   const classOptions = useMemo(() => {
-    const map = new Map();
-    rowsWithContext.forEach((row) => {
-      const key = String(row.classFilterValue);
-      if (key && !map.has(key)) {
-        map.set(key, row.classNameDisplay || '--');
-      }
-    });
-
-    const dynamicOptions = Array.from(map.entries()).map(([value, label]) => ({ value, label }));
-    return [{ value: 'all', label: 'Tất cả lớp' }, ...dynamicOptions];
-  }, [rowsWithContext]);
+    const options = globalClasses.map((c) => ({
+      value: String(c.classId),
+      label: c.className || `-- (ID: ${c.classId})`,
+    }));
+    return [{ value: 'all', label: 'Tất cả lớp' }, ...options];
+  }, [globalClasses]);
 
   const filteredRows = useMemo(() => {
     const keyword = String(activeFilters.keyword || '').trim().toLowerCase();
@@ -353,40 +351,30 @@ const NurseHealthProfilesPage = () => {
 
   const tableColumns = useMemo(() => ([
     {
-      key: 'studentCode',
-      header: 'Mã học sinh',
-      headerClassName: 'w-[12%] min-w-[110px]',
-      cellClassName: 'whitespace-nowrap text-[12px] font-bold text-primary',
-      render: (row) => row.studentCodeDisplay,
-    },
-    {
-      key: 'fullName',
+      key: 'student',
       header: 'Học sinh',
-      headerClassName: 'w-[25%] min-w-[180px]',
-      cellClassName: 'min-w-0',
+      headerClassName: 'w-[35%] min-w-[240px]',
       render: (row) => (
-        <button
-          type="button"
-          onClick={() => openDetail(row._studentId)}
-          className="app-focus-ring app-interactive w-full rounded-md text-left"
-        >
-          <p className="truncate text-[14px] font-bold leading-5 text-on-surface hover:text-primary">{row.fullName || '--'}</p>
-          <p className="truncate text-[11px] text-on-surface-variant">Lớp {row.classNameDisplay}</p>
-        </button>
+        <div className="w-full text-left">
+          <p className="truncate text-sm font-bold text-on-surface group-hover:text-primary">{row.fullName || '--'}</p>
+          <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">
+            {row.studentCodeDisplay} • Lớp {row.classNameDisplay}
+          </p>
+        </div>
       ),
     },
     {
       key: 'updatedAtDisplay',
       header: 'Cập nhật gần nhất',
-      headerClassName: 'w-[18%] min-w-[140px]',
-      cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
+      headerClassName: 'w-[20%] min-w-[150px]',
+      cellClassName: 'text-xs text-on-surface-variant',
       render: (row) => (
         <div>
-          <p>{row.updatedAtDisplay}</p>
+          <p className="font-medium">{row.updatedAtDisplay}</p>
           {row.updatedAtDaysAgo !== null ? (
-            <p className="text-[10px] text-on-surface-muted">{row.updatedAtDaysAgo} ngày trước</p>
+            <p className="mt-0.5 text-[10px] text-on-surface-muted">{row.updatedAtDaysAgo} ngày trước</p>
           ) : (
-            <p className="text-[10px] text-on-surface-muted">Chưa có mốc cập nhật</p>
+            <p className="mt-0.5 text-[10px] text-on-surface-muted">Chưa có mốc cập nhật</p>
           )}
         </div>
       ),
@@ -394,46 +382,43 @@ const NurseHealthProfilesPage = () => {
     {
       key: 'profileStatusKey',
       header: 'Trạng thái hồ sơ',
-      headerClassName: 'w-[18%] min-w-[140px]',
-      cellClassName: 'whitespace-nowrap',
+      headerClassName: 'w-[20%] min-w-[150px]',
       render: (row) => {
         const meta = PROFILE_STATUS_META[row.profileStatusKey] || PROFILE_STATUS_META.updated;
         return (
-          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${meta.className}`}>
+          <StatusBadge tone={meta.className}>
             {meta.label}
-          </span>
+          </StatusBadge>
         );
       },
     },
     {
       key: 'alerts',
       header: 'Cảnh báo y tế',
-      headerClassName: 'w-[20%] min-w-[160px]',
-      cellClassName: 'min-w-0',
+      headerClassName: 'w-[25%] min-w-[180px]',
       render: (row) => {
         if (!row.alerts.length) {
-          return <span className="text-[12px] text-on-surface-muted">Không có</span>;
+          return <span className="text-xs text-on-surface-muted">Không có</span>;
         }
 
         return (
           <div className="flex flex-wrap gap-1">
             {row.alerts.slice(0, 3).map((tag) => (
-              <span
+              <StatusBadge
                 key={`${row._studentId}-${tag}`}
-                className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${ALERT_BADGE_CLASS_MAP[tag] || 'bg-success-soft text-success'}`}
+                tone={tag === 'Dị ứng' ? 'danger' : tag === 'Cận thị' ? 'info' : 'warning'}
               >
                 {tag}
-              </span>
+              </StatusBadge>
             ))}
           </div>
         );
       },
     },
-
-  ]), [navigateToHealthProfile, openDetail]);
+  ]), []);
 
   return (
-    <div className="space-y-3.5 text-on-surface">
+    <div className="space-y-5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -461,116 +446,108 @@ const NurseHealthProfilesPage = () => {
         )}
       />
 
-      <section className="app-panel-shell px-4 py-3 sm:px-5">
-        <form onSubmit={handleApplyFilters} className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center">
-          <label className="relative min-w-0 flex-1 xl:max-w-[320px]">
-            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-            <input
-              type="search"
-              value={draftFilters.keyword}
-              onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
-              placeholder="Tìm theo mã học sinh hoặc họ tên"
-              className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
-            />
-          </label>
+      <AdminManagementListSection
+        filters={(
+          <div className="space-y-4">
+            <section className="app-panel-shell px-4 py-3 sm:px-5">
+              <form onSubmit={handleApplyFilters} className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-center">
+                <label className="relative min-w-0 flex-1 xl:max-w-[320px]">
+                  <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+                  <input
+                    type="search"
+                    value={draftFilters.keyword}
+                    onChange={(event) => setDraftFilters((prev) => ({ ...prev, keyword: event.target.value }))}
+                    placeholder="Tìm theo mã học sinh hoặc họ tên"
+                    className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+                  />
+                </label>
 
-          <select
-            value={draftFilters.classValue}
-            onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
-            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[128px] xl:shrink-0"
-          >
-            {classOptions.map((item) => (
-              <option key={item.value} value={item.value}>{item.label}</option>
-            ))}
-          </select>
+                <select
+                  value={draftFilters.classValue}
+                  onChange={(event) => setDraftFilters((prev) => ({ ...prev, classValue: event.target.value }))}
+                  className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[128px] xl:shrink-0"
+                >
+                  {classOptions.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
 
-          <select
-            value={draftFilters.profileStatus}
-            onChange={(event) => setDraftFilters((prev) => ({ ...prev, profileStatus: event.target.value }))}
-            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
-          >
-            {PROFILE_STATUS_OPTIONS.map((item) => (
-              <option key={item.value} value={item.value}>{item.label}</option>
-            ))}
-          </select>
+                <select
+                  value={draftFilters.profileStatus}
+                  onChange={(event) => setDraftFilters((prev) => ({ ...prev, profileStatus: event.target.value }))}
+                  className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
+                >
+                  {PROFILE_STATUS_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
 
-          <select
-            value={draftFilters.alertState}
-            onChange={(event) => setDraftFilters((prev) => ({ ...prev, alertState: event.target.value }))}
-            className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
-          >
-            {ALERT_STATE_OPTIONS.map((item) => (
-              <option key={item.value} value={item.value}>{item.label}</option>
-            ))}
-          </select>
+                <select
+                  value={draftFilters.alertState}
+                  onChange={(event) => setDraftFilters((prev) => ({ ...prev, alertState: event.target.value }))}
+                  className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm xl:w-[178px] xl:shrink-0"
+                >
+                  {ALERT_STATE_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
-            <button type="submit" className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
-              Lọc
-            </button>
+                <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
+                  <button type="submit" className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
+                    Lọc
+                  </button>
 
-            <button type="button" onClick={handleResetFilters} className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
-              Đặt lại
-            </button>
+                  <button type="button" onClick={handleResetFilters} className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold">
+                    Đặt lại
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <article className="app-kpi-card">
+                <p className="app-kpi-label">Hồ sơ cần rà soát</p>
+                <p className="app-kpi-value text-warning">{stats.needsReview}</p>
+              </article>
+              <article className="app-kpi-card">
+                <p className="app-kpi-label">Hồ sơ có cảnh báo y tế</p>
+                <p className="app-kpi-value text-danger">{stats.withAlerts}</p>
+              </article>
+            </section>
           </div>
-        </form>
-      </section>
-
-      <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Hồ sơ cần rà soát</p>
-          <p className="app-kpi-value text-warning">{stats.needsReview}</p>
-        </article>
-        <article className="app-kpi-card">
-          <p className="app-kpi-label">Hồ sơ có cảnh báo y tế</p>
-          <p className="app-kpi-value text-danger">{stats.withAlerts}</p>
-        </article>
-      </section>
-
-      <section className="app-panel-shell space-y-3 p-4 md:p-5">
-        <h2 className="text-lg font-bold text-on-surface">Danh sách hồ sơ sức khỏe</h2>
-        <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
-          Hiển thị <span className="font-semibold text-on-surface">{filteredRows.length}</span> bản ghi trên trang này • Tổng <span className="font-semibold text-on-surface">{tableData.totalItems}</span> hồ sơ
-        </div>
-
-        <AdminAsyncState
-          status={effectiveStatus}
-          error={effectiveError}
-          onRetry={fetchList}
-          loadingLabel="Đang tải danh sách hồ sơ sức khỏe..."
-          emptyTitle="Không có hồ sơ sức khỏe"
-          emptyDescription="Danh sách hồ sơ sẽ hiển thị sau khi hệ thống đồng bộ dữ liệu học sinh."
-        >
-          {filteredRows.length ? (
-            <>
-              <DataTable
-                dense
-                columns={tableColumns}
-                rows={filteredRows}
-                getRowKey={(row) => row._studentId || row.studentCode || row.fullName}
-                onRowClick={(row) => openDetail(row._studentId)}
-                tableClassName="min-w-[760px] w-full text-left text-sm"
-              />
-
-              <div className="pt-2">
-                <Pagination
-                  page={effectiveMeta.page}
-                  pageSize={effectiveMeta.pageSize}
-                  totalItems={effectiveMeta.totalItems}
-                  onPageChange={onPageChange}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="px-4 py-5 sm:px-5">
-              <EmptyState
-                title="Không tìm thấy hồ sơ phù hợp"
-                description="Hãy thử thay đổi từ khóa hoặc bộ lọc trạng thái hồ sơ để xem kết quả khác."
-              />
-            </div>
-          )}
-        </AdminAsyncState>
-      </section>
+        )}
+        summary={filteredRows.length > 0 ? `Hiển thị ${filteredRows.length} bản ghi/trang • Tổng ${tableData.totalItems} hồ sơ` : null}
+        status={effectiveStatus}
+        error={effectiveError}
+        onRetry={fetchList}
+        loadingLabel="Đang tải danh sách hồ sơ sức khỏe..."
+        emptyTitle="Không có hồ sơ sức khỏe"
+        emptyDescription="Danh sách hồ sơ sẽ hiển thị sau khi hệ thống đồng bộ dữ liệu học sinh."
+        sectionClassName="space-y-3"
+        table={filteredRows.length ? (
+          <DataTable
+            dense
+            columns={tableColumns}
+            rows={filteredRows}
+            getRowKey={(row) => row._studentId || row.studentCode || row.fullName}
+            onRowClick={(row) => openDetail(row._studentId)}
+            tableClassName="min-w-[760px] w-full text-left text-sm"
+          />
+        ) : (
+          <div className="px-4 py-5 sm:px-5">
+            <EmptyState
+              title="Không tìm thấy hồ sơ phù hợp"
+              description="Hãy thử thay đổi từ khóa hoặc bộ lọc trạng thái hồ sơ để xem kết quả khác."
+            />
+          </div>
+        )}
+        pagination={{
+          page: effectiveMeta.page,
+          pageSize: effectiveMeta.pageSize,
+          totalItems: effectiveMeta.totalItems,
+          onPageChange,
+        }}
+      />
 
       {hasProfileSyncGap ? (
         <div className="rounded-xl border border-success/30 bg-success-soft px-3.5 py-2.5 text-xs text-success">

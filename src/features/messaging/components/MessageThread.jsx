@@ -48,7 +48,7 @@ const MessageThread = ({
             description="Bắt đầu nhắn tin để tạo cuộc trò chuyện."
           />
         ) : null}
-        {status === 'success'
+        {messages.length
           ? messages.map((message) => (
             <MessageBubble
               key={message.messageId || message.clientMessageId}

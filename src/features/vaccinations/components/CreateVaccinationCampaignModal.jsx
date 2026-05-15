@@ -5,6 +5,7 @@ import {
 } from '../schemas/vaccinationSchema';
 import { VACCINATION_TARGET_TYPE_OPTIONS } from '../constants/vaccinationConstants';
 import { getNurseStudentsLookupApi } from '../../health-profiles/services/healthProfilesApi';
+import { getStudentClassesApi } from '../../students/services/classesApi';
 import NurseModalShell from '../../../shared/components/nurse/NurseModalShell';
 
 const normalizeClassCode = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -165,39 +166,11 @@ const CreateVaccinationCampaignModal = ({
   }, [selectedStudentMap, values.targetStudentIds]);
 
   const fetchClassOptions = useCallback(async () => {
-    const rows = [];
-    let page = 1;
-    let totalPages = 1;
+    const response = await getStudentClassesApi();
+    const rows = Array.isArray(response?.data) ? response.data : [];
 
-    do {
-      const response = await getNurseStudentsLookupApi({
-        page,
-        pageSize: 100,
-        isActive: true,
-      });
-
-      rows.push(...extractLookupRows(response));
-
-      const nextTotalPages = Number(response?.meta?.totalPages || response?.meta?.total_pages || 1);
-      totalPages = Number.isFinite(nextTotalPages) && nextTotalPages > 0
-        ? Math.min(nextTotalPages, 12)
-        : 1;
-
-      page += 1;
-    } while (page <= totalPages);
-
-    const optionMap = new Map();
-    rows.forEach((item) => {
-      const option = toClassOption(item);
-      if (!option) {
-        return;
-      }
-      if (!optionMap.has(option.value)) {
-        optionMap.set(option.value, option);
-      }
-    });
-
-    return Array.from(optionMap.values())
+    return rows.map((item) => toClassOption(item))
+      .filter(Boolean)
       .sort((left, right) => {
         const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
         if (byGrade !== 0) {

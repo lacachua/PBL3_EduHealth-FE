@@ -1,13 +1,10 @@
 import { waitForMock } from '../../../../shared/config/runtimeConfig';
 import {
-  adaptCreateFeedbackResponse,
-  adaptFeedbacksResponse,
   adaptNotificationDetailResponse,
   adaptNotificationsResponse,
   adaptRecentNotificationsResponse,
   adaptUnreadCountResponse,
   buildCreateNotificationPayload,
-  buildCreateFeedbackPayload,
   getCurrentUserId,
   normalizeRole,
   toNullableInteger,
@@ -16,9 +13,8 @@ import {
 import { TARGET_MODES } from '../constants/notificationTypes';
 import { emitNotificationsChanged } from '../services/notificationsEvents';
 
-const INBOX_NOTE = 'Thông báo này đang dùng dữ liệu mẫu do backend chưa hỗ trợ đầy đủ inbox/detail cho 3 role.';
-const FEEDBACK_NOTE = 'Phần phản hồi đang dùng dữ liệu mẫu, chờ backend hỗ trợ lưu dữ liệu thật.';
-const LOOKUP_NOTE = 'Danh sách chọn đang dùng dữ liệu mẫu, chờ backend bổ sung lookup dùng chung.';
+const INBOX_NOTE = '';
+const LOOKUP_NOTE = '';
 
 const nowIso = () => new Date().toISOString();
 const minutesAgo = (minutes) => new Date(Date.now() - minutes * 60 * 1000).toISOString();
@@ -93,7 +89,6 @@ const baseNotifications = Object.freeze({
       vaccinationId: null,
       currentRecipient: { id: 1, userId: 1001, isRead: false, readAt: null, sentAt: minutesAgo(18), status: 'SENT' },
       recipients: [buildRecipient(1101), buildRecipient(1102)],
-      feedbackCount: 2,
       source: 'MOCK',
     },
     {
@@ -112,7 +107,6 @@ const baseNotifications = Object.freeze({
       vaccinationId: null,
       currentRecipient: { id: 2, userId: 1001, isRead: true, readAt: minutesAgo(90), sentAt: minutesAgo(110), status: 'SENT' },
       recipients: [buildRecipient(1001, { isRead: true, readAt: minutesAgo(90) }), buildRecipient(1101)],
-      feedbackCount: 1,
       source: 'MOCK',
     },
   ],
@@ -133,7 +127,6 @@ const baseNotifications = Object.freeze({
       vaccinationId: null,
       currentRecipient: { id: 3, userId: 1101, isRead: false, readAt: null, sentAt: minutesAgo(12), status: 'SENT' },
       recipients: [buildRecipient(1101), buildRecipient(1102)],
-      feedbackCount: 3,
       source: 'MOCK',
     },
     {
@@ -151,7 +144,6 @@ const baseNotifications = Object.freeze({
       vaccinationId: null,
       currentRecipient: { id: 4, userId: 1101, isRead: true, readAt: minutesAgo(66), sentAt: minutesAgo(95), status: 'SENT' },
       recipients: [buildRecipient(1101, { isRead: true, readAt: minutesAgo(66) })],
-      feedbackCount: 0,
       source: 'MOCK',
     },
   ],
@@ -172,7 +164,6 @@ const baseNotifications = Object.freeze({
       vaccinationName: 'Tiêm nhắc lại Rubella - Lớp 5A1',
       currentRecipient: { id: 5, userId: 3002, isRead: false, readAt: null, sentAt: minutesAgo(35), status: 'SENT' },
       recipients: [buildRecipient(3001), buildRecipient(3002), buildRecipient(3003)],
-      feedbackCount: 1,
       source: 'MOCK',
     },
     {
@@ -190,31 +181,8 @@ const baseNotifications = Object.freeze({
       vaccinationId: null,
       currentRecipient: { id: 6, userId: 3002, isRead: true, readAt: minutesAgo(126), sentAt: minutesAgo(165), status: 'SENT' },
       recipients: [buildRecipient(3002, { isRead: true, readAt: minutesAgo(126) })],
-      feedbackCount: 2,
       source: 'MOCK',
     },
-  ],
-});
-
-const baseFeedbacks = Object.freeze({
-  9101: [
-    { feedbackId: 1, notificationId: 9101, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Đã tiếp nhận và sẽ cập nhật trong đầu giờ chiều.', createdAt: minutesAgo(8), status: 'SENT', source: 'MOCK' },
-    { feedbackId: 2, notificationId: 9101, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cảm ơn, cần ưu tiên ca trực sáng thứ Sáu.', createdAt: minutesAgo(3), status: 'SENT', source: 'MOCK' },
-  ],
-  9102: [
-    { feedbackId: 1, notificationId: 9102, senderUserId: 3001, senderName: 'Trần Minh', senderRole: 'STUDENT', content: 'Em cần được tư vấn thêm về triệu chứng khó thở.', createdAt: minutesAgo(110), status: 'SENT', source: 'MOCK' },
-  ],
-  9201: [
-    { feedbackId: 1, notificationId: 9201, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cần ưu tiên theo dõi trong ngày hôm nay.', createdAt: minutesAgo(12), status: 'SENT', source: 'MOCK' },
-    { feedbackId: 2, notificationId: 9201, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Đã sắp xếp lịch kiểm tra lúc 14:00.', createdAt: minutesAgo(6), status: 'SENT', source: 'MOCK' },
-    { feedbackId: 3, notificationId: 9201, senderUserId: 1001, senderName: 'Nguyễn Tường Vy', senderRole: 'ADMIN', content: 'Cập nhật kết quả sau buổi kiểm tra.', createdAt: minutesAgo(3), status: 'SENT', source: 'MOCK' },
-  ],
-  9301: [
-    { feedbackId: 1, notificationId: 9301, senderUserId: 3002, senderName: 'Nguyễn An', senderRole: 'STUDENT', content: 'Em đã ghi nhớ lịch và sẽ có mặt đúng giờ.', createdAt: minutesAgo(12), status: 'SENT', source: 'MOCK' },
-  ],
-  9302: [
-    { feedbackId: 1, notificationId: 9302, senderUserId: 1101, senderName: 'Lê Minh Châu', senderRole: 'NURSE', content: 'Nếu có dấu hiệu khó thở, em hãy đến phòng y tế ngay.', createdAt: minutesAgo(165), status: 'SENT', source: 'MOCK' },
-    { feedbackId: 2, notificationId: 9302, senderUserId: 3002, senderName: 'Nguyễn An', senderRole: 'STUDENT', content: 'Em đã nhớ và sẽ báo ngay nếu có triệu chứng.', createdAt: minutesAgo(124), status: 'SENT', source: 'MOCK' },
   ],
 });
 
@@ -223,8 +191,6 @@ const inboxStoreByRole = {
   NURSE: cloneJson(baseNotifications.NURSE),
   STUDENT: cloneJson(baseNotifications.STUDENT),
 };
-
-const feedbackStoreByNotificationId = cloneJson(baseFeedbacks);
 
 const resolveRole = ({ currentUser, viewerRole }) => {
   const normalized = normalizeRole(viewerRole || currentUser?.role, 'STUDENT');
@@ -421,7 +387,6 @@ export const getNotificationDetailMock = async ({
   return adaptNotificationDetailResponse({
     data: {
       ...item,
-      feedbacks: feedbackStoreByNotificationId[item.notificationId] || [],
     },
     meta: {
       source: 'MOCK',
@@ -487,12 +452,10 @@ export const createNotificationMock = async ({
       status: 'SENT',
     },
     recipients,
-    feedbackCount: 0,
     source: 'MOCK',
   };
 
   items.unshift(item);
-  feedbackStoreByNotificationId[nextId] = [];
   emitNotificationsChanged();
 
   return {
@@ -598,88 +561,9 @@ export const getVaccinationOptionsMock = async () => {
   };
 };
 
-export const getFeedbacksMock = async ({
-  notificationId,
-}) => {
-  await waitForMock('default');
-  const id = Number(notificationId || 0);
-
-  if (!feedbackStoreByNotificationId[id]) {
-    feedbackStoreByNotificationId[id] = [];
-  }
-
-  return adaptFeedbacksResponse({
-    data: feedbackStoreByNotificationId[id],
-    meta: {
-      source: 'MOCK_READY',
-      note: FEEDBACK_NOTE,
-    },
-  }, { notificationId: id, source: 'MOCK_READY' });
-};
-
-export const createFeedbackMock = async ({
-  notificationId,
-  payload,
-  currentUser,
-  viewerRole,
-}) => {
-  await waitForMock('default');
-  const id = Number(notificationId || payload?.notificationId || 0);
-  const item = findNotification({ notificationId: id, currentUser, viewerRole });
-
-  if (!item) {
-    const error = new Error('Không tìm thấy thông báo để phản hồi.');
-    error.status = 404;
-    throw error;
-  }
-
-  const createPayload = buildCreateFeedbackPayload({ notificationId: id, content: payload?.content });
-  const role = resolveRole({ currentUser, viewerRole });
-  const createdBy = buildCreatedBy({ currentUser, role });
-
-  if (!feedbackStoreByNotificationId[id]) {
-    feedbackStoreByNotificationId[id] = [];
-  }
-
-  const nextId = feedbackStoreByNotificationId[id].reduce(
-    (maxValue, feedback) => Math.max(maxValue, Number(feedback.feedbackId || 0)),
-    0,
-  ) + 1;
-
-  const feedback = {
-    feedbackId: nextId,
-    notificationId: id,
-    senderUserId: createdBy.createdByUserId,
-    senderName: createdBy.createdByName,
-    senderRole: createdBy.createdByRole,
-    content: createPayload.content,
-    createdAt: nowIso(),
-    status: 'SENT',
-    source: 'MOCK_READY',
-  };
-
-  feedbackStoreByNotificationId[id].push(feedback);
-  item.feedbackCount = feedbackStoreByNotificationId[id].length;
-  emitNotificationsChanged();
-
-  return adaptCreateFeedbackResponse({
-    data: feedback,
-    meta: {
-      source: 'MOCK_READY',
-      note: FEEDBACK_NOTE,
-    },
-  }, {
-    notificationId: id,
-    senderUserId: createdBy.createdByUserId,
-    senderName: createdBy.createdByName,
-    senderRole: createdBy.createdByRole,
-    source: 'MOCK_READY',
-  });
-};
-
 export const notificationsMockMeta = Object.freeze({
   inboxNote: INBOX_NOTE,
-  feedbackNote: FEEDBACK_NOTE,
+  feedbackNote: '',
   lookupNote: LOOKUP_NOTE,
   source: 'MOCK',
 });

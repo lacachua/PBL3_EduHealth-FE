@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
-import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -149,7 +149,7 @@ const NurseVaccinationCampaignsPage = () => {
   }
 
   return (
-    <div className="space-y-3.5 text-on-surface">
+    <div className="space-y-5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -180,55 +180,53 @@ const NurseVaccinationCampaignsPage = () => {
         )}
       />
 
-      <VaccinationCampaignToolbar
-        value={draftFilters}
-        onChange={setDraftFilters}
-        onApply={() => {
-          setAppliedFilters(draftFilters);
-          setPage(1);
-        }}
-        onReset={() => {
-          setDraftFilters(CAMPAIGN_FILTER_DEFAULTS);
-          setAppliedFilters(CAMPAIGN_FILTER_DEFAULTS);
-          setPage(1);
-        }}
-      />
+      <AdminManagementListSection
+        filters={(
+          <div className="space-y-4">
+            <VaccinationCampaignToolbar
+              value={draftFilters}
+              onChange={setDraftFilters}
+              onApply={() => {
+                setAppliedFilters(draftFilters);
+                setPage(1);
+              }}
+              onReset={() => {
+                setDraftFilters(CAMPAIGN_FILTER_DEFAULTS);
+                setAppliedFilters(CAMPAIGN_FILTER_DEFAULTS);
+                setPage(1);
+              }}
+            />
 
-      <VaccinationSummaryCards summary={summary} loading={listStatus === 'loading'} />
+            <VaccinationSummaryCards summary={summary} loading={listStatus === 'loading'} />
 
-      {forbidden ? (
-        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
-          Bạn không có quyền truy cập trang này.
-        </section>
-      ) : null}
-
-      {!forbidden ? (
-        <section className="app-panel-shell space-y-3 p-4 md:p-5">
-          <h2 className="text-lg font-bold text-on-surface">Danh sách đợt tiêm</h2>
-          <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
-            Hiển thị <span className="font-semibold text-on-surface">{visibleRows.length}</span> đợt tiêm trên trang này • Tổng <span className="font-semibold text-on-surface">{campaignData.totalItems}</span> đợt tiêm
+            {forbidden ? (
+              <section className="mt-3 rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+                Bạn không có quyền truy cập trang này.
+              </section>
+            ) : null}
           </div>
-
+        )}
+        summary={visibleRows.length > 0 ? `Hiển thị ${visibleRows.length} bản ghi/trang • Tổng ${campaignData.totalItems} đợt tiêm` : null}
+        status={forbidden ? 'idle' : listStatus}
+        error={listError}
+        onRetry={() => fetchCampaigns(page, appliedFilters)}
+        loadingLabel="Đang tải danh sách đợt tiêm..."
+        emptyTitle="Không có đợt tiêm"
+        emptyDescription="Danh sách đợt tiêm sẽ hiển thị sau khi hệ thống khởi tạo chiến dịch."
+        sectionClassName="space-y-3"
+        table={!forbidden ? (
           <VaccinationCampaignTable
             rows={visibleRows}
-            loading={listStatus === 'loading'}
-            error={listStatus === 'error' ? listError : ''}
-            onRetry={() => fetchCampaigns(page, appliedFilters)}
             onViewDetail={(item) => navigate(`/nurse/vaccinations/${item.id}`)}
           />
-
-          {(listStatus === 'success' || listStatus === 'empty') && campaignData.totalPages > 1 ? (
-            <div className="pt-2">
-              <Pagination
-                page={campaignData.page}
-                pageSize={campaignData.pageSize}
-                totalItems={campaignData.totalItems}
-                onPageChange={(nextPage) => setPage(nextPage)}
-              />
-            </div>
-          ) : null}
-        </section>
-      ) : null}
+        ) : null}
+        pagination={!forbidden ? {
+          page: campaignData.page,
+          pageSize: campaignData.pageSize,
+          totalItems: campaignData.totalItems,
+          onPageChange: (nextPage) => setPage(nextPage),
+        } : null}
+      />
 
       {createOpen ? (
         <CreateVaccinationCampaignModal

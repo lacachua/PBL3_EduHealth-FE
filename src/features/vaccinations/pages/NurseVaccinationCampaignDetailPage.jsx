@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import ErrorState from '../../../shared/components/core/ErrorState';
 import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
-import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -331,88 +331,92 @@ const NurseVaccinationCampaignDetailPage = () => {
             <>
               <VaccinationCampaignSummaryStrip campaign={campaign} />
 
-              <section className="app-panel-shell space-y-3 p-4 md:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-outline-variant pb-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {tabs.map((tab) => (
+              <AdminManagementListSection
+                filters={(
+                  <>
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-outline-variant pb-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {tabs.map((tab) => (
+                          <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => {
+                              setActiveTab(tab.key);
+                              setPage(1);
+                              setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
+                              setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
+                            }}
+                            className={`app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${activeTab === tab.key
+                              ? 'bg-primary-soft text-primary'
+                              : 'text-on-surface-variant hover:bg-surface-container-low'
+                              }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+
                       <button
-                        key={tab.key}
                         type="button"
-                        onClick={() => {
-                          setActiveTab(tab.key);
-                          setPage(1);
-                          setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
-                          setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
-                        }}
-                        className={`app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${activeTab === tab.key
-                          ? 'bg-primary-soft text-primary'
-                          : 'text-on-surface-variant hover:bg-surface-container-low'
-                          }`}
+                        onClick={() => navigate('/nurse/vaccinations/pending')}
+                        className="app-focus-ring app-row-action"
                       >
-                        {tab.label}
+                        <span className="material-symbols-outlined text-[16px]">pending_actions</span>
+                        Mở trang theo dõi chưa hoàn thành
                       </button>
-                    ))}
-                  </div>
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() => navigate('/nurse/vaccinations/pending')}
-                    className="app-focus-ring app-row-action"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">pending_actions</span>
-                    Mở trang theo dõi chưa hoàn thành
-                  </button>
-                </div>
-
-                <VaccinationStudentsToolbar
-                  value={draftFilters}
-                  onChange={setDraftFilters}
-                  onApply={() => {
-                    setAppliedFilters(draftFilters);
-                    setPage(1);
-                  }}
-                  onReset={() => {
-                    setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
-                    setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
-                    setPage(1);
-                  }}
-                  statusOptions={activeTab === 'students' ? VACCINATION_STATUS_FILTER_OPTIONS : PENDING_TAB_STATUS_FILTER_OPTIONS}
-                />
-
-                <VaccinationStudentsTable
-                  rows={effectiveRows}
-                  loading={effectiveStatus === 'loading'}
-                  error={effectiveStatus === 'error' ? effectiveError : ''}
-                  emptyMessage={
-                    activeTab === 'students'
-                      ? 'Không có học sinh phù hợp trong đợt tiêm này.'
-                      : 'Không có học sinh chưa hoàn thành phù hợp với bộ lọc hiện tại.'
-                  }
-                  onRetry={() => {
-                    if (activeTab === 'students') {
-                      fetchCampaignStudents(page, appliedFilters);
-                      return;
-                    }
-
-                    fetchPending(page);
-                  }}
-                  onOpenHistory={openHistoryDrawer}
-                  onOpenUpdate={openUpdateModal}
-                  showResultColumns={activeTab === 'students'}
-                  showScheduledDateColumn={activeTab === 'pending'}
-                />
-
-                {(effectiveStatus === 'success' || effectiveStatus === 'empty') && effectivePaging.totalPages > 1 ? (
-                  <div className="pt-2">
-                    <Pagination
-                      page={effectivePaging.page}
-                      pageSize={effectivePaging.pageSize}
-                      totalItems={effectivePaging.totalItems}
-                      onPageChange={(nextPage) => setPage(nextPage)}
+                    <VaccinationStudentsToolbar
+                      value={draftFilters}
+                      onChange={setDraftFilters}
+                      onApply={() => {
+                        setAppliedFilters(draftFilters);
+                        setPage(1);
+                      }}
+                      onReset={() => {
+                        setDraftFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
+                        setAppliedFilters(CAMPAIGN_STUDENT_FILTER_DEFAULTS);
+                        setPage(1);
+                      }}
+                      statusOptions={activeTab === 'students' ? VACCINATION_STATUS_FILTER_OPTIONS : PENDING_TAB_STATUS_FILTER_OPTIONS}
                     />
-                  </div>
-                ) : null}
-              </section>
+                  </>
+                )}
+                summary={effectiveRows.length > 0 ? `Hiển thị ${effectiveRows.length} bản ghi/trang • Tổng ${effectivePaging.totalItems} học sinh` : null}
+                status={effectiveStatus}
+                error={effectiveError}
+                onRetry={() => {
+                  if (activeTab === 'students') {
+                    fetchCampaignStudents(page, appliedFilters);
+                    return;
+                  }
+                  fetchPending(page);
+                }}
+                loadingLabel="Đang tải danh sách học sinh..."
+                emptyTitle={activeTab === 'students' ? 'Không có học sinh trong đợt tiêm' : 'Không có học sinh chưa hoàn thành'}
+                emptyDescription="Dữ liệu sẽ hiển thị sau khi hệ thống đồng bộ danh sách đối tượng tiêm."
+                sectionClassName="space-y-3"
+                table={(
+                  <VaccinationStudentsTable
+                    rows={effectiveRows}
+                    emptyMessage={
+                      activeTab === 'students'
+                        ? 'Không có học sinh phù hợp trong đợt tiêm này.'
+                        : 'Không có học sinh chưa hoàn thành phù hợp với bộ lọc hiện tại.'
+                    }
+                    onOpenHistory={openHistoryDrawer}
+                    onOpenUpdate={openUpdateModal}
+                    showResultColumns={activeTab === 'students'}
+                    showScheduledDateColumn={activeTab === 'pending'}
+                  />
+                )}
+                pagination={{
+                  page: effectivePaging.page,
+                  pageSize: effectivePaging.pageSize,
+                  totalItems: effectivePaging.totalItems,
+                  onPageChange: (nextPage) => setPage(nextPage),
+                }}
+              />
             </>
           ) : null}
         </>

@@ -52,7 +52,7 @@ export const ROLE_LABELS = Object.freeze({
 export const TARGET_MODES = Object.freeze({
   CLASS: 'CLASS',
   RECIPIENTS: 'RECIPIENTS',
-  STAFF: 'STAFF',
+  ROLES: 'ROLES',
 });
 
 export const SOURCE_LABELS = Object.freeze({

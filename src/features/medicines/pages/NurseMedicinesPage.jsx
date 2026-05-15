@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
+import { useClassOptions } from '../../students/hooks/useClassOptions';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
-import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import {
   mapMedicineAlertsEnvelope,
@@ -108,6 +109,8 @@ const NurseMedicinesPage = () => {
   const [actionError, setActionError] = useState('');
 
   const [feedback, setFeedback] = useState(null);
+
+  const { classes: globalClasses } = useClassOptions();
 
   const resolveApiError = useCallback((error) => {
     const parsed = parseNurseMedicineApiError(error);
@@ -339,7 +342,7 @@ const NurseMedicinesPage = () => {
   }
 
   return (
-    <div className="space-y-3.5 text-on-surface">
+    <div className="space-y-5 text-on-surface">
       <NurseModulePageHeader
         title="Thuốc / Kho thuốc"
         description="Quản lý danh mục thuốc, theo dõi tồn kho và hạn sử dụng tại phòng y tế."
@@ -358,67 +361,65 @@ const NurseMedicinesPage = () => {
         )}
       />
 
-      <MedicinesToolbar
-        value={draftFilters}
-        onChange={setDraftFilters}
-        onApply={() => {
-          setAppliedFilters(draftFilters);
-          setPage(1);
-        }}
-        onReset={() => {
-          setDraftFilters(DEFAULT_FILTERS);
-          setAppliedFilters(DEFAULT_FILTERS);
-          setPage(1);
-        }}
-      />
+      <AdminManagementListSection
+        filters={(
+          <div className="space-y-4">
+            <MedicinesToolbar
+              value={draftFilters}
+              onChange={setDraftFilters}
+              onApply={() => {
+                setAppliedFilters(draftFilters);
+                setPage(1);
+              }}
+              onReset={() => {
+                setDraftFilters(DEFAULT_FILTERS);
+                setAppliedFilters(DEFAULT_FILTERS);
+                setPage(1);
+              }}
+            />
 
-      {forbidden ? (
-        <section className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
-          Bạn không có quyền truy cập module Thuốc / Kho thuốc.
-        </section>
-      ) : null}
+            {forbidden ? (
+              <section className="mt-3 rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+                Bạn không có quyền truy cập module Thuốc / Kho thuốc.
+              </section>
+            ) : null}
 
-      {!forbidden ? (
-        <section className="app-panel-shell space-y-3 p-4 md:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-on-surface">Danh mục thuốc</h2>
-              <p className="text-sm text-on-surface-variant">Theo dõi thông tin thuốc và thao tác nghiệp vụ kho.</p>
-            </div>
+            {!forbidden ? (
+              <section className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <article className="app-kpi-card">
+                  <p className="app-kpi-label">Sắp hết thuốc</p>
+                  <p className="app-kpi-value text-warning">{alertsLoading ? '--' : alertSummary.lowStock}</p>
+                </article>
+                <article className="app-kpi-card">
+                  <p className="app-kpi-label">Sắp hết hạn</p>
+                  <p className="app-kpi-value text-danger">{alertsLoading ? '--' : alertSummary.expiring}</p>
+                </article>
+              </section>
+            ) : null}
           </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
-            <span className="inline-flex rounded-full border border-warning/25 bg-warning-soft px-2.5 py-1 font-semibold text-warning">
-              Sắp hết: {alertsLoading ? '--' : alertSummary.lowStock}
-            </span>
-            <span className="inline-flex rounded-full border border-danger/25 bg-danger-soft px-2.5 py-1 font-semibold text-danger">
-              Sắp hết hạn: {alertsLoading ? '--' : alertSummary.expiring}
-            </span>
-            {alertsError ? <span className="text-danger">{alertsError}</span> : null}
-          </div>
-
-          <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
-            Đang hiển thị <span className="font-semibold text-on-surface">{medicinesData.rows.length}</span> thuốc trên trang này • Tổng <span className="font-semibold text-on-surface">{medicinesData.totalItems}</span> thuốc
-          </div>
-
+        )}
+        summary={medicinesData.rows.length > 0 ? `Hiển thị ${medicinesData.rows.length} bản ghi/trang • Tổng ${medicinesData.totalItems} thuốc` : null}
+        status={forbidden ? 'idle' : listStatus}
+        error={listError}
+        onRetry={() => fetchMedicinesList(page, appliedFilters)}
+        loadingLabel="Đang tải danh sách thuốc..."
+        emptyTitle="Không có thuốc"
+        emptyDescription="Danh sách thuốc sẽ hiển thị sau khi hệ thống đồng bộ dữ liệu."
+        sectionClassName="space-y-3"
+        table={!forbidden ? (
           <MedicinesTable
             rows={medicinesData.rows}
             loading={listStatus === 'loading'}
-            error={listStatus === 'error' ? listError : ''}
-            onRetry={() => fetchMedicinesList(page, appliedFilters)}
             onView={openDetailFromRow}
           />
-
-          {(listStatus === 'success' || listStatus === 'empty') && medicinesData.totalPages > 1 ? (
-            <Pagination
-              page={medicinesData.page}
-              pageSize={medicinesData.pageSize}
-              totalItems={medicinesData.totalItems}
-              onPageChange={(nextPage) => setPage(nextPage)}
-            />
-          ) : null}
-        </section>
-      ) : null}
+        ) : null}
+        pagination={!forbidden ? {
+          page: medicinesData.page,
+          pageSize: medicinesData.pageSize,
+          totalItems: medicinesData.totalItems,
+          onPageChange: (nextPage) => setPage(nextPage),
+        } : null}
+      />
 
       <MedicineDetailDrawer
         key={detailOpen ? (selectedMedicineId || 'detail-open') : 'detail-closed'}

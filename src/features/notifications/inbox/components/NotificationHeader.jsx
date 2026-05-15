@@ -1,11 +1,8 @@
 import React from 'react';
-import NotificationSourceBadge from './NotificationSourceBadge';
 
 const NotificationHeader = ({
   title,
   subtitle,
-  inboxSource,
-  sendSource,
   onRefresh,
   onMarkAllRead,
   onCompose,
@@ -22,8 +19,6 @@ const NotificationHeader = ({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <NotificationSourceBadge source={inboxSource} />
-        <NotificationSourceBadge source={sendSource} label={sendSource === 'LIVE' ? 'Gửi thật' : 'Gửi mẫu'} />
         <button type="button" onClick={onRefresh} className="app-focus-ring app-btn-secondary px-3">
           <span className="material-symbols-outlined text-[18px]">refresh</span>
           Làm mới

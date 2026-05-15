@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
-import Pagination from '../../../shared/components/core/Pagination';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import {
@@ -261,7 +261,8 @@ const NursePendingVaccinationsPage = () => {
       ) : null}
 
       {!forbidden ? (
-        <section className="app-panel-shell space-y-3 p-4 md:p-5">
+      <AdminManagementListSection
+        filters={(
           <VaccinationStudentsToolbar
             value={draftFilters}
             onChange={setDraftFilters}
@@ -278,13 +279,19 @@ const NursePendingVaccinationsPage = () => {
             showClassFilter
             showCampaignFilter
           />
-
+        )}
+        summary={filteredRows.length > 0 ? `Hiển thị ${filteredRows.length} bản ghi/trang • Tổng ${pendingData.totalItems} học sinh chưa hoàn thành` : null}
+        status={forbidden ? 'idle' : status}
+        error={error}
+        onRetry={() => fetchPending(page, appliedFilters)}
+        loadingLabel="Đang tải danh sách chưa hoàn thành..."
+        emptyTitle="Không có học sinh chưa hoàn thành"
+        emptyDescription="Danh sách sẽ hiển thị sau khi các đợt tiêm được triển khai và có kết quả cập nhật."
+        sectionClassName="app-panel-shell space-y-3 p-4 md:p-5"
+        table={!forbidden ? (
           <VaccinationStudentsTable
             rows={filteredRows}
-            loading={status === 'loading'}
-            error={status === 'error' ? error : ''}
             emptyMessage="Không có bản ghi chưa hoàn thành theo bộ lọc hiện tại."
-            onRetry={() => fetchPending(page, appliedFilters)}
             onOpenHistory={openHistoryDrawer}
             onOpenUpdate={openUpdateModal}
             onOpenCampaign={(item) => navigate(`/nurse/vaccinations/${item.campaignId}`)}
@@ -292,16 +299,14 @@ const NursePendingVaccinationsPage = () => {
             showResultColumns={false}
             showScheduledDateColumn
           />
-
-          {(status === 'success' || status === 'empty') && pendingData.totalPages > 1 ? (
-            <Pagination
-              page={pendingData.page}
-              pageSize={pendingData.pageSize}
-              totalItems={pendingData.totalItems}
-              onPageChange={(nextPage) => setPage(nextPage)}
-            />
-          ) : null}
-        </section>
+        ) : null}
+        pagination={!forbidden ? {
+          page: pendingData.page,
+          pageSize: pendingData.pageSize,
+          totalItems: pendingData.totalItems,
+          onPageChange: (nextPage) => setPage(nextPage),
+        } : null}
+      />
       ) : null}
 
       {updateContext ? (

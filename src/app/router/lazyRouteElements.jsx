@@ -16,6 +16,7 @@ export const ChangePasswordPage = React.lazy(() => import("../../features/auth/p
 export const NotFoundPage = React.lazy(() => import("../../pages/NotFoundPage"));
 export const ForbiddenPage = React.lazy(() => import("../../pages/ForbiddenPage"));
 export const ServerErrorPage = React.lazy(() => import("../../pages/ServerErrorPage"));
+export const PublicNewsListPage = React.lazy(() => import("../../pages/PublicNewsListPage"));
 
 export const AdminDashboardPage = React.lazy(() => import("../../features/dashboard/admin/pages/AdminDashboardPage"));
 export const AdminSettingsPage = React.lazy(() => import('../../features/dashboard/admin/pages/AdminSettingsPage'));

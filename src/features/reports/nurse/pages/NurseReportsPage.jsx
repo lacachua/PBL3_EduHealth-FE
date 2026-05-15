@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useClassOptions } from '../../students/hooks/useClassOptions';
 import AdminAsyncState from '../../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
@@ -32,6 +33,8 @@ const NurseReportsPage = () => {
     fetchDashboard,
   } = useNurseReportsDashboard();
 
+  const { classes: globalClasses } = useClassOptions();
+
   const [page, setPage] = useState(1);
   const [exportingFormat, setExportingFormat] = useState('');
   const [feedback, setFeedback] = useState(null);
@@ -53,8 +56,23 @@ const NurseReportsPage = () => {
   };
 
   const classOptions = useMemo(() => {
-    return viewModel.filterOptions?.classOptions || [{ value: 'all', label: 'Tất cả lớp' }];
-  }, [viewModel.filterOptions?.classOptions]);
+    const apiOptions = viewModel.filterOptions?.classOptions || [];
+    const options = globalClasses.map((c) => ({
+      value: String(c.classId),
+      label: c.className || `-- (ID: ${c.classId})`,
+    }));
+
+    // Merge API options with global ones, avoiding duplicates
+    const seen = new Set(apiOptions.map((o) => String(o.value)));
+    const merged = [...apiOptions];
+    options.forEach((o) => {
+      if (!seen.has(String(o.value))) {
+        merged.push(o);
+      }
+    });
+
+    return merged.length ? merged : [{ value: 'all', label: 'Tất cả lớp' }];
+  }, [viewModel.filterOptions?.classOptions, globalClasses]);
 
   const handleFiltersChange = (partialFilters) => {
     applyFilters(partialFilters);
@@ -96,7 +114,7 @@ const NurseReportsPage = () => {
   };
 
   return (
-    <div className="space-y-4 text-on-surface">
+    <div className="space-y-5 text-on-surface">
       <NurseModulePageHeader
         title={viewModel.header.title}
         description={viewModel.header.description}

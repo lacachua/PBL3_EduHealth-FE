@@ -33,14 +33,25 @@ const normalizeApiBaseUrl = (value) => {
   return normalized.replace(/\/+$/, '');
 };
 
+const normalizeSignalRBaseUrl = (value) => {
+  const normalized = normalizeOptionalString(value, '');
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/\/+$/, '');
+};
+
 const legacyEnableMockAuth = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_AUTH, false);
 const legacyEnableMockAdminDashboard = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_ADMIN_DASHBOARD, false);
 const legacyEnableMockHealthProfiles = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_HEALTH_PROFILES, false);
 const legacyEnableMockMedicines = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_MEDICINES, false);
 const legacyEnableMockExaminations = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_EXAMINATIONS, false);
+const legacyEnableNotificationMock = parseBoolean(import.meta.env.VITE_ENABLE_NOTIFICATION_MOCK, false);
 
 const ENV_SINGLETON = Object.freeze({
   apiBaseUrl: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
+  signalRBaseUrl: normalizeSignalRBaseUrl(import.meta.env.VITE_SIGNALR_BASE_URL),
   appName: normalizeOptionalString(import.meta.env.VITE_APP_NAME, 'EduHealth'),
   dataMode: normalizeDataMode(import.meta.env.VITE_DATA_MODE),
 
@@ -59,8 +70,8 @@ const ENV_SINGLETON = Object.freeze({
     nurseMedicines: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_MEDICINES_MOCK, legacyEnableMockMedicines),
     nurseExaminations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_EXAMINATIONS_MOCK, legacyEnableMockExaminations),
     nurseVaccinations: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_VACCINATIONS_MOCK, false),
-    nurseNotifications: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_NOTIFICATIONS_MOCK, false),
-    notificationsInbox: parseBoolean(import.meta.env.VITE_ENABLE_NOTIFICATIONS_INBOX_MOCK, false),
+    nurseNotifications: legacyEnableNotificationMock,
+    notificationsInbox: legacyEnableNotificationMock,
     nurseReports: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_REPORTS_MOCK, false),
     nurseDashboard: parseBoolean(import.meta.env.VITE_ENABLE_NURSE_DASHBOARD_MOCK, legacyEnableMockHealthProfiles),
 
