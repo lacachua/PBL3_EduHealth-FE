@@ -73,14 +73,27 @@ export const useMessages = ({
   }, [loadMessages]);
 
   useEffect(() => {
-    if (!chatClient || !conversationId || !realtimeEnabled) {
+    if (!chatClient || !conversationId) {
       return undefined;
     }
 
     let isActive = true;
+    const shouldLog = import.meta.env.DEV;
+
+    if (shouldLog) {
+      console.log('[Chat] Hook active', {
+        conversationId,
+        realtimeEnabled,
+        hasClient: Boolean(chatClient),
+      });
+    }
 
     const handleMessageCreated = (payload) => {
-      if (!isActive || Number(payload?.conversationId) !== Number(conversationId)) {
+      const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
+      if (shouldLog) {
+        console.log('[Chat] MessageCreated', { payloadConversationId, conversationId, payload });
+      }
+      if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
         return;
       }
 
@@ -90,8 +103,22 @@ export const useMessages = ({
           return prev;
         }
 
+        if (message.clientMessageId) {
+          const existingIndex = prev.findIndex((item) => item.clientMessageId === message.clientMessageId);
+          if (existingIndex >= 0) {
+            const next = [...prev];
+            next[existingIndex] = {
+              ...next[existingIndex],
+              ...message,
+              status: 'sent',
+            };
+            return next;
+          }
+        }
+
         return [...prev, message];
       });
+      setStatus('success');
       onMessageAdded?.(message);
     };
 
@@ -113,16 +140,62 @@ export const useMessages = ({
     };
 
     const handleConversationRead = (payload) => {
-      if (!isActive || Number(payload?.conversationId) !== Number(conversationId)) {
+      const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
+      if (shouldLog) {
+        console.log('[Chat] ConversationRead', { payloadConversationId, conversationId, payload });
+      }
+      if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
         return;
       }
 
       onConversationRead?.(payload);
     };
 
+    const handleConversationUpdated = (payload) => {
+      const lastMessage = payload?.lastMessage ?? payload?.LastMessage;
+      const payloadConversationId = payload?.conversationId ?? payload?.ConversationId ?? lastMessage?.conversationId ?? lastMessage?.ConversationId;
+      if (shouldLog) {
+        console.log('[Chat] ConversationUpdated', { payloadConversationId, conversationId, lastMessage, payload });
+      }
+      if (!isActive || Number(payloadConversationId) !== Number(conversationId) || !lastMessage) {
+        return;
+      }
+
+      const message = normalizeMessage(lastMessage, { currentUser });
+      setItems((prev) => {
+        if (prev.some((item) => item.messageId && item.messageId === message.messageId)) {
+          return prev;
+        }
+
+        return [...prev, message];
+      });
+      setStatus('success');
+      onMessageAdded?.(message);
+    };
+
+    const handleMessagingError = (payload) => {
+      const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
+      if (shouldLog) {
+        console.log('[Chat] MessagingError', { payloadConversationId, conversationId, payload });
+      }
+      if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
+        return;
+      }
+
+      if (payload?.clientMessageId) {
+        setItems((prev) => updateMessageStatus(prev, payload.clientMessageId, 'failed'));
+      }
+
+      if (payload?.message) {
+        setError(payload.message);
+      }
+    };
+
     chatClient.on(CHAT_HUB_EVENTS.MESSAGE_CREATED, handleMessageCreated);
     chatClient.on(CHAT_HUB_EVENTS.TYPING_CHANGED, handleTypingChanged);
     chatClient.on(CHAT_HUB_EVENTS.CONVERSATION_READ, handleConversationRead);
+    chatClient.on(CHAT_HUB_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated);
+    chatClient.on(CHAT_HUB_EVENTS.MESSAGING_ERROR, handleMessagingError);
 
     chatClient.joinConversation({ conversationId });
 
@@ -131,9 +204,11 @@ export const useMessages = ({
       chatClient.off(CHAT_HUB_EVENTS.MESSAGE_CREATED, handleMessageCreated);
       chatClient.off(CHAT_HUB_EVENTS.TYPING_CHANGED, handleTypingChanged);
       chatClient.off(CHAT_HUB_EVENTS.CONVERSATION_READ, handleConversationRead);
+      chatClient.off(CHAT_HUB_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated);
+      chatClient.off(CHAT_HUB_EVENTS.MESSAGING_ERROR, handleMessagingError);
       chatClient.leaveConversation({ conversationId });
     };
-  }, [chatClient, conversationId, currentUser, onConversationRead, onMessageAdded, realtimeEnabled]);
+  }, [chatClient, conversationId, currentUser, onConversationRead, onMessageAdded]);
 
   const markConversationRead = useCallback(async (lastReadMessageId) => {
     if (!conversationId) {
@@ -170,6 +245,7 @@ export const useMessages = ({
     });
 
     setItems((prev) => [...prev, optimistic]);
+    setStatus('success');
     onMessageAdded?.(optimistic);
 
     if (!realtimeEnabled || !chatClient) {
