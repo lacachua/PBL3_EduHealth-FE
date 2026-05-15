@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
 import { adaptAdminDashboardEnvelope } from '../adapters/adminDashboardAdapter';
-import { fetchAdminDashboardOverview } from '../services/adminDashboardApi';
+import { fetchAdminDashboardOverview, fetchRecentActivities } from '../services/adminDashboardApi';
 
 export const useAdminDashboard = (initialQuery) => {
   const initialQueryRef = useRef(initialQuery ?? {});
-  const fallbackData = useMemo(() => adaptAdminDashboardEnvelope(null), []);
+  const fallbackData = useMemo(() => adaptAdminDashboardEnvelope(null, []), []);
 
   const [dashboardData, setDashboardData] = useState(fallbackData);
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,13 @@ export const useAdminDashboard = (initialQuery) => {
     setErrorMessage('');
 
     try {
-      const envelope = await fetchAdminDashboardOverview(query);
-      const viewModel = adaptAdminDashboardEnvelope(envelope);
+      // Fetch both overview and recent activities in parallel
+      const [envelope, activitiesEnvelope] = await Promise.all([
+        fetchAdminDashboardOverview(query),
+        fetchRecentActivities(4),
+      ]);
+
+      const viewModel = adaptAdminDashboardEnvelope(envelope, activitiesEnvelope);
       setDashboardData(viewModel);
       return viewModel;
     } catch (apiError) {
