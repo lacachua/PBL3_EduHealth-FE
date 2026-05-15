@@ -1,19 +1,11 @@
 import EntityAvatar from '../../../shared/components/core/EntityAvatar';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import SectionAlert from '../../../shared/components/form/SectionAlert';
 
 const metaItemClass = 'inline-flex items-center gap-1.5 text-[12px] text-on-surface-variant';
 
-const statusClassMap = {
-  success: 'bg-success-soft text-success border-success/30',
-  info: 'bg-info-soft text-info border-info/30',
-  warning: 'bg-warning-soft text-warning border-warning/30',
-  danger: 'bg-danger-soft text-danger border-danger/30',
-  default: 'bg-surface-container-low text-on-surface-variant border-outline-variant',
-};
-
 const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) => {
   const statusTone = header.statusTone || 'success';
-  const statusClass = statusClassMap[statusTone] || statusClassMap.default;
 
   return (
     <section className="app-card-shell mb-6 space-y-4 rounded-2xl px-4 py-4 sm:px-5 sm:py-5">
@@ -31,9 +23,9 @@ const NurseHealthProfileHeader = ({ header, syncMessage, onEditHealthProfile }) 
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-headline text-[1.5rem] font-bold leading-tight tracking-[-0.015em] text-on-surface sm:text-[1.7rem]">{header.fullName}</h2>
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}`}>
+              <StatusBadge tone={statusTone}>
                 {header.statusLabel || 'Hoạt động'}
-              </span>
+              </StatusBadge>
             </div>
 
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">

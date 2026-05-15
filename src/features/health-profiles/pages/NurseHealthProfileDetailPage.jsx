@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import SectionCard from '../../../shared/components/core/SectionCard';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { resolveNurseStudentRouteId } from '../../students/adapters/nurseStudentIdentifierAdapter';
 import NurseHealthProfileHeader from '../components/NurseHealthProfileHeader';
@@ -19,21 +20,13 @@ const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col ga
 const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-on-surface';
 const sectionSubtitleClass = 'mt-0.5 text-[11px] text-on-surface-variant';
 
-const vaccinationStatusMeta = (status) => {
+const vaccinationStatusTone = (status) => {
   const normalized = String(status || '').toUpperCase();
-  if (normalized === 'DONE') {
-    return { label: 'Đã tiêm', className: 'bg-success-soft text-success' };
-  }
-  if (normalized === 'POSTPONED') {
-    return { label: 'Hoãn tiêm', className: 'bg-warning-soft text-warning' };
-  }
-  if (normalized === 'CONTRAINDICATED') {
-    return { label: 'Chống chỉ định', className: 'bg-danger-soft text-danger' };
-  }
-  if (normalized === 'ABSENT') {
-    return { label: 'Vắng mặt', className: 'bg-surface-container-low text-on-surface-variant' };
-  }
-  return { label: 'Chờ tiêm', className: 'bg-info-soft text-info' };
+  if (normalized === 'DONE') return 'success';
+  if (normalized === 'POSTPONED') return 'warning';
+  if (normalized === 'CONTRAINDICATED') return 'danger';
+  if (normalized === 'ABSENT') return 'neutral';
+  return 'info';
 };
 
 const NurseHealthProfileDetailPage = () => {
@@ -186,9 +179,9 @@ const NurseHealthProfileDetailPage = () => {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold text-on-surface">{record.medicineName}</p>
-                  <span className="inline-flex items-center rounded-full bg-surface-container-low px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
+                  <StatusBadge tone="neutral">
                     SL: {record.quantity}
-                  </span>
+                  </StatusBadge>
                 </div>
                 <span className="text-[11px] text-on-surface-variant">{formatDate(record.visitDate || record.visitDateLabel)}</span>
               </div>
@@ -217,14 +210,13 @@ const NurseHealthProfileDetailPage = () => {
           {model.vaccinations.map((record) => (
             <article key={record.id} className={historyCardClass}>
               {(() => {
-                const statusMeta = vaccinationStatusMeta(record.status);
                 return (
                   <>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-on-surface">{record.vaccineName}</p>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusMeta.className}`}>
-                        {statusMeta.label}
-                      </span>
+                      <StatusBadge tone={vaccinationStatusTone(record.status)}>
+                        {record.statusLabel || 'Chờ tiêm'}
+                      </StatusBadge>
                     </div>
                     <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ngày tiêm</p>
                     <p className="text-sm text-on-surface">{formatDate(record.administeredAt)}</p>

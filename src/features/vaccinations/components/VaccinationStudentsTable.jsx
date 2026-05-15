@@ -1,20 +1,11 @@
-
-import VaccinationStatusBadge from './VaccinationStatusBadge';
-import VaccinationRowActionButton from './VaccinationRowActionButton';
-
-const clampTwoLinesStyle = {
-  display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-  overflow: 'hidden',
-};
+import React, { useMemo } from 'react';
+import DataTable from '../../../shared/components/core/DataTable';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
+import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 
 const VaccinationStudentsTable = ({
   rows,
-  loading,
-  error,
   emptyMessage,
-  onRetry,
   onOpenHistory,
   onOpenUpdate,
   onOpenCampaign,
@@ -22,120 +13,140 @@ const VaccinationStudentsTable = ({
   showResultColumns = true,
   showScheduledDateColumn = false,
 }) => {
-  const hasCampaignAction = showCampaignColumn && typeof onOpenCampaign === 'function';
-  const colSpan = 5
-    + (showCampaignColumn ? 1 : 0)
-    + (showScheduledDateColumn ? 1 : 0)
-    + (showResultColumns ? 2 : 0)
-    + 1;
+  const columns = useMemo(() => {
+    const cols = [
+      {
+        key: 'student',
+        header: 'Học sinh',
+        headerClassName: 'w-[25%] min-w-[200px]',
+        render: (row) => (
+          <div className="w-full text-left">
+            <p className="truncate text-sm font-bold text-on-surface">{row.student?.fullName || '--'}</p>
+            <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">
+              {row.student?.studentCode || '--'} • Lớp {row.student?.className || '--'}
+            </p>
+          </div>
+        ),
+      },
+    ];
 
-  if (loading) {
-    return <p className="app-panel-shell px-3 py-4 text-sm text-on-surface-variant">Đang tải danh sách học sinh...</p>;
-  }
+    if (showCampaignColumn) {
+      cols.push({
+        key: 'campaign',
+        header: 'Đợt tiêm',
+        headerClassName: 'w-[25%] min-w-[200px]',
+        render: (row) => (
+          <div className="w-full text-left">
+            {typeof onOpenCampaign === 'function' ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenCampaign(row);
+                }}
+                className="app-focus-ring truncate text-left text-sm font-bold text-on-surface transition hover:text-primary"
+              >
+                {row.campaignName || '--'}
+              </button>
+            ) : (
+              <p className="truncate text-sm font-bold text-on-surface">{row.campaignName || '--'}</p>
+            )}
+            <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">{row.scheduledDateLabel || '--'}</p>
+          </div>
+        ),
+      });
+    }
 
-  if (error) {
-    return (
-      <div className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
-        <p>{error}</p>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="app-focus-ring mt-2 rounded-lg border border-danger/35 bg-surface px-2.5 py-1 text-xs font-semibold text-danger"
-        >
-          Thử lại
-        </button>
-      </div>
-    );
-  }
+    if (showScheduledDateColumn) {
+      cols.push({
+        key: 'scheduledDate',
+        header: 'Ngày dự kiến',
+        headerClassName: 'w-[12%] min-w-[110px]',
+        cellClassName: 'text-xs text-on-surface-variant',
+        render: (row) => row.scheduledDateLabel || '--',
+      });
+    }
+
+    cols.push({
+      key: 'status',
+      header: 'Tiêm chủng',
+      headerClassName: 'w-[15%] min-w-[130px]',
+      render: (row) => (
+        <StatusBadge tone={row.statusBadgeClassName?.includes('success') ? 'success' : row.statusBadgeClassName?.includes('warning') ? 'warning' : 'neutral'}>
+          {row.statusLabel}
+        </StatusBadge>
+      ),
+    });
+
+    if (showResultColumns) {
+      cols.push(
+        {
+          key: 'result',
+          header: 'Ngày tiêm / Lô',
+          headerClassName: 'w-[15%] min-w-[140px]',
+          cellClassName: 'text-xs text-on-surface-variant',
+          render: (row) => (
+            <div>
+              <p className="font-medium text-on-surface">{row.vaccinatedAtLabel || '--'}</p>
+              {row.lotNumber ? <p className="mt-0.5 text-[10px]">Lô: <span className="font-mono">{row.lotNumber}</span></p> : null}
+            </div>
+          ),
+        },
+        {
+          key: 'note',
+          header: 'Ghi chú',
+          headerClassName: 'w-[20%] min-w-[160px]',
+          render: (row) => (
+            <p className="line-clamp-2 text-[11px] text-on-surface-variant leading-relaxed" title={row.note}>
+              {row.note || '--'}
+            </p>
+          ),
+        }
+      );
+    }
+
+    cols.push({
+      key: 'actions',
+      header: 'Thao tác',
+      headerClassName: 'w-[10%] min-w-[110px] text-right',
+      cellClassName: 'text-right',
+      render: (row) => (
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            onClick={() => onOpenUpdate(row)}
+            className="app-focus-ring inline-flex h-8 items-center justify-center rounded-lg bg-primary-soft px-3 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-on-primary"
+          >
+            Cập nhật
+          </button>
+
+          <ActionDropdown
+            menuWidth={200}
+            items={[
+              {
+                id: 'history',
+                label: 'Lịch sử tiêm tổng hợp',
+                icon: 'history',
+                onClick: () => onOpenHistory(row),
+              }
+            ]}
+          />
+        </div>
+      ),
+    });
+
+    return cols;
+  }, [onOpenCampaign, onOpenHistory, onOpenUpdate, showCampaignColumn, showResultColumns, showScheduledDateColumn]);
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-outline-variant bg-surface [scrollbar-width:thin]">
-      <table className={`w-full text-left text-sm ${showResultColumns ? 'min-w-[840px]' : 'min-w-[760px]'}`}>
-        <thead className="app-table-head sticky top-0 z-[1] text-[11px] uppercase tracking-[0.08em]">
-          <tr>
-            <th className="px-4 py-3">Học sinh</th>
-            <th className="px-4 py-3">Lớp</th>
-            {showCampaignColumn ? <th className="px-4 py-3">Đợt tiêm</th> : null}
-            {showScheduledDateColumn ? <th className="px-4 py-3">Ngày dự kiến</th> : null}
-            <th className="px-4 py-3">Trạng thái tiêm</th>
-            {showResultColumns ? <th className="px-4 py-3">Ngày tiêm & Số lô</th> : null}
-            {showResultColumns ? <th className="px-4 py-3">Ghi chú</th> : null}
-            <th className="px-3 py-3 text-right">Hành động</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-outline-variant">
-          {!rows.length ? (
-            <tr>
-              <td className="px-4 py-8 text-center text-sm text-on-surface-variant" colSpan={colSpan}>
-                {emptyMessage || 'Không có dữ liệu phù hợp.'}
-              </td>
-            </tr>
-          ) : (
-            rows.map((item) => (
-              <tr key={item.studentVaccinationId} className="app-interactive hover:bg-surface-container-low">
-                <td className="px-4 py-3 min-w-[220px]">
-                  <p className="font-semibold text-on-surface">{item.student?.fullName || '--'}</p>
-                  <p className="text-xs text-on-surface-variant">
-                    {item.student?.studentCode || '--'}
-                    {' • '}
-                    Mã hồ sơ {item.student?.studentId || '--'}
-                  </p>
-                </td>
-                <td className="px-4 py-3 text-on-surface">{item.student?.className || '--'}</td>
-                {showCampaignColumn ? (
-                  <td className="px-4 py-3 min-w-[220px]">
-                    {hasCampaignAction ? (
-                      <button
-                        type="button"
-                        onClick={() => onOpenCampaign(item)}
-                        className="app-focus-ring text-left text-sm font-semibold text-on-surface hover:text-primary"
-                      >
-                        {item.campaignName || '--'}
-                      </button>
-                    ) : (
-                      <p className="text-sm font-semibold text-on-surface">{item.campaignName || '--'}</p>
-                    )}
-                    <p className="text-xs text-on-surface-variant">{item.campaignId || '--'} • {item.scheduledDateLabel || '--'}</p>
-                  </td>
-                ) : null}
-                {showScheduledDateColumn ? <td className="px-4 py-3 text-on-surface">{item.scheduledDateLabel || '--'}</td> : null}
-                <td className="px-4 py-3">
-                  <VaccinationStatusBadge label={item.statusLabel} className={item.statusBadgeClassName} />
-                </td>
-                {showResultColumns ? (
-                  <td className="px-4 py-3 text-on-surface min-w-[140px]">
-                    <p>{item.vaccinatedAtLabel || '--'}</p>
-                    {item.lotNumber ? <p className="text-xs text-on-surface-variant mt-0.5">Lô: <span className="font-mono">{item.lotNumber}</span></p> : null}
-                  </td>
-                ) : null}
-                {showResultColumns ? (
-                  <td className="px-4 py-3 text-on-surface" title={item.note || '--'} style={clampTwoLinesStyle}>
-                    {item.note || '--'}
-                  </td>
-                ) : null}
-                <td className="px-3 py-3 whitespace-nowrap">
-                  <div className="flex justify-end gap-1.5" data-row-click-stop="true">
-                    <VaccinationRowActionButton
-                      icon="history"
-                      label="Lịch sử tiêm tổng hợp"
-                      onClick={() => onOpenHistory(item)}
-                      variant="neutral"
-                    />
-                    <VaccinationRowActionButton
-                      icon="edit"
-                      label="Cập nhật"
-                      onClick={() => onOpenUpdate(item)}
-                      variant="accent"
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      dense
+      columns={columns}
+      rows={rows}
+      getRowKey={(row) => row.studentVaccinationId}
+      emptyMessage={emptyMessage}
+      tableClassName={`w-full text-left text-sm ${showResultColumns ? 'min-w-[860px]' : 'min-w-[760px]'}`}
+    />
   );
 };
 

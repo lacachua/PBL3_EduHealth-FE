@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AdminAsyncState from '../../../shared/components/core/AsyncState';
+import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import DataTable from '../../../shared/components/core/DataTable';
 import EmptyState from '../../../shared/components/core/EmptyState';
-import Pagination from '../../../shared/components/core/Pagination';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import StudentPickerModal from '../components/StudentPickerModal';
@@ -133,64 +133,51 @@ const ExaminationLandingPage = () => {
 
   const columns = useMemo(() => ([
     {
-      key: 'id',
-      header: 'Mã phiếu',
-      headerClassName: 'w-[12%] min-w-[110px]',
-      cellClassName: 'whitespace-nowrap text-[12px] font-semibold text-primary',
-    },
-    {
       key: 'visitDate',
       header: 'Ngày khám',
-      headerClassName: 'w-[12%] min-w-[110px]',
-      cellClassName: 'whitespace-nowrap text-[12px] text-on-surface-variant',
+      headerClassName: 'w-[16%] min-w-[120px]',
+      cellClassName: 'text-xs font-semibold text-on-surface',
       render: (row) => row.visitDateLabel,
     },
     {
-      key: 'studentName',
+      key: 'student',
       header: 'Học sinh',
-      headerClassName: 'w-[28%] min-w-[180px]',
+      headerClassName: 'w-[32%] min-w-[220px]',
       render: (row) => (
-        <div>
-          <p className="text-[13px] font-semibold text-on-surface">{row.studentName}</p>
-          <p className="text-[11px] text-on-surface-variant">
-            {row.studentCode}
-            {' • '}
-            Mã hồ sơ {row.studentRecordId}
-            {' • '}
-            Lớp {row.className}
+        <div className="w-full text-left">
+          <p className="truncate text-sm font-bold text-on-surface transition group-hover:text-primary">{row.studentName}</p>
+          <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">
+            {row.studentCode} • Lớp {row.className}
           </p>
         </div>
       ),
     },
     {
       key: 'diagnosisMerged',
-      header: 'Loại bệnh / Chẩn đoán',
-      headerClassName: 'w-[36%] min-w-[200px]',
-      cellClassName: 'min-w-[200px] text-[12px] text-on-surface',
+      header: 'Chẩn đoán / Loại bệnh',
+      headerClassName: 'w-[36%] min-w-[240px]',
       render: (row) => (
-        <div>
-          <p className="font-semibold text-on-surface line-clamp-1">{row.diseaseTypeName || 'Chưa xác định'}</p>
-          <p className="text-on-surface-variant line-clamp-1 mt-0.5" title={row.diagnosis}>{row.diagnosis || '--'}</p>
+        <div className="w-full">
+          <p className="truncate text-xs font-bold text-on-surface">{row.diseaseTypeName || 'Chưa xác định'}</p>
+          <p className="mt-0.5 line-clamp-1 text-[11px] text-on-surface-variant" title={row.diagnosis}>{row.diagnosis || '--'}</p>
         </div>
       ),
     },
     {
       key: 'hasPrescription',
       header: 'Đơn thuốc',
-      headerClassName: 'w-[12%] min-w-[100px] text-right',
-      cellClassName: 'whitespace-nowrap',
+      headerClassName: 'w-[16%] min-w-[100px] text-right',
+      cellClassName: 'text-right',
       render: (row) => (
-        <div className="flex items-center justify-end">
-          <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.hasPrescription ? 'bg-success-soft text-success' : 'bg-surface-container-low text-on-surface-variant'}`}>
-            {row.hasPrescription ? 'Có' : 'Không'}
-          </span>
-        </div>
+        <StatusBadge tone={row.hasPrescription ? 'success' : 'neutral'}>
+          {row.hasPrescription ? 'Có đơn' : 'Không'}
+        </StatusBadge>
       ),
     },
   ]), []);
 
   return (
-    <div className="space-y-3.5 text-on-surface">
+    <div className="space-y-5 text-on-surface">
       <AdminFeedbackToast
         feedback={feedback}
         onClose={() => setFeedback(null)}
@@ -222,118 +209,105 @@ const ExaminationLandingPage = () => {
         )}
       />
 
-      <section className="app-panel-shell px-4 py-3 sm:px-5">
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
+      <AdminManagementListSection
+        filters={(
+          <section className="app-panel-shell px-4 py-3 sm:px-5">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
 
-            const normalizedFilters = normalizeFiltersForApply(filters);
-            setFilters(normalizedFilters);
-            setAppliedFilters(normalizedFilters);
-            setPage(1);
-          }}
-          className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-end"
-        >
-          <label className="relative min-w-0 flex-1 xl:max-w-[360px]">
-            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
-            <input
-              type="search"
-              value={filters.localKeyword}
-              onChange={(event) => setFilters((prev) => ({ ...prev, localKeyword: event.target.value }))}
-              placeholder="Tìm theo mã phiếu, học sinh, lớp, chẩn đoán"
-              className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
-            />
-          </label>
-
-          <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
-            <span className="text-[11px] font-semibold text-on-surface-variant">Từ ngày</span>
-            <input
-              type="date"
-              value={filters.fromDate}
-              onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
-              className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-            />
-          </label>
-
-          <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
-            <span className="text-[11px] font-semibold text-on-surface-variant">Đến ngày</span>
-            <input
-              type="date"
-              value={filters.toDate}
-              onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
-              className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
-            />
-          </label>
-
-          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
-            <button
-              type="submit"
-              className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
-            >
-              Lọc
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFilters({ ...defaultFilters });
-                setAppliedFilters({ ...defaultFilters });
+                const normalizedFilters = normalizeFiltersForApply(filters);
+                setFilters(normalizedFilters);
+                setAppliedFilters(normalizedFilters);
                 setPage(1);
               }}
-              className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+              className="flex flex-col gap-2.5 xl:flex-row xl:flex-nowrap xl:items-end"
             >
-              Đặt lại
-            </button>
+              <label className="relative min-w-0 flex-1 xl:max-w-[360px]">
+                <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-muted/80">search</span>
+                <input
+                  type="search"
+                  value={filters.localKeyword}
+                  onChange={(event) => setFilters((prev) => ({ ...prev, localKeyword: event.target.value }))}
+                  placeholder="Tìm theo học sinh, lớp, chẩn đoán"
+                  className="app-focus-ring app-input h-10 w-full rounded-lg pl-9 pr-3 text-sm"
+                />
+              </label>
+
+              <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
+                <span className="text-[11px] font-semibold text-on-surface-variant">Từ ngày</span>
+                <input
+                  type="date"
+                  value={filters.fromDate}
+                  onChange={(event) => setFilters((prev) => ({ ...prev, fromDate: event.target.value }))}
+                  className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
+                />
+              </label>
+
+              <label className="flex w-full flex-col gap-1 xl:w-[154px] xl:shrink-0">
+                <span className="text-[11px] font-semibold text-on-surface-variant">Đến ngày</span>
+                <input
+                  type="date"
+                  value={filters.toDate}
+                  onChange={(event) => setFilters((prev) => ({ ...prev, toDate: event.target.value }))}
+                  className="app-focus-ring app-input h-10 w-full rounded-lg px-2.5 text-sm"
+                />
+              </label>
+
+              <div className="flex shrink-0 flex-wrap items-center gap-2 xl:ml-auto xl:flex-nowrap">
+                <button
+                  type="submit"
+                  className="app-focus-ring app-btn-primary inline-flex h-9 min-w-[72px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+                >
+                  Lọc
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilters({ ...defaultFilters });
+                    setAppliedFilters({ ...defaultFilters });
+                    setPage(1);
+                  }}
+                  className="app-focus-ring app-btn-secondary inline-flex h-9 min-w-[84px] items-center justify-center rounded-lg px-3 text-sm font-semibold"
+                >
+                  Đặt lại
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+        summary={displayedRows.length > 0 ? `Hiển thị ${displayedRows.length} bản ghi/trang • Tổng ${listData.totalItems} phiếu khám` : null}
+        status={effectiveStatus}
+        error={error}
+        onRetry={() => fetchList(page, appliedFilters)}
+        loadingLabel="Đang tải danh sách phiếu khám..."
+        emptyTitle="Không có phiếu khám phù hợp"
+        emptyDescription="Hãy thử thay đổi từ khóa hoặc các bộ lọc để xem kết quả khác."
+        sectionClassName="space-y-3"
+        table={displayedRows.length ? (
+          <DataTable
+            dense
+            columns={columns}
+            rows={displayedRows}
+            getRowKey={(row) => row.id}
+            onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
+            tableClassName="min-w-[760px] w-full text-left text-sm"
+          />
+        ) : (
+          <div className="px-4 py-5 sm:px-5">
+            <EmptyState
+              title="Không có phiếu khám phù hợp"
+              description="Thử điều chỉnh từ khóa tìm kiếm hoặc khoảng thời gian."
+            />
           </div>
-        </form>
-      </section>
-
-      <section className="app-panel-shell space-y-3 p-4 md:p-5">
-        <h2 className="text-lg font-bold text-on-surface">Danh sách phiếu khám</h2>
-        <div className="app-table-summary rounded-xl px-3 py-2 text-[11px]">
-          Đang hiển thị <span className="font-semibold text-on-surface">{displayedRows.length}</span> phiếu trên trang này • Tổng <span className="font-semibold text-on-surface">{listData.totalItems}</span> phiếu khám
-        </div>
-
-        <AdminAsyncState
-          status={effectiveStatus}
-          error={error}
-          onRetry={() => fetchList(page, appliedFilters)}
-          loadingLabel="Đang tải danh sách phiếu khám..."
-          emptyTitle="Không có phiếu khám phù hợp"
-          emptyDescription="Hãy thử thay đổi từ khóa hoặc các bộ lọc để xem kết quả khác."
-          containerClassName="px-0 py-2"
-        >
-          {displayedRows.length ? (
-            <>
-              <DataTable
-                dense
-                columns={columns}
-                rows={displayedRows}
-                getRowKey={(row) => row.id}
-                onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
-                tableClassName="min-w-[760px] w-full text-left text-sm"
-              />
-
-              {listData.totalPages > 1 ? (
-                <div className="pt-2">
-                  <Pagination
-                    page={listData.page}
-                    pageSize={listData.pageSize}
-                    totalItems={listData.totalItems}
-                    onPageChange={(nextPage) => setPage(nextPage)}
-                  />
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <div className="px-4 py-5 sm:px-5">
-              <EmptyState
-                title="Không có phiếu khám phù hợp"
-                description="Thử điều chỉnh từ khóa tìm kiếm hoặc khoảng thời gian."
-              />
-            </div>
-          )}
-        </AdminAsyncState>
-      </section>
+        )}
+        pagination={{
+          page: listData.page,
+          pageSize: listData.pageSize,
+          totalItems: listData.totalItems,
+          onPageChange: (nextPage) => setPage(nextPage),
+        }}
+      />
 
       <StudentPickerModal
         open={pickerOpen}

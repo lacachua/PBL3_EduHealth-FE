@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
+import StatusBadge from '../../../shared/components/core/StatusBadge';
 import { getExaminationDetail } from '../services/getExaminationDetail';
 import { adaptExaminationDetailResponse } from '../adapters/examinationAdapter';
 
@@ -87,12 +88,12 @@ const ExaminationDetailPage = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-headline text-[1.46rem] font-bold leading-tight tracking-[-0.015em] text-on-surface sm:text-[1.62rem]">
-                  Phiếu khám <span className="text-on-surface-variant">{data.id}</span>
+                  Chi tiết phiếu khám
                 </h1>
                 {data.statusLabel && (
-                  <span className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success">
+                  <StatusBadge tone="success">
                     {data.statusLabel}
-                  </span>
+                  </StatusBadge>
                 )}
               </div>
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -152,14 +153,6 @@ const ExaminationDetailPage = () => {
               </div>
               <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Mã phiếu khám</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.id || '--'}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ngày khám</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.visitDateTimeLabel}</dd>
-                </div>
-                <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Học sinh</dt>
                   <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.fullName || '--'}</dd>
                 </div>
@@ -168,8 +161,8 @@ const ExaminationDetailPage = () => {
                   <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.className || '--'}</dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Mã hồ sơ</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.studentId || '--'}</dd>
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ngày khám</dt>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.visitDateTimeLabel}</dd>
                 </div>
                 <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Y tá phụ trách</dt>
@@ -222,9 +215,9 @@ const ExaminationDetailPage = () => {
                     <article key={item.prescriptionId} className={detailCardClass}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-sm font-semibold text-on-surface">{item.medicineName}</p>
-                        <span className="inline-flex items-center rounded-full bg-surface-container-low px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
+                        <StatusBadge tone="neutral">
                           SL: {item.quantity}
-                        </span>
+                        </StatusBadge>
                       </div>
                       <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Liều dùng</p>
                       <p className="text-sm text-on-surface">{item.dosage}</p>
