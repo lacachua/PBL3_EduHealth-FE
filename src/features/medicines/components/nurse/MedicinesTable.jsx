@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import DataTable from '../../../../shared/components/core/DataTable';
 import StatusBadge from '../../../../shared/components/core/StatusBadge';
 
-const MedicinesTable = ({ rows, loading, onView }) => {
+const MedicinesTable = ({ rows, onView }) => {
   const columns = useMemo(() => [
     {
       key: 'medicine',
@@ -62,7 +62,7 @@ const MedicinesTable = ({ rows, loading, onView }) => {
         </div>
       ),
     },
-  ], [onView]);
+  ], []);
 
   return (
     <DataTable

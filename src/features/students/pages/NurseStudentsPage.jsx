@@ -63,6 +63,13 @@ const NurseStudentsPage = () => {
     tableData,
     status,
     error,
+    fetchStudentDetail,
+    selectedStudent: detailStudent,
+    selectedHealthProfile: detailProfile,
+    basicDetailLoading,
+    healthDetailLoading,
+    basicDetailError,
+    healthDetailError,
   } = useStudentManagement({ moduleKey: DATA_MODULES.NURSE_STUDENTS });
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
@@ -70,6 +77,20 @@ const NurseStudentsPage = () => {
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    const isDataLoaded = detailStudent?.id === selectedStudentId;
+    
+    if (drawerOpen && selectedStudentId && !isDataLoaded && !basicDetailLoading) {
+      void fetchStudentDetail(selectedStudentId);
+    }
+  }, [drawerOpen, selectedStudentId, detailStudent?.id, basicDetailLoading, fetchStudentDetail]);
+
+  const kpiLabel = useMemo(() => {
+    if (activeFilters.classValue === 'all') return 'Tổng học sinh';
+    const classItem = globalClasses.find((c) => String(c.classId) === String(activeFilters.classValue));
+    return classItem ? `Học sinh lớp ${classItem.className}` : 'Tổng kết quả';
+  }, [activeFilters.classValue, globalClasses]);
 
   const showFeedback = useCallback((message, type = 'success') => {
     setFeedback({ message, type });
@@ -207,10 +228,10 @@ const NurseStudentsPage = () => {
       {
         key: 'student',
         header: 'Học sinh',
-        headerClassName: 'w-[40%] min-w-[240px]',
+        headerClassName: 'w-auto min-w-[240px]',
         render: (row) => (
           <div className="w-full text-left">
-            <p className="truncate text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+            <p className="truncate text-sm font-bold text-on-surface transition-colors group-hover:text-primary">
               {row.fullName || '--'}
             </p>
           </div>
@@ -219,19 +240,37 @@ const NurseStudentsPage = () => {
       {
         key: 'classNameDisplay',
         header: 'Lớp',
-        headerClassName: 'w-[8%] min-w-[70px]',
+        headerClassName: 'w-[90px] min-w-[90px]',
         cellClassName: 'text-xs font-medium text-on-surface',
       },
       {
         key: 'phone',
         header: 'Số điện thoại',
-        headerClassName: 'w-[20%] min-w-[140px]',
+        headerClassName: 'w-[160px] min-w-[160px]',
         cellClassName: 'text-xs text-on-surface-variant',
+      },
+      {
+        key: 'guardian',
+        header: 'Người giám hộ',
+        headerClassName: 'w-[200px] min-w-[200px]',
+        render: (row) => (
+          <p className="truncate text-xs text-on-surface-variant">
+            {row.guardian || '--'}
+          </p>
+        ),
+      },
+      {
+        key: 'status',
+        header: 'Trạng thái',
+        headerClassName: 'w-[140px] min-w-[140px]',
+        render: (row) => (
+          <StatusBadge tone={row.statusTone}>{row.statusLabel}</StatusBadge>
+        ),
       },
       {
         key: 'actions',
         header: 'Thao tác',
-        headerClassName: 'w-[20%] min-w-[120px] text-right',
+        headerClassName: 'w-[130px] min-w-[130px] text-right',
         cellClassName: 'text-right',
         render: (row) => (
           <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
@@ -333,7 +372,7 @@ const NurseStudentsPage = () => {
 
             <section className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <article className="app-kpi-card">
-                <p className="app-kpi-label">Tổng học sinh</p>
+                <p className="app-kpi-label">{kpiLabel}</p>
                 <p className="app-kpi-value">{tableData.totalItems}</p>
               </article>
               <article className="app-kpi-card">
@@ -357,7 +396,7 @@ const NurseStudentsPage = () => {
             rows={filteredRows}
             getRowKey={(row) => row._studentId || row.userId || row.fullName}
             onRowClick={(row) => openStudentProfile(row._studentId)}
-            tableClassName="min-w-[860px] w-full text-left text-sm"
+            tableClassName="min-w-[960px] w-full text-left text-sm"
           />
         ) : (
           <div className="px-4 py-5 sm:px-5">
@@ -377,65 +416,86 @@ const NurseStudentsPage = () => {
 
       <RightDrawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => {
+          setDrawerOpen(false);
+          setSelectedStudentId(null);
+        }}
         title="Thông tin học sinh"
         subtitle={selectedRow ? `Chi tiết thông tin của học sinh ${selectedRow.fullName}` : ''}
         widthClass="max-w-[480px]"
       >
         {selectedRow ? (
-          <div className="space-y-3">
-            <section className="rounded-lg border border-outline-variant bg-surface p-3 text-sm text-on-surface">
-              <div className="grid grid-cols-[140px_1fr] gap-y-2.5">
-                <p className="text-on-surface-variant">Họ tên</p>
-                <p className="font-semibold text-primary">{selectedRow.fullName}</p>
-
-                <p className="text-on-surface-variant">Lớp</p>
-                <p>{selectedRow.classNameDisplay}</p>
-
-                <p className="text-on-surface-variant">Ngày sinh</p>
-                <p>{selectedRow.dateOfBirthDisplay}</p>
-
-                <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Chiều cao</p>
-                <p className="border-t border-outline-variant/30 pt-2 font-medium">
-                  {formatMeasure(selectedRow.currentHeight, 'cm')}
-                </p>
-
-                <p className="text-on-surface-variant">Cân nặng</p>
-                <p className="font-medium">
-                  {formatMeasure(selectedRow.currentWeight, 'kg')}
-                </p>
-
-                <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Người giám hộ</p>
-                <p className="border-t border-outline-variant/30 pt-2">{selectedRow.guardian || '--'}</p>
-
-                <p className="text-on-surface-variant">Email</p>
-                <p className="truncate text-xs">{selectedRow.email || '--'}</p>
-
-                <p className="text-on-surface-variant">Số điện thoại</p>
-                <p>{selectedRow.phone || '--'}</p>
-
-                <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Trạng thái</p>
-                <div className="border-t border-outline-variant/30 pt-2">
-                  <StatusBadge tone={selectedRow.statusTone}>{selectedRow.statusLabel}</StatusBadge>
+          <div className="space-y-4">
+            {basicDetailLoading ? (
+              <div className="flex h-40 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-low">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <p className="text-xs text-on-surface-variant">Đang tải chi tiết...</p>
                 </div>
               </div>
-            </section>
+            ) : (
+              <section className="rounded-lg border border-outline-variant bg-surface p-3 text-sm text-on-surface">
+                <div className="grid grid-cols-[140px_1fr] gap-y-2.5">
+                  <p className="text-on-surface-variant">Họ tên</p>
+                  <p className="font-semibold text-primary">{selectedRow.fullName}</p>
 
-            <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  navigateToHealthProfile(selectedRow._studentId, {
-                    source: 'nurse-students',
-                    studentId: selectedRow._studentId,
-                    studentName: selectedRow.fullName,
-                  });
-                }}
-                className="app-focus-ring app-btn-secondary w-full rounded-md px-3 py-2 text-sm font-semibold"
-              >
-                Mở hồ sơ sức khỏe
-              </button>
-            </div>
+                  <p className="text-on-surface-variant">Lớp</p>
+                  <p>{selectedRow.classNameDisplay}</p>
+
+                  <p className="text-on-surface-variant">Ngày sinh</p>
+                  <p>{selectedRow.dateOfBirthDisplay}</p>
+
+                  <p className="text-on-surface-variant">Giới tính</p>
+                  <p>{detailStudent?.genderLabel || '--'}</p>
+
+                  <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Chiều cao</p>
+                  <p className="border-t border-outline-variant/30 pt-2 font-medium">
+                    {formatMeasure(detailStudent?.currentHeight ?? selectedRow.currentHeight, 'cm')}
+                  </p>
+
+                  <p className="text-on-surface-variant">Cân nặng</p>
+                  <p className="font-medium">
+                    {formatMeasure(detailStudent?.currentWeight ?? selectedRow.currentWeight, 'kg')}
+                  </p>
+
+                  <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Người giám hộ</p>
+                  <p className="border-t border-outline-variant/30 pt-2">{detailStudent?.guardian || selectedRow.guardian || '--'}</p>
+
+                  <p className="text-on-surface-variant">Email</p>
+                  <p className="truncate text-xs">{detailStudent?.email || selectedRow.email || '--'}</p>
+
+                  <p className="text-on-surface-variant">Số điện thoại</p>
+                  <p>{detailStudent?.phone || selectedRow.phone || '--'}</p>
+
+                  <p className="text-on-surface-variant border-t border-outline-variant/30 pt-2">Trạng thái tài khoản</p>
+                  <div className="border-t border-outline-variant/30 pt-2">
+                    <StatusBadge tone={selectedRow.statusTone}>{selectedRow.statusLabel}</StatusBadge>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {!basicDetailLoading && (
+              <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigateToHealthProfile(selectedRow._studentId, {
+                      source: 'nurse-students',
+                      studentId: selectedRow._studentId,
+                      studentName: selectedRow.fullName,
+                    });
+                  }}
+                  className="app-focus-ring app-btn-primary w-full rounded-md px-3 py-2 text-sm font-semibold transition-all"
+                >
+                  Mở hồ sơ sức khỏe
+                </button>
+              </div>
+            )}
+
+            {basicDetailError ? (
+              <p className="rounded-md bg-danger-soft p-2 text-center text-xs text-danger">{basicDetailError}</p>
+            ) : null}
           </div>
         ) : null}
       </RightDrawer>

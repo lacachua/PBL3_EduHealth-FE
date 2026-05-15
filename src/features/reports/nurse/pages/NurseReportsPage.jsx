@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useClassOptions } from '../../students/hooks/useClassOptions';
+import { useClassOptions } from '../../../students/hooks/useClassOptions';
 import AdminAsyncState from '../../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
