@@ -28,18 +28,18 @@ const LandingFooter = () => {
           <div>
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Hệ thống</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
-              <a href="#tinh-nang" className="block transition-colors hover:text-primary">Tính năng cốt lõi</a>
-              <a href="#ban-tin-y-te" className="block transition-colors hover:text-primary">Bản tin y tế học đường</a>
-              <a href="#tinh-nang" className="block transition-colors hover:text-primary">Quản lý hồ sơ học sinh</a>
+              <a href="/#tinh-nang" className="block transition-colors hover:text-primary">Tính năng cốt lõi</a>
+              <a href="/#ban-tin-y-te" className="block transition-colors hover:text-primary">Bản tin y tế học đường</a>
+              <a href="/#tinh-nang" className="block transition-colors hover:text-primary">Quản lý hồ sơ học sinh</a>
             </div>
           </div>
 
           <div>
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Kết nối</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
-              <a href="#giai-phap" className="block transition-colors hover:text-primary">Thông tin phụ huynh</a>
-              <a href="#lien-he" className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế trường</a>
-              <a href="#ban-tin-y-te" className="block transition-colors hover:text-primary">Cổng thông báo</a>
+              <a href="/#giai-phap" className="block transition-colors hover:text-primary">Thông tin phụ huynh</a>
+              <a href="/#lien-he" className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế trường</a>
+              <a href="/#ban-tin-y-te" className="block transition-colors hover:text-primary">Cổng thông báo</a>
             </div>
           </div>
 

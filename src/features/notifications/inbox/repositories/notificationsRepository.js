@@ -9,6 +9,7 @@ import {
   buildCreateNotificationPayload,
   buildPreviewRecipientsPayload,
   normalizeRole,
+  normalizeRecipientCandidate,
   toInteger,
   toText,
 } from '../adapters/notificationAdapters';
@@ -70,7 +71,7 @@ const resolveCapabilityState = (role) => {
     }
 
     if (normalizedRole === 'ADMIN' || normalizedRole === 'NURSE') {
-      return ['CLASS', 'RECIPIENTS'];
+      return ['CLASS', 'RECIPIENTS', 'ROLES'];
     }
 
     return null;
@@ -94,18 +95,7 @@ const resolveCapabilityState = (role) => {
   };
 };
 
-const normalizeRecipientOption = (item = {}) => {
-  const userId = toInteger(item.userId ?? item.UserId, 0);
-
-  return {
-    userId,
-    fullName: toText(item.fullName ?? item.FullName, 'Người nhận'),
-    role: normalizeRole(item.role ?? item.Role, 'STUDENT'),
-    classId: toInteger(item.classId ?? item.ClassId, null),
-    className: toText(item.className ?? item.ClassName),
-    label: toText(item.fullName ?? item.FullName, 'Người nhận'),
-  };
-};
+const normalizeRecipientOption = (item = {}) => normalizeRecipientCandidate(item);
 
 const mapPreviewRecipients = (payload = {}) => {
   const data = payload?.data || payload || {};
@@ -114,8 +104,6 @@ const mapPreviewRecipients = (payload = {}) => {
   return {
     totalRecipients: toInteger(data.totalRecipients ?? data.total ?? recipients.length, recipients.length),
     recipients: recipients.map((item) => normalizeRecipientOption(item)),
-    source: 'LIVE',
-    sourceNote: '',
   };
 };
 
@@ -194,8 +182,6 @@ export const notificationsRepository = {
       ...data,
       items: filteredItems,
       totalItems: filteredItems.length,
-      source: 'LIVE',
-      sourceNote: '',
     };
   },
 
@@ -211,8 +197,6 @@ export const notificationsRepository = {
 
     return {
       item: params.item || null,
-      source: 'LIVE',
-      sourceNote: '',
     };
   },
 
@@ -239,7 +223,7 @@ export const notificationsRepository = {
     }
 
     const response = await notificationsApi.getList({ page: 1, pageSize: 1 });
-    return adaptUnreadCountResponse(response, { source: 'LIVE', sourceNote: '' });
+    return adaptUnreadCountResponse(response);
   },
 
   getPublicNotifications: async (params = {}) => {
@@ -322,7 +306,7 @@ export const notificationsRepository = {
     }
 
     const response = await notificationsApi.uploadImage(file);
-    return adaptUploadImageResponse(response, { source: 'LIVE' });
+    return adaptUploadImageResponse(response);
   },
 
   createNotification: async (payloadOrDraft, role, context = {}) => {
@@ -451,26 +435,31 @@ export const notificationsRepository = {
     if (!capabilityState.canLoadRecipients) {
       return {
         options: [],
-        source: 'PENDING',
+        source: 'LIVE',
         sourceNote: 'Chưa có dữ liệu người nhận phù hợp với vai trò hiện tại.',
       };
     }
 
-    const response = await notificationsApi.getStudents({
-      page: 1,
-      pageSize: 200,
-      isActive: true,
-      search: params.keyword ? String(params.keyword).trim() : undefined,
-    });
-    const rows = Array.isArray(response?.data) ? response.data : [];
+    let rows = [];
+    if (normalizedRole === 'ADMIN') {
+      const response = await notificationsApi.getUsers({
+        page: 1,
+        pageSize: 100,
+        search: params.keyword || undefined,
+      });
+      rows = Array.isArray(response?.data) ? response.data : [];
+    } else {
+      const response = await notificationsApi.getStudents({
+        page: 1,
+        pageSize: 100,
+        isActive: true,
+        search: params.keyword || undefined,
+      });
+      rows = Array.isArray(response?.data) ? response.data : [];
+    }
 
     return {
-      options: rows.map((item) => ({
-        ...normalizeRecipientOption(item),
-        role: 'STUDENT',
-      })),
-      source: 'LIVE',
-      sourceNote: '',
+      options: rows.map((item) => normalizeRecipientOption(item)),
     };
   },
 
@@ -499,8 +488,6 @@ export const notificationsRepository = {
         className: toText(item.className ?? item.ClassName),
         label: toText(item.className ?? item.ClassName),
       })),
-      source: 'LIVE',
-      sourceNote: '',
     };
   },
 
@@ -530,8 +517,6 @@ export const notificationsRepository = {
         description: toText(item.description ?? item.Description),
         label: toText(item.name ?? item.Name),
       })),
-      source: 'LIVE',
-      sourceNote: '',
     };
   },
 
@@ -544,8 +529,6 @@ export const notificationsRepository = {
 
     return {
       options: [],
-      source: 'PENDING',
-      sourceNote: 'Chưa có danh sách đợt tiêm phù hợp để liên kết thông báo.',
     };
   },
 

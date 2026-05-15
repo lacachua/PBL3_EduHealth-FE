@@ -40,7 +40,7 @@ const LandingTopNav = () => {
               <a
                 key={item.id}
                 className={`${navItemClassName} ${isActive ? 'bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgba(43,125,96,0.24)]' : 'hover:bg-surface-container-lowest hover:text-on-surface'}`}
-                href={`#${item.id}`}
+                href={`/#${item.id}`}
                 onClick={() => setActiveSection(item.id)}
               >
                 {item.label}

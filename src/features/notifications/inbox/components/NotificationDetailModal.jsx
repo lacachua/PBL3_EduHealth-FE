@@ -65,7 +65,7 @@ const NotificationDetailModal = ({
                 {typeMeta.label}
               </span>
               {item?.visibility ? (
-                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft/10 px-2 py-0.5 font-semibold text-primary">
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft/10 px-2.5 py-0.5 font-semibold text-primary">
                   {item.visibility === 'PUBLIC' ? 'Public bản tin' : item.visibility === 'INTERNAL' ? 'Nội bộ' : 'Nội bộ + Public'}
                 </span>
               ) : null}
@@ -132,16 +132,16 @@ const NotificationDetailModal = ({
                 <InfoRow label="Đợt tiêm liên quan" value={item?.vaccinationName} />
               </section>
 
-              {canViewRecipients && (recipients.length > 0 || item?.totalRecipients > 0) ? (
+              {item?.isSentItem && (recipients.length > 0 || item?.totalRecipients > 0) ? (
                 <section className="rounded-2xl border border-outline-variant bg-surface px-3 py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <h3 className="text-sm font-semibold text-on-surface">Người nhận</h3>
                       <p className="mt-0.5 text-xs text-on-surface-variant">
-                        {item?.totalRecipients > 0 ? `${item.totalRecipients} người nhận trong thông báo này.` : `${recipients.length} người nhận trong thông báo này.`}
+                        {item?.totalRecipients > 0 ? `${item.totalRecipients} người nhận` : 'Thông báo này không có người nhận cụ thể.'}
                       </p>
                     </div>
-                    {item?.readCount !== undefined ? (
+                    {item?.totalRecipients > 0 && item?.readCount !== undefined ? (
                       <div className="flex items-center gap-3 text-xs font-semibold">
                         <span className="flex items-center gap-1 text-success">
                           <span className="material-symbols-outlined text-[16px]">done_all</span>

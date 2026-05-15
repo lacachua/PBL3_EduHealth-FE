@@ -67,6 +67,10 @@ export const useNotificationInbox = ({
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
+  const [totalCount, setTotalCount] = useState(0);
+  const [unreadCountTotal, setUnreadCountTotal] = useState(0);
+  const [sentTotalCount, setSentTotalCount] = useState(0);
+
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUploadError, setImageUploadError] = useState('');
   const [imageFileName, setImageFileName] = useState('');
@@ -86,15 +90,13 @@ export const useNotificationInbox = ({
   const [vaccinationOptions, setVaccinationOptions] = useState([]);
 
   const summary = useMemo(() => {
-    const unread = items.reduce((sum, item) => sum + (item.currentRecipient?.isRead ? 0 : 1), 0);
-
     return {
-      total: items.length,
-      unread,
-      read: Math.max(0, items.length - unread),
-      sent: sentItems.length,
+      total: totalCount || items.length,
+      unread: unreadCountTotal,
+      read: Math.max(0, (totalCount || items.length) - unreadCountTotal),
+      sent: sentTotalCount || sentItems.length,
     };
-  }, [currentUser?.id, currentUser?.userId, items, sentItems.length, role]);
+  }, [totalCount, unreadCountTotal, sentTotalCount, items.length, sentItems.length]);
 
   const availableTypes = useMemo(() => {
     const seen = new Set(config.allowedTypes);
@@ -141,6 +143,8 @@ export const useNotificationInbox = ({
       }, role);
 
       setItems(data.items || []);
+      setTotalCount(data.totalItems || 0);
+      setUnreadCountTotal(data.unreadCount || 0);
     } catch (apiError) {
       setItems([]);
       setError(normalizeApiMessage(apiError, 'Không thể tải danh sách thông báo.'));
@@ -164,6 +168,7 @@ export const useNotificationInbox = ({
       }, role);
 
       setSentItems(data.items || []);
+      setSentTotalCount(data.totalItems || 0);
     } catch (apiError) {
       setSentItems([]);
       setSentError(normalizeApiMessage(apiError, 'Không thể tải danh sách đã gửi.'));
@@ -209,9 +214,16 @@ export const useNotificationInbox = ({
 
     const hasRecipients = Array.isArray(draft.recipientUserIds) && draft.recipientUserIds.length > 0;
     const hasClass = Number(draft.classId || 0) > 0;
+    const hasRoles = Array.isArray(draft.targetRoles) && draft.targetRoles.length > 0;
 
-    if (!hasRecipients && !hasClass) {
+    if (!hasRecipients && !hasClass && !hasRoles) {
       setPreview({ totalRecipients: 0, recipients: [], source: capabilityState.lookupSource });
+      setPreviewError('');
+      return undefined;
+    }
+
+    if (draft.targetMode === 'ROLES') {
+      setPreview({ totalRecipients: 0, recipients: [], source: 'LIVE' });
       setPreviewError('');
       return undefined;
     }
@@ -329,21 +341,23 @@ export const useNotificationInbox = ({
         [field]: value,
       };
 
+      // Reset targets when mode changes
       if (field === 'targetMode') {
         next.classId = '';
         next.recipientUserIds = [];
         next.targetRoles = [];
       }
 
-      if (field === 'visibility' && value === 'PUBLIC') {
-        next.targetMode = '';
+      // PUBLIC mode doesn't use any targets
+      if (field === 'targetMode' || field === 'visibility') {
         next.classId = '';
         next.recipientUserIds = [];
         next.targetRoles = [];
       }
 
-      if (field === 'visibility' && value !== 'PUBLIC' && !previous.targetMode) {
-        next.targetMode = effectiveConfig?.defaultTargetMode || next.targetMode;
+      // Switching back from PUBLIC to INTERNAL/BOTH
+      if (field === 'visibility' && value !== 'PUBLIC' && previous.visibility === 'PUBLIC') {
+        next.targetMode = effectiveConfig?.defaultTargetMode || 'CLASS';
       }
 
       if (field === 'type') {
@@ -359,26 +373,37 @@ export const useNotificationInbox = ({
       return next;
     });
 
-    setDraftErrors((previous) => ({
-      ...previous,
-      [field]: undefined,
-      visibility: field === 'visibility' ? undefined : previous.visibility,
-      classId: field === 'targetMode' ? undefined : previous.classId,
-      recipientUserIds: field === 'targetMode' ? undefined : previous.recipientUserIds,
-      targetMode: undefined,
-      general: undefined,
-    }));
+    setDraftErrors((previous) => {
+      const isTargetChange = field === 'targetMode' || field === 'visibility';
+      
+      return {
+        ...previous,
+        [field]: undefined,
+        visibility: field === 'visibility' ? undefined : previous.visibility,
+        classId: isTargetChange ? undefined : previous.classId,
+        recipientUserIds: isTargetChange ? undefined : previous.recipientUserIds,
+        targetRoles: isTargetChange ? undefined : previous.targetRoles,
+        targetMode: undefined,
+        general: undefined,
+      };
+    });
   }, [effectiveConfig?.defaultTargetMode]);
 
   const toggleRecipient = useCallback((userId) => {
-    const parsedId = Number(userId || 0);
-    if (!parsedId) {
+    // userId might be string or number from UI, normalize to number for payload
+    const parsedId = Number(userId);
+    
+    // We only allow positive integer IDs for recipients (BE contract)
+    if (isNaN(parsedId) || parsedId <= 0) {
+      console.warn('[Notifications] Attempted to toggle invalid recipient ID:', userId);
       return;
     }
 
     setDraft((previous) => {
       const currentIds = Array.isArray(previous.recipientUserIds) ? previous.recipientUserIds : [];
-      const nextIds = currentIds.includes(parsedId)
+      const isSelected = currentIds.includes(parsedId);
+      
+      const nextIds = isSelected
         ? currentIds.filter((id) => id !== parsedId)
         : [...currentIds, parsedId];
 
@@ -482,7 +507,7 @@ export const useNotificationInbox = ({
       setComposerOpen(false);
       const successMessage = role === 'STUDENT'
         ? 'Đã gửi yêu cầu hỗ trợ.'
-        : `Đã gửi thông báo${result.totalRecipients ? ` cho ${result.totalRecipients} người nhận` : ''}.`;
+        : 'Gửi thông báo thành công.';
       setFeedback(successMessage);
       await loadInbox();
       await loadSentInbox();

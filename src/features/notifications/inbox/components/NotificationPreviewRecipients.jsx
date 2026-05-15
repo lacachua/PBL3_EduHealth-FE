@@ -36,9 +36,14 @@ const NotificationPreviewSummary = ({
             <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
               {visibilityLabel}
             </span>
-            {draft?.visibility !== 'PUBLIC' && (
+            {draft?.visibility !== 'PUBLIC' && draft?.targetMode !== 'ROLES' && (
               <span className="text-[11px] text-on-surface-variant">
                 {loading ? 'Đang tải người nhận...' : `${Number(preview?.totalRecipients || 0)} người nhận`}
+              </span>
+            )}
+            {draft?.visibility !== 'PUBLIC' && draft?.targetMode === 'ROLES' && (
+              <span className="text-[11px] text-on-surface-variant">
+                Theo nhóm vai trò
               </span>
             )}
           </div>
@@ -51,7 +56,20 @@ const NotificationPreviewSummary = ({
         <section className="rounded-2xl border border-outline-variant bg-surface-container-low px-3 py-3">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Người nhận dự kiến</h4>
           {error ? <p className="mt-2 text-xs font-semibold text-danger">{error}</p> : null}
-          {recipients.length ? (
+          
+          {draft.targetMode === 'ROLES' ? (
+            <div className="mt-2 space-y-2">
+              <p className="text-sm text-on-surface">Sẽ gửi đến tất cả người dùng thuộc nhóm:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(draft.targetRoles || []).map((targetRole) => (
+                  <span key={targetRole} className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                    {targetRole === 'ADMIN' ? 'Quản trị viên' : targetRole === 'NURSE' ? 'Nhân viên y tế' : 'Học sinh'}
+                  </span>
+                ))}
+                {!(draft.targetRoles || []).length && <p className="text-xs text-on-surface-variant italic">Chưa chọn vai trò nào.</p>}
+              </div>
+            </div>
+          ) : recipients.length ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {recipients.slice(0, 5).map((recipient) => (
                 <span key={recipient.userId} className="inline-flex items-center rounded-full border border-outline-variant bg-surface px-2.5 py-1 text-xs text-on-surface-variant">

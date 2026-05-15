@@ -40,6 +40,7 @@ import {
   NurseStudentsPage,
   NurseVaccinationCampaignDetailPage,
   NurseVaccinationCampaignsPage,
+  PublicNewsListPage,
   ServerErrorPage,
   StudentAccountPage,
   StudentCareHistoryPage,
@@ -59,6 +60,7 @@ export const router = createBrowserRouter(
       {/* Public Routes */}
       <Route element={<SiteLayout />}>
         <Route path="/" element={<Lazy><LandingPage /></Lazy>} />
+        <Route path="/news" element={<Lazy><PublicNewsListPage /></Lazy>} />
       </Route>
 
       {/* Auth Routes */}

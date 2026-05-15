@@ -12,6 +12,7 @@ const ENDPOINTS = Object.freeze({
   classes: '/api/v1/classes',
   diseases: '/api/v1/diseases',
   students: '/api/v1/students',
+  users: '/api/v1/users',
 });
 
 const buildImageFormData = (fileOrFormData) => {
@@ -51,4 +52,5 @@ export const notificationsApi = {
   getClasses: () => apiGetEnvelope(ENDPOINTS.classes),
   getDiseases: () => apiGetEnvelope(ENDPOINTS.diseases),
   getStudents: (params) => apiGetEnvelope(ENDPOINTS.students, { params }),
+  getUsers: (params) => apiGetEnvelope(ENDPOINTS.users, { params }),
 };

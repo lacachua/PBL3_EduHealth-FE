@@ -1,5 +1,5 @@
 import { getNotificationComposeConfig } from '../constants/notificationComposeConfig';
-import { getNotificationTypeMeta, normalizeSource, TARGET_MODES } from '../constants/notificationTypes';
+import { getNotificationTypeMeta, normalizeSource, TARGET_MODES, getRoleLabel } from '../constants/notificationTypes';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
@@ -18,6 +18,45 @@ export const normalizeRole = (role, fallback = '') => {
 export const toInteger = (value, fallback = null) => {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+/**
+ * Robustly extracts a numeric User ID from various possible fields and formats.
+ * Supports:
+ * - Integer IDs (e.g. 10)
+ * - Numeric strings (e.g. "10")
+ * - Coded identifiers (e.g. "USR001" -> 1) - used by Admin user lookup
+ */
+export const toRecipientUserId = (value, fallback = 0) => {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value > 0 ? value : fallback;
+  }
+
+  const str = String(value).trim();
+  if (!str || str === 'null' || str === 'undefined') {
+    return fallback;
+  }
+
+  // Try direct parse
+  const direct = Number(str);
+  if (Number.isInteger(direct) && direct > 0) {
+    return direct;
+  }
+
+  // Try extracting trailing digits (for "USR001" format)
+  const match = str.match(/(\d+)$/);
+  if (match?.[1]) {
+    const extracted = Number(match[1]);
+    if (Number.isInteger(extracted) && extracted > 0) {
+      return extracted;
+    }
+  }
+
+  return fallback;
 };
 
 export const toNullableInteger = (value) => {
@@ -87,7 +126,10 @@ export const resolveMeta = (payload) => payload?.meta || payload?.data?.meta || 
 
 const normalizeRecipient = (item = {}, fallback = {}) => {
   const user = item.user || item;
-  const userId = toInteger(item.userId ?? user.userId ?? user.id, toInteger(fallback.userId, 0));
+  const userId = toRecipientUserId(
+    item.userId ?? item.UserId ?? user.userId ?? user.id ?? user.Id,
+    toRecipientUserId(fallback.userId, 0)
+  );
 
   return {
     id: toInteger(item.id, toInteger(fallback.id, 0)),
@@ -99,6 +141,21 @@ const normalizeRecipient = (item = {}, fallback = {}) => {
     readAt: item.readAt ?? fallback.readAt ?? null,
     sentAt: item.sentAt ?? fallback.sentAt ?? null,
     status: toText(item.status, fallback.status || 'SENT'),
+  };
+};
+
+export const normalizeRecipientCandidate = (item = {}) => {
+  const userId = toRecipientUserId(item.userId ?? item.UserId ?? item.id ?? item.Id, 0);
+  const fullName = toText(item.fullName ?? item.FullName, 'Người nhận');
+  const role = normalizeRole(item.role ?? item.Role, 'STUDENT');
+
+  return {
+    id: userId, // FE identifier
+    userId,     // BE payload identifier
+    fullName,
+    role,
+    roleLabel: getRoleLabel(role),
+    className: toText(item.className ?? item.ClassName, ''),
   };
 };
 
@@ -174,18 +231,18 @@ export const toNotificationViewModel = (item = {}, { currentUser, viewerRole, so
 };
 
 export const toPublicNotificationModel = (item = {}) => {
-  const notificationId = toInteger(item.notificationId ?? item.id, 0);
-  const content = toText(item.content);
+  const notificationId = toInteger(item.notificationId ?? item.NotificationId ?? item.id ?? item.Id, 0);
+  const content = toText(item.content ?? item.Content);
 
   return {
     id: notificationId,
     notificationId,
-    title: toText(item.title, 'Bản tin y tế'),
-    summary: toSummary(item.summary ?? content),
+    title: toText(item.title ?? item.Title, 'Bản tin y tế'),
+    summary: toSummary(item.summary ?? item.Summary ?? content),
     content,
-    imageUrl: toOptionalText(item.imageUrl ?? item.image),
-    type: toText(item.type).toUpperCase() || 'GENERAL',
-    createdAt: item.publishedAt || item.createdAt || new Date().toISOString(),
+    imageUrl: toOptionalText(item.imageUrl ?? item.Image ?? item.image),
+    type: toText(item.type ?? item.Type).toUpperCase() || 'GENERAL',
+    createdAt: item.publishedAt || item.PublishedAt || item.createdAt || item.CreatedAt || new Date().toISOString(),
     createdByName: toText(item.createdByName ?? item.createdByUserName, 'Hệ thống EduHealth'),
   };
 };
@@ -203,12 +260,14 @@ export const toSentNotificationModel = (item = {}) => {
     type: toText(item.type ?? item.Type).toUpperCase() || 'GENERAL',
     visibility: toText(item.visibility ?? item.Visibility, 'INTERNAL').toUpperCase(),
     createdAt: item.createdAt ?? item.CreatedAt ?? new Date().toISOString(),
-    totalRecipients: toInteger(item.totalRecipients ?? item.TotalRecipients, 0),
-    readCount: toInteger(item.readCount ?? item.ReadCount, 0),
-    unreadCount: toInteger(item.unreadCount ?? item.UnreadCount, 0),
+    totalRecipients: Number(item.totalRecipients ?? item.TotalRecipients ?? 0),
+    readCount: Number(item.readCount ?? item.ReadCount ?? 0),
+    unreadCount: Number(item.unreadCount ?? item.UnreadCount ?? 0),
     classId: toNullableInteger(item.classId ?? item.ClassId),
     diseaseId: toNullableInteger(item.diseaseId ?? item.DiseaseId),
     vaccinationId: toNullableInteger(item.vaccinationId ?? item.VaccinationId),
+    // Recipients details are not returned by current BE /sent endpoint, only stats.
+    recipients: [],
   };
 };
 
@@ -348,36 +407,76 @@ export const adaptNotificationDetailResponse = (payload = {}, fallbackParams = {
 };
 
 export const buildCreateNotificationPayload = (draft = {}) => {
-  const recipientUserIds = uniquePositiveIds(draft.recipientUserIds || []);
+  const title = toText(draft.title);
+  const content = toText(draft.content);
+  const type = toText(draft.type);
   const image = toOptionalText(draft.image ?? draft.imageUrl);
-  const targetRoles = normalizeTargetRoles(draft.targetRoles || []);
+  const visibility = toOptionalText(draft.visibility || 'INTERNAL').toUpperCase();
+  const targetMode = resolveTargetModeForApi({
+    targetMode: draft.targetMode,
+    visibility,
+  });
+
+  const payload = {
+    title,
+    content,
+    type,
+    image: image || null,
+    visibility,
+    targetMode,
+    classId: toNullableInteger(draft.classId),
+    diseaseId: toNullableInteger(draft.diseaseId),
+    vaccinationId: toNullableInteger(draft.vaccinationId),
+    recipientUserIds: null,
+    targetRoles: null,
+  };
+
+  if (visibility === 'PUBLIC' || targetMode === 'NONE') {
+    payload.targetMode = 'NONE';
+    payload.classId = null;
+    payload.recipientUserIds = null;
+    payload.targetRoles = null;
+  } else {
+    if (targetMode === 'CLASS') {
+      payload.recipientUserIds = null;
+      payload.targetRoles = null;
+    } else if (targetMode === 'USERS') {
+      payload.classId = null;
+      payload.targetRoles = null;
+      payload.recipientUserIds = uniquePositiveIds(draft.recipientUserIds || []);
+    } else if (targetMode === 'ROLES') {
+      payload.classId = null;
+      payload.recipientUserIds = null;
+      payload.targetRoles = normalizeTargetRoles(draft.targetRoles || []);
+    }
+  }
+
+  return payload;
+};
+
+export const buildPreviewRecipientsPayload = (draft = {}) => {
   const targetMode = resolveTargetModeForApi({
     targetMode: draft.targetMode,
     visibility: draft.visibility,
   });
-  const visibility = toOptionalText(draft.visibility);
+
+  if (targetMode === 'CLASS') {
+    return {
+      classId: toNullableInteger(draft.classId),
+      userIds: null,
+    };
+  }
+
+  if (targetMode === 'USERS' || targetMode === 'RECIPIENTS') {
+    return {
+      classId: null,
+      userIds: uniquePositiveIds(draft.recipientUserIds || []),
+    };
+  }
 
   return {
-    title: toText(draft.title),
-    content: toText(draft.content),
-    type: toText(draft.type),
-    ...(image ? { image } : {}),
-    ...(visibility ? { visibility } : {}),
-    ...(targetMode ? { targetMode } : {}),
-    ...(targetRoles.length ? { targetRoles } : {}),
-    ...(toNullableInteger(draft.classId) ? { classId: toNullableInteger(draft.classId) } : {}),
-    ...(recipientUserIds.length && targetMode !== 'ROLES' ? { recipientUserIds } : {}),
-    ...(toNullableInteger(draft.diseaseId) ? { diseaseId: toNullableInteger(draft.diseaseId) } : {}),
-    ...(toNullableInteger(draft.vaccinationId) ? { vaccinationId: toNullableInteger(draft.vaccinationId) } : {}),
-  };
-};
-
-export const buildPreviewRecipientsPayload = (draft = {}) => {
-  const recipientUserIds = uniquePositiveIds(draft.recipientUserIds || []);
-
-  return {
-    ...(toNullableInteger(draft.classId) ? { classId: toNullableInteger(draft.classId) } : {}),
-    ...(recipientUserIds.length ? { userIds: recipientUserIds } : {}),
+    classId: null,
+    userIds: null,
   };
 };
 
@@ -460,7 +559,7 @@ export const validateNotificationDraft = ({
     if (!payload.targetRoles?.length) {
       fieldErrors.targetRoles = 'Vui lòng chọn ít nhất một vai trò.';
     }
-  } else if (visibility !== 'PUBLIC' && targetMode === TARGET_MODES.RECIPIENTS) {
+  } else if (visibility !== 'PUBLIC' && (targetMode === TARGET_MODES.RECIPIENTS || targetMode === 'USERS')) {
     if (!payload.recipientUserIds?.length) {
       fieldErrors.recipientUserIds = 'Vui lòng chọn ít nhất một người nhận.';
     }
@@ -473,18 +572,25 @@ export const validateNotificationDraft = ({
   };
 };
 
-export const filterOptions = (options = [], keyword = '') => {
+export const filterOptions = (options, keyword) => {
+  if (!Array.isArray(options)) {
+    return [];
+  }
+  
   const normalizedKeyword = toText(keyword).toLowerCase();
-
   if (!normalizedKeyword) {
     return options;
   }
 
-  return options.filter((option) => [
-    option.label,
-    option.fullName,
-    option.className,
-    option.role,
-    option.description,
-  ].join(' ').toLowerCase().includes(normalizedKeyword));
+  return options.filter((option) => {
+    const fullName = toText(option.fullName || option.label).toLowerCase();
+    const className = toText(option.className).toLowerCase();
+    const roleLabel = getRoleLabel(option.role).toLowerCase();
+
+    return (
+      fullName.includes(normalizedKeyword) ||
+      className.includes(normalizedKeyword) ||
+      roleLabel.includes(normalizedKeyword)
+    );
+  });
 };

@@ -44,20 +44,23 @@ const NotificationTargetSelector = ({
 
       {!isStudent ? (
         <div className="flex flex-wrap gap-1 rounded-xl border border-outline-variant bg-surface p-1">
-          {config.allowedTargetModes.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => onFieldChange('targetMode', mode)}
-              className={`app-focus-ring rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                draft.targetMode === mode
-                  ? 'bg-primary text-on-primary'
-                  : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-              }`}
-            >
-              {config.targetModeLabels[mode] || mode}
-            </button>
-          ))}
+          {config.allowedTargetModes.map((mode) => {
+            const label = mode === 'CLASS' ? 'Theo lớp' : mode === 'RECIPIENTS' ? 'Người nhận cụ thể' : mode === 'ROLES' ? 'Theo vai trò' : mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => onFieldChange('targetMode', mode)}
+                className={`app-focus-ring rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                  draft.targetMode === mode
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       ) : null}
 
@@ -93,7 +96,7 @@ const NotificationTargetSelector = ({
               <div className="flex flex-wrap gap-2">
                 {['ADMIN', 'NURSE', 'STUDENT'].map((targetRole) => {
                   const isSelected = (draft.targetRoles || []).includes(targetRole);
-                  const roleLabel = targetRole === 'ADMIN' ? 'Quản trị' : targetRole === 'NURSE' ? 'Điều dưỡng' : 'Học sinh';
+                  const roleLabel = targetRole === 'ADMIN' ? 'Quản trị viên' : targetRole === 'NURSE' ? 'Nhân viên y tế' : 'Học sinh';
                   
                   return (
                     <button
