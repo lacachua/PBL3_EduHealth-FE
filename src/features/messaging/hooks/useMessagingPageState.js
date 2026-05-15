@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DATA_MODULES, shouldUseMockData } from '../../../app/config/dataMode';
 import { normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import { getStoredUser } from '../../../shared/services/tokenClient';
+import { normalizeConversation } from '../adapters/messagingAdapter';
+import { CHAT_HUB_EVENTS } from '../constants/messagingEvents';
 import { messagingRepository } from '../repositories/messagingRepository';
 import { useChatConnection } from './useChatConnection';
 import { useConversations } from './useConversations';
@@ -16,6 +18,7 @@ export const useMessagingPageState = ({ role }) => {
 
   const chat = useChatConnection({ enabled: realtimeEnabled });
   const conversations = useConversations({ viewerRole, currentUser });
+  const joinedConversationIdsRef = useRef(new Set());
 
   const [contactsOpen, setContactsOpen] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -23,30 +26,91 @@ export const useMessagingPageState = ({ role }) => {
   const [contactsError, setContactsError] = useState('');
   const [contactsKeyword, setContactsKeyword] = useState('');
 
+  const handleMessageAdded = useCallback((message) => {
+    conversations.updateConversation(message.conversationId, (item) => ({
+      ...item,
+      lastMessage: {
+        messageId: message.messageId || item.lastMessage?.messageId,
+        content: message.content,
+        messageType: message.messageType,
+        senderId: message.senderId,
+        senderName: message.senderName,
+        senderRole: message.senderRole,
+        sentAt: message.sentAt,
+      },
+      updatedAt: message.sentAt,
+    }));
+  }, [conversations.updateConversation]);
+
+  const handleConversationRead = useCallback(() => {
+    conversations.markConversationReadLocal(conversations.selectedConversationId);
+  }, [conversations.markConversationReadLocal, conversations.selectedConversationId]);
+
   const messageState = useMessages({
     conversationId: conversations.selectedConversationId,
     currentUser,
     chatClient: chat.client,
     realtimeEnabled: chat.status === 'connected',
-    onMessageAdded: (message) => {
-      conversations.updateConversation(message.conversationId, (item) => ({
-        ...item,
-        lastMessage: {
-          messageId: message.messageId || item.lastMessage?.messageId,
-          content: message.content,
-          messageType: message.messageType,
-          senderId: message.senderId,
-          senderName: message.senderName,
-          senderRole: message.senderRole,
-          sentAt: message.sentAt,
-        },
-        updatedAt: message.sentAt,
-      }));
-    },
-    onConversationRead: () => {
-      conversations.markConversationReadLocal(conversations.selectedConversationId);
-    },
+    onMessageAdded: handleMessageAdded,
+    onConversationRead: handleConversationRead,
   });
+
+  useEffect(() => {
+    if (!chat.client) {
+      return undefined;
+    }
+
+    if (chat.status !== 'connected') {
+      if (joinedConversationIdsRef.current.size) {
+        joinedConversationIdsRef.current.forEach((conversationId) => {
+          chat.client.leaveConversation({ conversationId });
+        });
+        joinedConversationIdsRef.current = new Set();
+      }
+      return undefined;
+    }
+
+    const nextIds = new Set(conversations.items.map((item) => item.conversationId));
+    joinedConversationIdsRef.current.forEach((conversationId) => {
+      if (!nextIds.has(conversationId)) {
+        chat.client.leaveConversation({ conversationId });
+        joinedConversationIdsRef.current.delete(conversationId);
+      }
+    });
+
+    nextIds.forEach((conversationId) => {
+      if (!joinedConversationIdsRef.current.has(conversationId)) {
+        chat.client.joinConversation({ conversationId });
+        joinedConversationIdsRef.current.add(conversationId);
+        if (import.meta.env.DEV) {
+          console.log('[Chat] joinConversation', conversationId);
+        }
+      }
+    });
+
+    return undefined;
+  }, [chat.client, chat.status, conversations.items]);
+
+  const handleConversationUpdated = useCallback((payload) => {
+    const conversation = normalizeConversation(payload, { currentUser });
+    if (!conversation?.conversationId) {
+      return;
+    }
+
+    conversations.upsertConversation(conversation);
+  }, [conversations.upsertConversation, currentUser]);
+
+  useEffect(() => {
+    if (!chat.client) {
+      return undefined;
+    }
+
+    chat.client.on(CHAT_HUB_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated);
+
+    return () => {
+      chat.client.off(CHAT_HUB_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated);
+    };
+  }, [chat.client, handleConversationUpdated]);
 
   const loadContacts = useCallback(async () => {
     setContactsStatus('loading');

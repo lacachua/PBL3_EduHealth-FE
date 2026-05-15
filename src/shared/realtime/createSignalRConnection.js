@@ -11,7 +11,9 @@ const buildHubUrl = (hubPath) => {
     return hubPath;
   }
 
-  const baseUrl = env.apiBaseUrl || '';
+  const explicitHubBase = env.signalRBaseUrl || '';
+  const apiBase = env.apiBaseUrl || '';
+  const baseUrl = explicitHubBase || apiBase.replace(/\/api(?:\/v\d+)?$/i, '');
   return `${baseUrl}${hubPath}`;
 };
 

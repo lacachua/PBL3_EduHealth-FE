@@ -33,6 +33,15 @@ const normalizeApiBaseUrl = (value) => {
   return normalized.replace(/\/+$/, '');
 };
 
+const normalizeSignalRBaseUrl = (value) => {
+  const normalized = normalizeOptionalString(value, '');
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/\/+$/, '');
+};
+
 const legacyEnableMockAuth = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_AUTH, false);
 const legacyEnableMockAdminDashboard = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_ADMIN_DASHBOARD, false);
 const legacyEnableMockHealthProfiles = parseBoolean(import.meta.env.VITE_ENABLE_MOCK_HEALTH_PROFILES, false);
@@ -42,6 +51,7 @@ const legacyEnableNotificationMock = parseBoolean(import.meta.env.VITE_ENABLE_NO
 
 const ENV_SINGLETON = Object.freeze({
   apiBaseUrl: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
+  signalRBaseUrl: normalizeSignalRBaseUrl(import.meta.env.VITE_SIGNALR_BASE_URL),
   appName: normalizeOptionalString(import.meta.env.VITE_APP_NAME, 'EduHealth'),
   dataMode: normalizeDataMode(import.meta.env.VITE_DATA_MODE),
 

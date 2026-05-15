@@ -59,9 +59,7 @@ const resolveCurrentUserId = (currentUser) => toNullableInteger(
 export const normalizeMessage = (item = {}, options = {}) => {
   const currentUserId = resolveCurrentUserId(options.currentUser || getStoredUser());
   const senderId = toInteger(item.senderId ?? item.senderUserId ?? item.userId, 0);
-  const isMine = typeof item.isMine === 'boolean'
-    ? item.isMine
-    : Boolean(currentUserId && senderId && currentUserId === senderId);
+  const isMine = Boolean(currentUserId && senderId && currentUserId === senderId);
 
   return {
     messageId: toInteger(item.messageId ?? item.id, 0),
