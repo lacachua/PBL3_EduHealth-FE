@@ -21,7 +21,7 @@ const EMPTY_LIST_META = {
 };
 
 export const formatDateOnly = (value) => {
-  if (!value) return '--';
+  if (!value) return null;
 
   const normalized = String(value).split('T')[0];
   const [year, month, day] = normalized.split('-');
@@ -56,8 +56,8 @@ export const mapMedicineListEnvelope = (response) => {
       const alertKey = toAlertKey(item);
       return {
         ...item,
-        statusLabel: MEDICINE_STATUS_LABELS[item.status] || item.status || '--',
-        unitLabel: MEDICINE_UNIT_LABELS[item.unit] || item.unit || '--',
+        statusLabel: MEDICINE_STATUS_LABELS[item.status] || item.status || null,
+        unitLabel: MEDICINE_UNIT_LABELS[item.unit] || item.unit || null,
         statusBadgeClass: MEDICINE_STATUS_BADGE_CLASS[item.status] || MEDICINE_STATUS_BADGE_CLASS.INACTIVE,
         alertKey,
         alertLabel: MEDICINE_ALERT_LABELS[alertKey],
@@ -82,8 +82,8 @@ export const mapMedicineDetailEnvelope = (response) => {
 
   return {
     ...item,
-    statusLabel: MEDICINE_STATUS_LABELS[item.status] || item.status || '--',
-    unitLabel: MEDICINE_UNIT_LABELS[item.unit] || item.unit || '--',
+    statusLabel: MEDICINE_STATUS_LABELS[item.status] || item.status || null,
+    unitLabel: MEDICINE_UNIT_LABELS[item.unit] || item.unit || null,
     statusBadgeClass: MEDICINE_STATUS_BADGE_CLASS[item.status] || MEDICINE_STATUS_BADGE_CLASS.INACTIVE,
     alertKey,
     alertLabel: MEDICINE_ALERT_LABELS[alertKey],
@@ -100,7 +100,7 @@ export const mapMedicineAlertsEnvelope = (response) => {
 
   return rows.map((item) => ({
     ...item,
-    alertTypeLabel: ALERT_TYPE_LABELS[item.alertType] || item.alertType || '--',
+    alertTypeLabel: ALERT_TYPE_LABELS[item.alertType] || item.alertType || null,
     nearestExpiryDateLabel: formatDateOnly(item.nearestExpiryDate),
   }));
 };
@@ -118,12 +118,12 @@ export const mapMedicineMovementsEnvelope = (response) => {
   return {
     rows: rows.map((item) => ({
       ...(item || {}),
-      typeLabel: MOVEMENT_TYPE_LABELS[item.type] || item.type || '--',
+      typeLabel: MOVEMENT_TYPE_LABELS[item.type] || item.type || null,
       typeBadgeClass: MOVEMENT_TYPE_BADGE_CLASS[item.type] || 'border-outline-variant bg-surface-container-low text-on-surface-variant',
-      reasonLabel: DISPOSE_REASON_LABELS[item.reason] || item.reason || '--',
+      reasonLabel: item.reason || 'Không có ghi chú',
       expiryDateLabel: formatDateOnly(item.expiryDate),
       createdAtLabel: formatDateTime(item.createdAt),
-      createdByName: item.createdBy?.fullName || item.createdBy?.userId || '--',
+      createdByName: item.createdBy?.fullName || item.createdBy?.userId || null,
       quantityClassName: item.type === 'IMPORT' ? 'text-success' : item.type === 'DISPOSE' || item.type === 'DISPENSE' ? 'text-danger' : 'text-on-surface',
       quantityLabel: `${item.type === 'IMPORT' ? '+' : item.type === 'DISPOSE' || item.type === 'DISPENSE' ? '-' : ''}${Math.abs(Number(item.quantity || 0))}`,
     })),

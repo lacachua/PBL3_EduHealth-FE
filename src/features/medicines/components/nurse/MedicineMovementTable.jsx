@@ -1,5 +1,6 @@
 import Pagination from '../../../../shared/components/core/Pagination';
 import { MOVEMENT_TYPE_OPTIONS } from '../../constants/nurseMedicineConstants';
+import { useState } from 'react';
 
 const MedicineMovementTable = ({
   rows,
@@ -12,12 +13,38 @@ const MedicineMovementTable = ({
   filters,
   onFiltersChange,
 }) => {
+  const [localFilters, setLocalFilters] = useState(filters);
+  const [dateError, setDateError] = useState('');
+
+  const handleFilterChange = (key, value) => {
+    const nextFilters = { ...localFilters, [key]: value };
+    setLocalFilters(nextFilters);
+
+    if (nextFilters.fromDate && nextFilters.toDate && nextFilters.fromDate > nextFilters.toDate) {
+      setDateError('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+      return;
+    }
+
+    if (nextFilters.fromDate && new Date(nextFilters.fromDate).getFullYear() < 1000) {
+      setDateError('Ngày bắt đầu không hợp lệ.');
+      return;
+    }
+
+    if (nextFilters.toDate && new Date(nextFilters.toDate).getFullYear() < 1000) {
+      setDateError('Ngày kết thúc không hợp lệ.');
+      return;
+    }
+
+    setDateError('');
+    onFiltersChange(nextFilters);
+  };
+
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2" data-row-click-stop="true">
         <select
-          value={filters.type}
-          onChange={(event) => onFiltersChange({ ...filters, type: event.target.value })}
+          value={localFilters.type}
+          onChange={(event) => handleFilterChange('type', event.target.value)}
           className="app-focus-ring app-input rounded-lg px-3 py-2 text-xs"
           aria-label="Lọc loại biến động"
         >
@@ -28,74 +55,74 @@ const MedicineMovementTable = ({
 
         <input
           type="date"
-          value={filters.fromDate}
-          onChange={(event) => onFiltersChange({ ...filters, fromDate: event.target.value })}
+          value={localFilters.fromDate}
+          onChange={(event) => handleFilterChange('fromDate', event.target.value)}
           className="app-focus-ring app-input rounded-lg px-3 py-2 text-xs"
           aria-label="Từ ngày"
         />
 
         <input
           type="date"
-          value={filters.toDate}
-          onChange={(event) => onFiltersChange({ ...filters, toDate: event.target.value })}
+          value={localFilters.toDate}
+          onChange={(event) => handleFilterChange('toDate', event.target.value)}
           className="app-focus-ring app-input rounded-lg px-3 py-2 text-xs"
           aria-label="Đến ngày"
         />
       </div>
 
-      {loading ? <p className="text-sm text-on-surface-variant">Đang tải lịch sử biến động...</p> : null}
-      {error ? <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p> : null}
+      {dateError ? <p className="text-xs font-medium text-danger">{dateError}</p> : null}
 
-      {!loading ? (
-        <div className="overflow-x-auto rounded-xl border border-outline-variant bg-surface">
-          <table className="min-w-[760px] w-full text-left text-sm">
-            <thead className="app-table-head text-[11px] uppercase tracking-[0.08em]">
-              <tr>
-                <th className="px-3 py-2.5">Mã biến động</th>
-                <th className="px-3 py-2.5">Loại</th>
-                <th className="px-3 py-2.5 text-right">Số lượng</th>
-                <th className="px-3 py-2.5 text-right">Tồn trước/sau</th>
-                <th className="px-3 py-2.5">Số lô / Hạn dùng</th>
-                <th className="px-3 py-2.5">Lý do</th>
-                <th className="px-3 py-2.5">Thực hiện</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant">
-              {!rows.length ? (
-                <tr>
-                  <td className="px-3 py-5 text-center text-sm text-on-surface-variant" colSpan={7}>
-                    Chưa có biến động kho.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((item) => (
-                  <tr key={item.movementId} className="app-interactive hover:bg-surface-container-low">
-                    <td className="px-3 py-2.5 font-mono text-xs text-on-surface-variant">{item.movementId}</td>
-                    <td className="px-3 py-2.5 text-on-surface">
-                      <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold ${item.typeBadgeClass}`}>
+      {loading ? <p className="text-sm text-on-surface-variant">Đang tải lịch sử biến động...</p> : null}
+      {!loading && error ? <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p> : null}
+
+      {!loading && !error && !dateError ? (
+        <div className="space-y-3">
+          {!rows.length ? (
+            <p className="rounded-xl border border-outline-variant bg-surface-container-low px-4 py-5 text-center text-sm text-on-surface-variant">
+              Chưa có biến động kho.
+            </p>
+          ) : (
+            rows.map((item) => (
+              <article key={item.movementId} className="rounded-xl border border-outline-variant bg-surface p-3 transition hover:bg-surface-container-low">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.typeBadgeClass}`}>
                         {item.typeLabel}
                       </span>
-                    </td>
-                    <td className={`px-3 py-2.5 text-right font-semibold ${item.quantityClassName}`}>{item.quantityLabel}</td>
-                    <td className="px-3 py-2.5 text-right text-on-surface">{item.stockBefore} / {item.stockAfter}</td>
-                    <td className="px-3 py-2.5 text-on-surface-variant">
-                      <p className="leading-tight">{item.batchNumber || '--'}</p>
-                      <p className="mt-0.5 text-xs text-on-surface-muted">{item.expiryDateLabel}</p>
-                    </td>
-                    <td className="px-3 py-2.5 text-on-surface-variant">{item.reasonLabel || '--'}</td>
-                    <td className="px-3 py-2.5 text-on-surface-variant">
-                      <p className="leading-tight text-on-surface">{item.createdByName}</p>
-                      <p className="mt-0.5 text-xs text-on-surface-muted">{item.createdAtLabel}</p>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                      <span className="text-[10px] text-on-surface-variant">Mã: {item.movementId}</span>
+                      <span className="text-[10px] text-on-surface-muted">• {item.createdAtLabel}</span>
+                    </div>
+                    
+                    <p className="text-sm text-on-surface">
+                      <span className="font-medium text-on-surface-variant">Thực hiện bởi:</span> {item.createdByName || 'Hệ thống'}
+                    </p>
+                    
+                    {(item.batchNumber || item.expiryDateLabel) && (
+                      <p className="text-sm text-on-surface-variant">
+                        Số lô: {item.batchNumber || '---'} • Hạn dùng: {item.expiryDateLabel || '---'}
+                      </p>
+                    )}
+                    
+                    <p className="text-sm text-on-surface">
+                      <span className="font-medium text-on-surface-variant">Ghi chú:</span> {item.reasonLabel}
+                    </p>
+                  </div>
+                  
+                  <div className="text-right">
+                    <p className={`text-lg font-bold ${item.quantityClassName}`}>{item.quantityLabel}</p>
+                    <p className="mt-0.5 text-[11px] text-on-surface-variant">
+                      Tồn kho: {item.stockBefore} → {item.stockAfter}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
         </div>
       ) : null}
 
-      {totalItems > pageSize ? (
+      {!loading && !error && !dateError && totalItems > pageSize ? (
         <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={onPageChange} compact />
       ) : null}
     </section>
