@@ -233,10 +233,26 @@ const StudentPickerModal = ({
   }, [listData.rows, selectedStudentId]);
 
   const selectedStudent = selectedRow || selectedStudentSnapshot;
-  const allergies = Array.isArray(previewData.profile?.healthProfile?.allergies)
-    ? previewData.profile.healthProfile.allergies
+  const healthProfile = previewData.profile?.healthProfile;
+  const allergies = Array.isArray(healthProfile?.allergies)
+    ? healthProfile.allergies
     : [];
-  const hasMedicalWarning = allergies.length > 0 || Boolean(previewData.profile?.healthProfile?.chronicNote);
+  const hasMedicalWarning =
+    allergies.length > 0
+    || Boolean(healthProfile?.chronicNote)
+    || Boolean(healthProfile?.generalHealthNote);
+  const hasAnyProfileData = Boolean(
+    healthProfile
+    && (
+      healthProfile.heightCm != null
+      || healthProfile.weightKg != null
+      || healthProfile.bloodType
+      || allergies.length
+      || healthProfile.chronicNote
+      || healthProfile.generalHealthNote
+    )
+  );
+  const isProfileIncomplete = !healthProfile || !hasAnyProfileData;
 
   if (!open) {
     return null;
@@ -269,8 +285,8 @@ const StudentPickerModal = ({
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 grid-cols-1 gap-0 lg:grid lg:grid-cols-5 bg-surface-container-low">
-          <section className="min-h-0 border-r border-outline-variant bg-surface p-4 lg:col-span-2">
+        <div className="min-h-0 flex-1 grid-cols-1 gap-0 bg-surface-container-low lg:grid lg:grid-cols-5">
+          <section className="min-h-0 border-r border-outline-variant bg-surface p-4 lg:col-span-2 flex flex-col">
             <div className="space-y-2.5">
               <label className="relative block">
                 <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">search</span>
@@ -300,7 +316,7 @@ const StudentPickerModal = ({
               </select>
             </div>
 
-            <div className="mt-3 min-h-0 h-[calc(100%-6.75rem)] overflow-hidden rounded-xl border border-outline-variant bg-surface">
+            <div className="mt-3 min-h-0 flex-1 overflow-hidden rounded-xl border border-outline-variant bg-surface">
               <AdminAsyncState
                 status={listStatus}
                 error={listError}
@@ -310,7 +326,7 @@ const StudentPickerModal = ({
                 emptyDescription="Không tìm thấy học sinh phù hợp bộ lọc hiện tại."
                 containerClassName="px-3 py-5"
               >
-                <ul className="max-h-full overflow-y-auto divide-y divide-[#D9E2DE]">
+                <ul className="h-full overflow-y-auto divide-y divide-[#D9E2DE]">
                   {listData.rows.map((row) => {
                     const active = row.userId === selectedStudentId;
                     return (
@@ -375,64 +391,81 @@ const StudentPickerModal = ({
                     <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface sm:grid-cols-2">
                       <div>
                         <dt className="text-xs text-on-surface-variant">Họ tên</dt>
-                        <dd className="font-medium text-on-surface">{previewData.detail?.fullName || selectedStudent?.fullName || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{previewData.detail?.fullName || selectedStudent?.fullName || 'Chưa xác định'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Mã học sinh</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.studentCode || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.studentCode || 'Chưa có'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Mã hồ sơ</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.studentId || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.studentId || 'Chưa có'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Lớp</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.className || selectedStudent?.className || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{previewData.profile?.className || selectedStudent?.className || 'Chưa xác định'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Ngày sinh</dt>
-                        <dd className="font-medium text-on-surface">{dateLabel(previewData.detail?.dateOfBirth || selectedRow?.dateOfBirth)}</dd>
+                        <dd className="font-medium text-on-surface">{dateLabel(previewData.detail?.dateOfBirth || selectedRow?.dateOfBirth) || 'Chưa cập nhật'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Phụ huynh</dt>
-                        <dd className="font-medium text-on-surface">{previewData.detail?.guardian || selectedRow?.guardian || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{previewData.detail?.guardian || selectedRow?.guardian || 'Chưa cập nhật'}</dd>
                       </div>
                     </dl>
                   </article>
 
                   {hasMedicalWarning ? (
-                    <article className="rounded-lg border border-danger-soft bg-danger-soft px-3 py-2.5 text-danger">
+                    <article className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2.5 text-danger">
                       <p className="text-xs font-semibold uppercase tracking-[0.02em]">Cảnh báo y tế</p>
                       {allergies.length ? (
                         <p className="mt-1 text-sm">Dị ứng: {allergies.map((item) => item.allergyTypeName).join(', ')}</p>
                       ) : null}
-                      {previewData.profile?.healthProfile?.chronicNote ? (
-                        <p className="mt-1 text-sm">Lưu ý bệnh nền: {previewData.profile.healthProfile.chronicNote}</p>
+                      {healthProfile?.chronicNote ? (
+                        <p className="mt-1 text-sm">Lưu ý bệnh nền: {healthProfile.chronicNote}</p>
+                      ) : null}
+                      {healthProfile?.generalHealthNote ? (
+                        <p className="mt-1 text-sm">Lưu ý sức khỏe: {healthProfile.generalHealthNote}</p>
                       ) : null}
                     </article>
-                  ) : null}
+                  ) : isProfileIncomplete ? (
+                    <article className="rounded-lg border border-warning/50 bg-warning-soft px-3 py-2.5 text-warning">
+                      <p className="text-xs font-semibold uppercase tracking-[0.02em]">Cảnh báo y tế</p>
+                      <p className="mt-1 text-sm">Hồ sơ sức khỏe chưa đầy đủ.</p>
+                    </article>
+                  ) : (
+                    <article className="rounded-lg border border-outline-variant bg-surface px-3 py-2.5 text-on-surface-variant">
+                      <p className="text-xs font-semibold uppercase tracking-[0.02em] text-on-surface-variant">Cảnh báo y tế</p>
+                      <p className="mt-1 text-sm">Chưa ghi nhận cảnh báo sức khỏe.</p>
+                    </article>
+                  )}
 
                   <article className="app-card-shell rounded-lg p-3">
                     <h4 className="text-sm font-bold text-on-surface">Tóm tắt hồ sơ sức khỏe</h4>
                     <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface sm:grid-cols-2">
                       <div>
                         <dt className="text-xs text-on-surface-variant">Chiều cao</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.heightCm ?? '--'} cm</dd>
+                        <dd className="font-medium text-on-surface">
+                          {healthProfile?.heightCm != null ? `${healthProfile.heightCm} cm` : 'Chưa cập nhật'}
+                        </dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Cân nặng</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.weightKg ?? '--'} kg</dd>
+                        <dd className="font-medium text-on-surface">
+                          {healthProfile?.weightKg != null ? `${healthProfile.weightKg} kg` : 'Chưa cập nhật'}
+                        </dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Nhóm máu</dt>
-                        <dd className="font-medium text-on-surface">{previewData.profile?.healthProfile?.bloodType || '--'}</dd>
+                        <dd className="font-medium text-on-surface">{healthProfile?.bloodType || 'Chưa cập nhật'}</dd>
                       </div>
                       <div>
                         <dt className="text-xs text-on-surface-variant">Dị ứng</dt>
                         <dd className="font-medium text-on-surface">
                           {allergies.length
                             ? allergies.map((item) => item.allergyTypeName).join(', ')
-                            : '--'}
+                            : 'Chưa ghi nhận'}
                         </dd>
                       </div>
                     </dl>

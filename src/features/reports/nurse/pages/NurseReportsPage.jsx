@@ -121,14 +121,14 @@ const NurseReportsPage = () => {
         actions={(
           <button
             type="button"
-            onClick={() => handleExportRows('xlsx')}
+            onClick={() => handleExportRows('pdf')}
             disabled={exporting}
             className="app-focus-ring app-btn-primary px-3.5"
           >
-            <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
-              {exportingFormat === 'xlsx' ? 'progress_activity' : 'table_view'}
+            <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'pdf' ? 'animate-spin' : ''}`}>
+              {exportingFormat === 'pdf' ? 'progress_activity' : 'picture_as_pdf'}
             </span>
-            Xuất Excel
+            Xuất PDF
           </button>
         )}
       />

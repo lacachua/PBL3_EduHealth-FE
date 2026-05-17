@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import DataTable from '../../../shared/components/core/DataTable';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
-import ActionDropdown from '../../../shared/components/admin/ActionDropdown';
 
 const VaccinationStudentsTable = ({
   rows,
@@ -18,14 +17,21 @@ const VaccinationStudentsTable = ({
       {
         key: 'student',
         header: 'Học sinh',
-        headerClassName: 'w-[25%] min-w-[200px]',
+        headerClassName: 'w-[20%] min-w-[160px]',
         render: (row) => (
           <div className="w-full text-left">
             <p className="truncate text-sm font-bold text-on-surface">{row.student?.fullName || '--'}</p>
-            <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">
-              {row.student?.studentCode || '--'} • Lớp {row.student?.className || '--'}
-            </p>
           </div>
+        ),
+      },
+      {
+        key: 'className',
+        header: 'Lớp',
+        headerClassName: 'w-[10%] min-w-[70px]',
+        render: (row) => (
+          <p className="truncate text-sm text-on-surface-variant">
+            {row.student?.className || '--'}
+          </p>
         ),
       },
     ];
@@ -97,9 +103,13 @@ const VaccinationStudentsTable = ({
           header: 'Ghi chú',
           headerClassName: 'w-[20%] min-w-[160px]',
           render: (row) => (
-            <p className="line-clamp-2 text-[11px] text-on-surface-variant leading-relaxed" title={row.note}>
-              {row.note || '--'}
-            </p>
+            row.note ? (
+              <p className="line-clamp-2 text-[11px] text-on-surface-variant leading-relaxed" title={row.note}>
+                {row.note}
+              </p>
+            ) : (
+              <p className="text-[11px] italic text-on-surface-variant/70">Không có ghi chú</p>
+            )
           ),
         }
       );
@@ -108,10 +118,10 @@ const VaccinationStudentsTable = ({
     cols.push({
       key: 'actions',
       header: 'Thao tác',
-      headerClassName: 'w-[10%] min-w-[110px] text-right',
+      headerClassName: 'w-[10%] min-w-[90px] text-right',
       cellClassName: 'text-right',
       render: (row) => (
-        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => onOpenUpdate(row)}
@@ -119,18 +129,6 @@ const VaccinationStudentsTable = ({
           >
             Cập nhật
           </button>
-
-          <ActionDropdown
-            menuWidth={200}
-            items={[
-              {
-                id: 'history',
-                label: 'Lịch sử tiêm tổng hợp',
-                icon: 'history',
-                onClick: () => onOpenHistory(row),
-              }
-            ]}
-          />
         </div>
       ),
     });
@@ -144,6 +142,7 @@ const VaccinationStudentsTable = ({
       columns={columns}
       rows={rows}
       getRowKey={(row) => row.studentVaccinationId}
+      onRowClick={onOpenHistory}
       emptyMessage={emptyMessage}
       tableClassName={`w-full text-left text-sm ${showResultColumns ? 'min-w-[860px]' : 'min-w-[760px]'}`}
     />

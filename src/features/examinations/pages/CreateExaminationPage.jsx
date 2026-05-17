@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import AdminAsyncState from '../../../shared/components/core/AsyncState';
@@ -24,10 +24,26 @@ const toDateInputValue = (date = new Date()) => {
 };
 
 const dateLabel = (value) => {
-  if (!value) return '--';
+  if (!value) return '';
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return String(value);
   return parsed.toLocaleDateString('vi-VN');
+};
+
+const formatMedicineUnitLabel = (unit) => {
+  if (!unit) return '';
+  const normalized = String(unit).toUpperCase();
+  const map = {
+    VIEN: 'viên',
+    GOI: 'gói',
+    CHAI: 'chai',
+    HOP: 'hộp',
+    VI: 'vỉ',
+  };
+
+  const resolved = map[normalized] || unit;
+  if (!resolved) return '';
+  return resolved.charAt(0).toUpperCase() + resolved.slice(1);
 };
 
 const defaultFormValues = {
@@ -57,13 +73,13 @@ const parseMedicinesEnvelope = (envelope) => {
   return rows
     .map((item) => ({
       id: item.id,
-      name: item.name || '--',
-      unit: item.unit || item.unitName || '--',
+      name: item.name || '',
+      unit: item.unit || item.unitName || '',
       currentStock: Number(item.currentStock || 0),
       status: item.status || '',
       isLowStock: Boolean(item.isLowStock),
     }))
-    .filter((item) => item.status === 'ACTIVE' && item.currentStock > 0);
+    .filter((item) => item.status === 'ACTIVE');
 };
 
 const normalizePrescriptionItem = (item) => ({
@@ -72,6 +88,101 @@ const normalizePrescriptionItem = (item) => ({
   dosage: item.dosage?.trim() || null,
   usageInstruction: item.usageInstruction?.trim() || null,
 });
+
+const MedicinePicker = ({
+  value,
+  options,
+  onChange,
+  disabledIds = [],
+  error,
+}) => {
+  const containerRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [keyword, setKeyword] = useState('');
+
+  const selectedOption = useMemo(() => options.find((option) => option.id === value) || null, [options, value]);
+
+  useEffect(() => {
+    if (!open) {
+      setKeyword(selectedOption?.name || '');
+    }
+  }, [open, selectedOption?.name]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!containerRef.current || containerRef.current.contains(event.target)) {
+        return;
+      }
+      setOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredOptions = useMemo(() => {
+    const term = keyword.trim().toLowerCase();
+    if (!term) return options;
+
+    return options.filter((option) => option.name.toLowerCase().includes(term));
+  }, [keyword, options]);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <input
+        type="text"
+        value={keyword}
+        onChange={(event) => {
+          setKeyword(event.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder="Tìm và chọn thuốc"
+        className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm"
+      />
+      {open ? (
+        <div className="absolute left-0 right-0 z-20 mt-2 max-h-72 overflow-y-auto rounded-xl border border-outline-variant bg-surface shadow-[0_12px_30px_rgba(15,23,42,0.14)]">
+          {filteredOptions.length ? (
+            <ul className="py-1">
+              {filteredOptions.map((option) => {
+                const unitLabel = formatMedicineUnitLabel(option.unit);
+                const isDisabled = disabledIds.includes(option.id) || option.currentStock <= 0;
+                const isSelected = option.id === value;
+
+                return (
+                  <li key={option.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isDisabled) return;
+                        onChange(option.id);
+                        setOpen(false);
+                      }}
+                      className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm transition ${
+                        isDisabled
+                          ? 'cursor-not-allowed text-on-surface-variant'
+                          : 'text-on-surface hover:bg-surface-container-low'
+                      } ${isSelected ? 'bg-surface-container-low' : ''}`}
+                    >
+                      <span className="font-semibold">{option.name || 'Chưa có tên thuốc'}</span>
+                      <span className="text-xs text-on-surface-variant">
+                        {unitLabel ? `${unitLabel} • ` : ''}Tồn kho: {option.currentStock}
+                        {option.currentStock <= 0 ? ' • Hết tồn kho' : ''}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="px-3 py-3 text-sm text-on-surface-variant">Không tìm thấy thuốc phù hợp.</div>
+          )}
+        </div>
+      ) : null}
+      {error ? <span className="mt-1 block text-xs text-danger">{error}</span> : null}
+    </div>
+  );
+};
 
 const CreateExaminationPage = () => {
   const navigate = useNavigate();
@@ -196,7 +307,28 @@ const CreateExaminationPage = () => {
   }, [reloadToken, studentUserId]);
 
   const studentRecordIdForSubmit = contextData.profile?.studentId || '';
-  const studentCodeForDisplay = contextData.profile?.studentCode || '--';
+  const studentCodeForDisplay = contextData.profile?.studentCode || '';
+
+  const healthProfile = contextData.profile?.healthProfile;
+  const allergies = Array.isArray(healthProfile?.allergies)
+    ? healthProfile.allergies
+    : [];
+  const hasMedicalWarning =
+    allergies.length > 0
+    || Boolean(healthProfile?.chronicNote)
+    || Boolean(healthProfile?.generalHealthNote);
+  const hasAnyProfileData = Boolean(
+    healthProfile
+    && (
+      healthProfile.heightCm != null
+      || healthProfile.weightKg != null
+      || healthProfile.bloodType
+      || allergies.length
+      || healthProfile.chronicNote
+      || healthProfile.generalHealthNote
+    )
+  );
+  const isProfileIncomplete = !healthProfile || !hasAnyProfileData;
 
   const medicinesById = useMemo(() => {
     const map = new Map();
@@ -281,6 +413,10 @@ const CreateExaminationPage = () => {
 
       if (selectedMedicine && selectedMedicine.status !== 'ACTIVE') {
         errors[`prescriptions[${index}].medicineId`] = 'Thuốc đang INACTIVE, không thể cấp phát.';
+      }
+
+      if (selectedMedicine && selectedMedicine.currentStock <= 0) {
+        errors[`prescriptions[${index}].medicineId`] = 'Thuốc đã hết tồn kho.';
       }
 
       if (selectedMedicine && Number.isFinite(quantity) && quantity > selectedMedicine.currentStock) {
@@ -451,52 +587,70 @@ const CreateExaminationPage = () => {
               <dl className="mt-2 grid grid-cols-1 gap-2 text-sm text-on-surface">
                 <div>
                   <dt className="text-xs text-on-surface-variant">Họ tên</dt>
-                  <dd className="font-medium text-on-surface">{selectedStudentName}</dd>
+                  <dd className="font-medium text-on-surface">{selectedStudentName || 'Chưa xác định'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-on-surface-variant">Mã học sinh</dt>
-                  <dd className="font-medium text-on-surface">{studentCodeForDisplay || '--'}</dd>
+                  <dd className="font-medium text-on-surface">{studentCodeForDisplay || 'Chưa có'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-on-surface-variant">Mã hồ sơ</dt>
-                  <dd className="font-medium text-on-surface">{studentRecordIdForSubmit || '--'}</dd>
+                  <dd className="font-medium text-on-surface">{studentRecordIdForSubmit || 'Chưa có'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-on-surface-variant">Lớp</dt>
-                  <dd className="font-medium text-on-surface">{contextData.profile?.className || contextData.detail?.className || '--'}</dd>
+                  <dd className="font-medium text-on-surface">{contextData.profile?.className || contextData.detail?.className || 'Chưa xác định'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-on-surface-variant">Ngày sinh</dt>
-                  <dd className="font-medium text-on-surface">{dateLabel(contextData.detail?.dateOfBirth)}</dd>
+                  <dd className="font-medium text-on-surface">{dateLabel(contextData.detail?.dateOfBirth) || 'Chưa cập nhật'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-on-surface-variant">Phụ huynh</dt>
-                  <dd className="font-medium text-on-surface">{contextData.detail?.guardian || '--'}</dd>
+                  <dd className="font-medium text-on-surface">{contextData.detail?.guardian || 'Chưa cập nhật'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-on-surface-variant">Số điện thoại</dt>
+                  <dd className="font-medium text-on-surface">{contextData.detail?.phone || 'Chưa cập nhật'}</dd>
                 </div>
               </dl>
             </section>
 
-            <section className="rounded-xl border border-danger/30 bg-danger-soft p-4 text-danger">
-              <h2 className="text-sm font-bold">Cảnh báo dị ứng và lưu ý sức khỏe</h2>
-              <div className="mt-2 space-y-2 text-sm">
-                <div>
-                  <p className="text-xs opacity-85">Nhóm máu</p>
-                  <p className="font-medium">{contextData.profile?.healthProfile?.bloodType || '--'}</p>
+            {hasMedicalWarning ? (
+              <section className="rounded-xl border border-danger/30 bg-danger-soft p-4 text-danger">
+                <h2 className="text-sm font-bold">Cảnh báo sức khỏe</h2>
+                <div className="mt-2 space-y-2 text-sm">
+                  {allergies.length ? (
+                    <div>
+                      <p className="text-xs opacity-85">Dị ứng</p>
+                      <p className="font-medium">{allergies.map((item) => item.allergyTypeName).join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {healthProfile?.chronicNote ? (
+                    <div>
+                      <p className="text-xs opacity-85">Ghi chú bệnh nền</p>
+                      <p className="font-medium">{healthProfile.chronicNote}</p>
+                    </div>
+                  ) : null}
+                  {healthProfile?.generalHealthNote ? (
+                    <div>
+                      <p className="text-xs opacity-85">Lưu ý sức khỏe</p>
+                      <p className="font-medium">{healthProfile.generalHealthNote}</p>
+                    </div>
+                  ) : null}
                 </div>
-                <div>
-                  <p className="text-xs opacity-85">Dị ứng</p>
-                  <p className="font-medium">
-                    {Array.isArray(contextData.profile?.healthProfile?.allergies) && contextData.profile.healthProfile.allergies.length
-                      ? contextData.profile.healthProfile.allergies.map((item) => item.allergyTypeName).join(', ')
-                      : '--'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs opacity-85">Ghi chú bệnh nền</p>
-                  <p className="font-medium">{contextData.profile?.healthProfile?.chronicNote || '--'}</p>
-                </div>
-              </div>
-            </section>
+              </section>
+            ) : isProfileIncomplete ? (
+              <section className="rounded-xl border border-warning/50 bg-warning-soft p-4 text-warning">
+                <h2 className="text-sm font-bold">Cảnh báo sức khỏe</h2>
+                <p className="mt-1 text-sm">Hồ sơ sức khỏe chưa đầy đủ.</p>
+              </section>
+            ) : (
+              <section className="rounded-xl border border-outline-variant bg-surface p-4 text-on-surface-variant">
+                <h2 className="text-sm font-bold text-on-surface">Cảnh báo sức khỏe</h2>
+                <p className="mt-1 text-sm">Chưa ghi nhận cảnh báo sức khỏe.</p>
+              </section>
+            )}
 
             <section className="app-card-shell rounded-xl p-4">
               <h2 className="text-sm font-bold text-on-surface">Lịch sử khám gần đây</h2>
@@ -504,9 +658,12 @@ const CreateExaminationPage = () => {
                 <ul className="mt-2 space-y-2">
                   {contextData.history.slice(0, 4).map((item) => (
                     <li key={item.visitId} className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm">
-                      <p className="text-xs text-on-surface-variant">{dateLabel(item.visitDate)}</p>
+                      <p className="text-xs text-on-surface-variant">{dateLabel(item.visitDate) || 'Chưa xác định'}</p>
                       <p className="font-semibold text-on-surface">{item.diagnosis || 'Chưa có chẩn đoán'}</p>
-                      <p className="text-xs text-on-surface-variant">{item.diseaseType?.name || 'Không có loại bệnh'}</p>
+                      {item.symptoms && item.symptoms.trim() !== item.diagnosis?.trim() ? (
+                        <p className="text-xs text-on-surface-variant">{item.symptoms}</p>
+                      ) : null}
+                      <p className="text-xs text-on-surface-variant">{item.diseaseType?.name || 'Chưa phân loại'}</p>
                     </li>
                   ))}
                 </ul>
@@ -624,85 +781,85 @@ const CreateExaminationPage = () => {
                   <div className="space-y-2">
                     {prescriptions.map((item, index) => {
                       const selectedMedicine = medicinesById.get(item.medicineId);
+                      const unitLabel = formatMedicineUnitLabel(selectedMedicine?.unit);
+                      const disabledIds = prescriptions
+                        .filter((row, rowIndex) => rowIndex !== index && row.medicineId)
+                        .map((row) => row.medicineId);
 
                       return (
                         <article key={`prescription-${index}`} className="rounded-md border border-outline-variant bg-white p-3">
-                          <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
-                            <label className="md:col-span-4 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-on-surface-variant">Thuốc *</span>
-                              <select
-                                value={item.medicineId}
-                                onChange={(event) => updatePrescriptionRow(index, { medicineId: event.target.value })}
-                                className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
-                              >
-                                <option value="">Chọn thuốc</option>
-                                {medicines.map((medicine) => (
-                                  <option
-                                    key={medicine.id}
-                                    value={medicine.id}
-                                    disabled={prescriptions.some((row, rowIndex) => rowIndex !== index && row.medicineId === medicine.id)}
-                                  >
-                                    {`${medicine.name} • ${medicine.unit} • Tồn ${medicine.currentStock}`}
-                                  </option>
-                                ))}
-                              </select>
-                              {selectedMedicine ? (
-                                <span className={`text-[11px] ${selectedMedicine.isLowStock ? 'text-warning' : 'text-on-surface-variant'}`}>
-                                  Tồn kho còn: {selectedMedicine.currentStock} {selectedMedicine.unit}
-                                </span>
-                              ) : null}
-                              {selectedMedicine?.isLowStock ? <span className="inline-flex w-fit rounded-md border border-warning/50 bg-warning-soft px-1.5 py-0.5 text-[10px] font-semibold text-warning">Sắp hết thuốc</span> : null}
-                              {fieldErrors[`prescriptions[${index}].medicineId`] ? (
-                                <span className="text-xs text-danger">{fieldErrors[`prescriptions[${index}].medicineId`]}</span>
-                              ) : null}
-                            </label>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
+                              <div className="md:col-span-10 flex flex-col gap-1">
+                                <span className="text-[11px] font-semibold text-on-surface-variant">Thuốc *</span>
+                                <MedicinePicker
+                                  value={item.medicineId}
+                                  options={medicines}
+                                  onChange={(medicineId) => updatePrescriptionRow(index, { medicineId })}
+                                  disabledIds={disabledIds}
+                                  error={fieldErrors[`prescriptions[${index}].medicineId`]}
+                                />
+                                {selectedMedicine ? (
+                                  <span className={`text-[11px] ${selectedMedicine.isLowStock ? 'text-warning' : 'text-on-surface-variant'}`}>
+                                    Tồn kho còn: {selectedMedicine.currentStock} {unitLabel || selectedMedicine.unit}
+                                  </span>
+                                ) : null}
+                                {selectedMedicine?.isLowStock ? (
+                                  <span className="inline-flex w-fit rounded-md border border-warning/50 bg-warning-soft px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                                    Sắp hết thuốc
+                                  </span>
+                                ) : null}
+                              </div>
 
-                            <label className="md:col-span-2 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-on-surface-variant">Số lượng *</span>
-                              <input
-                                type="number"
-                                min="1"
-                                value={item.quantity}
-                                onChange={(event) => updatePrescriptionRow(index, { quantity: event.target.value })}
-                                className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
-                              />
-                              {fieldErrors[`prescriptions[${index}].quantity`] ? (
-                                <span className="text-xs text-danger">{fieldErrors[`prescriptions[${index}].quantity`]}</span>
-                              ) : null}
-                            </label>
+                              <div className="md:col-span-2 flex flex-col gap-1 md:items-end">
+                                <span className="text-[11px] font-semibold text-transparent select-none">Xóa</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removePrescriptionRow(index)}
+                                  className="app-focus-ring inline-flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-white text-danger transition hover:bg-danger-soft"
+                                  aria-label="Xóa thuốc"
+                                >
+                                  <span className="material-symbols-outlined text-[17px]">delete</span>
+                                </button>
+                              </div>
+                            </div>
 
-                            <label className="md:col-span-2 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-on-surface-variant">Liều dùng</span>
-                              <input
-                                type="text"
-                                value={item.dosage}
-                                onChange={(event) => updatePrescriptionRow(index, { dosage: event.target.value })}
-                                className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
-                                placeholder="Ví dụ: 1 viên/lần"
-                              />
-                            </label>
+                            <div className="grid grid-cols-1 gap-2 md:grid-cols-12">
+                              <label className="md:col-span-2 flex flex-col gap-1">
+                                <span className="text-[11px] font-semibold text-on-surface-variant">Số lượng *</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.quantity}
+                                  onChange={(event) => updatePrescriptionRow(index, { quantity: event.target.value })}
+                                  className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
+                                />
+                                {fieldErrors[`prescriptions[${index}].quantity`] ? (
+                                  <span className="text-xs text-danger">{fieldErrors[`prescriptions[${index}].quantity`]}</span>
+                                ) : null}
+                              </label>
 
-                            <label className="md:col-span-3 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-on-surface-variant">Hướng dẫn sử dụng</span>
-                              <input
-                                type="text"
-                                value={item.usageInstruction}
-                                onChange={(event) => updatePrescriptionRow(index, { usageInstruction: event.target.value })}
-                                className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
-                                placeholder="Ví dụ: Uống sau ăn"
-                              />
-                            </label>
+                              <label className="md:col-span-4 flex flex-col gap-1">
+                                <span className="text-[11px] font-semibold text-on-surface-variant">Liều dùng</span>
+                                <input
+                                  type="text"
+                                  value={item.dosage}
+                                  onChange={(event) => updatePrescriptionRow(index, { dosage: event.target.value })}
+                                  className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
+                                  placeholder="Ví dụ: 1 viên/lần"
+                                />
+                              </label>
 
-                            <div className="md:col-span-1 flex flex-col gap-1">
-                              <span className="text-[11px] font-semibold text-transparent select-none">Xóa</span>
-                              <button
-                                type="button"
-                                onClick={() => removePrescriptionRow(index)}
-                                className="app-focus-ring inline-flex h-10 w-10 items-center justify-center self-end rounded-lg border border-outline-variant bg-white text-danger transition hover:bg-danger-soft"
-                                aria-label="Xóa thuốc"
-                              >
-                                <span className="material-symbols-outlined text-[17px]">delete</span>
-                              </button>
+                              <label className="md:col-span-6 flex flex-col gap-1">
+                                <span className="text-[11px] font-semibold text-on-surface-variant">Hướng dẫn sử dụng</span>
+                                <input
+                                  type="text"
+                                  value={item.usageInstruction}
+                                  onChange={(event) => updatePrescriptionRow(index, { usageInstruction: event.target.value })}
+                                  className="app-focus-ring app-input h-10 rounded-lg px-2.5 text-sm"
+                                  placeholder="Ví dụ: Uống sau ăn"
+                                />
+                              </label>
                             </div>
                           </div>
                         </article>

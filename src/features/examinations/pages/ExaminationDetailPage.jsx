@@ -97,7 +97,7 @@ const ExaminationDetailPage = () => {
                 )}
               </div>
               <p className="mt-1 text-sm text-on-surface-variant">
-                {data.student?.fullName || '--'} • Lớp {data.student?.className || '--'} • {data.visitDateLabel || '--'}
+                {data.student?.fullName || 'Chưa xác định'} • Lớp {data.student?.className || 'Chưa xác định'} • {data.visitDateLabel || 'Chưa xác định'}
               </p>
             </div>
             <button
@@ -144,8 +144,8 @@ const ExaminationDetailPage = () => {
       >
         {data ? (
           <div className="space-y-3.5">
-            <section className="app-card-shell rounded-xl p-4">
-              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
+            <section className="app-card-shell rounded-xl border-l-4 border-success/40 p-4">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl bg-surface-container-low px-4 py-2.5 md:flex-row md:items-start md:justify-between">
                 <div>
                   <h2 className="font-headline text-[0.97rem] font-bold text-on-surface">Thông tin chung</h2>
                   <p className="mt-0.5 text-[11px] text-on-surface-variant">Thông tin tổng quan về phiếu khám</p>
@@ -154,56 +154,62 @@ const ExaminationDetailPage = () => {
               <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Học sinh</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.fullName || '--'}</dd>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.fullName || 'Chưa xác định'}</dd>
                 </div>
+                {data.student?.studentCode ? (
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Mã học sinh</dt>
+                    <dd className="mt-1 text-sm font-medium text-on-surface">{data.student.studentCode}</dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Lớp</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.className || '--'}</dd>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.student?.className || 'Chưa xác định'}</dd>
                 </div>
                 <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ngày khám</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.visitDateTimeLabel}</dd>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.visitDateLabel || 'Chưa xác định'}</dd>
                 </div>
                 <div>
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Y tá phụ trách</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.nurse?.fullName || '--'}</dd>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.nurse?.fullName || 'Chưa xác định'}</dd>
                 </div>
                 <div className="sm:col-span-2">
                   <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Loại bệnh</dt>
-                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.diseaseType?.name || '--'}</dd>
+                  <dd className="mt-1 text-sm font-medium text-on-surface">{data.diseaseType?.name || 'Chưa phân loại'}</dd>
                 </div>
               </dl>
             </section>
 
-            <section className="app-card-shell rounded-xl p-4">
-              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
+            <section className="app-card-shell rounded-xl border-l-4 border-info/40 p-4">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl bg-surface-container-low px-4 py-2.5 md:flex-row md:items-start md:justify-between">
                 <div>
                   <h2 className="font-headline text-[0.97rem] font-bold text-on-surface">Nội dung khám</h2>
                   <p className="mt-0.5 text-[11px] text-on-surface-variant">Chẩn đoán và hướng xử lý</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className={`${detailCardClass} sm:col-span-2`}>
+              <div className="divide-y divide-outline-variant">
+                <div className="py-3">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Triệu chứng</p>
-                  <p className="mt-1 text-sm text-on-surface">{data.symptoms || '--'}</p>
+                  <p className="mt-1 text-sm text-on-surface">{data.symptoms || 'Chưa ghi nhận triệu chứng.'}</p>
                 </div>
-                <div className={detailCardClass}>
+                <div className="py-3">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Chẩn đoán</p>
-                  <p className="mt-1 text-sm text-on-surface">{data.diagnosis || '--'}</p>
+                  <p className="mt-1 text-sm text-on-surface">{data.diagnosis || 'Chưa có chẩn đoán.'}</p>
                 </div>
-                <div className={detailCardClass}>
+                <div className="py-3">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Hướng xử lý</p>
-                  <p className="mt-1 text-sm text-on-surface">{data.treatment || '--'}</p>
+                  <p className="mt-1 text-sm text-on-surface">{data.treatment || 'Chưa ghi nhận hướng xử lý.'}</p>
                 </div>
-                <div className={`${detailCardClass} sm:col-span-2`}>
+                <div className="py-3">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Ghi chú</p>
-                  <p className="mt-1 text-sm text-on-surface">{data.note || '--'}</p>
+                  <p className="mt-1 text-sm text-on-surface">{data.note || 'Không có ghi chú.'}</p>
                 </div>
               </div>
             </section>
 
-            <section className="app-card-shell rounded-xl p-4">
-              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between">
+            <section className="app-card-shell rounded-xl border-l-4 border-warning/40 p-4">
+              <div className="app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl bg-surface-container-low px-4 py-2.5 md:flex-row md:items-start md:justify-between">
                 <div>
                   <h2 className="font-headline text-[0.97rem] font-bold text-on-surface">Đơn thuốc</h2>
                   <p className="mt-0.5 text-[11px] text-on-surface-variant">Danh sách thuốc được cấp phát</p>
@@ -216,18 +222,18 @@ const ExaminationDetailPage = () => {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-sm font-semibold text-on-surface">{item.medicineName}</p>
                         <StatusBadge tone="neutral">
-                          SL: {item.quantity}
+                          Số lượng: {item.quantity}
                         </StatusBadge>
                       </div>
                       <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Liều dùng</p>
-                      <p className="text-sm text-on-surface">{item.dosage}</p>
+                      <p className="text-sm text-on-surface">{item.dosage || 'Chưa ghi nhận liều dùng.'}</p>
                       <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-on-surface-variant">Hướng dẫn sử dụng</p>
-                      <p className="text-sm text-on-surface">{item.usageInstruction}</p>
+                      <p className="text-sm text-on-surface">{item.usageInstruction || 'Chưa có hướng dẫn sử dụng.'}</p>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-on-surface-variant">Chưa có đơn thuốc được cấp phát.</p>
+                <p className="text-sm text-on-surface-variant">Không cấp thuốc trong lần khám này.</p>
               )}
             </section>
           </div>

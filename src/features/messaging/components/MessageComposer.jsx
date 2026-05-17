@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Button from '../../../shared/components/common/Button';
 
 const MessageComposer = ({ onSend, onTyping }) => {
   const [value, setValue] = useState('');
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
 
   const trimmedValue = value.trim();
   const canSend = Boolean(trimmedValue) && !sending;
@@ -15,18 +16,36 @@ const MessageComposer = ({ onSend, onTyping }) => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!canSend) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    const messageContent = value.trim();
+    if (!messageContent || sending || sendingRef.current) {
       return;
     }
 
-    setSending(true);
-    const success = await onSend?.(trimmedValue);
-    setSending(false);
+    try {
+      sendingRef.current = true;
+      setSending(true);
+      const success = await onSend?.(messageContent);
+      if (success !== false) {
+        setValue('');
+        onTyping?.(false);
+      }
+    } finally {
+      sendingRef.current = false;
+      setSending(false);
+    }
+  };
 
-    if (success !== false) {
-      setValue('');
-      onTyping?.(false);
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.nativeEvent?.isComposing) {
+        return;
+      }
+      event.preventDefault();
+      handleSubmit(event);
     }
   };
 
@@ -37,6 +56,7 @@ const MessageComposer = ({ onSend, onTyping }) => {
           rows={1}
           value={value}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           placeholder="Nhập tin nhắn..."
           className="messaging-composer-input app-input"
         />

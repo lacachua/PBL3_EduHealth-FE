@@ -2,8 +2,9 @@
 import { nurseReportFilterOptions } from '../config/nurseReportFilterOptions';
 
 const STATUS_META = {
-  stable: { label: 'Ổn định', tone: 'success' },
+  safe: { label: 'Ổn định', tone: 'success' },
   watch: { label: 'Cần theo dõi', tone: 'warning' },
+  alert: { label: 'Cảnh báo', tone: 'danger' },
   unknown: { label: 'Chưa đủ dữ liệu', tone: 'neutral' },
 };
 
@@ -109,6 +110,14 @@ export const formatNurseReportDateTime = (value) => {
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
+export const formatNurseReportDate = (value) => {
+  if (!value) return '--';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '--';
+  const pad = (part) => String(part).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+};
+
 const toPercentageLabel = (value) => `${toPositiveNumber(value)}%`;
 
 const findOptionLabel = (options, value, fallback) => {
@@ -116,60 +125,26 @@ const findOptionLabel = (options, value, fallback) => {
   return options.find((option) => option.value === value)?.label || fallback;
 };
 
-const normalizeTimeRange = (value) => {
-  if (value === 'custom-range') return 'custom';
-  return value || 'this-month';
-};
+const buildReportPeriodLabel = ({ filters = {} }) => {
+  const fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
+  const toDate = filters.toDate ? new Date(filters.toDate) : null;
 
-const startOfDay = (date) => {
-  const nextDate = new Date(date);
-  nextDate.setHours(0, 0, 0, 0);
-  return nextDate;
-};
-
-const startOfWeek = (date) => {
-  const nextDate = startOfDay(date);
-  const day = nextDate.getDay() || 7;
-  nextDate.setDate(nextDate.getDate() - day + 1);
-  return nextDate;
-};
-
-const buildReportPeriodLabel = ({ filters = {}, generatedAt }) => {
-  const end = generatedAt ? new Date(generatedAt) : new Date();
-  const safeEnd = Number.isNaN(end.getTime()) ? new Date() : end;
-  let start;
-
-  if (filters.fromDate) {
-    start = new Date(filters.fromDate);
-  } else {
-    const timeRange = normalizeTimeRange(filters.timeRange);
-    if (timeRange === 'today') {
-      start = startOfDay(safeEnd);
-    } else if (timeRange === 'this-week') {
-      start = startOfWeek(safeEnd);
-    } else if (timeRange === 'this-quarter') {
-      start = new Date(safeEnd.getFullYear(), Math.floor(safeEnd.getMonth() / 3) * 3, 1);
-    } else if (timeRange === 'this-year') {
-      start = new Date(safeEnd.getFullYear(), 0, 1);
-    } else {
-      start = new Date(safeEnd.getFullYear(), safeEnd.getMonth(), 1);
-    }
+  if (!fromDate || !toDate || Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return 'Thời gian báo cáo: --';
   }
 
-  const toDate = filters.toDate ? new Date(filters.toDate) : safeEnd;
-  const safeStart = Number.isNaN(start.getTime()) ? startOfDay(safeEnd) : start;
-  const safeToDate = Number.isNaN(toDate.getTime()) ? safeEnd : toDate;
-
-  return `Thời gian báo cáo: ${formatNurseReportDateTime(safeStart)} - ${formatNurseReportDateTime(safeToDate)}`;
+  return `Thời gian báo cáo: ${formatNurseReportDate(fromDate)} - ${formatNurseReportDate(toDate)}`;
 };
 
 const buildFilterSummary = ({ filters = {}, classOptions = [] }) => {
-  const timeRange = normalizeTimeRange(filters.timeRange);
-  const timeLabel = findOptionLabel(nurseReportFilterOptions.timeRanges, timeRange, 'Tháng này');
   const reportTypeLabel = findOptionLabel(nurseReportFilterOptions.reportTypes, filters.reportType, 'Tổng hợp');
   const gradeLabel = findOptionLabel(nurseReportFilterOptions.grades, filters.grade, 'Tất cả khối');
   const classLabel = findOptionLabel(classOptions, filters.classId, 'Tất cả lớp');
-  return `Bộ lọc: ${timeLabel}, ${reportTypeLabel}, ${gradeLabel}, ${classLabel}`;
+
+  const fromDateLabel = filters.fromDate ? formatNurseReportDate(filters.fromDate) : '--';
+  const toDateLabel = filters.toDate ? formatNurseReportDate(filters.toDate) : '--';
+
+  return `Bộ lọc: ${fromDateLabel} - ${toDateLabel}, ${reportTypeLabel}, ${gradeLabel}, ${classLabel}`;
 };
 
 const calculateSummary = (data) => {
@@ -271,34 +246,10 @@ const mapAlerts = (rows) => {
   }));
 };
 
-const resolveStatus = (row) => {
-  const hasAnyData = [
-    row.studentCount,
-    row.examinationCount,
-    row.trackingCount,
-    row.medicineDispenseCount,
-    row.vaccinationRate,
-  ].some((value) => toPositiveNumber(value) > 0);
-
-  if (!hasAnyData) {
-    return 'unknown';
-  }
-
-  const studentCount = toPositiveNumber(row.studentCount);
-  const trackingCount = toPositiveNumber(row.trackingCount);
-  const vaccinationRate = toPositiveNumber(row.vaccinationRate);
-  const trackingRatio = studentCount ? trackingCount / studentCount : 0;
-
-  if (vaccinationRate < 50 || trackingRatio >= 0.2) {
-    return 'watch';
-  }
-
-  return 'stable';
-};
-
 const mapClassRows = (rows) => {
   return rows.map((row, index) => {
-    const statusKey = resolveStatus(row);
+    // Use status from backend instead of calculating on frontend
+    const statusKey = row.status || 'unknown';
     const statusMeta = STATUS_META[statusKey] || STATUS_META.unknown;
 
     return {
@@ -347,15 +298,16 @@ export const adaptNurseReportsDashboardResponse = (payload, filters = {}) => {
   }
 
   const data = envelope.data || {};
-  const requestedTimeRange = normalizeTimeRange(filters.timeRange);
-  const responseTimeRange = normalizeTimeRange(data.appliedFilters?.timeRange);
+
+  // Merge filters: prioritize fromDate/toDate from FE, other fields from BE
+  const beAppliedFilters = data.appliedFilters || {};
   const appliedFilters = {
-    ...filters,
-    ...(data.appliedFilters || {}),
-    timeRange: ['today', 'this-year', 'custom'].includes(requestedTimeRange)
-      ? requestedTimeRange
-      : responseTimeRange,
+    ...beAppliedFilters,
+    // Keep fromDate and toDate from FE filters since BE doesn't return them
+    fromDate: filters.fromDate,
+    toDate: filters.toDate,
   };
+
   const classOptions = ensureArray(data.filterOptions?.classOptions).map((option) => ({
     value: option.value,
     label: option.value === 'all' ? 'Tất cả lớp' : option.label,
@@ -372,7 +324,7 @@ export const adaptNurseReportsDashboardResponse = (payload, filters = {}) => {
     sourceNote: envelope.meta?.note || '',
     generatedAt,
     generatedAtLabel: formatNurseReportDateTime(generatedAt),
-    reportPeriodLabel: buildReportPeriodLabel({ filters: appliedFilters, generatedAt }),
+    reportPeriodLabel: buildReportPeriodLabel({ filters: appliedFilters }),
     filterSummaryLabel: buildFilterSummary({ filters: appliedFilters, classOptions: resolvedClassOptions }),
     appliedFilters,
     filterOptions: {

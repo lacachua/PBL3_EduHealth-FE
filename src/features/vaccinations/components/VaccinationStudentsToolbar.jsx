@@ -32,7 +32,7 @@ const VaccinationStudentsToolbar = ({
           onChange={(keyword) => updateField('keyword', keyword)}
           placeholder={keywordPlaceholder}
           className="min-w-0 flex-1 xl:max-w-[340px]"
-          inputClassName="h-10 rounded-lg"
+          inputClassName="h-9 rounded-lg"
         />
 
         {showCampaignFilter ? (
@@ -40,7 +40,7 @@ const VaccinationStudentsToolbar = ({
             type="text"
             value={value.campaignId}
             onChange={(event) => updateField('campaignId', event.target.value)}
-            className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[142px] xl:shrink-0"
+            className="app-focus-ring app-input h-9 w-full rounded-lg px-3 text-sm xl:w-[142px] xl:shrink-0"
             placeholder="Mã đợt tiêm"
             aria-label="Lọc theo mã đợt tiêm"
           />
@@ -51,7 +51,7 @@ const VaccinationStudentsToolbar = ({
             type="text"
             value={value.classId}
             onChange={(event) => updateField('classId', event.target.value)}
-            className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[118px] xl:shrink-0"
+            className="app-focus-ring app-input h-9 w-full rounded-lg px-3 text-sm xl:w-[118px] xl:shrink-0"
             placeholder="Mã lớp"
             aria-label="Lọc theo mã lớp"
           />
@@ -60,7 +60,7 @@ const VaccinationStudentsToolbar = ({
         <select
           value={value.status}
           onChange={(event) => updateField('status', event.target.value)}
-          className="app-focus-ring app-input h-10 w-full rounded-lg px-3 text-sm xl:w-[188px] xl:shrink-0"
+          className="app-focus-ring app-input h-9 w-full rounded-lg px-3 text-sm xl:w-[188px] xl:shrink-0"
           aria-label="Lọc theo trạng thái"
         >
           {statusOptions.map((option) => (

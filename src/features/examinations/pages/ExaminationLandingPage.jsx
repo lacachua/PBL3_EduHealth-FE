@@ -135,42 +135,72 @@ const ExaminationLandingPage = () => {
     {
       key: 'visitDate',
       header: 'Ngày khám',
-      headerClassName: 'w-[16%] min-w-[120px]',
+      headerClassName: 'w-[14%] min-w-[120px]',
       cellClassName: 'text-xs font-semibold text-on-surface',
-      render: (row) => row.visitDateLabel,
+      render: (row) => (
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-1.5">
+          <span className="leading-5 text-on-surface">{row.visitDateLabel || 'Chưa xác định'}</span>
+        </div>
+      ),
     },
     {
       key: 'student',
       header: 'Học sinh',
-      headerClassName: 'w-[32%] min-w-[220px]',
+      headerClassName: 'w-[22%] min-w-[200px]',
       render: (row) => (
         <div className="w-full text-left">
-          <p className="truncate text-sm font-bold text-on-surface transition group-hover:text-primary">{row.studentName}</p>
-          <p className="mt-0.5 truncate text-[11px] text-on-surface-variant">
-            {row.studentCode} • Lớp {row.className}
+          <p className="truncate text-sm font-bold text-on-surface transition group-hover:text-primary">
+            {row.studentName || 'Chưa xác định'}
           </p>
         </div>
       ),
     },
     {
-      key: 'diagnosisMerged',
-      header: 'Chẩn đoán / Loại bệnh',
-      headerClassName: 'w-[36%] min-w-[240px]',
+      key: 'className',
+      header: 'Lớp',
+      headerClassName: 'w-[12%] min-w-[90px]',
+      cellClassName: 'text-xs font-semibold text-on-surface',
+      render: (row) => row.className || 'Chưa xác định',
+    },
+    {
+      key: 'diseaseType',
+      header: 'Loại bệnh',
+      headerClassName: 'w-[16%] min-w-[130px]',
       render: (row) => (
         <div className="w-full">
-          <p className="truncate text-xs font-bold text-on-surface">{row.diseaseTypeName || 'Chưa xác định'}</p>
-          <p className="mt-0.5 line-clamp-1 text-[11px] text-on-surface-variant" title={row.diagnosis}>{row.diagnosis || '--'}</p>
+          {row.diseaseTypeName ? (
+            <StatusBadge tone="info">{row.diseaseTypeName}</StatusBadge>
+          ) : (
+            <p className="text-xs text-on-surface-variant">Chưa phân loại</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'diagnosis',
+      header: 'Chẩn đoán / Nội dung khám',
+      headerClassName: 'w-[26%] min-w-[220px]',
+      render: (row) => (
+        <div className="w-full">
+          <p className="truncate text-xs font-bold text-on-surface">
+            {row.diagnosis || 'Chưa có chẩn đoán'}
+          </p>
+          {row.symptoms && row.symptoms.trim() && row.symptoms.trim() !== row.diagnosis.trim() ? (
+            <p className="mt-0.5 line-clamp-1 text-[11px] text-on-surface-variant" title={row.symptoms}>
+              {row.symptoms}
+            </p>
+          ) : null}
         </div>
       ),
     },
     {
       key: 'hasPrescription',
       header: 'Đơn thuốc',
-      headerClassName: 'w-[16%] min-w-[100px] text-right',
+      headerClassName: 'w-[10%] min-w-[110px] text-right',
       cellClassName: 'text-right',
       render: (row) => (
         <StatusBadge tone={row.hasPrescription ? 'success' : 'neutral'}>
-          {row.hasPrescription ? 'Có đơn' : 'Không'}
+          {row.hasPrescription ? 'Có đơn' : 'Không đơn'}
         </StatusBadge>
       ),
     },
@@ -276,7 +306,7 @@ const ExaminationLandingPage = () => {
             </form>
           </section>
         )}
-        summary={displayedRows.length > 0 ? `Hiển thị ${displayedRows.length} bản ghi/trang • Tổng ${listData.totalItems} phiếu khám` : null}
+        summary={listData.totalItems > 0 ? `Hiển thị ${listData.pageSize} bản ghi/trang • Tổng ${listData.totalItems} phiếu khám` : null}
         status={effectiveStatus}
         error={error}
         onRetry={() => fetchList(page, appliedFilters)}
@@ -291,6 +321,9 @@ const ExaminationLandingPage = () => {
             rows={displayedRows}
             getRowKey={(row) => row.id}
             onRowClick={(row) => navigate(`/nurse/examinations/${row.id}`)}
+            headClassName="app-table-head bg-success-soft text-[11px] uppercase tracking-[0.08em] text-success"
+            bodyClassName="divide-y divide-outline-variant"
+            rowClassName="group app-interactive cursor-pointer border-l-4 border-transparent bg-surface even:bg-surface-container-lowest hover:bg-success-soft focus-visible:border-success"
             tableClassName="min-w-[760px] w-full text-left text-sm"
           />
         ) : (

@@ -12,7 +12,6 @@ const DataTable = ({
   rowClassName,
   onRowClick,
 }) => {
-  // Fix: dense ảnh hưởng cả head (trước đây head luôn là 'px-4 py-3' dù dense=true/false)
   const headCellPaddingClass = headCellPaddingClassName || (dense ? 'px-4 py-2' : 'px-4 py-3');
   const bodyCellPaddingClass = bodyCellPaddingClassName || (dense ? 'px-4 py-2' : 'px-4 py-3.5');
 
