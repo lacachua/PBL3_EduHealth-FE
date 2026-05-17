@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   normalizeApiMessage,
 } from '../../../shared/api/normalizeResponse';
@@ -41,6 +41,17 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
   const [healthDetailError, setHealthDetailError] = useState('');
   const [basicSyncMessage, setBasicSyncMessage] = useState('');
   const [healthSyncMessage, setHealthSyncMessage] = useState('');
+
+  const selectedStudentRef = useRef(selectedStudent);
+  const selectedHealthProfileRef = useRef(selectedHealthProfile);
+
+  useEffect(() => {
+    selectedStudentRef.current = selectedStudent;
+  }, [selectedStudent]);
+
+  useEffect(() => {
+    selectedHealthProfileRef.current = selectedHealthProfile;
+  }, [selectedHealthProfile]);
 
   const fetchList = useCallback(async (next = {}) => {
     setLoading(true);
@@ -90,7 +101,7 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     }
   };
 
-  const fetchBasicDetail = async (studentId, fallbackStudent = null) => {
+  const fetchBasicDetail = useCallback(async (studentId, fallbackStudent = null) => {
     setBasicDetailLoading(true);
     setBasicDetailError('');
     setBasicSyncMessage('');
@@ -101,16 +112,18 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
       setSelectedStudent(detail);
       return detail;
     } catch (apiError) {
-      const hasFallback = Boolean((selectedStudent && selectedStudent.apiId === studentId) || fallbackStudent);
+      const currentSelected = selectedStudentRef.current;
+      const hasFallback = Boolean((currentSelected && (currentSelected.apiId === studentId || currentSelected.id === studentId)) || fallbackStudent);
+      
       if (hasFallback) {
         setSelectedStudent((prev) => {
-          if (prev && prev.apiId === studentId) {
+          if (prev && (prev.apiId === studentId || prev.id === studentId)) {
             return prev;
           }
           return fallbackStudent || prev;
         });
         setBasicSyncMessage('Không thể đồng bộ dữ liệu mới từ máy chủ. Đang hiển thị dữ liệu gần nhất.');
-        return fallbackStudent || selectedStudent;
+        return fallbackStudent || currentSelected;
       }
 
       setBasicDetailError(normalizeApiMessage(apiError));
@@ -119,9 +132,9 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     } finally {
       setBasicDetailLoading(false);
     }
-  };
+  }, [moduleKey]);
 
-  const fetchHealthProfile = async (studentId, fallbackProfile = null) => {
+  const fetchHealthProfile = useCallback(async (studentId, fallbackProfile = null) => {
     setHealthDetailLoading(true);
     setHealthDetailError('');
     setHealthSyncMessage('');
@@ -145,14 +158,21 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     } finally {
       setHealthDetailLoading(false);
     }
-  };
+  }, [moduleKey]);
 
-  const fetchStudentDetail = async (studentId, fallbackStudent = null) => {
+  const fetchStudentDetail = useCallback(async (studentId, fallbackStudent = null) => {
     const basic = await fetchBasicDetail(studentId, fallbackStudent);
-    const fallbackProfile = selectedStudent?.apiId === studentId ? selectedHealthProfile : null;
+    
+    const currentSelected = selectedStudentRef.current;
+    const currentProfile = selectedHealthProfileRef.current;
+    
+    const fallbackProfile = (currentSelected?.apiId === studentId || currentSelected?.id === studentId) 
+      ? currentProfile 
+      : null;
+      
     await fetchHealthProfile(studentId, fallbackProfile);
     return basic;
-  };
+  }, [fetchBasicDetail, fetchHealthProfile]);
 
   const toggleStatus = async (userRow, reason) => {
     if (!userRow?.userId) {

@@ -1,57 +1,39 @@
 import { apiGetEnvelope, apiRequestRaw } from '../../../../shared/api/apiClient';
 import { NURSE_REPORTS_ENDPOINTS } from '../config/nurseReportsApiContract';
 
-const toIsoString = (date) => date.toISOString();
+const formatDateForBackend = (dateString) => {
+  if (!dateString) return null;
 
-const startOfDay = (date) => {
-  const nextDate = new Date(date);
-  nextDate.setHours(0, 0, 0, 0);
-  return nextDate;
-};
+  try {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return null;
 
-const buildCustomRangeParams = (filters, timeRange) => {
-  const now = new Date();
-  let fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
-  let toDate = filters.toDate ? new Date(filters.toDate) : now;
-
-  if (!fromDate) {
-    if (timeRange === 'today') {
-      fromDate = startOfDay(now);
-    } else if (timeRange === 'this-year') {
-      fromDate = new Date(now.getFullYear(), 0, 1);
-    } else {
-      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    }
+    return dateString;
+  } catch {
+    return null;
   }
-
-  if (Number.isNaN(fromDate.getTime())) {
-    fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
-  }
-
-  if (Number.isNaN(toDate.getTime())) {
-    toDate = now;
-  }
-
-  return {
-    timeRange: 'custom-range',
-    fromDate: toIsoString(fromDate),
-    toDate: toIsoString(toDate),
-  };
 };
 
 const sanitizeFilters = (filters = {}) => {
-  const rawTimeRange = String(filters.timeRange || 'this-month');
-  const timeRange = rawTimeRange === 'custom' ? 'custom-range' : rawTimeRange;
-  const needsCustomRange = ['today', 'this-year', 'custom-range'].includes(timeRange);
-
-  return {
-    ...(needsCustomRange ? buildCustomRangeParams(filters, timeRange) : { timeRange }),
+  const params = {
+    timeRange: 'custom-range',
     grade: String(filters.grade || 'all'),
     classId: String(filters.classId || 'all'),
     reportType: String(filters.reportType || 'overview'),
-    ...(!needsCustomRange && filters.fromDate ? { fromDate: filters.fromDate } : {}),
-    ...(!needsCustomRange && filters.toDate ? { toDate: filters.toDate } : {}),
   };
+
+  const fromDate = formatDateForBackend(filters.fromDate);
+  const toDate = formatDateForBackend(filters.toDate);
+
+  if (fromDate) {
+    params.fromDate = fromDate;
+  }
+
+  if (toDate) {
+    params.toDate = toDate;
+  }
+
+  return params;
 };
 
 const extractFilenameFromContentDisposition = (contentDisposition) => {

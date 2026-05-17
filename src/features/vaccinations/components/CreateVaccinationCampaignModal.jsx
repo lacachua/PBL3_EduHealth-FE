@@ -10,19 +10,7 @@ import NurseModalShell from '../../../shared/components/nurse/NurseModalShell';
 
 const normalizeClassCode = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
 
-const parseClassCodeList = (rawValue) => {
-  return String(rawValue || '')
-    .split(/[\n,;]+/)
-    .map((item) => normalizeClassCode(item))
-    .filter(Boolean);
-};
 
-const parseStudentIdList = (rawValue) => {
-  return String(rawValue || '')
-    .split(/[\n,;\s]+/)
-    .map((item) => Number(item))
-    .filter((item) => Number.isInteger(item) && item > 0);
-};
 
 const toClassCode = (item = {}) => {
   const rawCode = String(item.classCode || item.classId || '').trim();
@@ -91,11 +79,11 @@ const toLookupStudent = (item = {}) => {
     id: numericId,
     fullName: item.fullName || item.studentName || `Học sinh #${numericId}`,
     className: item.className || item.classId || '--',
-    studentCode: item.studentCode || '--',
+    studentCode: item.studentCode || '',
   };
 };
 
-const CLASS_LOOKUP_ERROR_MESSAGE = 'Không tải được danh sách lớp. Bạn có thể nhập mã lớp thủ công ở phần mở rộng bên dưới.';
+const CLASS_LOOKUP_ERROR_MESSAGE = 'Không tải được danh sách lớp. Vui lòng thử lại sau.';
 const INITIAL_CLASS_LOOKUP_STATUS = CREATE_CAMPAIGN_INITIAL_VALUES.targetType === 'CLASS' ? 'loading' : 'idle';
 
 const CreateVaccinationCampaignModal = ({
@@ -108,7 +96,6 @@ const CreateVaccinationCampaignModal = ({
   const [values, setValues] = useState(() => CREATE_CAMPAIGN_INITIAL_VALUES);
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const [classBatchInput, setClassBatchInput] = useState('');
   const [classLookupStatus, setClassLookupStatus] = useState(INITIAL_CLASS_LOOKUP_STATUS);
   const [classLookupError, setClassLookupError] = useState('');
   const [classOptions, setClassOptions] = useState([]);
@@ -118,8 +105,16 @@ const CreateVaccinationCampaignModal = ({
   const [lookupStatus, setLookupStatus] = useState('idle');
   const [lookupError, setLookupError] = useState('');
   const [lookupRows, setLookupRows] = useState([]);
-  const [manualStudentInput, setManualStudentInput] = useState('');
   const [selectedStudentMap, setSelectedStudentMap] = useState({});
+
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    return [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
+  }, []);
 
   const selectedCountLabel = useMemo(() => {
     if (values.targetType === 'CLASS') {
@@ -159,7 +154,7 @@ const CreateVaccinationCampaignModal = ({
       return selectedStudentMap[studentId] || {
         id: studentId,
         fullName: `Mã học sinh ${studentId}`,
-        studentCode: '--',
+        studentCode: '',
         className: '--',
       };
     });
@@ -169,8 +164,15 @@ const CreateVaccinationCampaignModal = ({
     const response = await getStudentClassesApi();
     const rows = Array.isArray(response?.data) ? response.data : [];
 
-    return rows.map((item) => toClassOption(item))
-      .filter(Boolean)
+    const uniqueMap = new Map();
+    rows.forEach((item) => {
+      const option = toClassOption(item);
+      if (option && !uniqueMap.has(option.value)) {
+        uniqueMap.set(option.value, option);
+      }
+    });
+
+    return Array.from(uniqueMap.values())
       .sort((left, right) => {
         const byGrade = left.gradeLabel.localeCompare(right.gradeLabel, 'vi');
         if (byGrade !== 0) {
@@ -258,19 +260,6 @@ const CreateVaccinationCampaignModal = ({
     updateField('targetClassIds', [...values.targetClassIds, classCode]);
   };
 
-  const addClassCodes = () => {
-    const parsed = parseClassCodeList(classBatchInput);
-    if (!parsed.length) {
-      return;
-    }
-
-    const nextSet = new Set(values.targetClassIds);
-    parsed.forEach((item) => nextSet.add(item));
-
-    updateField('targetClassIds', Array.from(nextSet));
-    setClassBatchInput('');
-  };
-
   const addStudentCandidate = (candidate, meta = null) => {
     const parsed = toPositiveInt(candidate);
     if (!parsed) {
@@ -295,18 +284,6 @@ const CreateVaccinationCampaignModal = ({
     }
 
     return true;
-  };
-
-  const addManualStudentIds = () => {
-    const parsedIds = parseStudentIdList(manualStudentInput);
-    if (!parsedIds.length) {
-      return;
-    }
-
-    const nextSet = new Set(values.targetStudentIds);
-    parsedIds.forEach((item) => nextSet.add(item));
-    updateField('targetStudentIds', Array.from(nextSet));
-    setManualStudentInput('');
   };
 
   const searchStudents = async () => {
@@ -337,7 +314,7 @@ const CreateVaccinationCampaignModal = ({
     } catch {
       setLookupRows([]);
       setLookupStatus('error');
-      setLookupError('Không tải được danh sách học sinh. Bạn có thể dùng nhập mã thủ công trong phần nâng cao.');
+      setLookupError('Không tải được danh sách học sinh. Vui lòng thử lại sau.');
     }
   };
 
@@ -359,13 +336,28 @@ const CreateVaccinationCampaignModal = ({
     event.preventDefault();
 
     const nextErrors = validateCreateCampaignValues(values);
+    
+    if (values.targetType === 'CLASS' && values.targetClassIds.length === 0) {
+      nextErrors.targetClassIds = 'Vui lòng chọn ít nhất 1 lớp.';
+    }
+    
+    if (values.targetType === 'STUDENT' && values.targetStudentIds.length === 0) {
+      nextErrors.targetStudentIds = 'Vui lòng chọn ít nhất 1 học sinh.';
+    }
+
     setFieldErrors(nextErrors);
 
     if (Object.keys(nextErrors).length) {
       return;
     }
 
-    await onSubmit(values);
+    const payload = {
+      ...values,
+      targetClassIds: values.targetType === 'CLASS' ? values.targetClassIds : [],
+      targetStudentIds: values.targetType === 'STUDENT' ? values.targetStudentIds : [],
+    };
+
+    await onSubmit(payload);
   };
 
   if (!open) {
@@ -385,15 +377,15 @@ const CreateVaccinationCampaignModal = ({
       maxWidthClass="max-w-[860px]"
       submitButtonClassName="app-btn-primary app-focus-ring rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
     >
-      <div className="space-y-4">
+      <div className="space-y-4 pb-24">
         <section className="space-y-3 rounded-xl border border-outline-variant bg-white p-3 md:p-4">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-on-surface">1. Thông tin đợt tiêm</h3>
+            <h3 className="select-none text-sm font-bold text-on-surface">1. Thông tin đợt tiêm</h3>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-on-surface-variant">Tên đợt tiêm</span>
+              <span className="select-none text-sm font-semibold text-on-surface-variant">Tên đợt tiêm</span>
               <input
                 type="text"
                 value={values.name}
@@ -405,7 +397,7 @@ const CreateVaccinationCampaignModal = ({
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-on-surface-variant">Tên vaccine</span>
+              <span className="select-none text-sm font-semibold text-on-surface-variant">Tên vaccine</span>
               <input
                 type="text"
                 value={values.vaccineName}
@@ -417,7 +409,7 @@ const CreateVaccinationCampaignModal = ({
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-on-surface-variant">Mũi số</span>
+              <span className="select-none text-sm font-semibold text-on-surface-variant">Mũi số</span>
               <input
                 type="number"
                 min="1"
@@ -430,9 +422,10 @@ const CreateVaccinationCampaignModal = ({
             </label>
 
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-on-surface-variant">Ngày thực hiện dự kiến</span>
+              <span className="select-none text-sm font-semibold text-on-surface-variant">Ngày thực hiện dự kiến</span>
               <input
                 type="date"
+                min={todayStr}
                 value={values.scheduledDate}
                 onChange={(event) => updateField('scheduledDate', event.target.value)}
                 className="app-input rounded-xl px-3 py-2.5 text-sm"
@@ -443,21 +436,26 @@ const CreateVaccinationCampaignModal = ({
         </section>
 
         <section className="space-y-3 rounded-xl border border-outline-variant bg-surface-container-low p-3 md:p-4">
-          <h3 className="text-sm font-bold text-on-surface">2. Chọn đối tượng áp dụng</h3>
+          <h3 className="select-none text-sm font-bold text-on-surface">2. Chọn đối tượng áp dụng</h3>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {VACCINATION_TARGET_TYPE_OPTIONS.map((option) => (
-              <label key={option.value} className="inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-white px-3 py-2 text-sm font-semibold text-on-surface-variant">
-                <input
-                  type="radio"
-                  name="targetType"
-                  checked={values.targetType === option.value}
-                  onChange={() => updateField('targetType', option.value)}
-                  className="h-4 w-4 accent-success"
-                />
-                {option.label}
-              </label>
-            ))}
+          <div className="inline-flex items-center gap-1 rounded-xl bg-surface-container-low p-1">
+            {VACCINATION_TARGET_TYPE_OPTIONS.map((option) => {
+              const selected = values.targetType === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => updateField('targetType', option.value)}
+                  className={`app-focus-ring select-none rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                    selected
+                      ? 'bg-white text-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
           {fieldErrors.targetType ? <p className="text-xs text-danger">{fieldErrors.targetType}</p> : null}
 
@@ -465,7 +463,7 @@ const CreateVaccinationCampaignModal = ({
             <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
               <div className="grid gap-2 md:grid-cols-[220px_1fr] md:items-center">
                 <label className="space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">Lọc theo khối</span>
+                  <span className="select-none text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">Lọc theo khối</span>
                   <select
                     value={gradeFilter}
                     onChange={(event) => setGradeFilter(event.target.value)}
@@ -477,14 +475,14 @@ const CreateVaccinationCampaignModal = ({
                     ))}
                   </select>
                 </label>
-                <p className="text-xs text-on-surface-variant">Chọn lớp theo tên quen thuộc, ví dụ 4/2 hoặc 5/1.</p>
+                <p className="select-none text-xs text-on-surface-variant">Chọn một hoặc nhiều lớp áp dụng.</p>
               </div>
 
               {classLookupStatus === 'loading' ? <p className="text-xs text-on-surface-variant">Đang tải danh sách lớp...</p> : null}
               {classLookupError ? <p className="text-xs text-danger">{classLookupError}</p> : null}
 
               {filteredClassOptions.length ? (
-                <div className="grid max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-outline-variant bg-white p-2 sm:grid-cols-3">
+                <div className="flex flex-wrap gap-2 overflow-y-auto max-h-48 p-1">
                   {filteredClassOptions.map((option) => {
                     const selected = values.targetClassIds.includes(option.value);
                     return (
@@ -492,163 +490,163 @@ const CreateVaccinationCampaignModal = ({
                         key={option.value}
                         type="button"
                         onClick={() => toggleClassCode(option.value)}
-                        className={`app-focus-ring relative flex min-h-[44px] items-center justify-between rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${selected
-                          ? 'border-success bg-success-soft text-success ring-1 ring-success/50'
-                          : 'border-outline-variant bg-white text-on-surface-variant hover:border-success/50 hover:bg-surface-container-low'
-                          }`}
+                        className={`app-focus-ring inline-flex select-none items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
+                          selected
+                            ? 'border-primary bg-primary-soft text-primary'
+                            : 'border-outline-variant bg-surface hover:bg-surface-container-low text-on-surface-variant'
+                        }`}
                         title={option.value}
                         aria-pressed={selected}
                       >
-                        <span>
-                          <span>{option.label}</span>
-                          <span className="ml-1 text-[11px] font-medium text-on-surface-variant">{option.gradeLabel}</span>
-                        </span>
-                        {selected ? <span className="material-symbols-outlined text-[16px] text-success">check_circle</span> : null}
+                        {selected && <span className="material-symbols-outlined text-[16px]">check</span>}
+                        <span>{option.label}</span>
                       </button>
                     );
                   })}
                 </div>
               ) : null}
 
-              <details className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-3 py-2 opacity-90">
-                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">
-                  Nâng cao: nhập mã lớp thủ công
-                </summary>
-
-                <div className="mt-2 space-y-2">
-                  <textarea
-                    value={classBatchInput}
-                    onChange={(event) => setClassBatchInput(event.target.value)}
-                    className="app-input w-full rounded-xl px-3 py-2 text-sm"
-                    placeholder="CLS001, CLS002"
-                    rows={2}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={addClassCodes}
-                    className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
-                  >
-                    Thêm mã lớp
-                  </button>
-                </div>
-              </details>
             </div>
           ) : (
-            <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
-              <p className="text-xs text-on-surface-variant">Tìm học sinh theo tên hoặc mã, sau đó bấm Chọn để thêm vào danh sách.</p>
-
-              <div className="flex flex-wrap gap-2">
-                <input
-                  type="text"
-                  value={studentKeyword}
-                  onChange={(event) => setStudentKeyword(event.target.value)}
-                  className="app-input min-w-[280px] flex-1 rounded-xl px-3 py-2.5 text-sm"
-                  placeholder="Nhập tên hoặc mã học sinh"
-                />
-                <button
-                  type="button"
-                  onClick={searchStudents}
-                  className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold"
-                >
-                  Tìm học sinh
-                </button>
-              </div>
-
-              {lookupStatus === 'loading' ? <p className="text-xs text-on-surface-variant">Đang tìm học sinh...</p> : null}
-              {lookupError ? <p className="text-xs text-danger">{lookupError}</p> : null}
-
-              {lookupRows.length ? (
-                <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border border-outline-variant bg-white p-2">
-                  {lookupRows.map((student) => {
-                    const selected = values.targetStudentIds.includes(student.id);
-
-                    return (
-                      <button
-                        key={student.id}
-                        type="button"
-                        disabled={selected}
-                        onClick={() => addStudentCandidate(student.id, student)}
-                        className="app-focus-ring flex w-full items-center justify-between rounded-lg border border-outline-variant px-2.5 py-2 text-left text-sm text-on-surface-variant hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        <span>
-                          <span className="font-semibold text-on-surface">{student.fullName}</span>
-                          <span className="ml-1 text-xs text-on-surface-variant">({student.studentCode} • {student.className})</span>
-                        </span>
-                        <span className="text-xs font-semibold text-success">{selected ? 'Đã chọn' : 'Chọn'}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-
-              <details className="rounded-xl border border-dashed border-outline-variant bg-surface-container-low px-3 py-2">
-                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">
-                  Nâng cao: nhập mã học sinh thủ công
-                </summary>
-
-                <div className="mt-2 space-y-2">
-                  <textarea
-                    value={manualStudentInput}
-                    onChange={(event) => setManualStudentInput(event.target.value)}
-                    className="app-input w-full rounded-xl px-3 py-2 text-sm"
-                    placeholder="Nhập nhiều mã, ví dụ: 1201, 1202"
-                    rows={2}
+            <div className="grid gap-4 md:grid-cols-2 items-start">
+              <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
+                <p className="select-none text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">1. Tìm học sinh</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={studentKeyword}
+                    onChange={(event) => setStudentKeyword(event.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchStudents();
+                      }
+                    }}
+                    className="app-input flex-1 rounded-xl px-3 py-2 text-sm"
+                    placeholder="Nhập tên hoặc mã..."
                   />
                   <button
                     type="button"
-                    onClick={addManualStudentIds}
+                    onClick={searchStudents}
                     className="app-btn-secondary app-focus-ring rounded-xl px-3 py-2 text-sm font-semibold"
                   >
-                    Thêm mã học sinh
+                    Tìm
                   </button>
                 </div>
-              </details>
+
+                {lookupStatus === 'loading' ? <p className="select-none text-xs text-on-surface-variant">Đang tìm học sinh...</p> : null}
+                {lookupError ? <p className="select-none text-xs text-danger">{lookupError}</p> : null}
+
+                {lookupRows.length ? (
+                  <div className="mt-3 max-h-52 space-y-1 overflow-y-auto pr-1">
+                    {lookupRows.map((student) => {
+                      const selected = values.targetStudentIds.includes(student.id);
+
+                      return (
+                        <button
+                          key={student.id}
+                          type="button"
+                          disabled={selected}
+                          onClick={() => addStudentCandidate(student.id, student)}
+                          className="app-focus-ring flex w-full items-center justify-between rounded-lg border border-outline-variant px-3 py-2.5 text-left text-sm transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:bg-surface-container-low"
+                        >
+                          <div className="select-none">
+                            <p className={`font-semibold ${selected ? 'text-on-surface-variant' : 'text-on-surface'}`}>{student.fullName}</p>
+                            <p className="text-[11px] text-on-surface-variant">
+                              {student.studentCode ? `${student.studentCode} • Lớp ${student.className}` : `Lớp ${student.className}`}
+                            </p>
+                          </div>
+                          {selected ? (
+                            <span className="select-none text-[11px] font-bold text-primary">Đã chọn</span>
+                          ) : (
+                            <span className="select-none text-[11px] font-bold text-success">Chọn</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="space-y-3 rounded-xl border border-outline-variant bg-white p-3">
+                <div className="flex items-center justify-between">
+                  <p className="select-none text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">2. Đã chọn</p>
+                  <span className="select-none rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold text-primary">{values.targetStudentIds.length} học sinh</span>
+                </div>
+                
+                {selectedStudents.length ? (
+                  <div className="max-h-52 space-y-1 overflow-y-auto pr-1">
+                    {selectedStudents.map((student) => (
+                      <div key={student.id} className="flex items-center justify-between rounded-lg bg-surface-container-low px-3 py-2 text-sm">
+                        <div className="select-none">
+                          <p className="font-semibold text-on-surface">{student.fullName}</p>
+                          <p className="text-[11px] text-on-surface-variant">
+                            {student.studentCode ? `${student.studentCode} • Lớp ${student.className}` : `Lớp ${student.className}`}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeStudentId(student.id)}
+                          className="app-focus-ring flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-danger"
+                          aria-label={`Xóa học sinh ${student.id}`}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="select-none text-xs italic text-on-surface-variant">Chưa chọn học sinh nào.</p>
+                )}
+                
+              </div>
             </div>
           )}
         </section>
 
         <section className="space-y-2 rounded-xl border border-outline-variant bg-white p-3 md:p-4">
-          <h3 className="text-sm font-bold text-on-surface">3. Xác nhận danh sách đã chọn</h3>
-          <p className="text-xs text-on-surface-variant">{selectedCountLabel}</p>
+          <div className="flex items-center justify-between">
+            <h3 className="select-none text-sm font-bold text-on-surface">3. Xác nhận danh sách đã chọn</h3>
+            <span className="select-none inline-flex rounded-full bg-primary-soft px-2.5 py-1 text-xs font-bold text-primary">
+              {selectedCountLabel}
+            </span>
+          </div>
 
           {values.targetType === 'CLASS' ? (
-            <div className="flex flex-wrap gap-2">
-              {values.targetClassIds.length ? values.targetClassIds.map((classCode) => {
-                const classLabel = classLabelMap.get(classCode) || classCode;
-                return (
-                  <span key={classCode} className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2.5 py-1 text-xs font-semibold text-success" title={classCode}>
-                    {classLabel}
-                    <button
-                      type="button"
-                      onClick={() => removeClassCode(classCode)}
-                      className="app-focus-ring rounded"
-                      aria-label={`Xóa lớp ${classLabel}`}
-                    >
-                      <span className="material-symbols-outlined text-[14px]">close</span>
-                    </button>
-                  </span>
-                );
-              }) : <p className="text-sm text-on-surface-variant">Chưa chọn lớp nào.</p>}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {values.targetClassIds.length ? (
+                <>
+                  {values.targetClassIds.slice(0, 15).map((classCode) => {
+                    const classLabel = classLabelMap.get(classCode) || classCode;
+                    return (
+                      <span key={classCode} className="select-none inline-flex items-center gap-1 rounded-full bg-surface-container-low border border-outline-variant px-2.5 py-1 text-xs font-semibold text-on-surface" title={classCode}>
+                        {classLabel}
+                        <button
+                          type="button"
+                          onClick={() => removeClassCode(classCode)}
+                          className="app-focus-ring flex h-4 w-4 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-danger"
+                          aria-label={`Xóa lớp ${classLabel}`}
+                        >
+                          <span className="material-symbols-outlined text-[12px]">close</span>
+                        </button>
+                      </span>
+                    );
+                  })}
+                  {values.targetClassIds.length > 15 && (
+                    <span className="select-none inline-flex items-center px-1 text-xs text-on-surface-variant">
+                      và {values.targetClassIds.length - 15} lớp khác...
+                    </span>
+                  )}
+                </>
+              ) : <p className="select-none text-xs italic text-on-surface-variant">Chưa chọn lớp nào.</p>}
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {selectedStudents.length ? selectedStudents.map((student) => {
-                const label = `${student.fullName} (${student.studentCode} • ${student.className})`;
-                return (
-                  <span key={student.id} className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-xs font-semibold text-info" title={label}>
-                    {label}
-                    <button
-                      type="button"
-                      onClick={() => removeStudentId(student.id)}
-                      className="app-focus-ring rounded"
-                      aria-label={`Xóa học sinh ${student.id}`}
-                    >
-                      <span className="material-symbols-outlined text-[14px]">close</span>
-                    </button>
-                  </span>
-                );
-              }) : <p className="text-sm text-on-surface-variant">Chưa chọn học sinh nào.</p>}
+            <div className="pt-1">
+              {values.targetStudentIds.length ? (
+                <p className="select-none text-xs text-on-surface-variant">Danh sách học sinh đã được chọn ở bước 2.</p>
+              ) : (
+                <p className="select-none text-xs italic text-on-surface-variant">Chưa chọn học sinh nào.</p>
+              )}
             </div>
           )}
 
@@ -657,7 +655,7 @@ const CreateVaccinationCampaignModal = ({
         </section>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm font-semibold text-on-surface-variant">Ghi chú</span>
+          <span className="select-none text-sm font-semibold text-on-surface-variant">Ghi chú</span>
           <textarea
             value={values.note}
             onChange={(event) => updateField('note', event.target.value)}

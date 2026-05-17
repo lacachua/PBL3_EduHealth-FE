@@ -39,6 +39,16 @@ export const validateCreateCampaignValues = (values = {}) => {
 
   if (!values.scheduledDate) {
     errors.scheduledDate = 'Vui lòng chọn ngày thực hiện dự kiến.';
+  } else {
+    const today = new Date();
+    const todayStr = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
+    if (values.scheduledDate < todayStr) {
+      errors.scheduledDate = 'Ngày tiêm dự kiến không được nhỏ hơn ngày hiện tại.';
+    }
   }
 
   if (targetType !== 'CLASS' && targetType !== 'STUDENT') {

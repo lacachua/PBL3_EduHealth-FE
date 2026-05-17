@@ -18,7 +18,6 @@ const historyCardClass = 'rounded-lg border border-outline-variant bg-surface-co
 const sectionCardClass = 'app-card-shell rounded-xl p-4';
 const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
 const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-on-surface';
-const sectionSubtitleClass = 'mt-0.5 text-[11px] text-on-surface-variant';
 
 const vaccinationStatusTone = (status) => {
   const normalized = String(status || '').toUpperCase();
@@ -83,11 +82,9 @@ const NurseHealthProfileDetailPage = () => {
     <section className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
       <SectionCard
         title="Dị ứng"
-        subtitle="Danh sách dị ứng cần lưu ý khi khám và cấp phát thuốc"
         className={sectionCardClass}
         headerClassName={sectionHeaderClass}
         titleClassName={sectionTitleClass}
-        subtitleClassName={sectionSubtitleClass}
       >
         {model.allergyItems.length ? (
           <div className="space-y-2">
@@ -105,11 +102,9 @@ const NurseHealthProfileDetailPage = () => {
 
       <SectionCard
         title="Bệnh nền & Ghi chú y tế"
-        subtitle="Thông tin cần theo dõi trong quá trình chăm sóc sức khỏe học đường"
         className={sectionCardClass}
         headerClassName={sectionHeaderClass}
         titleClassName={sectionTitleClass}
-        subtitleClassName={sectionSubtitleClass}
       >
         <div className="space-y-2">
           <article className={historyCardClass}>
@@ -134,11 +129,9 @@ const NurseHealthProfileDetailPage = () => {
   const renderHealthHistoryTab = () => (
     <SectionCard
       title="Lịch sử khám"
-      subtitle="Bản ghi khám sức khỏe, chẩn đoán và hướng xử trí"
       className={sectionCardClass}
       headerClassName={sectionHeaderClass}
       titleClassName={sectionTitleClass}
-      subtitleClassName={sectionSubtitleClass}
     >
       {model.healthHistory.items.length ? (
         <div className="space-y-2">
@@ -166,11 +159,9 @@ const NurseHealthProfileDetailPage = () => {
   const renderMedicationTab = () => (
     <SectionCard
       title="Lịch sử dùng thuốc"
-      subtitle="Tổng hợp đơn thuốc đã cấp phát trong các lần khám"
       className={sectionCardClass}
       headerClassName={sectionHeaderClass}
       titleClassName={sectionTitleClass}
-      subtitleClassName={sectionSubtitleClass}
     >
       {model.medicationHistory.length ? (
         <div className="space-y-2">
@@ -199,11 +190,9 @@ const NurseHealthProfileDetailPage = () => {
   const renderVaccinationTab = () => (
     <SectionCard
       title="Tiêm chủng"
-      subtitle="Thông tin các mũi tiêm và tình trạng hoàn thành"
       className={sectionCardClass}
       headerClassName={sectionHeaderClass}
       titleClassName={sectionTitleClass}
-      subtitleClassName={sectionSubtitleClass}
     >
       {model.vaccinations.length ? (
         <div className="space-y-2">
@@ -256,7 +245,7 @@ const NurseHealthProfileDetailPage = () => {
 
       <NurseModulePageHeader
         title="Hồ sơ học sinh"
-        description="Theo dõi thông tin sức khỏe, lịch sử khám và chỉ số phát triển của học sinh."
+        description="Thông tin sức khỏe, chỉ số và lịch sử khám của học sinh."
         actions={(
           <button
             type="button"

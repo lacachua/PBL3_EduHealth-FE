@@ -4,7 +4,6 @@ import { formatDate } from '../../../shared/utils/dateFormat';
 const sectionCardClass = 'app-card-shell rounded-xl p-4';
 const sectionHeaderClass = 'app-section-header -mx-4 -mt-4 mb-3 flex flex-col gap-1.5 rounded-t-xl px-4 py-2.5 md:flex-row md:items-start md:justify-between';
 const sectionTitleClass = 'font-headline text-[0.97rem] font-bold text-on-surface';
-const sectionSubtitleClass = 'mt-0.5 text-[11px] text-on-surface-variant';
 const historyCardClass = 'rounded-lg border border-outline-variant bg-surface-container-lowest p-3';
 
 const alertChipClassMap = {
@@ -49,11 +48,9 @@ const NurseHealthOverviewPanels = ({
       <div className="space-y-3 lg:col-span-2">
         <SectionCard
           title="Cảnh báo sức khỏe"
-          subtitle="Tổng hợp các vấn đề cần theo dõi cho học sinh trong năm học hiện tại"
           className={sectionCardClass}
           headerClassName={sectionHeaderClass}
           titleClassName={sectionTitleClass}
-          subtitleClassName={sectionSubtitleClass}
         >
           {alerts.length ? (
             <div className="space-y-2">
@@ -81,11 +78,9 @@ const NurseHealthOverviewPanels = ({
 
         <SectionCard
           title="Khám sức khỏe định kỳ"
-          subtitle="Lịch sử khám, chẩn đoán và xử trí gần nhất"
           className={sectionCardClass}
           headerClassName={sectionHeaderClass}
           titleClassName={sectionTitleClass}
-          subtitleClassName={sectionSubtitleClass}
         >
           {periodicItems.length ? (
             <div className="space-y-2">
@@ -113,11 +108,9 @@ const NurseHealthOverviewPanels = ({
       <div className="space-y-3">
         <SectionCard
           title="Tiêm chủng gần đây"
-          subtitle="Cập nhật các mũi tiêm gần nhất của học sinh"
           className={sectionCardClass}
           headerClassName={sectionHeaderClass}
           titleClassName={sectionTitleClass}
-          subtitleClassName={sectionSubtitleClass}
         >
           {vaccinations.length ? (
             <div className="space-y-2">
@@ -146,17 +139,15 @@ const NurseHealthOverviewPanels = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu tiêm chủng gần đây.</p>
+            <p className="text-sm text-on-surface-variant">Chưa có dữ liệu tiêm chủng.</p>
           )}
         </SectionCard>
 
         <SectionCard
           title="Liên hệ khẩn cấp"
-          subtitle="Thông tin người giám hộ ưu tiên khi cần can thiệp y tế"
           className={sectionCardClass}
           headerClassName={sectionHeaderClass}
           titleClassName={sectionTitleClass}
-          subtitleClassName={sectionSubtitleClass}
         >
           {emergencyContacts.length ? (
             <div className="space-y-2">

@@ -3,3 +3,7 @@ import { adminDashboardRepository } from '../repositories/adminDashboardReposito
 export const fetchAdminDashboardOverview = async (query = {}) => {
   return adminDashboardRepository.fetchOverview(query);
 };
+
+export const fetchRecentActivities = async (limit = 4) => {
+  return adminDashboardRepository.fetchRecentActivities(limit);
+};

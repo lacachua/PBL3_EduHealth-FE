@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import EmptyState from '../../../shared/components/core/EmptyState';
 import ErrorState from '../../../shared/components/core/ErrorState';
 import LoadingSpinner from '../../../shared/components/core/LoadingSpinner';
@@ -16,6 +17,18 @@ const MessageThread = ({
   onTyping,
   onRetry,
 }) => {
+  const bodyRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (bodyRef.current) {
+      bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typing, status, conversation?.conversationId]);
+
   if (!conversation) {
     return (
       <section className="messaging-thread">
@@ -37,7 +50,7 @@ const MessageThread = ({
         </div>
       </header>
 
-      <div className="messaging-thread-body">
+      <div ref={bodyRef} className="messaging-thread-body">
         {status === 'loading' ? <LoadingSpinner label="Đang tải tin nhắn..." /> : null}
         {status === 'error' ? (
           <ErrorState message={error || 'Không thể tải tin nhắn.'} onRetry={onRetry} />

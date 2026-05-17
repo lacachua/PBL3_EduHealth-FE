@@ -81,43 +81,32 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
   const sourceRows = extractRows(envelope, { itemKeys: ['students'] });
 
   const rows = sourceRows.map((item) => {
-    const resolvedId = resolveStudentIdentity(item);
+    const userId = Number(item.userId ?? item.id ?? item.studentId);
+    const resolvedId = Number.isInteger(userId) && userId > 0 ? userId : null;
 
     return {
       id: resolvedId,
       userId: resolvedId,
-      accountUserId: resolvedId,
+      studentId: resolvedId,
       apiId: resolvedId,
-      imageUrl: hasOwn(item, 'imageUrl') ? toNullableText(item.imageUrl) : null,
-      fullName: hasOwn(item, 'fullName') ? toNullableText(item.fullName) : null,
-      dateOfBirth: hasOwn(item, 'dateOfBirth') ? item.dateOfBirth || null : null,
-      dateOfBirthLabel: hasOwn(item, 'dateOfBirth') ? formatDate(item.dateOfBirth) : null,
-      classId: hasOwn(item, 'classId') ? item.classId : null,
-      className: hasOwn(item, 'className') ? toNullableText(item.className) : null,
-      email: hasOwn(item, 'email') ? toNullableText(item.email) : null,
-      phoneNumber: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
-      phone: hasOwn(item, 'phone') ? toNullableText(item.phone) : null,
-      guardian: hasOwn(item, 'guardian') ? toNullableText(item.guardian) : null,
-      currentHeight: hasOwn(item, 'currentHeight') ? toNullableNumber(item.currentHeight) : null,
-      currentWeight: hasOwn(item, 'currentWeight') ? toNullableNumber(item.currentWeight) : null,
-      currentHeightLabel: hasOwn(item, 'currentHeight') ? formatStudentNumber(item.currentHeight) : null,
-      currentWeightLabel: hasOwn(item, 'currentWeight') ? formatStudentNumber(item.currentWeight) : null,
+      accountUserId: resolvedId,
+      studentCode: toNullableText(item.studentCode ?? item.code),
+      imageUrl: toNullableText(item.imageUrl),
+      fullName: toNullableText(item.fullName ?? item.name),
+      dateOfBirth: item.dateOfBirth ?? item.dob ?? null,
+      dateOfBirthLabel: formatDate(item.dateOfBirth ?? item.dob),
+      gender: toNullableText(item.gender ?? item.sex),
+      classId: item.classId ?? item.class?.id ?? null,
+      className: toNullableText(item.className ?? item.class?.name),
+      email: toNullableText(item.email),
+      phone: toNullableText(item.phone ?? item.phoneNumber),
+      phoneNumber: toNullableText(item.phone ?? item.phoneNumber),
+      guardian: toNullableText(item.guardian),
+      currentHeight: toNullableNumber(item.currentHeight),
+      currentWeight: toNullableNumber(item.currentWeight),
+      currentHeightLabel: formatStudentNumber(item.currentHeight),
+      currentWeightLabel: formatStudentNumber(item.currentWeight),
       ...buildStatusFields(item),
-      fields: {
-        userId: hasOwn(item, 'userId'),
-        imageUrl: hasOwn(item, 'imageUrl'),
-        fullName: hasOwn(item, 'fullName'),
-        dateOfBirth: hasOwn(item, 'dateOfBirth'),
-        classId: hasOwn(item, 'classId'),
-        className: hasOwn(item, 'className'),
-        email: hasOwn(item, 'email'),
-        phone: hasOwn(item, 'phone'),
-        guardian: hasOwn(item, 'guardian'),
-        currentHeight: hasOwn(item, 'currentHeight'),
-        currentWeight: hasOwn(item, 'currentWeight'),
-        status: hasOwn(item, 'status'),
-        isActive: hasOwn(item, 'isActive'),
-      },
     };
   });
 

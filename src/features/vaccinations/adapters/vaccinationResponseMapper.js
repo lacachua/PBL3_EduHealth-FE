@@ -15,30 +15,25 @@ const normalizeCampaignDisplayName = (value, fallbackId = '') => {
   if (!raw) {
     return fallbackId ? `Đợt tiêm ${fallbackId}` : '--';
   }
-
-  if (/legacy\s+campaign|^campaign\b/i.test(raw)) {
-    return fallbackId ? `Đợt tiêm ${fallbackId}` : 'Đợt tiêm cũ';
-  }
-
   return raw;
 };
 
 const sanitizeCampaignNote = (value) => {
   const raw = String(value || '').trim();
-  if (!raw) {
-    return '';
-  }
-
-  if (/auto-?created|migration|legacy student vaccinations|internal|seed data|backfill/i.test(raw)) {
-    return '';
-  }
-
   return raw;
 };
 
 const toDateLabel = (value) => {
   if (!value) {
     return '--';
+  }
+
+  const strValue = String(value);
+  if (strValue.length >= 10 && strValue.indexOf('T') === -1) {
+    const parts = strValue.substring(0, 10).split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
   }
 
   const parsed = new Date(value);
@@ -52,6 +47,11 @@ const toDateLabel = (value) => {
 const toIsoDate = (value) => {
   if (!value) {
     return '';
+  }
+
+  const strValue = String(value);
+  if (strValue.length >= 10) {
+    return strValue.substring(0, 10);
   }
 
   const parsed = new Date(value);

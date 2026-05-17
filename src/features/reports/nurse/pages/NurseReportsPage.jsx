@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useClassOptions } from '../../students/hooks/useClassOptions';
+import { useClassOptions } from '../../../students/hooks/useClassOptions';
 import AdminAsyncState from '../../../../shared/components/core/AsyncState';
 import AdminFeedbackToast from '../../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../../shared/components/nurse/NurseModulePageHeader';
@@ -121,14 +121,14 @@ const NurseReportsPage = () => {
         actions={(
           <button
             type="button"
-            onClick={() => handleExportRows('xlsx')}
+            onClick={() => handleExportRows('pdf')}
             disabled={exporting}
             className="app-focus-ring app-btn-primary px-3.5"
           >
-            <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'xlsx' ? 'animate-spin' : ''}`}>
-              {exportingFormat === 'xlsx' ? 'progress_activity' : 'table_view'}
+            <span className={`material-symbols-outlined text-[18px] ${exportingFormat === 'pdf' ? 'animate-spin' : ''}`}>
+              {exportingFormat === 'pdf' ? 'progress_activity' : 'picture_as_pdf'}
             </span>
-            Xuất Excel
+            Xuất PDF
           </button>
         )}
       />

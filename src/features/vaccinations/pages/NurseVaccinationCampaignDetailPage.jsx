@@ -224,7 +224,10 @@ const NurseVaccinationCampaignDetailPage = () => {
     setHistoryOpen(true);
     setHistoryRows([]);
     setHistoryError('');
-    setHistoryStudentLabel(row.student?.fullName || row.student?.studentCode || 'Học sinh');
+    const name = row.student?.fullName || 'Học sinh';
+    const code = row.student?.studentCode ? ` - ${row.student.studentCode}` : '';
+    const className = row.student?.className ? ` - Lớp ${row.student.className}` : '';
+    setHistoryStudentLabel(`${name}${code}${className}`);
 
     if (!studentUserId) {
       setHistoryStatus('error');
@@ -359,10 +362,10 @@ const NurseVaccinationCampaignDetailPage = () => {
                       <button
                         type="button"
                         onClick={() => navigate('/nurse/vaccinations/pending')}
-                        className="app-focus-ring app-row-action"
+                        className="app-focus-ring app-btn-secondary inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold"
                       >
-                        <span className="material-symbols-outlined text-[16px]">pending_actions</span>
-                        Mở trang theo dõi chưa hoàn thành
+                        <span className="material-symbols-outlined text-[18px]">pending_actions</span>
+                        Theo dõi chưa hoàn thành
                       </button>
                     </div>
 
