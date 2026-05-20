@@ -147,6 +147,44 @@
   background: linear-gradient(180deg, var(--app-surface) 0%, color-mix(in srgb, var(--app-surface-soft) 70%, var(--app-surface)) 100%);
 }
 
+.student-chart-loading {
+  display: flex;
+  min-height: 242px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
+.student-chart-loading-line {
+  height: 18px;
+  width: 82%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--app-border) 72%, var(--app-surface)) 0%,
+      color-mix(in srgb, var(--app-primary-soft) 78%, var(--app-surface)) 50%,
+      color-mix(in srgb, var(--app-border) 72%, var(--app-surface)) 100%);
+  background-size: 220% 100%;
+  animation: student-chart-loading-pulse 1.25s ease-in-out infinite;
+}
+
+.student-chart-loading-line-wide {
+  width: 94%;
+}
+
+.student-chart-loading-line-short {
+  width: 66%;
+}
+
+@keyframes student-chart-loading-pulse {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: -220% 50%;
+  }
+}
+
 .student-health-pill {
   border: 1px solid color-mix(in srgb, var(--app-border-strong) 64%, var(--app-border));
   border-radius: 0.8rem;
@@ -163,16 +201,6 @@
   color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
-}
-
-.student-reminder-card {
-  border: 1px solid color-mix(in srgb, var(--app-border-strong) 66%, var(--app-border));
-  border-radius: 1rem;
-  padding: 0.78rem 0.88rem;
-}
-
-.student-reminder-card-main {
-  box-shadow: var(--sys-shadow-card);
 }
 
 .student-activity-item:hover {

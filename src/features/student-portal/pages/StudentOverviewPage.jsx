@@ -1,15 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppLineChart } from '../../../shared/components/charts';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import EmptyState from '../../../shared/components/core/EmptyState';
+import { CHART_AXIS, CHART_COLORS, CHART_GRID, CHART_TOOLTIP } from '../../../shared/components/charts/chartTokens';
 import { StudentErrorState, StudentLoadingState } from '../components/common/StudentAsyncState';
 import { studentPortalService } from '../services/studentPortalService';
 import '../styles/student-portal.css';
-
-const reminderToneClassMap = {
-  amber: 'student-reminder-card app-tone-warning app-tone-surface',
-  mint: 'student-reminder-card app-tone-primary app-tone-surface',
-  sky: 'student-reminder-card app-tone-info app-tone-surface',
-};
 
 const summaryVisuals = [
   {
@@ -48,14 +52,14 @@ const activityIconToneClassMap = {
 
 const growthMetricOptions = {
   height: {
-    key: 'heightCm',
+    key: 'height',
     label: 'Chiều cao',
     unit: 'cm',
     fractionDigits: 0,
     color: 'primary',
   },
   weight: {
-    key: 'weightKg',
+    key: 'weight',
     label: 'Cân nặng',
     unit: 'kg',
     fractionDigits: 1,
@@ -71,6 +75,170 @@ const normalizeMetaText = (value) => {
   return normalized;
 };
 
+const toNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const formatMetricValue = (value, metricOption) => {
+  const numericValue = toNumber(value);
+  if (numericValue === null) {
+    return '--';
+  }
+
+  return `${new Intl.NumberFormat('vi-VN', {
+    minimumFractionDigits: metricOption.fractionDigits,
+    maximumFractionDigits: metricOption.fractionDigits,
+  }).format(numericValue)} ${metricOption.unit}`;
+};
+
+const normalizeClassGrowthComparison = (payload = {}, metricOption = growthMetricOptions.height) => {
+  const rawStudents = Array.isArray(payload.students) ? payload.students : [];
+  const currentStudent = payload.currentStudent || null;
+  const currentStudentId = String(currentStudent?.studentId || '').trim();
+  const currentStudentCode = String(currentStudent?.studentCode || '').trim();
+  const students = rawStudents.map((item) => {
+    const matchesCurrentStudent = currentStudent
+      && (
+        (currentStudentId && String(item?.studentId || '').trim() === currentStudentId)
+        || (currentStudentCode && String(item?.studentCode || '').trim() === currentStudentCode)
+      );
+
+    return matchesCurrentStudent ? { ...item, isCurrentStudent: true } : item;
+  });
+  const hasCurrentStudent = students.some((item) => item?.isCurrentStudent);
+  const chartStudents = hasCurrentStudent || !currentStudent
+    ? students
+    : [...students, { ...currentStudent, isCurrentStudent: true }];
+
+  const points = chartStudents
+    .map((item, index) => {
+      const value = toNumber(item?.value);
+      if (value === null) {
+        return null;
+      }
+
+      const rank = toNumber(item?.rank) ?? index + 1;
+
+      return {
+        id: String(item?.studentId || item?.studentCode || `student-${index + 1}`),
+        studentId: item?.studentId || '',
+        studentCode: item?.studentCode || '',
+        fullName: item?.fullName || 'Học sinh',
+        rank,
+        xValue: rank,
+        value,
+        isCurrentStudent: Boolean(item?.isCurrentStudent),
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.rank - right.rank);
+
+  return {
+    ...payload,
+    unit: payload.unit || metricOption.unit,
+    students: points,
+    summary: payload.summary || {},
+  };
+};
+
+const ClassGrowthTooltip = ({ active, payload, metricOption }) => {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  const point = payload[0]?.payload || {};
+
+  return (
+    <div style={CHART_TOOLTIP.contentStyle}>
+      <p style={CHART_TOOLTIP.labelStyle}>{point.fullName || 'Học sinh'}</p>
+      <div className="space-y-1" style={CHART_TOOLTIP.itemStyle}>
+        <p>Mã học sinh: {point.studentCode || '--'}</p>
+        <p>{metricOption.label}: {formatMetricValue(point.value, metricOption)}</p>
+        <p>Thứ hạng trong lớp: {point.rank || '--'}</p>
+      </div>
+    </div>
+  );
+};
+
+const ClassGrowthDot = ({ cx, cy, payload }) => {
+  if (typeof cx !== 'number' || typeof cy !== 'number') {
+    return null;
+  }
+
+  const isCurrentStudent = Boolean(payload?.isCurrentStudent);
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={isCurrentStudent ? 6 : 3.5}
+      fill={isCurrentStudent ? 'var(--app-danger)' : 'var(--app-primary)'}
+      stroke={isCurrentStudent ? 'var(--app-surface)' : 'transparent'}
+      strokeWidth={isCurrentStudent ? 3 : 0}
+      opacity={isCurrentStudent ? 1 : 0.68}
+    />
+  );
+};
+
+const ClassGrowthComparisonChart = ({ data, metricOption, loading, error }) => {
+  const points = Array.isArray(data?.students) ? data.students : [];
+  const lineColor = CHART_COLORS[metricOption.color] || CHART_COLORS.primary;
+
+  if (loading) {
+    return (
+      <div className="student-chart-loading" aria-label="Đang tải dữ liệu so sánh trong lớp">
+        <div className="student-chart-loading-line student-chart-loading-line-wide" />
+        <div className="student-chart-loading-line" />
+        <div className="student-chart-loading-line student-chart-loading-line-short" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <EmptyState title="Không thể tải dữ liệu lớp" description={error} />;
+  }
+
+  if (!points.length) {
+    return <EmptyState title="Chưa có dữ liệu lớp." description="Biểu đồ sẽ hiển thị khi lớp có dữ liệu chiều cao/cân nặng." />;
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={242}>
+      <LineChart data={points} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray={CHART_GRID.strokeDasharray} stroke={CHART_GRID.stroke} vertical={false} />
+        <XAxis
+          dataKey="xValue"
+          tick={{ fill: CHART_AXIS.tick, fontSize: CHART_AXIS.fontSize, fontWeight: 600 }}
+          axisLine={{ stroke: CHART_AXIS.stroke }}
+          tickLine={false}
+          tickFormatter={(value) => `#${value}`}
+        />
+        <YAxis
+          tick={{ fill: CHART_AXIS.tick, fontSize: CHART_AXIS.fontSize, fontWeight: 600 }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(value) => formatMetricValue(value, metricOption).replace(` ${metricOption.unit}`, '')}
+          width={34}
+        />
+        <Tooltip
+          content={<ClassGrowthTooltip metricOption={metricOption} />}
+          cursor={{ stroke: lineColor, strokeWidth: 1, strokeDasharray: '4 2' }}
+        />
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke={lineColor}
+          strokeWidth={2.5}
+          dot={<ClassGrowthDot />}
+          activeDot={<ClassGrowthDot />}
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
+
 const resolveActivityTagClass = (tone) =>
   activityTagToneClassMap[tone] || activityTagToneClassMap.mint;
 
@@ -81,6 +249,9 @@ const StudentOverviewPage = () => {
   const navigate = useNavigate();
   const [overviewData, setOverviewData] = useState(null);
   const [growthMetric, setGrowthMetric] = useState('height');
+  const [classGrowthComparison, setClassGrowthComparison] = useState(null);
+  const [classGrowthLoading, setClassGrowthLoading] = useState(false);
+  const [classGrowthError, setClassGrowthError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -101,17 +272,41 @@ const StudentOverviewPage = () => {
     loadOverview();
   }, [loadOverview]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    const loadClassGrowthComparison = async () => {
+      const metricOption = growthMetricOptions[growthMetric] || growthMetricOptions.height;
+      setClassGrowthLoading(true);
+      setClassGrowthError('');
+
+      try {
+        const response = await studentPortalService.getClassGrowthComparison(growthMetric);
+        if (isActive) {
+          setClassGrowthComparison(normalizeClassGrowthComparison(response?.data, metricOption));
+        }
+      } catch (apiError) {
+        if (isActive) {
+          setClassGrowthComparison(null);
+          setClassGrowthError(apiError?.message || 'Không thể tải dữ liệu so sánh trong lớp lúc này.');
+        }
+      } finally {
+        if (isActive) {
+          setClassGrowthLoading(false);
+        }
+      }
+    };
+
+    loadClassGrowthComparison();
+
+    return () => {
+      isActive = false;
+    };
+  }, [growthMetric]);
+
   const hero = overviewData?.hero || null;
   const activeGrowthMetric = growthMetricOptions[growthMetric] || growthMetricOptions.height;
-
-  const growthPoints = Array.isArray(overviewData?.growthChart?.points)
-    ? overviewData.growthChart.points
-      .map((item) => ({
-        ...item,
-        [activeGrowthMetric.key]: Number(item?.[activeGrowthMetric.key]) || null,
-      }))
-      .filter((item) => item[activeGrowthMetric.key] !== null)
-    : [];
+  const classGrowthSummary = classGrowthComparison?.summary || {};
 
   if (loading && !overviewData) {
     return <StudentLoadingState label="Đang tải thông tin tổng quan..." />;
@@ -227,13 +422,13 @@ const StudentOverviewPage = () => {
         })}
       </section>
 
-      <section className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)] lg:gap-3.5">
+      <section className="grid grid-cols-1 gap-3 lg:gap-3.5">
         <article className="app-panel-shell student-growth-card rounded-3xl p-4 md:p-5">
           <header className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="app-section-title">Biểu đồ tăng trưởng</h2>
+              <h2 className="app-section-title">So sánh trong lớp</h2>
               <p className="app-body-text mt-1">
-                {overviewData.growthChart?.subtitle || 'Theo dõi chiều cao và cân nặng theo từng tháng.'}
+                Dữ liệu thể hiện vị trí của học sinh hiện tại so với các bạn cùng lớp.
               </p>
             </div>
 
@@ -252,70 +447,34 @@ const StudentOverviewPage = () => {
           </header>
 
           <div className="student-chart-shell mt-3 p-3 sm:p-4">
-            <AppLineChart
-              data={growthPoints}
-              xKey="label"
-              yKey={activeGrowthMetric.key}
-              color={activeGrowthMetric.color}
-              height={242}
-              yTickFormatter={(v) =>
-                new Intl.NumberFormat('vi-VN', {
-                  minimumFractionDigits: activeGrowthMetric.fractionDigits,
-                  maximumFractionDigits: activeGrowthMetric.fractionDigits,
-                }).format(v)
-              }
-              tooltipFormatter={(value) => [
-                `${new Intl.NumberFormat('vi-VN', {
-                  minimumFractionDigits: activeGrowthMetric.fractionDigits,
-                  maximumFractionDigits: activeGrowthMetric.fractionDigits,
-                }).format(value)} ${activeGrowthMetric.unit}`,
-                activeGrowthMetric.label,
-              ]}
-              emptyTitle="Chưa có dữ liệu tăng trưởng"
-              emptyDescription="Biểu đồ sẽ hiển thị khi có dữ liệu chiều cao/cân nặng."
+            <ClassGrowthComparisonChart
+              data={classGrowthComparison}
+              metricOption={activeGrowthMetric}
+              loading={classGrowthLoading}
+              error={classGrowthError}
             />
           </div>
 
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {overviewData.healthHighlights.slice(0, 3).map((item) => (
-              <div key={item.id} className="student-health-pill">
-                <p className="student-health-pill-label">{item.label}</p>
-                <p className="mt-1 student-health-pill-value">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="app-panel-shell rounded-3xl p-4 md:p-5">
-          <header className="mb-3.5 flex items-start justify-between gap-3">
-            <div>
-              <h2 className="app-section-title">Nhắc nhở và lưu ý</h2>
-              <p className="app-body-text mt-1">Những việc cần ưu tiên để theo dõi chăm sóc liên tục.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="student-health-pill">
+              <p className="student-health-pill-label">Trung bình lớp</p>
+              <p className="mt-1 student-health-pill-value">{formatMetricValue(classGrowthSummary.average, activeGrowthMetric)}</p>
             </div>
-            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
-              <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-            </span>
-          </header>
-
-          <div className="space-y-3">
-            {overviewData.reminders.slice(0, 3).map((item, index) => {
-              const reminderClassName = `${reminderToneClassMap[item.tone] || reminderToneClassMap.mint} ${index === 0 ? 'student-reminder-card-main' : ''
-                }`.trim();
-              return (
-                <article key={item.id} className={reminderClassName}>
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[14px] font-semibold text-on-surface">{item.title}</p>
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-primary">
-                      <span className="material-symbols-outlined text-[15px]">{item.icon || 'event_upcoming'}</span>
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-on-surface-variant">{item.dateLabel}</p>
-                  <p className="mt-1.5 text-sm text-on-surface-variant">{item.note}</p>
-                </article>
-              );
-            })}
+            <div className="student-health-pill">
+              <p className="student-health-pill-label">Thấp nhất</p>
+              <p className="mt-1 student-health-pill-value">{formatMetricValue(classGrowthSummary.min, activeGrowthMetric)}</p>
+            </div>
+            <div className="student-health-pill">
+              <p className="student-health-pill-label">Cao nhất</p>
+              <p className="mt-1 student-health-pill-value">{formatMetricValue(classGrowthSummary.max, activeGrowthMetric)}</p>
+            </div>
+            <div className="student-health-pill">
+              <p className="student-health-pill-label">Tổng học sinh</p>
+              <p className="mt-1 student-health-pill-value">{classGrowthSummary.totalStudents ?? classGrowthComparison?.students?.length ?? '--'}</p>
+            </div>
           </div>
         </article>
+
       </section>
 
       <section className="app-panel-shell overflow-hidden rounded-3xl">

@@ -233,30 +233,49 @@ export const useMessages = ({
     }
   }, [conversationId, items, markConversationRead]);
 
-  const sendMessage = useCallback(async (content) => {
+  const sendMessage = useCallback(async (content, files = []) => {
     if (!conversationId) {
+      return false;
+    }
+
+    const safeFiles = Array.isArray(files) ? files : [];
+    const messageContent = String(content || '').trim();
+    if (!messageContent && !safeFiles.length) {
       return false;
     }
 
     const optimistic = buildOptimisticMessage({
       conversationId,
-      content,
+      content: messageContent,
       currentUser,
+      files: safeFiles,
     });
+    const hasFiles = safeFiles.length > 0;
 
     setItems((prev) => [...prev, optimistic]);
     setStatus('success');
     onMessageAdded?.(optimistic);
 
-    if (!realtimeEnabled || !chatClient) {
+    if (hasFiles || !realtimeEnabled || !chatClient) {
       try {
+        const payload = hasFiles
+          ? (() => {
+              const formData = new FormData();
+              formData.append('content', messageContent);
+              formData.append('messageType', 'TEXT');
+              formData.append('clientMessageId', optimistic.clientMessageId);
+              safeFiles.forEach((file) => formData.append('files', file));
+              return formData;
+            })()
+          : {
+              content: messageContent,
+              messageType: 'TEXT',
+              clientMessageId: optimistic.clientMessageId,
+            };
+
         const serverMessage = await messagingRepository.sendMessage(
           conversationId,
-          {
-            content,
-            messageType: 'TEXT',
-            clientMessageId: optimistic.clientMessageId,
-          },
+          payload,
           { currentUser }
         );
 
@@ -275,7 +294,7 @@ export const useMessages = ({
     try {
       await chatClient.sendMessage({
         conversationId,
-        content,
+        content: messageContent,
         messageType: 'TEXT',
         clientMessageId: optimistic.clientMessageId,
       });

@@ -215,6 +215,80 @@
 .messaging-bubble-content {
   font-size: 0.85rem;
   color: var(--app-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.messaging-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.messaging-attachment-image-link {
+  display: block;
+  max-width: min(360px, 100%);
+}
+
+.messaging-attachment-image {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--app-border) 80%, transparent);
+}
+
+.messaging-attachment-file {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: min(280px, 100%);
+  max-width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface-soft) 70%, transparent);
+}
+
+.messaging-attachment-file-icon {
+  flex: 0 0 auto;
+  font-size: 1.35rem;
+  color: var(--app-text-muted);
+}
+
+.messaging-attachment-file-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.messaging-attachment-file-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messaging-attachment-file-size {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+}
+
+.messaging-attachment-file-action {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  border-radius: 0.55rem;
+  color: var(--app-primary);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
 }
 
 .messaging-bubble-status {
@@ -233,10 +307,83 @@
   color: var(--sys-on-primary);
 }
 
+.messaging-bubble.is-mine .messaging-attachment-file {
+  border-color: color-mix(in srgb, var(--sys-on-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--sys-on-primary) 12%, transparent);
+}
+
+.messaging-bubble.is-mine .messaging-attachment-file-icon,
+.messaging-bubble.is-mine .messaging-attachment-file-name,
+.messaging-bubble.is-mine .messaging-attachment-file-size {
+  color: var(--sys-on-primary);
+}
+
+.messaging-bubble.is-mine .messaging-attachment-file-action {
+  color: var(--sys-on-primary);
+  border-color: color-mix(in srgb, var(--sys-on-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--sys-on-primary) 14%, transparent);
+}
+
 .messaging-composer {
   border-top: 1px solid var(--app-border);
   padding: 0.75rem 1.25rem;
   background: var(--app-surface);
+}
+
+.messaging-composer-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.messaging-composer-file {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: min(320px, 100%);
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+}
+
+.messaging-composer-file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.messaging-composer-file-size {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+}
+
+.messaging-composer-file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 0.45rem;
+  color: var(--app-text-muted);
+  transition: var(--sys-transition-interactive);
+}
+
+.messaging-composer-file-remove:hover {
+  background: var(--app-surface);
+  color: var(--app-text);
+}
+
+.messaging-composer-error {
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--app-danger, #dc2626);
 }
 
 .messaging-composer-form {
@@ -248,6 +395,16 @@
   border: 1px solid var(--app-border);
   background: var(--app-surface);
   box-shadow: 0 6px 14px color-mix(in srgb, var(--app-text) 10%, transparent);
+}
+
+.messaging-composer-file-input {
+  display: none;
+}
+
+.messaging-composer-attach {
+  width: 42px;
+  min-width: 42px;
+  padding-inline: 0;
 }
 
 textarea.messaging-composer-input {

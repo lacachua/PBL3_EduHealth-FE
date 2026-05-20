@@ -56,6 +56,23 @@ const resolveCurrentUserId = (currentUser) => toNullableInteger(
   currentUser?.userId ?? currentUser?.id ?? currentUser?.sub,
 ) || 0;
 
+const createClientMessageId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `temp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const normalizeAttachment = (item = {}) => ({
+  attachmentId: toInteger(item.attachmentId ?? item.id, 0),
+  fileName: toText(item.fileName ?? item.name),
+  originalFileName: toText(item.originalFileName ?? item.fileName ?? item.name, 'Tệp đính kèm'),
+  fileUrl: item.fileUrl ?? item.url ?? '',
+  contentType: toText(item.contentType ?? item.type),
+  sizeBytes: toInteger(item.sizeBytes ?? item.size, 0),
+});
+
 export const normalizeMessage = (item = {}, options = {}) => {
   const currentUserId = resolveCurrentUserId(options.currentUser || getStoredUser());
   const senderId = toInteger(item.senderId ?? item.senderUserId ?? item.userId, 0);
@@ -76,7 +93,7 @@ export const normalizeMessage = (item = {}, options = {}) => {
     deletedAt: item.deletedAt ?? null,
     isDeleted: toBoolean(item.isDeleted, false),
     isMine,
-    attachments: Array.isArray(item.attachments) ? item.attachments : [],
+    attachments: Array.isArray(item.attachments) ? item.attachments.map(normalizeAttachment) : [],
     readBy: Array.isArray(item.readBy) ? item.readBy : [],
     status: toText(item.status, ''),
   };
@@ -179,9 +196,9 @@ export const adaptContactsResponse = (payload = {}, fallback = {}) => {
   };
 };
 
-export const buildOptimisticMessage = ({ conversationId, content, currentUser }) => {
+export const buildOptimisticMessage = ({ conversationId, content, currentUser, files = [] }) => {
   const now = new Date().toISOString();
-  const clientMessageId = `temp-${Date.now()}`;
+  const clientMessageId = createClientMessageId();
 
   return normalizeMessage(
     {
@@ -196,6 +213,14 @@ export const buildOptimisticMessage = ({ conversationId, content, currentUser })
       sentAt: now,
       isMine: true,
       status: 'sending',
+      attachments: files.map((file, index) => ({
+        attachmentId: -(index + 1),
+        fileName: file.name,
+        originalFileName: file.name,
+        fileUrl: '',
+        contentType: file.type,
+        sizeBytes: file.size,
+      })),
     },
     { currentUser }
   );

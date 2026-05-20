@@ -20,6 +20,10 @@ export const studentPortalService = {
     };
   },
 
+  async getClassGrowthComparison(metric) {
+    return studentPortalRepository.getClassGrowthComparison(metric);
+  },
+
   async getCareHistoryViewModel() {
     const response = await studentPortalRepository.getCareHistory();
 

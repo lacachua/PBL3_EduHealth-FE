@@ -10,7 +10,13 @@ export const messagingApi = {
   createConversation: (payload) => apiPostEnvelope(MESSAGING_ENDPOINTS.conversations, payload),
   getConversationDetail: (conversationId) => apiGetEnvelope(MESSAGING_ENDPOINTS.conversationDetail(conversationId)),
   getMessages: (conversationId, params = {}) => apiGetEnvelope(MESSAGING_ENDPOINTS.conversationMessages(conversationId), { params }),
-  sendMessage: (conversationId, payload) => apiPostEnvelope(MESSAGING_ENDPOINTS.conversationMessages(conversationId), payload),
+  sendMessage: (conversationId, payload) => {
+    const options = typeof FormData !== 'undefined' && payload instanceof FormData
+      ? { headers: { 'Content-Type': 'multipart/form-data' } }
+      : {};
+
+    return apiPostEnvelope(MESSAGING_ENDPOINTS.conversationMessages(conversationId), payload, options);
+  },
   markConversationRead: (conversationId, payload) => apiPatchEnvelope(MESSAGING_ENDPOINTS.conversationRead(conversationId), payload),
   getStudentContacts: (params = {}) => apiGetEnvelope(MESSAGING_ENDPOINTS.contactsStudents, { params }),
   getNurseContacts: (params = {}) => apiGetEnvelope(MESSAGING_ENDPOINTS.contactsNurses, { params }),

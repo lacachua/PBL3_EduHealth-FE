@@ -106,6 +106,12 @@ const getHealthHistoryLive = async (studentUserId, query = DEFAULT_HISTORY_QUERY
   });
 };
 
+const getClassGrowthComparisonLive = async (studentUserId, metric) => {
+  return apiGetEnvelope(STUDENT_PORTAL_READ_APIS.classGrowthComparison(studentUserId), {
+    params: { metric },
+  });
+};
+
 const getVaccinationsLive = async (studentUserId) => {
   return apiGetEnvelope(STUDENT_PORTAL_READ_APIS.vaccinations(studentUserId));
 };
@@ -526,6 +532,43 @@ const createLiveEnvelope = (data, message) => ({
   meta: { source: 'live' },
 });
 
+const normalizeGrowthMetric = (metric) => (metric === 'weight' ? 'weight' : 'height');
+
+const buildMockClassGrowthComparison = (metric = 'height') => {
+  const normalizedMetric = normalizeGrowthMetric(metric);
+  const unit = normalizedMetric === 'weight' ? 'kg' : 'cm';
+  const values = normalizedMetric === 'weight'
+    ? [28.2, 29.4, 30.1, 31.5, 32.8, 33.4, 35.0, 36.2]
+    : [128, 131, 133, 136, 138, 140, 142, 145];
+  const currentIndex = 5;
+  const students = values.map((value, index) => ({
+    studentId: `STD${String(index + 1).padStart(3, '0')}`,
+    studentCode: `HS${String(index + 1).padStart(3, '0')}`,
+    fullName: index === currentIndex ? 'Tran Minh An' : `Hoc sinh ${index + 1}`,
+    value,
+    rank: index + 1,
+    isCurrentStudent: index === currentIndex,
+  }));
+  const currentStudent = students[currentIndex];
+
+  return {
+    classId: 'CLS001',
+    className: 'Lop 4A',
+    metric: normalizedMetric,
+    unit,
+    currentStudent,
+    students,
+    summary: {
+      totalStudents: students.length,
+      min: Math.min(...values),
+      max: Math.max(...values),
+      average: values.reduce((sum, value) => sum + value, 0) / values.length,
+      currentValue: currentStudent.value,
+      percentile: 75,
+    },
+  };
+};
+
 export const studentPortalRepository = {
   async getIdentity() {
     if (isStudentPortalMockSource()) {
@@ -614,6 +657,23 @@ export const studentPortalRepository = {
       reminders: buildOverviewReminders({ vaccinationRecords, healthProfile }),
       recentActivities: buildOverviewRecentActivities({ historyItems, vaccinationRecords }),
     }, 'Lấy dữ liệu tổng quan thành công.');
+  },
+
+  async getClassGrowthComparison(metric = 'height') {
+    const normalizedMetric = normalizeGrowthMetric(metric);
+
+    if (isStudentPortalMockSource()) {
+      return {
+        success: true,
+        message: 'Lay du lieu so sanh trong lop thanh cong (mock).',
+        data: buildMockClassGrowthComparison(normalizedMetric),
+        errors: null,
+        meta: { source: 'mock' },
+      };
+    }
+
+    const { studentUserId } = await requireStudentContext();
+    return getClassGrowthComparisonLive(studentUserId, normalizedMetric);
   },
 
   async getCareHistory() {
