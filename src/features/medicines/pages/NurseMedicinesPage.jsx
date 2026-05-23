@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { DATA_MODULES } from '../../../app/config/dataMode';
-import { useClassOptions } from '../../students/hooks/useClassOptions';
 import AdminManagementListSection from '../../../shared/components/admin/AdminManagementListSection';
 import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import NurseModulePageHeader from '../../../shared/components/nurse/NurseModulePageHeader';
@@ -84,7 +83,6 @@ const NurseMedicinesPage = () => {
 
   const [alerts, setAlerts] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
-  const [alertsError, setAlertsError] = useState('');
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedMedicineId, setSelectedMedicineId] = useState('');
@@ -109,8 +107,6 @@ const NurseMedicinesPage = () => {
   const [actionError, setActionError] = useState('');
 
   const [feedback, setFeedback] = useState(null);
-
-  const { classes: globalClasses } = useClassOptions();
 
   const resolveApiError = useCallback((error) => {
     const parsed = parseNurseMedicineApiError(error);
@@ -153,15 +149,22 @@ const NurseMedicinesPage = () => {
 
   const fetchAlerts = useCallback(async () => {
     setAlertsLoading(true);
-    setAlertsError('');
 
     try {
-      const response = await getMedicineAlerts({ type: 'ALL' }, NURSE_MEDICINES_OPTIONS);
-      setAlerts(mapMedicineAlertsEnvelope(response));
+      const [lowStockResponse, expiringResponse] = await Promise.all([
+        getMedicineAlerts({ type: 'LOW_STOCK' }, NURSE_MEDICINES_OPTIONS),
+        getMedicineAlerts({ type: 'EXPIRING' }, NURSE_MEDICINES_OPTIONS),
+      ]);
+
+      const lowStockAlerts = mapMedicineAlertsEnvelope(lowStockResponse)
+        .map((item) => ({ ...item, alertType: 'LOW_STOCK' }));
+      const expiringAlerts = mapMedicineAlertsEnvelope(expiringResponse)
+        .map((item) => ({ ...item, alertType: 'EXPIRING' }));
+
+      setAlerts([...lowStockAlerts, ...expiringAlerts]);
     } catch (error) {
-      const message = resolveApiError(error);
+      resolveApiError(error);
       setAlerts([]);
-      setAlertsError(message);
     } finally {
       setAlertsLoading(false);
     }
