@@ -7,7 +7,7 @@ export const studentNavigationItems = [
   },
   {
     id: 'student-care-history',
-    label: 'Lịch sử chăm sóc',
+    label: 'Lịch sử khám bệnh',
     icon: 'history_edu',
     to: '/student/care-history',
   },
