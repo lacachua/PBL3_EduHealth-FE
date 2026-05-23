@@ -48,11 +48,11 @@ const PublicNewsCard = ({ item, onClick }) => {
           ) : null}
         </div>
         
-        <h3 className="mb-3 line-clamp-2 font-headline text-[1.125rem] font-bold leading-tight text-on-surface transition-colors group-hover:text-primary">
+        <h3 className="app-clamp-2 mb-3 font-headline text-[1.125rem] font-bold leading-tight text-on-surface transition-colors group-hover:text-primary">
           {item.title}
         </h3>
         
-        <p className="line-clamp-3 mb-4 flex-1 text-[13.5px] leading-relaxed text-on-surface-variant/90">
+        <p className="app-clamp-3 mb-4 flex-1 text-[13.5px] leading-relaxed text-on-surface-variant/90">
           {item.summary || item.content}
         </p>
         

@@ -47,8 +47,8 @@ const NotificationPreviewSummary = ({
               </span>
             )}
           </div>
-          <h4 className="line-clamp-2 font-semibold text-on-surface">{title}</h4>
-          <p className="line-clamp-3 text-sm leading-6 text-on-surface-variant">{content}</p>
+          <h4 className="app-clamp-2 font-semibold text-on-surface">{title}</h4>
+          <p className="app-clamp-3 text-sm leading-6 text-on-surface-variant">{content}</p>
         </div>
       </div>
 

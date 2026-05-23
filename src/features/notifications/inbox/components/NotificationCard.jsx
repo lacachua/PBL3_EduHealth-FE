@@ -71,7 +71,7 @@ const NotificationCard = ({
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2">
                 <span className={`sm:hidden h-2.5 w-2.5 shrink-0 rounded-full ${isRead ? 'bg-outline-variant' : 'bg-primary'}`} />
-                <span className="line-clamp-2 sm:line-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>
+                <span className="app-clamp-2 text-sm font-semibold text-on-surface">{item.title}</span>
               </span>
               <span className="mt-1 block text-xs text-on-surface-variant">
                 {item.createdByName} · {getRoleLabel(item.createdByRole)} · {formatRelativeTime(item.createdAt)}
@@ -84,7 +84,7 @@ const NotificationCard = ({
             </span>
           </span>
 
-          <span className="mt-2 line-clamp-2 block text-sm leading-6 text-on-surface-variant">{item.content}</span>
+          <span className="app-clamp-2 mt-2 text-sm leading-6 text-on-surface-variant">{item.content}</span>
 
           {contextChips.length > 0 ? (
             <span className="mt-2 flex flex-wrap items-center gap-1.5">

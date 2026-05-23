@@ -73,7 +73,7 @@ const SentNotificationCard = ({
         <span className="min-w-0 flex-1 w-full">
           <span className="flex flex-wrap items-start justify-between gap-2">
             <span className="min-w-0 flex-1">
-              <span className="line-clamp-2 sm:line-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>
+              <span className="app-clamp-2 text-sm font-semibold text-on-surface">{item.title}</span>
               <span className="mt-1 block text-xs text-on-surface-variant">
                 Đã gửi · {formatRelativeTime(item.createdAt)}
               </span>
@@ -88,7 +88,7 @@ const SentNotificationCard = ({
             </span>
           </span>
 
-          <span className="mt-2 line-clamp-2 block text-sm leading-6 text-on-surface-variant">{item.content}</span>
+          <span className="app-clamp-2 mt-2 text-sm leading-6 text-on-surface-variant">{item.content}</span>
 
           <span className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <span className="flex flex-wrap items-center gap-1.5">
