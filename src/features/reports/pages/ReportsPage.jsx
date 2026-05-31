@@ -26,8 +26,6 @@ const createInitialFilters = () => ({
 });
 
 const ReportsPage = () => {
-  const disableDirectiveWrites = !ADMIN_REPORT_CAPABILITIES.supportsDirectiveWrite;
-  const disableNotificationWrites = !ADMIN_REPORT_CAPABILITIES.supportsNotificationSend;
   const disableServerExport = !ADMIN_REPORT_CAPABILITIES.supportsServerExport;
 
   const {
@@ -36,11 +34,9 @@ const ReportsPage = () => {
     status,
     error,
     exporting,
-    savingDirective,
     applyFilters,
     resetFilters,
     exportReports,
-    saveDirective,
     fetchClassDetail,
     fetchDashboard,
   } = useAdminReportsDashboard(createInitialFilters());
@@ -48,7 +44,6 @@ const ReportsPage = () => {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedClassDetail, setSelectedClassDetail] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [directiveNotes, setDirectiveNotes] = useState({});
 
   const handleRefreshData = () => {
     fetchDashboard(filters);
@@ -65,18 +60,6 @@ const ReportsPage = () => {
     } catch {
       setSelectedClassDetail(null);
     }
-  };
-
-  const handleDirectiveChange = (nextValue) => {
-    setDirectiveNotes((previous) => ({
-      ...previous,
-      [selectedClassId]: nextValue,
-    }));
-  };
-
-  const handleSaveDirective = async () => {
-    const note = directiveNotes[selectedClassId] || '';
-    await saveDirective({ classId: selectedClassId, note });
   };
 
   const safeHeader = useMemo(() => ({
@@ -156,19 +139,10 @@ const ReportsPage = () => {
       <AdminReportDetailDrawer
         isOpen={isDrawerOpen}
         detail={selectedClassDetail}
-        directiveNote={directiveNotes[selectedClassId] || ''}
-        onDirectiveChange={handleDirectiveChange}
         onClose={() => {
           setIsDrawerOpen(false);
           setSelectedClassDetail(null);
         }}
-        onSaveDirective={handleSaveDirective}
-        onSendNotification={() => Promise.resolve()}
-        saving={savingDirective}
-        writeActionsDisabled={disableDirectiveWrites}
-        notificationActionsDisabled={disableNotificationWrites}
-        directiveDisabledMessage="Backend chưa hỗ trợ endpoint lưu ghi chú nội bộ từ báo cáo quản trị."
-        notificationDisabledMessage="Chưa nối API gửi thông báo trực tiếp từ màn báo cáo quản trị."
       />
     </div>
   );

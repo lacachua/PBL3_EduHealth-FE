@@ -47,7 +47,6 @@ export const useAdminReportsDashboard = (initialFilters) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [exporting, setExporting] = useState(false);
-  const [savingDirective, setSavingDirective] = useState(false);
 
   const fetchDashboard = useCallback(async (nextFilters = filters) => {
     setLoading(true);
@@ -100,15 +99,6 @@ export const useAdminReportsDashboard = (initialFilters) => {
     }
   };
 
-  const saveDirective = async ({ classId, note }) => {
-    setSavingDirective(true);
-    try {
-      return await adminReportsRepository.saveDirective({ classId, note, filters });
-    } finally {
-      setSavingDirective(false);
-    }
-  };
-
   const fetchClassDetail = async (classId) => {
     const response = await adminReportsRepository.getClassDetail({ classId, filters });
     const envelope = normalizeApiEnvelope(response);
@@ -129,12 +119,10 @@ export const useAdminReportsDashboard = (initialFilters) => {
     error,
     status,
     exporting,
-    savingDirective,
     applyFilters,
     resetFilters,
     fetchDashboard,
     exportReports,
-    saveDirective,
     fetchClassDetail,
   };
 };

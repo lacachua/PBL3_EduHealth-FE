@@ -1,4 +1,4 @@
-import { apiGetEnvelope, apiPostEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
+import { apiGetEnvelope, apiRequestRaw } from '../../../shared/api/apiClient';
 
 export const getAdminReportsDashboardApi = async (params = {}) => (
   apiGetEnvelope('/api/v1/reports/admin/dashboard', { params })
@@ -17,6 +17,3 @@ export const exportAdminReportsApi = async (params = {}) => (
   })
 );
 
-export const saveAdminClassDirectiveApi = async (payload) => (
-  apiPostEnvelope('/api/v1/reports/admin/directives', payload)
-);

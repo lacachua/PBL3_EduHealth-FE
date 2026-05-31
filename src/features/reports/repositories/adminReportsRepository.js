@@ -2,7 +2,6 @@ import {
   exportAdminReportsApi,
   getAdminClassDetailApi,
   getAdminReportsDashboardApi,
-  saveAdminClassDirectiveApi,
 } from '../services/adminReportsApi';
 
 const extractFilenameFromContentDisposition = (contentDisposition) => {
@@ -63,11 +62,4 @@ export const adminReportsRepository = {
     };
   },
 
-  saveDirective: async ({ classId, note }) => {
-    return saveAdminClassDirectiveApi({
-      classId: toNullableInt(classId),
-      title: 'Chỉ đạo từ báo cáo',
-      content: note,
-    });
-  },
 };
