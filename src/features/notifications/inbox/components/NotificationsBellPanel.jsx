@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 const formatRelativeTime = (value) => {
@@ -124,10 +124,10 @@ const NotificationsBellPanel = ({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-3">
-                      <span className="line-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>
+                      <span className="app-clamp-1 text-sm font-semibold text-on-surface">{item.title}</span>
                       <span className="shrink-0 text-[11px] text-on-surface-variant">{formatRelativeTime(item.createdAt)}</span>
                     </span>
-                    <span className="mt-1 line-clamp-2 block text-sm text-on-surface-variant">{item.content}</span>
+                    <span className="app-clamp-2 mt-1 text-sm text-on-surface-variant">{item.content}</span>
                   </span>
                 </button>
               ))}

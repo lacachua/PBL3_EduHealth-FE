@@ -99,6 +99,33 @@
     color: var(--app-text-muted);
   }
 
+  .app-clamp-1,
+  .app-clamp-2,
+  .app-clamp-3 {
+    overflow: hidden;
+  }
+
+  .app-clamp-1 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .app-clamp-2,
+  .app-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
+  .app-clamp-2 {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .app-clamp-3 {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
   .app-overline {
     font-size: var(--type-overline-size);
     font-weight: 700;

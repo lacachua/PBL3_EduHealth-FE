@@ -710,7 +710,7 @@ export const studentPortalRepository = {
     return createLiveEnvelope({
       student,
       records: buildLiveCareHistoryRecords(toArrayData(historyEnvelope)),
-    }, 'Lấy lịch sử chăm sóc thành công.');
+    }, 'Lấy lịch sử khám bệnh thành công.');
   },
 
   async getVaccinations() {

@@ -85,7 +85,7 @@ const StudentCareHistoryPage = () => {
         return nextData.timelineItems?.some((item) => item.id === prev) ? prev : '';
       });
     } catch (apiError) {
-      setError(apiError?.message || 'Không thể tải lịch sử chăm sóc lúc này.');
+      setError(apiError?.message || 'Không thể tải lịch sử khám bệnh lúc này.');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ const StudentCareHistoryPage = () => {
   }, [activeRecordId, isDrawerOpen]);
 
   if (loading && !careData) {
-    return <StudentLoadingState label="Đang tải lịch sử chăm sóc..." />;
+    return <StudentLoadingState label="Đang tải lịch sử khám bệnh..." />;
   }
 
   if (error && !careData) {
@@ -175,8 +175,8 @@ const StudentCareHistoryPage = () => {
       <section className="app-panel-shell rounded-3xl px-4 py-4 sm:px-5">
         <header className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-on-surface">Lịch sử chăm sóc</h1>
-            <p className="text-sm text-on-surface-variant">Theo dõi nhanh các lần chăm sóc gần đây tại trường.</p>
+            <h1 className="text-lg font-semibold text-on-surface">Lịch sử khám bệnh</h1>
+            <p className="text-sm text-on-surface-variant">Theo dõi nhanh các lần khám bệnh gần đây tại trường.</p>
           </div>
 
           <p className="text-xs font-medium text-on-surface-variant">
@@ -187,7 +187,7 @@ const StudentCareHistoryPage = () => {
         <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           <article className={`rounded-2xl border px-3.5 py-3 ${summaryVisuals[0].cardClassName}`}>
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-muted">Tổng số lần chăm sóc</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-muted">Tổng số lần khám bệnh</p>
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/14 text-primary">
                 <span className="material-symbols-outlined text-[16px]">{summaryVisuals[0].icon}</span>
               </span>
@@ -219,7 +219,7 @@ const StudentCareHistoryPage = () => {
 
       <section className="app-panel-shell rounded-3xl p-4 md:p-5">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-on-surface">Danh sách lần chăm sóc</h2>
+          <h2 className="text-base font-semibold text-on-surface">Danh sách lần khám bệnh</h2>
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary-soft/75 px-2.5 py-1 text-[11px] font-semibold text-primary">
             <span className="material-symbols-outlined text-[14px]">timeline</span>
             <span>Nhấn để xem chi tiết</span>
@@ -282,7 +282,7 @@ const StudentCareHistoryPage = () => {
 
           {!careData.timelineItems.length ? (
             <div className="rounded-2xl border border-dashed border-outline-variant bg-surface px-4 py-8 text-center text-sm text-on-surface-variant">
-              Chưa có bản ghi chăm sóc.
+              Chưa có bản ghi khám bệnh.
             </div>
           ) : null}
         </div>
@@ -301,7 +301,7 @@ const StudentCareHistoryPage = () => {
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Chi tiết lần chăm sóc"
+            aria-label="Chi tiết lần khám bệnh"
             className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${
               isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
             }`}
@@ -318,7 +318,7 @@ const StudentCareHistoryPage = () => {
                 </button>
 
                 <div className="pr-10">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-variant">Phiếu chăm sóc</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-variant">Phiếu khám bệnh</p>
                   <h3 className="mt-1 text-base font-semibold text-on-surface">{activeRecord.title}</h3>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     <span className="rounded-full border border-outline-variant bg-surface/80 px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
@@ -349,7 +349,7 @@ const StudentCareHistoryPage = () => {
                 </section>
 
                 <section className="rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-muted">Loại theo dõi/chăm sóc</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-on-surface-muted">Loại theo dõi/khám bệnh</p>
                   <p className="mt-1 text-sm text-on-surface">{toReadableText(activeRecord.detailType || activeRecord.typeLabel, 'Theo dõi tại trường.')}</p>
                 </section>
 
