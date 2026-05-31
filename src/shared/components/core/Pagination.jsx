@@ -23,9 +23,24 @@
   return tokens;
 };
 
+const toSafeNumber = (value, fallback) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false }) => {
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  const pageTokens = buildPageTokens(page, totalPages);
+  const safePageSize = Math.max(1, toSafeNumber(pageSize, 1));
+  const safeTotalItems = Math.max(0, toSafeNumber(totalItems, 0));
+  const totalPages = Math.max(1, Math.ceil(safeTotalItems / safePageSize));
+  const currentPage = Math.min(Math.max(1, toSafeNumber(page, 1)), totalPages);
+  const pageTokens = buildPageTokens(currentPage, totalPages);
+
+  const emitPageChange = (nextPage) => {
+    if (typeof onPageChange !== 'function') return;
+    const targetPage = Math.min(Math.max(1, nextPage), totalPages);
+    if (targetPage === currentPage) return;
+    onPageChange(targetPage);
+  };
 
   const rootClassName = compact
     ? 'flex flex-col items-center justify-between gap-2 text-xs text-on-surface-variant sm:flex-row'
@@ -42,14 +57,14 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
   return (
     <div className={rootClassName}>
       <span>
-        Trang <span className="font-semibold text-on-surface">{page}</span>/{totalPages} • Tổng <span className="font-semibold text-on-surface">{totalItems}</span> bản ghi
+        Trang <span className="font-semibold text-on-surface">{currentPage}</span>/{totalPages} • Tổng <span className="font-semibold text-on-surface">{safeTotalItems}</span> bản ghi
       </span>
 
       <div className="flex items-center gap-1">
         <button
           type="button"
-          disabled={page <= 1}
-          onClick={() => onPageChange(page - 1)}
+          disabled={currentPage <= 1}
+          onClick={() => emitPageChange(currentPage - 1)}
           className={buttonClassName}
         >
           Trước
@@ -65,12 +80,12 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
               );
             }
 
-            const isActive = token === page;
+            const isActive = token === currentPage;
             return (
               <button
                 key={token}
                 type="button"
-                onClick={() => onPageChange(token)}
+                onClick={() => emitPageChange(token)}
                 className={`${pageButtonClassName} ${isActive
                     ? 'border border-primary/25 bg-primary-soft text-primary'
                     : 'border border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
@@ -84,8 +99,8 @@ const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false 
 
         <button
           type="button"
-          disabled={page >= totalPages}
-          onClick={() => onPageChange(page + 1)}
+          disabled={currentPage >= totalPages}
+          onClick={() => emitPageChange(currentPage + 1)}
           className={buttonClassName}
         >
           Sau

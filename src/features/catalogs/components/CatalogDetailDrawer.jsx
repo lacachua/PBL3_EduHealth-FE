@@ -44,7 +44,6 @@ const CatalogDetailDrawer = ({ open, item, loading, error, onClose }) => (
           </div>
         </DetailRow>
         <DetailRow label="Ngày tạo" value={item.createdAt} />
-        <DetailRow label="Cập nhật gần nhất" value={item.updatedAt} />
       </div>
     ) : null}
   </RightDrawer>

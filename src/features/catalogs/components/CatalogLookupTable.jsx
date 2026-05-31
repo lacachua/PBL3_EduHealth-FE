@@ -13,7 +13,6 @@ const CatalogLookupTable = ({ rows, onViewDetail }) => {
       cellClassName: 'text-on-surface-variant',
       render: (row) => <p className="line-clamp-2">{row.description || '--'}</p>
     },
-    { key: 'updatedAt', header: 'Cập nhật gần nhất', headerClassName: 'w-[15%] min-w-[140px]', cellClassName: 'whitespace-nowrap text-on-surface-variant' },
     {
       key: 'status',
       header: 'Trạng thái',
