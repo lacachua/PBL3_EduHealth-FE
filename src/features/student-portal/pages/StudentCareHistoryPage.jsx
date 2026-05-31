@@ -292,7 +292,7 @@ const StudentCareHistoryPage = () => {
         <div className="pointer-events-none fixed inset-0 z-40">
           <div
             aria-hidden="true"
-            className={`absolute inset-0 bg-scrim/42 backdrop-blur-[1px] transition-opacity duration-200 ${
+            className={`pointer-events-none absolute inset-0 bg-on-surface/32 transition-opacity duration-200 ${
               isDrawerOpen ? 'opacity-100' : 'opacity-0'
             }`}
           />
@@ -302,11 +302,11 @@ const StudentCareHistoryPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Chi tiết lần khám bệnh"
-            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${
+            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-w-[560px] border border-outline-variant transition-transform duration-200 ease-out ${
               isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
             }`}
           >
-            <div className="flex h-full flex-col overflow-hidden rounded-3xl">
+            <div className="flex h-full flex-col overflow-hidden">
               <header className="student-drawer-header relative border-b border-outline-variant px-4 py-3.5">
                 <button
                   type="button"

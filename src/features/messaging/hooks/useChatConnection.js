@@ -11,10 +11,6 @@ export const useChatConnection = ({ enabled = true } = {}) => {
     clientRef.current = createChatHubClient();
   }
 
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
-    window.__chatClient = clientRef.current;
-  }
-
   useEffect(() => {
     if (!enabled) {
       setStatus('disconnected');
@@ -55,9 +51,6 @@ export const useChatConnection = ({ enabled = true } = {}) => {
         await client.start();
         if (isActive) {
           setStatus('connected');
-          if (import.meta.env.DEV) {
-            console.log('[Chat] connected');
-          }
         }
       } catch (err) {
         if (isActive) {

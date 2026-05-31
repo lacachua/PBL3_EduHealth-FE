@@ -78,21 +78,8 @@ export const useMessages = ({
     }
 
     let isActive = true;
-    const shouldLog = import.meta.env.DEV;
-
-    if (shouldLog) {
-      console.log('[Chat] Hook active', {
-        conversationId,
-        realtimeEnabled,
-        hasClient: Boolean(chatClient),
-      });
-    }
-
     const handleMessageCreated = (payload) => {
       const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
-      if (shouldLog) {
-        console.log('[Chat] MessageCreated', { payloadConversationId, conversationId, payload });
-      }
       if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
         return;
       }
@@ -141,9 +128,6 @@ export const useMessages = ({
 
     const handleConversationRead = (payload) => {
       const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
-      if (shouldLog) {
-        console.log('[Chat] ConversationRead', { payloadConversationId, conversationId, payload });
-      }
       if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
         return;
       }
@@ -154,9 +138,6 @@ export const useMessages = ({
     const handleConversationUpdated = (payload) => {
       const lastMessage = payload?.lastMessage ?? payload?.LastMessage;
       const payloadConversationId = payload?.conversationId ?? payload?.ConversationId ?? lastMessage?.conversationId ?? lastMessage?.ConversationId;
-      if (shouldLog) {
-        console.log('[Chat] ConversationUpdated', { payloadConversationId, conversationId, lastMessage, payload });
-      }
       if (!isActive || Number(payloadConversationId) !== Number(conversationId) || !lastMessage) {
         return;
       }
@@ -175,9 +156,6 @@ export const useMessages = ({
 
     const handleMessagingError = (payload) => {
       const payloadConversationId = payload?.conversationId ?? payload?.ConversationId;
-      if (shouldLog) {
-        console.log('[Chat] MessagingError', { payloadConversationId, conversationId, payload });
-      }
       if (!isActive || Number(payloadConversationId) !== Number(conversationId)) {
         return;
       }

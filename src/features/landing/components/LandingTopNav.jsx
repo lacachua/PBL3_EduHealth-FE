@@ -1,29 +1,92 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import BrandLogo from '../../../shared/components/common/BrandLogo';
 
 const LandingTopNav = () => {
-  const [activeSection, setActiveSection] = useState('tinh-nang');
+  const sectionIds = useMemo(
+    () => ['nghiep-vu', 'giai-phap', 'ban-tin-y-te', 'lien-he'],
+    []
+  );
+  const [activeSection, setActiveSection] = useState(sectionIds[0]);
+  const activeSectionRef = useRef(activeSection);
 
   useEffect(() => {
-    const syncActiveFromHash = () => {
-      const nextHash = window.location.hash.replace('#', '');
-      if (nextHash) {
-        setActiveSection(nextHash);
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
+
+  useEffect(() => {
+    const headerOffset = 76;
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    if (sections.length === 0) {
+      return undefined;
+    }
+
+    const ratioMap = new Map();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let hasUpdate = false;
+        entries.forEach((entry) => {
+          const id = entry.target.id;
+          if (!id) {
+            return;
+          }
+          ratioMap.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
+          hasUpdate = true;
+        });
+
+        if (!hasUpdate) {
+          return;
+        }
+
+        let bestId = activeSectionRef.current;
+        let bestRatio = 0;
+        ratioMap.forEach((ratio, id) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        });
+
+        if (bestRatio > 0 && bestId !== activeSectionRef.current) {
+          activeSectionRef.current = bestId;
+          setActiveSection(bestId);
+        }
+      },
+      {
+        root: null,
+        rootMargin: `-${headerOffset}px 0px -55% 0px`,
+        threshold: [0.15, 0.35, 0.55, 0.75],
       }
-    };
+    );
 
-    syncActiveFromHash();
-    window.addEventListener('hashchange', syncActiveFromHash);
+    sections.forEach((section) => {
+      ratioMap.set(section.id, 0);
+      observer.observe(section);
+    });
 
-    return () => window.removeEventListener('hashchange', syncActiveFromHash);
+    return () => observer.disconnect();
   }, []);
+
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    if (!section) {
+      return;
+    }
+    if (activeSectionRef.current !== id) {
+      activeSectionRef.current = id;
+      setActiveSection(id);
+    }
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const navItemClassName =
     'inline-flex items-center rounded-full px-3 py-1.5 text-[15px] font-semibold text-on-surface-variant transition-[color,background-color,box-shadow] duration-200';
 
   const navItems = [
-    { id: 'tinh-nang', label: 'Nghiệp vụ' },
+    { id: 'nghiep-vu', label: 'Nghiệp vụ' },
     { id: 'giai-phap', label: 'Giải pháp' },
     { id: 'ban-tin-y-te', label: 'Bản tin y tế' },
     { id: 'lien-he', label: 'Liên hệ' },
@@ -37,14 +100,14 @@ const LandingTopNav = () => {
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
             return (
-              <a
+              <button
                 key={item.id}
+                type="button"
                 className={`${navItemClassName} ${isActive ? 'bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgba(43,125,96,0.24)]' : 'hover:bg-surface-container-lowest hover:text-on-surface'}`}
-                href={`/#${item.id}`}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => scrollToSection(item.id)}
               >
                 {item.label}
-              </a>
+              </button>
             );
           })}
         </div>

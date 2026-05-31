@@ -41,7 +41,6 @@ const ReportsPage = () => {
     fetchDashboard,
   } = useAdminReportsDashboard(createInitialFilters());
 
-  const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedClassDetail, setSelectedClassDetail] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -52,7 +51,6 @@ const ReportsPage = () => {
   const handleAnalyzeClass = async (classId) => {
     if (!classId) return;
 
-    setSelectedClassId(classId);
     try {
       const detail = await fetchClassDetail(classId);
       setSelectedClassDetail(detail);
@@ -91,7 +89,7 @@ const ReportsPage = () => {
         <ExportActions
           exporting={exporting}
           disabled={disableServerExport}
-          disabledMessage="Chưa có API export từ Backend"
+          disabledMessage="Chức năng xuất báo cáo đang được hoàn thiện"
           onExport={exportReports}
         />
       </div>

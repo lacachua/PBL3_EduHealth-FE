@@ -62,7 +62,7 @@ const FeatureCard = ({ title, description, icon, highlighted = false }) => {
 
 const LandingFeatureSection = () => {
   return (
-    <section id="tinh-nang" className="bg-[#f2f7f3] py-10 md:py-12">
+    <section id="nghiep-vu" className="scroll-mt-[5.5rem] bg-[#f2f7f3] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Khối nghiệp vụ cốt lõi"

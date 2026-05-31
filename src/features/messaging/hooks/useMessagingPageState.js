@@ -40,11 +40,11 @@ export const useMessagingPageState = ({ role }) => {
       },
       updatedAt: message.sentAt,
     }));
-  }, [conversations.updateConversation]);
+  }, [conversations]);
 
   const handleConversationRead = useCallback(() => {
     conversations.markConversationReadLocal(conversations.selectedConversationId);
-  }, [conversations.markConversationReadLocal, conversations.selectedConversationId]);
+  }, [conversations]);
 
   const messageState = useMessages({
     conversationId: conversations.selectedConversationId,
@@ -82,9 +82,6 @@ export const useMessagingPageState = ({ role }) => {
       if (!joinedConversationIdsRef.current.has(conversationId)) {
         chat.client.joinConversation({ conversationId });
         joinedConversationIdsRef.current.add(conversationId);
-        if (import.meta.env.DEV) {
-          console.log('[Chat] joinConversation', conversationId);
-        }
       }
     });
 
@@ -98,7 +95,7 @@ export const useMessagingPageState = ({ role }) => {
     }
 
     conversations.upsertConversation(conversation);
-  }, [conversations.upsertConversation, currentUser]);
+  }, [conversations, currentUser]);
 
   useEffect(() => {
     if (!chat.client) {

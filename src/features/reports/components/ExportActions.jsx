@@ -4,7 +4,7 @@ const ExportActions = ({
   onExport,
   exporting = false,
   disabled = false,
-  disabledMessage = 'Chưa có API export từ Backend',
+  disabledMessage = 'Chức năng xuất báo cáo đang được hoàn thiện',
 }) => {
   const isDisabled = exporting || disabled;
 

@@ -66,7 +66,7 @@ const AdminReportDetailDrawer = ({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className={`fixed inset-0 z-[95] bg-on-surface/20 transition ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        className={`fixed inset-0 z-[95] bg-on-surface/32 transition ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
       <aside className={`report-detail-drawer fixed inset-y-0 right-0 z-[100] flex w-full max-w-[450px] flex-col overflow-y-auto border-l border-outline-variant bg-surface-container-lowest shadow-[-10px_0_40px_rgba(0,0,0,0.1)] ${isOpen ? 'open' : ''}`}>

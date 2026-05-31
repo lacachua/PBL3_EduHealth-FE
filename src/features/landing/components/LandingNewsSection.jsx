@@ -59,7 +59,7 @@ const LandingNewsSection = () => {
   );
 
   return (
-    <section id="ban-tin-y-te" className="bg-[#f2f7f3] py-12 md:py-16">
+    <section id="ban-tin-y-te" className="scroll-mt-[5.5rem] bg-[#f2f7f3] py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Bản tin y tế học đường"

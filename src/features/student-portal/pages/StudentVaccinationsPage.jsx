@@ -360,7 +360,7 @@ const StudentVaccinationsPage = () => {
         <div className="pointer-events-none fixed inset-0 z-40">
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-0 bg-on-surface/25 transition-opacity duration-200 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'
+            className={`pointer-events-none absolute inset-0 bg-on-surface/32 transition-opacity duration-200 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'
               }`}
           />
 
@@ -369,10 +369,10 @@ const StudentVaccinationsPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Chi tiết mũi tiêm"
-            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] rounded-3xl border border-outline-variant transition-transform duration-200 ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
+            className={`student-drawer-surface pointer-events-auto absolute inset-y-3 right-3 w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] max-w-[560px] border border-outline-variant transition-transform duration-200 ease-out ${isDrawerOpen ? 'translate-x-0' : 'translate-x-[105%]'
               }`}
           >
-            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
               <header className="student-drawer-header relative shrink-0 border-b border-outline-variant px-4 py-3.5">
                 <button
                   type="button"

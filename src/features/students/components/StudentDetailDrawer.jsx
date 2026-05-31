@@ -60,7 +60,7 @@ const StudentDetailDrawer = ({
       onClose={onClose}
       widthClass="max-w-[620px]"
       title="Chi tiết học sinh"
-      subtitle="Thông tin hiển thị theo dữ liệu API trả về"
+      subtitle="Thông tin hiển thị theo hồ sơ quản lý hiện có"
     >
       {loading && !student ? (
         <p className="rounded-lg border border-outline-variant bg-surface-container-low px-3 py-3 text-sm text-on-surface-variant">

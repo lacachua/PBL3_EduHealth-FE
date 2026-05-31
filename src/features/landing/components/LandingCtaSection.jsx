@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const LandingCtaSection = ({ onNewsClick }) => {
   return (
-    <section id="lien-he" className="pb-6 pt-10 md:pb-8 md:pt-12">
+    <section id="lien-he" className="scroll-mt-[5.5rem] pb-6 pt-10 md:pb-8 md:pt-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/28 bg-[linear-gradient(135deg,#2b7d60_0%,#23684c_100%)] p-7 text-center text-white shadow-xl shadow-primary/22 sm:p-8 lg:p-10">
           <div className="absolute right-0 top-0 h-64 w-64 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/10 blur-3xl" />

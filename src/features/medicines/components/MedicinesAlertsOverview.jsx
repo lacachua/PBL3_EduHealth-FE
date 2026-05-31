@@ -15,7 +15,7 @@ const MedicinesAlertsOverview = ({ loading, error, summary, onRefresh }) => {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="font-headline text-base font-semibold text-on-surface">Tổng quan cảnh báo kho thuốc</h2>
-          <p className="text-xs text-on-surface-variant">Theo dõi nhanh thuốc sắp hết và sắp hết hạn từ dữ liệu API hiện tại.</p>
+          <p className="text-xs text-on-surface-variant">Theo dõi nhanh thuốc sắp hết và sắp hết hạn từ dữ liệu hiện có.</p>
         </div>
         <button
           type="button"

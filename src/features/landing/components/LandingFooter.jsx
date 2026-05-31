@@ -2,6 +2,11 @@ import React from 'react';
 import BrandLogo from '../../../shared/components/common/BrandLogo';
 
 const LandingFooter = () => {
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <footer className="w-full border-t border-outline-variant/20 bg-[#f8faf7] pt-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -28,18 +33,18 @@ const LandingFooter = () => {
           <div>
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Hệ thống</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
-              <a href="/#tinh-nang" className="block transition-colors hover:text-primary">Tính năng cốt lõi</a>
-              <a href="/#ban-tin-y-te" className="block transition-colors hover:text-primary">Bản tin y tế học đường</a>
-              <a href="/#tinh-nang" className="block transition-colors hover:text-primary">Quản lý hồ sơ học sinh</a>
+              <button type="button" onClick={() => scrollToSection('nghiep-vu')} className="block transition-colors hover:text-primary">Tính năng cốt lõi</button>
+              <button type="button" onClick={() => scrollToSection('ban-tin-y-te')} className="block transition-colors hover:text-primary">Bản tin y tế học đường</button>
+              <button type="button" onClick={() => scrollToSection('nghiep-vu')} className="block transition-colors hover:text-primary">Quản lý hồ sơ học sinh</button>
             </div>
           </div>
 
           <div>
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Kết nối</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
-              <a href="/#giai-phap" className="block transition-colors hover:text-primary">Thông tin phụ huynh</a>
-              <a href="/#lien-he" className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế trường</a>
-              <a href="/#ban-tin-y-te" className="block transition-colors hover:text-primary">Cổng thông báo</a>
+              <button type="button" onClick={() => scrollToSection('giai-phap')} className="block transition-colors hover:text-primary">Thông tin phụ huynh</button>
+              <button type="button" onClick={() => scrollToSection('lien-he')} className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế trường</button>
+              <button type="button" onClick={() => scrollToSection('ban-tin-y-te')} className="block transition-colors hover:text-primary">Cổng thông báo</button>
             </div>
           </div>
 

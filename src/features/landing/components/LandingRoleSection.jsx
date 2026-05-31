@@ -33,7 +33,7 @@ const roleItems = [
 
 const LandingRoleSection = () => {
   return (
-    <section id="giai-phap" className="bg-[#f8fbf8] py-10 md:py-12">
+    <section id="giai-phap" className="scroll-mt-[5.5rem] bg-[#f8fbf8] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Giải pháp theo nhóm người dùng"
