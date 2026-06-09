@@ -29,7 +29,6 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       environment: 'node',
-      setupFiles: './src/test/setupTests.js',
       css: true,
     },
   }

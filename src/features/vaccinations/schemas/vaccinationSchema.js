@@ -87,7 +87,7 @@ export const validateUpdateStudentVaccinationValues = (values = {}) => {
     ].join('-');
 
     if (values.vaccinatedAt > todayStr) {
-      errors.vaccinatedAt = 'Ng�y ti�m th?c t? kh�ng du?c l?n hon ng�y hi?n t?i.';
+      errors.vaccinatedAt = 'Ngày tiêm thực tế không được lớn hơn ngày hiện tại.';
     }
   }
   if ((status === 'POSTPONED' || status === 'CONTRAINDICATED' || status === 'ABSENT') && !normalizeText(values.note)) {
