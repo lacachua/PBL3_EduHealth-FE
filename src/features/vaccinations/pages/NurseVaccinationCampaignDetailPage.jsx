@@ -207,6 +207,10 @@ const NurseVaccinationCampaignDetailPage = () => {
   const effectivePaging = activeTab === 'students' ? studentsData : pendingData;
 
   const openUpdateModal = (row) => {
+    if (row?.status === 'DONE') {
+      return;
+    }
+
     setUpdateError('');
 
     setUpdateContext({

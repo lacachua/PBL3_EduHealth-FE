@@ -10,14 +10,12 @@ const DEFAULT_NEWS_LIMIT = 3;
 const LandingNewsSection = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-
     notificationsRepository
       .getPublicNotifications({ page: 1, pageSize: DEFAULT_NEWS_LIMIT })
       .then((result) => {
@@ -63,21 +61,21 @@ const LandingNewsSection = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Bản tin y tế học đường"
-          description="Cập nhật thông tin y tế cần thiết để nhà trường và phụ huynh phối hợp chăm sóc học sinh."
+          description="Cập nhật thông báo y tế, lịch khám sức khỏe và hoạt động chăm sóc sức khỏe học sinh."
           action={action}
           align="center"
         />
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:mt-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {items.map((item) => (
-            <PublicNewsCard 
-              key={item.id} 
-              item={item} 
-              onClick={handleViewDetail} 
+            <PublicNewsCard
+              key={item.id}
+              item={item}
+              onClick={handleViewDetail}
             />
           ))}
         </div>
-        
+
         {!loading && items.length === 0 ? (
           <div className="mt-10 flex flex-col items-center justify-center rounded-[2rem] border border-outline-variant/40 bg-white/40 py-16 text-center backdrop-blur-sm">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm shadow-primary/5">
@@ -90,7 +88,7 @@ const LandingNewsSection = () => {
         ) : null}
       </div>
 
-      <PublicNewsDetailModal 
+      <PublicNewsDetailModal
         open={modalOpen}
         item={selectedNews}
         onClose={() => setModalOpen(false)}

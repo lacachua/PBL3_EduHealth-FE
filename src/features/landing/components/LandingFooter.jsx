@@ -14,7 +14,7 @@ const LandingFooter = () => {
           <div>
             <BrandLogo textClassName="text-2xl" iconClassName="text-[1.55rem]" className="-ml-2 mb-4" />
             <p className="max-w-[20rem] text-sm leading-7 text-on-surface-variant">
-              Nền tảng hỗ trợ phòng y tế nhà trường kết nối thông tin sức khỏe với phụ huynh học sinh.
+              Nền tảng hỗ trợ quản lý sức khỏe học đường, kết nối nhà trường, bộ phận y tế và phụ huynh.
             </p>
 
             <div className="mt-4 flex items-center gap-3 text-primary">
@@ -33,7 +33,7 @@ const LandingFooter = () => {
           <div>
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Hệ thống</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
-              <button type="button" onClick={() => scrollToSection('nghiep-vu')} className="block transition-colors hover:text-primary">Tính năng cốt lõi</button>
+              <button type="button" onClick={() => scrollToSection('nghiep-vu')} className="block transition-colors hover:text-primary">Chức năng nghiệp vụ</button>
               <button type="button" onClick={() => scrollToSection('ban-tin-y-te')} className="block transition-colors hover:text-primary">Bản tin y tế học đường</button>
               <button type="button" onClick={() => scrollToSection('nghiep-vu')} className="block transition-colors hover:text-primary">Quản lý hồ sơ học sinh</button>
             </div>
@@ -43,7 +43,7 @@ const LandingFooter = () => {
             <h4 className="mb-4 font-headline text-base font-bold text-on-surface">Kết nối</h4>
             <div className="space-y-2.5 text-sm leading-relaxed text-on-surface-variant">
               <button type="button" onClick={() => scrollToSection('giai-phap')} className="block transition-colors hover:text-primary">Thông tin phụ huynh</button>
-              <button type="button" onClick={() => scrollToSection('lien-he')} className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế trường</button>
+              <button type="button" onClick={() => scrollToSection('lien-he')} className="block transition-colors hover:text-primary">Liên hệ bộ phận y tế</button>
               <button type="button" onClick={() => scrollToSection('ban-tin-y-te')} className="block transition-colors hover:text-primary">Cổng thông báo</button>
             </div>
           </div>
@@ -53,8 +53,8 @@ const LandingFooter = () => {
             <div className="space-y-3 text-sm leading-relaxed text-on-surface-variant">
               <p className="text-on-surface">Phòng Y tế Trường Tiểu học Trần Cao Vân</p>
               <p>Email: yte.trancaovan@edu.vn</p>
-              <p>Điện thoại: (028) 3822 1234</p>
-              <p>Khu vực Quận 1, TP. Hồ Chí Minh</p>
+              <p>Điện thoại: (0236) 3822 123</p>
+              <p>Khu vực: Đà Nẵng</p>
             </div>
           </div>
         </div>

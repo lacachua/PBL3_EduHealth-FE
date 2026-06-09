@@ -41,6 +41,14 @@ const UpdateStudentVaccinationModal = ({
   const [fieldErrors, setFieldErrors] = useState({});
 
   const shouldShowDoneFields = values.status === 'DONE';
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    return [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
+  }, []);
 
   const selectedStatusLabel = useMemo(() => {
     return VACCINATION_STATUS_OPTIONS.find((option) => option.value === values.status)?.label || 'Trạng thái';
@@ -153,6 +161,7 @@ const UpdateStudentVaccinationModal = ({
                 <span className="text-sm font-semibold text-on-surface">Ngày tiêm thực tế</span>
                 <input
                   type="date"
+                  max={todayStr}
                   value={values.vaccinatedAt}
                   onChange={(event) => updateField('vaccinatedAt', event.target.value)}
                   className="app-input rounded-xl px-3 py-2.5 text-sm"
@@ -172,11 +181,7 @@ const UpdateStudentVaccinationModal = ({
                 {fieldErrors.lotNumber ? <span className="text-xs text-danger">{fieldErrors.lotNumber}</span> : null}
               </label>
             </>
-          ) : (
-            <div className="rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2 text-xs text-on-surface-variant md:col-span-2">
-              Trạng thái hiện tại không yêu cầu ngày tiêm và số lô. Hai trường này sẽ được reset theo contract khi lưu.
-            </div>
-          )}
+          ) : null}
         </div>
 
         <label className="flex flex-col gap-1">

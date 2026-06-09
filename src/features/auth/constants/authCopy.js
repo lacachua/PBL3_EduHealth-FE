@@ -1,12 +1,12 @@
 export const authCopy = {
   login: {
     title: 'Đăng nhập',
-    description: 'Dùng tài khoản được cấp quyền để truy cập EduHealth.',
+    description: 'Sử dụng tài khoản do nhà trường cấp để truy cập hệ thống.',
     identifierLabel: 'Tên đăng nhập',
     passwordLabel: 'Mật khẩu',
-    identifierPlaceholder: 'Nhập username',
+    identifierPlaceholder: 'Nhập tên đăng nhập',
     passwordPlaceholder: 'Nhập mật khẩu',
-    remember: 'Ghi nhớ đăng nhập',
+    remember: 'Ghi nhớ tài khoản',
     forgotPassword: 'Quên mật khẩu?',
     submit: 'Đăng nhập',
     submitting: 'Đang xử lý...',

@@ -1,14 +1,14 @@
-import loginVisual from '../../../assets/images/auth/login-visual.svg';
-import forgotVisual from '../../../assets/images/auth/forgot-visual.svg';
-import otpVisual from '../../../assets/images/auth/otp-visual.svg';
-import changePasswordVisual from '../../../assets/images/auth/change-password-visual.svg';
+import loginVisual from '../../../assets/images/auth/login.png';
+import forgotVisual from '../../../assets/images/auth/login.png';
+import otpVisual from '../../../assets/images/auth/login.png';
+import changePasswordVisual from '../../../assets/images/auth/login.png';
 
 const AUTH_FLOW_CONFIG_SINGLETON = Object.freeze({
   panel: {
     login: {
-      tag: 'TRUY CẬP EDUHEALTH',
-      headline: 'Quản lý sức khỏe học đường tập trung',
-      caption: 'Dành cho tài khoản được nhà trường cấp quyền.',
+      tag: 'TRUY CẬP HỆ THỐNG',
+      headline: 'Quản lý sức khỏe học đường',
+      caption: 'Dành cho tài khoản được nhà trường cấp.',
       imageAlt: 'Bàn làm việc y tế học đường với hồ sơ và máy tính bảng đang mở',
       imageSrc: loginVisual,
     },

@@ -101,10 +101,6 @@ const LoginPage = () => {
 
         <div className="mb-3 flex flex-wrap items-center justify-center gap-1.5">
           <span className="auth-panel-chip">
-            <span className="material-symbols-outlined text-[14px]">verified_user</span>
-            Đăng nhập an toàn theo vai trò
-          </span>
-          <span className="auth-panel-chip">
             <span className="material-symbols-outlined text-[14px]">domain</span>
             Dành cho tài khoản do nhà trường cấp
           </span>

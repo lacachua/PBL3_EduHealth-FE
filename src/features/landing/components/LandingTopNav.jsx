@@ -68,7 +68,7 @@ const LandingTopNav = () => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [sectionIds]);
 
   const scrollToSection = (id) => {
     const section = document.getElementById(id);

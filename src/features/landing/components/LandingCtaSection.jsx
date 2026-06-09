@@ -9,14 +9,13 @@ const LandingCtaSection = ({ onNewsClick }) => {
           <div className="absolute right-0 top-0 h-64 w-64 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
           <div className="relative z-10 flex flex-col items-center">
             <span className="mb-3 inline-flex items-center rounded-full border border-white/35 bg-white/10 px-3 py-1 text-[11px] font-bold tracking-[0.05em] text-white/95">
-              TRIỂN KHAI TOÀN TRƯỜNG
+              TRUY CẬP HỆ THỐNG
             </span>
             <h2 className="mb-3 max-w-2xl font-headline text-[1.85rem] font-extrabold leading-tight tracking-tight lg:text-[2.75rem]">
-              Sẵn sàng vận hành công tác y tế học đường theo chuẩn số hóa?
+              Sẵn sàng quản lý y tế học đường hiệu quả hơn?
             </h2>
             <p className="mx-auto mb-6 max-w-2xl text-base text-white/85 lg:text-lg">
-              Bắt đầu vận hành EduHealth tại Trường Tiểu học Trần Cao Vân để thông tin sức khỏe học sinh
-              được cập nhật nhất quán, minh bạch và kịp thời.
+              Đăng nhập hệ thống để cập nhật hồ sơ sức khỏe, theo dõi hoạt động y tế và phối hợp thông tin giữa nhà trường với phụ huynh.
             </p>
             <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
               <Link

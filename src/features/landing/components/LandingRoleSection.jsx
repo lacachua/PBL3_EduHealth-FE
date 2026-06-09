@@ -1,32 +1,32 @@
 import React from "react";
 import SectionHeader from "./SectionHeader";
-import nurseVisual from "../../../assets/images/landing/role-nurse-visual.svg";
-import studentVisual from "../../../assets/images/landing/role-student-visual.svg";
-import adminVisual from "../../../assets/images/landing/role-admin-visual.svg";
+import nurseVisual from "../../../assets/images/landing/nurse.png";
+import studentVisual from "../../../assets/images/landing/student.png";
+import adminVisual from "../../../assets/images/landing/admin.png";
 
 const roleItems = [
   {
     tag: "Y tá trường học",
-    title: "Nghiệp vụ y tế rõ ràng",
+    title: "Quản lý nghiệp vụ y tế",
     description:
-      "Số hóa quy trình khám bệnh, cấp thuốc và cập nhật hồ sơ ngay tại phòng y tế, giảm áp lực giấy tờ.",
+      "Cập nhật hồ sơ sức khỏe, ghi nhận khám bệnh, cấp phát thuốc và theo dõi tiêm chủng.",
     imageAlt: "Minh họa màn hình nghiệp vụ y tế học đường cho y tá trường",
     imageSrc: nurseVisual,
   },
   {
-    tag: "Học sinh",
-    title: "Cập nhật thông tin kịp thời",
+    tag: "Phụ huynh",
+    title: "Theo dõi sức khỏe của con",
     description:
-      "Nhận thông báo khi được khám bệnh, cấp thuốc hoặc đến lịch tiêm chủng để phối hợp cùng nhà trường.",
-    imageAlt: "Minh họa màn hình học sinh theo dõi hồ sơ sức khỏe",
+      "Xem thông tin sức khỏe, lịch sử khám bệnh, lịch sử dùng thuốc và trạng thái tiêm chủng.",
+    imageAlt: "Minh họa màn hình phụ huynh theo dõi hồ sơ sức khỏe",
     imageSrc: studentVisual,
   },
   {
-    tag: "Ban giám hiệu/Quản trị viên",
-    title: "Quản trị tổng thể sức khỏe học đường",
+    tag: "Quản trị viên",
+    title: "Quản lý hệ thống",
     description:
-      "Theo dõi báo cáo tổng hợp theo thời gian, đánh giá tình hình sức khỏe học sinh và điều phối công tác y tế.",
-    imageAlt: "Minh họa dashboard quản trị tổng thể sức khỏe học đường",
+      "Quản lý tài khoản, phân quyền người dùng và theo dõi dữ liệu tổng quan của hệ thống.",
+    imageAlt: "Minh họa dashboard quản trị hệ thống sức khỏe học đường",
     imageSrc: adminVisual,
   },
 ];
@@ -37,7 +37,7 @@ const LandingRoleSection = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title="Giải pháp theo nhóm người dùng"
-          description="EduHealth kết nối nhà trường, y tế và học sinh trong một quy trình phối hợp thống nhất."
+          description="Hệ thống phân quyền theo từng vai trò, giúp người dùng truy cập đúng chức năng cần thiết."
           align="center"
           eyebrow="Theo vai trò"
         />

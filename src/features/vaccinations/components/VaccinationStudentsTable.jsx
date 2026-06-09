@@ -120,21 +120,34 @@ const VaccinationStudentsTable = ({
       header: 'Thao tác',
       headerClassName: 'w-[10%] min-w-[90px] text-right',
       cellClassName: 'text-right',
-      render: (row) => (
-        <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            onClick={() => onOpenUpdate(row)}
-            className="app-focus-ring inline-flex h-8 items-center justify-center rounded-lg bg-primary-soft px-3 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-on-primary"
-          >
-            Cập nhật
-          </button>
-        </div>
-      ),
+      render: (row) => {
+        const isDone = row.status === 'DONE';
+
+        return (
+          <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              disabled={isDone}
+              onClick={() => {
+                if (!isDone) {
+                  onOpenUpdate(row);
+                }
+              }}
+              className={`app-focus-ring inline-flex h-8 items-center justify-center rounded-lg px-3 text-[11px] font-bold transition-colors ${
+                isDone
+                  ? 'cursor-not-allowed bg-surface-container-low text-on-surface-variant'
+                  : 'bg-primary-soft text-primary hover:bg-primary hover:text-on-primary'
+              }`}
+            >
+              {isDone ? '\u0110\u00e3 ti\u00eam' : 'C\u1eadp nh\u1eadt'}
+            </button>
+          </div>
+        );
+      },
     });
 
     return cols;
-  }, [onOpenCampaign, onOpenHistory, onOpenUpdate, showCampaignColumn, showResultColumns, showScheduledDateColumn]);
+  }, [onOpenCampaign, onOpenUpdate, showCampaignColumn, showResultColumns, showScheduledDateColumn]);
 
   return (
     <DataTable

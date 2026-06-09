@@ -129,6 +129,10 @@ const NursePendingVaccinationsPage = () => {
   }, [filteredRows, pendingData.rows.length, pendingData.totalItems]);
 
   const openUpdateModal = (row) => {
+    if (row?.status === 'DONE') {
+      return;
+    }
+
     setUpdateError('');
 
     setUpdateContext({

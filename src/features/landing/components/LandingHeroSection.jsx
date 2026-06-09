@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import heroProductVisual from "../../../assets/images/landing/hero-product-visual.svg";
+import heroProductVisual from "../../../assets/images/landing/landing.png";
 
 const LandingHeroSection = ({ onNewsClick }) => {
   return (
@@ -12,18 +12,15 @@ const LandingHeroSection = ({ onNewsClick }) => {
         <div className="relative z-10 max-w-2xl">
           <div className="mb-4 inline-flex items-center space-x-2 rounded-full border border-primary/20 bg-white/78 px-3 py-1 text-[11px] font-bold text-primary">
             <span className="h-2 w-2 rounded-full bg-primary" />
-            <span>Hệ thống sức khỏe học đường • Trường Tiểu học Trần Cao Vân</span>
+            <span>Hệ thống sức khỏe học đường</span>
           </div>
 
           <h1 className="mb-4 font-headline text-[clamp(2rem,1.56rem+1.95vw,3.75rem)] font-bold leading-[1.08] tracking-tight text-on-surface">
-            Chăm sóc sức khỏe học sinh mỗi ngày
-            <br />
-            tại Trường Tiểu học Trần Cao Vân
+            Quản lý sức khỏe học sinh tại Trường Tiểu học Trần Cao Vân
           </h1>
 
           <p className="mb-6 max-w-2xl text-[15px] leading-relaxed text-on-surface-muted lg:text-[1rem]">
-            Quản lý hồ sơ sức khỏe, lịch tiêm, cấp phát thuốc và phối hợp phụ huynh
-            trên một hệ thống thống nhất, dễ theo dõi cho nhà trường.
+            Hỗ trợ quản lý hồ sơ sức khỏe, lịch tiêm chủng, khám bệnh, cấp phát thuốc và phối hợp thông tin giữa nhà trường với phụ huynh.
           </p>
 
           <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
@@ -43,10 +40,6 @@ const LandingHeroSection = ({ onNewsClick }) => {
               Xem bản tin y tế
             </button>
           </div>
-
-          <p className="mt-3 text-[12px] font-medium text-on-surface-muted">
-            Tập trung vận hành thực tế cho nhà trường, bộ phận y tế và phụ huynh.
-          </p>
         </div>
 
         <div className="group relative z-10">
@@ -59,35 +52,6 @@ const LandingHeroSection = ({ onNewsClick }) => {
               alt="Minh họa giao diện sản phẩm EduHealth cho nghiệp vụ sức khỏe học đường"
               src={heroProductVisual}
             />
-
-            <div className="absolute left-4 top-4 z-[2] inline-flex items-center gap-1 rounded-full border border-white/45 bg-black/25 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-              <span className="material-symbols-outlined text-[15px]">monitoring</span>
-              Bảng điều phối trực tuyến
-            </div>
-
-            <div className="absolute right-4 top-4 z-[2] rounded-xl border border-white/45 bg-white/18 px-2.5 py-1.5 text-right text-[11px] font-semibold text-white backdrop-blur-sm">
-              <p className="leading-tight">Hồ sơ mới</p>
-              <p className="text-[14px] font-bold leading-tight">+32 hôm nay</p>
-            </div>
-
-            <div className="bg-glass absolute bottom-4 left-4 right-4 z-[2] rounded-2xl border border-white/35 p-4 shadow-md shadow-slate-900/8 backdrop-blur-xl transition-[box-shadow,background-color,transform] duration-500 group-hover:shadow-lg group-hover:shadow-slate-900/12">
-              <div className="flex items-center space-x-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-container text-white">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    medical_services
-                  </span>
-                </div>
-                <div>
-                  <p className="text-[13px] font-bold text-on-surface">Nhật ký vận hành gần nhất</p>
-                  <p className="text-[12px] text-on-surface-variant">
-                    Hoàn tất cập nhật khám sức khỏe định kỳ cho lớp 4A.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

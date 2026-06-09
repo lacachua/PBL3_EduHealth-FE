@@ -78,7 +78,18 @@ export const validateUpdateStudentVaccinationValues = (values = {}) => {
   if (status === 'DONE' && !values.vaccinatedAt) {
     errors.vaccinatedAt = 'Vui lòng chọn ngày tiêm thực tế.';
   }
+  if (status === 'DONE' && values.vaccinatedAt) {
+    const today = new Date();
+    const todayStr = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
 
+    if (values.vaccinatedAt > todayStr) {
+      errors.vaccinatedAt = 'Ng�y ti�m th?c t? kh�ng du?c l?n hon ng�y hi?n t?i.';
+    }
+  }
   if ((status === 'POSTPONED' || status === 'CONTRAINDICATED' || status === 'ABSENT') && !normalizeText(values.note)) {
     errors.note = 'Vui lòng nhập ghi chú cho trạng thái này.';
   }

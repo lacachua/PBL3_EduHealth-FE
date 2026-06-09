@@ -8,23 +8,43 @@ import { getNurseStudentsLookupApi } from '../../health-profiles/services/health
 import { getStudentClassesApi } from '../../students/services/classesApi';
 import NurseModalShell from '../../../shared/components/nurse/NurseModalShell';
 
-const normalizeClassCode = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
-
-
-
 const toClassCode = (item = {}) => {
-  const rawCode = String(item.classCode || item.classId || '').trim();
+  const rawCode = String(item.classCode || item.code || item.Code || '').trim();
 
   if (/^CLS\d+$/i.test(rawCode)) {
     return rawCode.toUpperCase();
   }
 
-  const numericClassId = Number(item.classId);
-  if (Number.isInteger(numericClassId) && numericClassId > 0) {
-    return `CLS${String(numericClassId).padStart(3, '0')}`;
+  const rawClassId = String(item.classId || item.ClassId || '').trim();
+  if (rawClassId) {
+    return rawClassId;
+  }
+
+  const classNameMatch = String(item.className || item.ClassName || item.label || '')
+    .trim()
+    .match(/(\d{1,2})\s*[/A-Za-z]\s*(\d{1,2})/);
+
+  if (classNameMatch) {
+    return `CLS${classNameMatch[1]}${classNameMatch[2].padStart(2, '0')}`;
   }
 
   return '';
+};
+
+const toClassAliases = (item = {}, classCode) => {
+  const aliases = new Set([classCode]);
+  const rawClassId = String(item.classId || item.ClassId || '').trim();
+  const numericClassId = Number(rawClassId);
+
+  if (rawClassId) {
+    aliases.add(rawClassId);
+  }
+
+  if (Number.isInteger(numericClassId) && numericClassId > 0) {
+    aliases.add(`CLS${String(numericClassId).padStart(3, '0')}`);
+  }
+
+  return Array.from(aliases).filter(Boolean);
 };
 
 const toGradeLabel = (className) => {
@@ -34,7 +54,7 @@ const toGradeLabel = (className) => {
 
 const toClassOption = (item = {}) => {
   const value = toClassCode(item);
-  const label = String(item.className || '').trim();
+  const label = String(item.className || item.ClassName || '').trim();
   if (!value || !label) {
     return null;
   }
@@ -43,6 +63,7 @@ const toClassOption = (item = {}) => {
     value,
     label,
     gradeLabel: toGradeLabel(label),
+    aliases: toClassAliases(item, value),
   };
 };
 
@@ -128,6 +149,16 @@ const CreateVaccinationCampaignModal = ({
     const map = new Map();
     classOptions.forEach((option) => {
       map.set(option.value, option.label);
+    });
+    return map;
+  }, [classOptions]);
+
+  const classCodeAliasMap = useMemo(() => {
+    const map = new Map();
+    classOptions.forEach((option) => {
+      (option.aliases || [option.value]).forEach((alias) => {
+        map.set(String(alias).trim().toUpperCase(), option.value);
+      });
     });
     return map;
   }, [classOptions]);
@@ -260,6 +291,15 @@ const CreateVaccinationCampaignModal = ({
     updateField('targetClassIds', [...values.targetClassIds, classCode]);
   };
 
+  const resolveSelectedClassCodes = () => {
+    return values.targetClassIds
+      .map((classId) => {
+        const normalized = String(classId || '').trim().toUpperCase();
+        return classCodeAliasMap.get(normalized) || normalized;
+      })
+      .filter(Boolean);
+  };
+
   const addStudentCandidate = (candidate, meta = null) => {
     const parsed = toPositiveInt(candidate);
     if (!parsed) {
@@ -353,7 +393,7 @@ const CreateVaccinationCampaignModal = ({
 
     const payload = {
       ...values,
-      targetClassIds: values.targetType === 'CLASS' ? values.targetClassIds : [],
+      targetClassIds: values.targetType === 'CLASS' ? resolveSelectedClassCodes() : [],
       targetStudentIds: values.targetType === 'STUDENT' ? values.targetStudentIds : [],
     };
 

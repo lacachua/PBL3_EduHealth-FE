@@ -5,13 +5,13 @@ const topRowItems = [
   {
     id: "health-profiles",
     title: "Hồ sơ học sinh",
-    description: "Tổng hợp hồ sơ sức khỏe theo lớp và theo năm học, truy vết lịch sử đầy đủ.",
+    description: "Quản lý thông tin học sinh, chỉ số sức khỏe, tiền sử bệnh và dị ứng.",
     icon: "patient_list",
   },
   {
     id: "examinations",
-    title: "Khám bệnh & cấp thuốc",
-    description: "Chuẩn hóa quy trình xử lý tại phòng y tế, ghi nhận điều trị và cấp phát thuốc.",
+    title: "Khám bệnh và cấp thuốc",
+    description: "Ghi nhận lượt khám, triệu chứng, hướng xử lý và thuốc đã cấp cho học sinh.",
     icon: "stethoscope",
     highlighted: true,
   },
@@ -21,19 +21,19 @@ const bottomRowItems = [
   {
     id: "inventory",
     title: "Kho thuốc",
-    description: "Theo dõi tồn kho, hạn dùng và tình trạng vật tư thiết yếu theo quy định.",
+    description: "Theo dõi danh mục thuốc, số lượng tồn kho, hạn sử dụng và tình trạng sử dụng.",
     icon: "inventory_2",
   },
   {
     id: "vaccinations",
     title: "Tiêm chủng",
-    description: "Quản lý lịch tiêm, biểu mẫu đồng ý và theo dõi hoàn thành theo lớp.",
+    description: "Quản lý đợt tiêm, trạng thái tiêm chủng và lịch sử tiêm của học sinh.",
     icon: "vaccines",
   },
   {
     id: "reports",
-    title: "Báo cáo sức khỏe học đường",
-    description: "Cung cấp thống kê tổng hợp cho ban giám hiệu và bộ phận quản trị.",
+    title: "Báo cáo thống kê",
+    description: "Tổng hợp số liệu về khám bệnh, tiêm chủng, kho thuốc và tình hình sức khỏe học sinh.",
     icon: "bar_chart",
   },
 ];
@@ -65,8 +65,8 @@ const LandingFeatureSection = () => {
     <section id="nghiep-vu" className="scroll-mt-[5.5rem] bg-[#f2f7f3] py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title="Khối nghiệp vụ cốt lõi"
-          description="Các phân hệ vận hành công tác sức khỏe học đường theo quy trình thống nhất và dễ kiểm soát."
+          title="Chức năng nghiệp vụ chính"
+          description="Các phân hệ hỗ trợ nhà trường quản lý và theo dõi công tác y tế học đường trên một hệ thống thống nhất."
           align="center"
           eyebrow="Nghiệp vụ hệ thống"
         />
