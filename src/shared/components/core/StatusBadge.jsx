@@ -1,5 +1,6 @@
 const toneClassMap = {
   neutral: 'border-outline-variant bg-surface-container-low text-on-surface-variant',
+  primary: 'border-primary/35 bg-primary-soft text-primary',
   info: 'border-info/35 bg-info-soft text-info',
   success: 'border-success/35 bg-success-soft text-success',
   warning: 'border-warning/35 bg-warning-soft text-warning',

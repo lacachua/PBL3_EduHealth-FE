@@ -2,6 +2,7 @@ const MEDICINE_UNITS = ['VIEN', 'GOI', 'CHAI', 'HOP', 'TUYP', 'ONG', 'LO'];
 
 let medicineSequence = 5;
 let movementSequence = 7;
+let batchSequence = 6;
 
 const nowIso = () => new Date().toISOString();
 
@@ -174,9 +175,72 @@ const movements = [
   },
 ];
 
+const batches = [
+  {
+    id: 'MBT000001',
+    medicineId: 'MED001',
+    batchNumber: 'LOT-2026-001',
+    receivedAt: '2026-04-03T03:10:00Z',
+    expiryDate: daysFromNow(240),
+    initialQuantity: 450,
+    remainingQuantity: 450,
+    status: 'ACTIVE',
+    note: 'Nhap bo sung dau nam',
+  },
+  {
+    id: 'MBT000002',
+    medicineId: 'MED002',
+    batchNumber: 'LOT-2026-011',
+    receivedAt: '2026-04-04T06:30:00Z',
+    expiryDate: daysFromNow(16),
+    initialQuantity: 20,
+    remainingQuantity: 12,
+    status: 'ACTIVE',
+    note: null,
+  },
+  {
+    id: 'MBT000003',
+    medicineId: 'MED003',
+    batchNumber: 'LOT-2025-015',
+    receivedAt: '2026-03-01T00:30:00Z',
+    expiryDate: daysFromNow(-5),
+    initialQuantity: 10,
+    remainingQuantity: 0,
+    status: 'DISPOSED',
+    note: null,
+  },
+  {
+    id: 'MBT000004',
+    medicineId: 'MED004',
+    batchNumber: 'LOT-2026-009',
+    receivedAt: '2026-04-02T05:15:00Z',
+    expiryDate: daysFromNow(20),
+    initialQuantity: 30,
+    remainingQuantity: 30,
+    status: 'ACTIVE',
+    note: null,
+  },
+  {
+    id: 'MBT000005',
+    medicineId: 'MED004',
+    batchNumber: 'LOT-2026-010',
+    receivedAt: '2026-04-06T05:15:00Z',
+    expiryDate: daysFromNow(120),
+    initialQuantity: 50,
+    remainingQuantity: 50,
+    status: 'ACTIVE',
+    note: 'Lo bo sung',
+  },
+];
+
 const toNearestExpiryDate = (medicineId) => {
-  const dates = movements
-    .filter((item) => item.medicineId === medicineId && item.expiryDate)
+  const dates = batches
+    .filter((item) => (
+      item.medicineId === medicineId
+      && item.status === 'ACTIVE'
+      && item.remainingQuantity > 0
+      && item.expiryDate >= daysFromNow(0)
+    ))
     .map((item) => item.expiryDate)
     .sort();
 
@@ -185,7 +249,14 @@ const toNearestExpiryDate = (medicineId) => {
 
 const toMedicineListItem = (medicine) => {
   const nearestExpiryDate = toNearestExpiryDate(medicine.id);
-  const isLowStock = medicine.currentStock <= medicine.warningThreshold;
+  const currentStock = batches
+    .filter((item) => (
+      item.medicineId === medicine.id
+      && item.status === 'ACTIVE'
+      && item.expiryDate >= daysFromNow(0)
+    ))
+    .reduce((total, item) => total + item.remainingQuantity, 0);
+  const isLowStock = currentStock <= medicine.warningThreshold;
 
   return {
     id: medicine.id,
@@ -194,7 +265,7 @@ const toMedicineListItem = (medicine) => {
     unit: medicine.unit,
     packaging: medicine.packaging,
     warningThreshold: medicine.warningThreshold,
-    currentStock: medicine.currentStock,
+    currentStock,
     nearestExpiryDate,
     isLowStock,
     isExpiringSoon: isExpiringSoon(nearestExpiryDate),
@@ -204,12 +275,24 @@ const toMedicineListItem = (medicine) => {
 
 const toMedicineDetailItem = (medicine) => {
   const listItem = toMedicineListItem(medicine);
+  const medicineBatches = batches
+    .filter((item) => item.medicineId === medicine.id)
+    .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
+  const fefoBatchId = medicineBatches.find((item) => (
+    item.status === 'ACTIVE' && item.remainingQuantity > 0 && item.expiryDate >= daysFromNow(0)
+  ))?.id;
 
   return {
     ...listItem,
     note: medicine.note,
     createdAt: medicine.createdAt,
     updatedAt: medicine.updatedAt,
+    batches: medicineBatches.map((batch) => ({
+      ...batch,
+      isExpiringSoon: isExpiringSoon(batch.expiryDate),
+      isExpired: batch.expiryDate < daysFromNow(0),
+      isFefoPriority: batch.id === fefoBatchId,
+    })),
   };
 };
 
@@ -319,7 +402,24 @@ export const mockCreateMedicine = async (payload) => {
     ]);
   }
 
-  if (isMedicineNameExists(name)) {
+  const initialQuantity = Number(payload?.initialQuantity);
+  const hasInitialBatch = payload?.initialQuantity !== undefined
+    || Boolean(payload?.expiryDate)
+    || Boolean(payload?.batchNumber);
+
+  if (hasInitialBatch && (!Number.isFinite(initialQuantity) || initialQuantity <= 0)) {
+    throwMockApiError(400, 'Du lieu khong hop le.', [
+      { field: 'initialQuantity', code: 'INVALID_QUANTITY', message: 'initialQuantity phai > 0.' },
+    ]);
+  }
+  if (hasInitialBatch && (!payload?.expiryDate || payload.expiryDate <= daysFromNow(0))) {
+    throwMockApiError(400, 'Du lieu khong hop le.', [
+      { field: 'expiryDate', code: 'INVALID_EXPIRY_DATE', message: 'expiryDate phai lon hon ngay hien tai.' },
+    ]);
+  }
+
+  const existing = medicines.find((item) => item.name.toLowerCase() === name.toLowerCase());
+  if (existing && !hasInitialBatch) {
     throwMockApiError(409, 'Thuoc da ton tai.', [
       {
         field: 'name',
@@ -327,6 +427,15 @@ export const mockCreateMedicine = async (payload) => {
         message: 'Ten thuoc da ton tai trong he thong.',
       },
     ]);
+  }
+
+  if (existing && hasInitialBatch) {
+    return mockStockInMedicine(existing.id, {
+      quantity: initialQuantity,
+      expiryDate: payload.expiryDate,
+      batchNumber: payload.batchNumber,
+      note: payload.note,
+    });
   }
 
   const created = {
@@ -345,6 +454,15 @@ export const mockCreateMedicine = async (payload) => {
 
   medicineSequence += 1;
   medicines.push(created);
+
+  if (hasInitialBatch) {
+    await mockStockInMedicine(created.id, {
+      quantity: initialQuantity,
+      expiryDate: payload.expiryDate,
+      batchNumber: payload.batchNumber,
+      note: payload.note,
+    });
+  }
 
   return createEnvelope({
     message: 'Mock: Tao thuoc thanh cong.',
@@ -476,6 +594,7 @@ export const mockUpdateMedicineStatus = async (id, payload) => {
 
 const createMovementItem = ({
   medicine,
+  batchId,
   type,
   quantity,
   stockBefore,
@@ -491,6 +610,7 @@ const createMovementItem = ({
   const movement = {
     movementId,
     medicineId: medicine.id,
+    batchId: batchId || null,
     type,
     quantity,
     stockBefore,
@@ -542,13 +662,28 @@ export const mockStockInMedicine = async (id, payload) => {
     ]);
   }
 
-  const stockBefore = medicine.currentStock;
+  const stockBefore = toMedicineListItem(medicine).currentStock;
   const stockAfter = stockBefore + quantity;
   medicine.currentStock = stockAfter;
   medicine.updatedAt = nowIso();
 
+  const batch = {
+    id: `MBT${String(batchSequence).padStart(6, '0')}`,
+    medicineId: medicine.id,
+    batchNumber: payload?.batchNumber ? String(payload.batchNumber).trim() : null,
+    receivedAt: nowIso(),
+    expiryDate: payload.expiryDate,
+    initialQuantity: quantity,
+    remainingQuantity: quantity,
+    status: 'ACTIVE',
+    note: payload?.note ? String(payload.note).trim() : null,
+  };
+  batchSequence += 1;
+  batches.push(batch);
+
   const movement = createMovementItem({
     medicine,
+    batchId: batch.id,
     type: 'IMPORT',
     quantity,
     stockBefore,
@@ -563,6 +698,7 @@ export const mockStockInMedicine = async (id, payload) => {
     message: 'Mock: Nhap kho thanh cong.',
     data: {
       medicineId: medicine.id,
+      batchId: batch.id,
       movementId: movement.movementId,
       type: movement.type,
       quantity: movement.quantity,
@@ -598,29 +734,45 @@ export const mockDisposeMedicine = async (id, payload) => {
     ]);
   }
 
-  if (quantity > medicine.currentStock) {
+  const batch = batches.find((item) => item.id === payload?.batchId && item.medicineId === id);
+  if (!batch) {
+    throwMockApiError(404, 'Khong tim thay lo thuoc.', [
+      { field: 'batchId', code: 'BATCH_NOT_FOUND', message: 'Lo thuoc khong ton tai.' },
+    ]);
+  }
+  if (['DEPLETED', 'DISPOSED'].includes(batch.status) || batch.remainingQuantity <= 0) {
+    throwMockApiError(400, 'Lo thuoc khong con kha dung.', [
+      { field: 'batchId', code: 'BATCH_NOT_AVAILABLE', message: 'Khong the huy lo da het hang hoac da huy.' },
+    ]);
+  }
+  if (quantity > batch.remainingQuantity) {
     throwMockApiError(400, 'So luong huy khong hop le.', [
       {
         field: 'quantity',
         code: 'DISPOSE_QUANTITY_EXCEEDS_STOCK',
-        message: 'So luong huy vuot qua so luong ton kho.',
+        message: 'So luong huy vuot qua so luong con lai cua lo.',
       },
     ]);
   }
 
-  const stockBefore = medicine.currentStock;
+  const stockBefore = toMedicineListItem(medicine).currentStock;
   const stockAfter = stockBefore - quantity;
   medicine.currentStock = stockAfter;
   medicine.updatedAt = nowIso();
+  batch.remainingQuantity -= quantity;
+  if (batch.remainingQuantity === 0) {
+    batch.status = 'DISPOSED';
+  }
 
   const movement = createMovementItem({
     medicine,
+    batchId: batch.id,
     type: 'DISPOSE',
     quantity,
     stockBefore,
     stockAfter,
-    expiryDate: payload?.expiryDate || null,
-    batchNumber: payload?.batchNumber ? String(payload.batchNumber).trim() : null,
+    expiryDate: batch.expiryDate,
+    batchNumber: batch.batchNumber,
     reason: reason.toUpperCase(),
     note: payload?.note ? String(payload.note).trim() : null,
   });
@@ -629,6 +781,7 @@ export const mockDisposeMedicine = async (id, payload) => {
     message: 'Mock: Huy thuoc thanh cong.',
     data: {
       medicineId: medicine.id,
+      batchId: batch.id,
       movementId: movement.movementId,
       type: movement.type,
       quantity: movement.quantity,
@@ -675,6 +828,7 @@ export const mockGetMedicineMovements = async (id, query = {}) => {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .map((item) => ({
       movementId: item.movementId,
+      batchId: item.batchId || null,
       type: item.type,
       quantity: item.quantity,
       stockBefore: item.stockBefore,

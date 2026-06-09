@@ -9,6 +9,7 @@ const MedicineMovementTable = ({
   page,
   pageSize,
   totalItems,
+  totalPages,
   onPageChange,
   filters,
   onFiltersChange,
@@ -123,7 +124,7 @@ const MedicineMovementTable = ({
       ) : null}
 
       {!loading && !error && !dateError && totalItems > pageSize ? (
-        <Pagination page={page} pageSize={pageSize} totalItems={totalItems} onPageChange={onPageChange} compact />
+        <Pagination page={page} pageSize={pageSize} totalItems={totalItems} totalPages={totalPages} onPageChange={onPageChange} compact />
       ) : null}
     </section>
   );

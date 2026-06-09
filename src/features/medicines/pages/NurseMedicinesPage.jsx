@@ -32,6 +32,7 @@ import { getMedicines } from '../services/getMedicines';
 import { stockInMedicine } from '../services/stockInMedicine';
 import { updateMedicine } from '../services/updateMedicine';
 import { updateMedicineStatus } from '../services/updateMedicineStatus';
+import { notifyMedicineInventoryChanged } from '../services/medicineInventoryEvents';
 
 const NURSE_MEDICINES_OPTIONS = { moduleKey: DATA_MODULES.NURSE_MEDICINES };
 
@@ -103,6 +104,7 @@ const NurseMedicinesPage = () => {
   const [openStatusModal, setOpenStatusModal] = useState(false);
 
   const [activeMedicine, setActiveMedicine] = useState(null);
+  const [activeBatch, setActiveBatch] = useState(null);
   const [actionSubmitting, setActionSubmitting] = useState(false);
   const [actionError, setActionError] = useState('');
 
@@ -242,6 +244,7 @@ const NurseMedicinesPage = () => {
     setOpenStockInModal(false);
     setOpenDisposeModal(false);
     setOpenStatusModal(false);
+    setActiveBatch(null);
     setActionError('');
     setActionSubmitting(false);
   };
@@ -270,6 +273,9 @@ const NurseMedicinesPage = () => {
       });
 
       await refreshCurrentData();
+      notifyMedicineInventoryChanged({
+        medicineId: activeMedicine?.id || selectedMedicineId || null,
+      });
     } catch (error) {
       const message = resolveApiError(error);
       setActionError(message);
@@ -323,10 +329,14 @@ const NurseMedicinesPage = () => {
     setActiveMedicine(medicine);
   };
 
-  const openDisposeMedicine = async (medicine) => {
+  const openDisposeMedicine = async (medicine, batch) => {
+    if (!batch?.id || batch.remainingQuantity <= 0 || ['DEPLETED', 'DISPOSED'].includes(batch.status)) {
+      return;
+    }
     setActionError('');
     setOpenDisposeModal(true);
     setActiveMedicine(medicine);
+    setActiveBatch(batch);
   };
 
   const openStatusUpdate = async (medicine) => {
@@ -414,12 +424,14 @@ const NurseMedicinesPage = () => {
             rows={medicinesData.rows}
             loading={listStatus === 'loading'}
             onView={openDetailFromRow}
+            onStockIn={openStockInMedicine}
           />
         ) : null}
         pagination={!forbidden ? {
           page: medicinesData.page,
           pageSize: medicinesData.pageSize,
           totalItems: medicinesData.totalItems,
+          totalPages: medicinesData.totalPages,
           onPageChange: (nextPage) => setPage(nextPage),
         } : null}
       />
@@ -493,9 +505,10 @@ const NurseMedicinesPage = () => {
       />
 
       <DisposeMedicineModal
-        key={`${openDisposeModal ? 'dispose-open' : 'dispose-closed'}-${activeMedicine?.id || 'none'}`}
+        key={`${openDisposeModal ? 'dispose-open' : 'dispose-closed'}-${activeMedicine?.id || 'none'}-${activeBatch?.id || 'none'}`}
         open={openDisposeModal}
         medicine={activeMedicine}
+        batch={activeBatch}
         onClose={closeAllActionModals}
         submitting={actionSubmitting}
         error={actionError}

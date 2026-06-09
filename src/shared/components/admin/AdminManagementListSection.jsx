@@ -39,6 +39,7 @@ const AdminManagementListSection = ({
                 page={pagination.page}
                 pageSize={pagination.pageSize}
                 totalItems={pagination.totalItems}
+                totalPages={pagination.totalPages}
                 onPageChange={pagination.onPageChange}
               />
             </div>

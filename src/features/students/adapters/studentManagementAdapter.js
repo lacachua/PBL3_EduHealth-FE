@@ -22,6 +22,11 @@ const defaultModel = {
   totalPages: 1,
 };
 
+const buildStudentRoleFields = (item = {}) => ({
+  role: toNullableText(item.role)?.toUpperCase() || 'STUDENT',
+  roleLabel: toNullableText(item.roleLabel) || 'Học sinh',
+});
+
 const hasOwn = (item, key) => Object.prototype.hasOwnProperty.call(item || {}, key);
 
 const toNullableText = (value) => {
@@ -106,6 +111,7 @@ export const adaptStudentManagementResponse = (responseOrPayload) => {
       currentWeight: toNullableNumber(item.currentWeight),
       currentHeightLabel: formatStudentNumber(item.currentHeight),
       currentWeightLabel: formatStudentNumber(item.currentWeight),
+      ...buildStudentRoleFields(item),
       ...buildStatusFields(item),
     };
   });
@@ -150,6 +156,7 @@ export const adaptStudentDetailResponse = (responseOrPayload) => {
     email: hasOwn(item, 'email') ? toNullableText(item.email) : null,
     gender: hasOwn(item, 'gender') ? toNullableText(item.gender) : null,
     genderLabel: item.gender === 'MALE' ? 'Nam' : item.gender === 'FEMALE' ? 'Nữ' : item.gender === 'OTHER' ? 'Khác' : null,
+    ...buildStudentRoleFields(item),
     ...buildStatusFields(item),
     fields: {
       userId: hasOwn(item, 'userId'),

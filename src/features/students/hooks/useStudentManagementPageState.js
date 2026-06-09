@@ -8,6 +8,8 @@ export const useStudentManagementPageState = ({
   fetchStudentDetail,
   fetchList,
   tablePage,
+  updateStudent,
+  clearUpdateErrors,
 }) => {
   const [selected, setSelected] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -15,6 +17,8 @@ export const useStudentManagementPageState = ({
   const [localFeedback, setLocalFeedback] = useState(null);
   const [statusConfirmUser, setStatusConfirmUser] = useState(null);
   const [resetPasswordUser, setResetPasswordUser] = useState(null);
+  const [editStudent, setEditStudent] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const fromAdminUsers = locationState?.source === 'admin-users';
   const selectedTarget = selectedStudent || selected;
@@ -29,6 +33,55 @@ export const useStudentManagementPageState = ({
   };
 
   const openStudentDetail = (row) => openWithSelection(row, setDetailOpen);
+
+  const mergeDetailWithListRow = (row, detail) => {
+    if (!detail) return row;
+
+    const merged = { ...row, ...detail };
+    Object.entries(detail.fields || {}).forEach(([field, isPresent]) => {
+      if (!isPresent && row[field] !== undefined) {
+        merged[field] = row[field];
+      }
+    });
+
+    ['id', 'userId', 'apiId', 'accountUserId'].forEach((field) => {
+      merged[field] = detail[field] ?? row[field] ?? null;
+    });
+
+    return merged;
+  };
+
+  const openEditStudent = async (row) => {
+    clearUpdateErrors?.();
+    setDetailOpen(false);
+    setEditStudent(row);
+    setEditOpen(true);
+    const detail = await fetchStudentDetail(row.apiId || row.id, row);
+    if (detail) {
+      setEditStudent(mergeDetailWithListRow(row, detail));
+    }
+  };
+
+  const closeEditStudent = () => {
+    setEditOpen(false);
+    setEditStudent(null);
+    clearUpdateErrors?.();
+  };
+
+  const handleSubmitEdit = async (values) => {
+    const targetId = editStudent?.apiId || editStudent?.id;
+    if (!targetId) return;
+
+    await updateStudent(targetId, values);
+    const refreshedDetail = await fetchStudentDetail(targetId, editStudent);
+    setEditStudent(mergeDetailWithListRow(editStudent, refreshedDetail));
+    await fetchList({ page: tablePage });
+    setLocalFeedback({
+      type: 'success',
+      message: 'Cập nhật tài khoản học sinh thành công.',
+    });
+    closeEditStudent();
+  };
 
   const closeFeedback = () => {
     setLocalFeedback(null);
@@ -48,13 +101,6 @@ export const useStudentManagementPageState = ({
     }
 
     return fetchStudentDetail(selectedTargetId, selectedTarget);
-  };
-
-  const askEditStudent = () => {
-    setLocalFeedback({
-      type: 'error',
-      message: 'Chưa thể chỉnh sửa học sinh từ Admin vì BE hiện chỉ cho phép NURSE gọi PATCH /api/v1/students/{id}.',
-    });
   };
 
   const askToggleStatus = (row) => setStatusConfirmUser(row);
@@ -108,7 +154,6 @@ export const useStudentManagementPageState = ({
     closeFeedback,
     handleCreateSuccess,
     retryStudentDetail,
-    askEditStudent,
     statusConfirmUser,
     resetPasswordUser,
     askToggleStatus,
@@ -117,5 +162,10 @@ export const useStudentManagementPageState = ({
     closeResetPasswordModal,
     handleConfirmStatus,
     handleResetPasswordConfirm,
+    editStudent,
+    editOpen,
+    openEditStudent,
+    closeEditStudent,
+    handleSubmitEdit,
   };
 };

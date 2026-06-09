@@ -7,15 +7,22 @@ import StudentDetailDrawer from '../components/StudentDetailDrawer';
 import StudentFilters from '../components/StudentFilters';
 import StudentTable from '../components/StudentTable';
 import StudentCreateModal from '../components/StudentCreateModal';
+import StudentEditDrawer from '../components/StudentEditDrawer';
 import { STUDENT_BASE_CLASS } from '../constants/studentUiTokens';
 import { STUDENT_MANAGEMENT_COPY } from '../constants/studentManagementCopy';
 import UserStatusConfirmModal from '../../users/components/UserStatusConfirmModal';
 import ResetPasswordModal from '../../users/components/ResetPasswordModal';
 import { useStudentManagement } from '../hooks/useStudentManagement';
 import { useStudentManagementPageState } from '../hooks/useStudentManagementPageState';
+import { useClassOptions } from '../hooks/useClassOptions';
 
 const StudentManagementPage = () => {
   const location = useLocation();
+  const {
+    classes,
+    loading: classesLoading,
+    error: classesError,
+  } = useClassOptions();
 
   const {
     filters,
@@ -38,6 +45,10 @@ const StudentManagementPage = () => {
     fetchStudentDetail,
     toggleStatus,
     resetPassword,
+    updateStudent,
+    updateSubmitting,
+    updateFieldErrors,
+    clearUpdateErrors,
   } = useStudentManagement();
 
   const {
@@ -52,7 +63,6 @@ const StudentManagementPage = () => {
     closeFeedback,
     handleCreateSuccess,
     retryStudentDetail,
-    askEditStudent,
     statusConfirmUser,
     resetPasswordUser,
     askToggleStatus,
@@ -61,6 +71,11 @@ const StudentManagementPage = () => {
     closeResetPasswordModal,
     handleConfirmStatus,
     handleResetPasswordConfirm,
+    editStudent,
+    editOpen,
+    openEditStudent,
+    closeEditStudent,
+    handleSubmitEdit,
   } = useStudentManagementPageState({
     locationState: location.state,
     selectedStudent,
@@ -69,6 +84,8 @@ const StudentManagementPage = () => {
     fetchStudentDetail,
     fetchList,
     tablePage: tableData.page,
+    updateStudent,
+    clearUpdateErrors,
   });
 
   return (
@@ -101,7 +118,15 @@ const StudentManagementPage = () => {
       />
 
       <AdminManagementListSection
-        filters={<StudentFilters initialValue={filters} onApply={onFiltersChange} />}
+        filters={(
+          <StudentFilters
+            initialValue={filters}
+            onApply={onFiltersChange}
+            classes={classes}
+            classesLoading={classesLoading}
+            classesError={classesError}
+          />
+        )}
         summary={tableData.totalItems > 0 ? STUDENT_MANAGEMENT_COPY.resultCount(tableData.rows.length, tableData.totalItems) : null}
         status={status}
         error={error}
@@ -113,7 +138,7 @@ const StudentManagementPage = () => {
           <StudentTable
             rows={tableData.rows}
             onViewDetail={openStudentDetail}
-            onEdit={askEditStudent}
+            onEdit={openEditStudent}
             onToggleStatus={askToggleStatus}
             onResetPassword={askResetPassword}
           />
@@ -122,6 +147,7 @@ const StudentManagementPage = () => {
           page: tableData.page,
           pageSize: tableData.pageSize,
           totalItems: tableData.totalItems,
+          totalPages: tableData.totalPages,
           onPageChange,
         }}
       />
@@ -135,6 +161,7 @@ const StudentManagementPage = () => {
         syncMessage={basicSyncMessage || healthSyncMessage}
         onClose={() => setDetailOpen(false)}
         onRetry={retryStudentDetail}
+        onEdit={openEditStudent}
         onToggleStatus={askToggleStatus}
         onResetPassword={askResetPassword}
       />
@@ -142,8 +169,23 @@ const StudentManagementPage = () => {
       <StudentCreateModal
         open={createOpen}
         fromAdminUsers={fromAdminUsers}
+        classes={classes}
+        classesLoading={classesLoading}
+        classesError={classesError}
         onClose={() => setCreateOpen(false)}
         onSuccess={handleCreateSuccess}
+      />
+
+      <StudentEditDrawer
+        open={editOpen}
+        student={editStudent}
+        classes={classes}
+        classesLoading={classesLoading}
+        classesError={classesError}
+        submitting={updateSubmitting}
+        apiErrors={updateFieldErrors}
+        onClose={closeEditStudent}
+        onSubmit={handleSubmitEdit}
       />
 
       <UserStatusConfirmModal

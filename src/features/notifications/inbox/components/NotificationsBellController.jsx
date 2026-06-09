@@ -169,10 +169,13 @@ const NotificationsBellController = ({
             return;
           }
 
+          const notification = selectedNotification;
+          closeDetail();
           onClose?.();
           navigate(fullPagePath, {
             state: {
-              openNotificationId: selectedNotification.notificationId,
+              openNotificationId: notification.notificationId,
+              openNotificationItem: notification,
             },
           });
         }}

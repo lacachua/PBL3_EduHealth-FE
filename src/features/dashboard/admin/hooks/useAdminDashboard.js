@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { normalizeApiMessage } from '../../../../shared/api/normalizeResponse';
 import { adaptAdminDashboardEnvelope } from '../adapters/adminDashboardAdapter';
 import { fetchAdminDashboardOverview, fetchRecentActivities } from '../services/adminDashboardApi';
+import { subscribeMedicineInventoryChanged } from '../../../medicines/services/medicineInventoryEvents';
 
 export const useAdminDashboard = (initialQuery) => {
   const initialQueryRef = useRef(initialQuery ?? {});
@@ -39,6 +40,10 @@ export const useAdminDashboard = (initialQuery) => {
   useEffect(() => {
     fetchDashboard(initialQueryRef.current);
   }, [fetchDashboard]);
+
+  useEffect(() => subscribeMedicineInventoryChanged(() => {
+    fetchDashboard();
+  }), [fetchDashboard]);
 
   const status = useMemo(() => {
     if (loading) return 'loading';

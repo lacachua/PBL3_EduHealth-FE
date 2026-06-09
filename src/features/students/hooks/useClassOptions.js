@@ -13,14 +13,24 @@ export const useClassOptions = () => {
       setLoading(true);
       setError(null);
       try {
-        const envelope = await getStudentClassesApi();
+        const envelope = await getStudentClassesApi({ page: 1, pageSize: 100 });
         if (!mounted) return;
 
-        if (envelope?.success && Array.isArray(envelope?.data)) {
-          if (envelope.data.length === 0) {
+        const rows = Array.isArray(envelope?.data)
+          ? envelope.data
+          : Array.isArray(envelope?.data?.items)
+            ? envelope.data.items
+            : [];
+
+        if (envelope?.success !== false) {
+          if (rows.length === 0) {
             setError('Chưa có lớp để chọn.');
           } else {
-            setClasses(envelope.data);
+            setClasses(rows.map((item) => ({
+              ...item,
+              classId: item.classId ?? item.id,
+              className: item.className || item.name || '',
+            })).filter((item) => item.classId != null));
           }
         } else {
           setError('Không thể tải danh sách lớp. Vui lòng thử lại.');

@@ -46,6 +46,13 @@ const mapMedicineBase = (item = {}) => {
     alertTone: mapMedicineAlertTone(isLowStock, isExpiringSoon),
     createdAt: formatDateTime(item.createdAt),
     updatedAt: formatDateTime(item.updatedAt),
+    batches: Array.isArray(item.batches)
+      ? item.batches.map((batch) => ({
+        ...batch,
+        receivedAt: toDisplayDateOnly(batch.receivedAt),
+        expiryDate: toDisplayDateOnly(batch.expiryDate),
+      }))
+      : [],
   };
 };
 

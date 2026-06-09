@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import SearchInput from '../../../shared/components/core/SearchInput';
-import { STUDENT_FILTER_DEFAULTS, STUDENT_CLASS_FILTER_OPTIONS, STUDENT_STATUS_OPTIONS } from '../constants/studentManagementConstants';
+import { STUDENT_FILTER_DEFAULTS, STUDENT_STATUS_OPTIONS } from '../constants/studentManagementConstants';
 import {
   STUDENT_BASE_CLASS,
 } from '../constants/studentUiTokens';
 
-const StudentFilters = ({ initialValue, onApply }) => {
+const StudentFilters = ({
+  initialValue,
+  onApply,
+  classes = [],
+  classesLoading = false,
+  classesError = '',
+}) => {
   const [draft, setDraft] = useState(initialValue);
 
   const controlClass = `h-11 rounded-xl border bg-surface px-3 text-sm outline-none transition ${STUDENT_BASE_CLASS.border} ${STUDENT_BASE_CLASS.bodyText} ${STUDENT_BASE_CLASS.focusRing}`;
@@ -40,10 +46,14 @@ const StudentFilters = ({ initialValue, onApply }) => {
         value={draft.classId}
         onChange={(event) => setDraft((prev) => ({ ...prev, classId: event.target.value }))}
         className={`w-full md:w-[170px] ${controlClass}`}
+        disabled={classesLoading || Boolean(classesError)}
       >
-        {STUDENT_CLASS_FILTER_OPTIONS.map((item) => (
-          <option key={item.value} value={item.value}>{item.label}</option>
-        ))}
+        <option value="all">
+          {classesLoading ? 'Đang tải lớp...' : classesError || 'Tất cả lớp'}
+        </option>
+        {!classesLoading && !classesError ? classes.map((item) => (
+          <option key={item.classId} value={item.classId}>{item.className}</option>
+        )) : null}
       </select>
 
       <select

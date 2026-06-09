@@ -28,10 +28,14 @@ const toSafeNumber = (value, fallback) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const Pagination = ({ page, pageSize, totalItems, onPageChange, compact = false }) => {
+const Pagination = ({ page, pageSize, totalItems, totalPages: totalPagesProp, onPageChange, compact = false }) => {
   const safePageSize = Math.max(1, toSafeNumber(pageSize, 1));
   const safeTotalItems = Math.max(0, toSafeNumber(totalItems, 0));
-  const totalPages = Math.max(1, Math.ceil(safeTotalItems / safePageSize));
+  const backendTotalPages = toSafeNumber(totalPagesProp, 0);
+  const totalPages = Math.max(
+    1,
+    backendTotalPages > 0 ? backendTotalPages : Math.ceil(safeTotalItems / safePageSize),
+  );
   const currentPage = Math.min(Math.max(1, toSafeNumber(page, 1)), totalPages);
   const pageTokens = buildPageTokens(currentPage, totalPages);
 

@@ -1,14 +1,7 @@
-import { STUDENT_CREATE_CLASS_OPTIONS } from './studentCreateOptions';
-
 export const STUDENT_STATUS_OPTIONS = [
     { label: 'Tất cả trạng thái', value: 'all' },
     { label: 'Hoạt động', value: 'ACTIVE' },
     { label: 'Ngưng hoạt động', value: 'INACTIVE' },
-];
-
-export const STUDENT_CLASS_FILTER_OPTIONS = [
-    { label: 'Tất cả lớp', value: 'all' },
-    ...STUDENT_CREATE_CLASS_OPTIONS,
 ];
 
 export const STUDENT_FILTER_DEFAULTS = {

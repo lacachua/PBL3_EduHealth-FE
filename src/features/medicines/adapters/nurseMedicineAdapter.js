@@ -6,6 +6,8 @@ import {
   DISPOSE_REASON_LABELS,
   MEDICINE_ALERT_BADGE_CLASS,
   MEDICINE_ALERT_LABELS,
+  MEDICINE_BATCH_STATUS_LABELS,
+  MEDICINE_BATCH_STATUS_TONES,
   MEDICINE_STATUS_BADGE_CLASS,
   MEDICINE_STATUS_LABELS,
   MEDICINE_UNIT_LABELS,
@@ -38,6 +40,19 @@ const toAlertKey = (item) => {
   if (item.isExpiringSoon) return 'expiring';
   return 'none';
 };
+
+const mapMedicineBatch = (batch = {}) => ({
+  ...batch,
+  receivedAtLabel: formatDateOnly(batch.receivedAt),
+  expiryDateLabel: formatDateOnly(batch.expiryDate),
+  statusLabel: MEDICINE_BATCH_STATUS_LABELS[batch.status] || batch.status || null,
+  statusTone: MEDICINE_BATCH_STATUS_TONES[batch.status] || 'neutral',
+  initialQuantity: Number(batch.initialQuantity ?? 0),
+  remainingQuantity: Number(batch.remainingQuantity ?? 0),
+  isExpiringSoon: Boolean(batch.isExpiringSoon),
+  isExpired: Boolean(batch.isExpired),
+  isFefoPriority: Boolean(batch.isFefoPriority),
+});
 
 export const mapMedicineListEnvelope = (response) => {
   const envelope = normalizeApiEnvelope(response);
@@ -91,6 +106,7 @@ export const mapMedicineDetailEnvelope = (response) => {
     nearestExpiryDateLabel: formatDateOnly(item.nearestExpiryDate),
     createdAtLabel: formatDateTime(item.createdAt),
     updatedAtLabel: formatDateTime(item.updatedAt),
+    batches: Array.isArray(item.batches) ? item.batches.map(mapMedicineBatch) : [],
   };
 };
 

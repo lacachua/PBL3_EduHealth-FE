@@ -3,7 +3,6 @@ import StudentAccountSection from './StudentAccountSection';
 import StudentHealthInitialSection from './StudentHealthInitialSection';
 import StudentProfileSection from './StudentProfileSection';
 import { useCreateStudentForm } from '../hooks/useCreateStudentForm';
-import { useClassOptions } from '../hooks/useClassOptions';
 
 const AvatarPlaceholder = () => (
   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-soft bg-primary-soft text-xs font-bold text-primary">
@@ -11,7 +10,15 @@ const AvatarPlaceholder = () => (
   </span>
 );
 
-const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }) => {
+const StudentCreateModal = ({
+  open,
+  fromAdminUsers = false,
+  onClose,
+  onSuccess,
+  classes = [],
+  classesLoading = false,
+  classesError = '',
+}) => {
   const {
     formValues,
     fieldErrors,
@@ -21,8 +28,6 @@ const StudentCreateModal = ({ open, fromAdminUsers = false, onClose, onSuccess }
     resetForm,
     submit,
   } = useCreateStudentForm();
-
-  const { classes, loading: classesLoading, error: classesError } = useClassOptions();
 
   useEffect(() => {
     if (!open) {

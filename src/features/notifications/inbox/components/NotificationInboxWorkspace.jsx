@@ -74,13 +74,20 @@ const NotificationInboxWorkspace = ({
 
   useEffect(() => {
     const notificationId = location.state?.openNotificationId;
-    if (!notificationId) {
+    if (!notificationId || loading) {
       return;
     }
 
-    openDetail(notificationId);
+    openDetail(notificationId, 'inbox', location.state?.openNotificationItem);
     navigate(location.pathname, { replace: true, state: {} });
-  }, [location.pathname, location.state?.openNotificationId, navigate, openDetail]);
+  }, [
+    loading,
+    location.pathname,
+    location.state?.openNotificationId,
+    location.state?.openNotificationItem,
+    navigate,
+    openDetail,
+  ]);
 
   return (
     <div className="space-y-4 text-on-surface">

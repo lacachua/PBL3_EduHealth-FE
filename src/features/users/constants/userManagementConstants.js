@@ -1,6 +1,7 @@
 export const USER_ROLES = {
     ADMIN: 'ADMIN',
     NURSE: 'NURSE',
+    STUDENT: 'STUDENT',
 };
 
 export const ACCOUNT_ROLES = [USER_ROLES.ADMIN, USER_ROLES.NURSE];
@@ -38,6 +39,7 @@ export const USER_PAGE_SIZE = 10;
 export const ROLE_LABEL_MAP = {
     ADMIN: 'Quản trị viên',
     NURSE: 'Nhân viên y tế',
+    STUDENT: 'Học sinh',
 };
 
 export const STATUS_LABEL_MAP = {
@@ -48,6 +50,7 @@ export const STATUS_LABEL_MAP = {
 export const ROLE_TONE_MAP = {
     ADMIN: 'danger',
     NURSE: 'info',
+    STUDENT: 'primary',
 };
 
 export const STATUS_TONE_MAP = {

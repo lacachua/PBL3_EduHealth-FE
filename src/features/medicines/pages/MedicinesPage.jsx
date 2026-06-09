@@ -93,6 +93,7 @@ const MedicinesPage = () => {
                 page={tableData.page}
                 pageSize={tableData.pageSize}
                 totalItems={tableData.totalItems}
+                totalPages={tableData.totalPages}
                 onPageChange={onPageChange}
               />
             ) : null}

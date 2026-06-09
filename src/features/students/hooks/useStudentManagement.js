@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  mapApiFieldErrors,
   normalizeApiMessage,
 } from '../../../shared/api/normalizeResponse';
 import {
@@ -11,7 +12,9 @@ import {
   getStudentManagementDetailApi,
   getStudentHealthProfileApi,
   getStudentManagementListApi,
+  updateStudentManagementApi,
 } from '../services/studentManagementApi';
+import { buildStudentBasicPatchPayload } from '../adapters/studentManagementPayloadMapper';
 import { userManagementRepository } from '../../users/repositories/userManagementRepository';
 import { DATA_MODULES } from '../../../app/config/dataMode';
 import {
@@ -41,9 +44,12 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
   const [healthDetailError, setHealthDetailError] = useState('');
   const [basicSyncMessage, setBasicSyncMessage] = useState('');
   const [healthSyncMessage, setHealthSyncMessage] = useState('');
+  const [updateSubmitting, setUpdateSubmitting] = useState(false);
+  const [updateFieldErrors, setUpdateFieldErrors] = useState({});
 
   const selectedStudentRef = useRef(selectedStudent);
   const selectedHealthProfileRef = useRef(selectedHealthProfile);
+  const listRequestIdRef = useRef(0);
 
   useEffect(() => {
     selectedStudentRef.current = selectedStudent;
@@ -54,6 +60,8 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
   }, [selectedHealthProfile]);
 
   const fetchList = useCallback(async (next = {}) => {
+    const requestId = listRequestIdRef.current + 1;
+    listRequestIdRef.current = requestId;
     setLoading(true);
     setError('');
 
@@ -69,12 +77,18 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
       const envelope = await getStudentManagementListApi(query, {
         moduleKey,
       });
-      setTableData(adaptStudentManagementResponse(envelope));
+      if (requestId === listRequestIdRef.current) {
+        setTableData(adaptStudentManagementResponse(envelope));
+      }
     } catch (apiError) {
-      setError(normalizeApiMessage(apiError));
-      setTableData(defaultTableData);
+      if (requestId === listRequestIdRef.current) {
+        setError(normalizeApiMessage(apiError));
+        setTableData(defaultTableData);
+      }
     } finally {
-      setLoading(false);
+      if (requestId === listRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [filters.classId, filters.keyword, filters.status, moduleKey, page]);
 
@@ -83,22 +97,16 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
       return;
     }
 
-    fetchList({ page: 1 });
-  }, [autoFetch, fetchList]);
+    fetchList({ page });
+  }, [autoFetch, fetchList, page]);
 
   const onFiltersChange = (nextFilters) => {
     setFilters(nextFilters);
     setPage(1);
-    if (autoFetch) {
-      fetchList({ ...nextFilters, page: 1 });
-    }
   };
 
   const onPageChange = (nextPage) => {
     setPage(nextPage);
-    if (autoFetch) {
-      fetchList({ page: nextPage });
-    }
   };
 
   const fetchBasicDetail = useCallback(async (studentId, fallbackStudent = null) => {
@@ -194,6 +202,30 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     return userManagementRepository.resetUserPassword(userRow.userId, payload);
   };
 
+  const updateStudent = async (studentId, values) => {
+    setUpdateSubmitting(true);
+    setUpdateFieldErrors({});
+
+    try {
+      return await updateStudentManagementApi(
+        studentId,
+        buildStudentBasicPatchPayload(values),
+        { moduleKey },
+      );
+    } catch (apiError) {
+      const fieldErrors = mapApiFieldErrors(apiError);
+      setUpdateFieldErrors({
+        ...fieldErrors,
+        general: Object.keys(fieldErrors).length ? '' : normalizeApiMessage(apiError),
+      });
+      throw apiError;
+    } finally {
+      setUpdateSubmitting(false);
+    }
+  };
+
+  const clearUpdateErrors = () => setUpdateFieldErrors({});
+
   const status = useMemo(() => {
     if (loading) return 'loading';
     if (error) return 'error';
@@ -215,12 +247,16 @@ export const useStudentManagement = ({ autoFetch = true, moduleKey = DATA_MODULE
     healthDetailError,
     basicSyncMessage,
     healthSyncMessage,
+    updateSubmitting,
+    updateFieldErrors,
     onFiltersChange,
     onPageChange,
     fetchList,
     fetchStudentDetail,
     toggleStatus,
     resetPassword,
+    updateStudent,
+    clearUpdateErrors,
     setSelectedStudent,
     setSelectedHealthProfile,
   };

@@ -6,6 +6,7 @@ import AdminFeedbackToast from '../../../shared/components/core/FeedbackToast';
 import { mapApiFieldErrors, normalizeApiMessage } from '../../../shared/api/normalizeResponse';
 import EditableField from '../../../shared/components/form/EditableField';
 import { getMedicines } from '../../medicines/services/getMedicines';
+import { notifyMedicineInventoryChanged } from '../../medicines/services/medicineInventoryEvents';
 import { adaptDiseaseOptionsResponse } from '../adapters/examinationAdapter';
 import {
   getNurseStudentDetailApi,
@@ -89,6 +90,22 @@ const normalizePrescriptionItem = (item) => ({
   usageInstruction: item.usageInstruction?.trim() || null,
 });
 
+const resolveDispensingErrorMessage = (error) => {
+  const payload = error?.response?.data;
+  const codes = [
+    payload?.code,
+    ...(Array.isArray(payload?.errors) ? payload.errors.map((item) => item?.code) : []),
+  ].filter(Boolean);
+
+  if (codes.includes('INSUFFICIENT_STOCK')) {
+    return 'Số lượng thuốc khả dụng không đủ';
+  }
+  if (codes.includes('MEDICINE_INACTIVE')) {
+    return 'Thuốc đã ngừng sử dụng';
+  }
+  return null;
+};
+
 const MedicinePicker = ({
   value,
   options,
@@ -99,14 +116,6 @@ const MedicinePicker = ({
   const containerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [keyword, setKeyword] = useState('');
-
-  const selectedOption = useMemo(() => options.find((option) => option.id === value) || null, [options, value]);
-
-  useEffect(() => {
-    if (!open) {
-      setKeyword(selectedOption?.name || '');
-    }
-  }, [open, selectedOption?.name]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -156,6 +165,7 @@ const MedicinePicker = ({
                       onClick={() => {
                         if (isDisabled) return;
                         onChange(option.id);
+                        setKeyword(option.name);
                         setOpen(false);
                       }}
                       className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm transition ${
@@ -461,6 +471,11 @@ const CreateExaminationPage = () => {
     try {
       const response = await createExamination(payload);
       const createdId = response?.data?.id;
+      if (prescriptions.length) {
+        notifyMedicineInventoryChanged({
+          medicineIds: prescriptions.map((item) => item.medicineId).filter(Boolean),
+        });
+      }
       const successMessage = response?.message || 'Tạo phiếu khám thành công.';
 
       if (createdId) {
@@ -493,7 +508,7 @@ const CreateExaminationPage = () => {
         setFieldErrors((prev) => ({ ...prev, ...mapped }));
       }
 
-      const message = normalizeApiMessage(apiError);
+      const message = resolveDispensingErrorMessage(apiError) || normalizeApiMessage(apiError);
       if (!Object.keys(mapped).length) {
         setSubmitError(message);
       }

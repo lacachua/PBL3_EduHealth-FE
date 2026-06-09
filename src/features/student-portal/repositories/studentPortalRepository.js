@@ -155,9 +155,18 @@ const mergeAccountData = (baseAccount, currentUser) => {
     email: currentUser.email || account.email,
     phone: currentUser.phone || account.phone,
     avatar: currentUser.avatar || account.avatar,
-    username: account.username || (currentUser.email ? currentUser.email.split('@')[0] : 'student'),
-    studentCode: account.studentCode || '--',
-    className: account.className || '--',
+    username: currentUser.username || account.username || (currentUser.email ? currentUser.email.split('@')[0] : 'student'),
+    studentId: currentUser.studentId || account.studentId,
+    studentCode: currentUser.studentCode || account.studentCode || '--',
+    classId: currentUser.classId || account.classId,
+    className: currentUser.className || account.className || '--',
+    gender: toGenderLabel(currentUser.gender || account.gender),
+    dateOfBirth: currentUser.dateOfBirth || account.dateOfBirth,
+    guardian: currentUser.guardian || account.guardian,
+    guardianPhone: currentUser.guardianPhone || account.guardianPhone,
+    currentHeight: currentUser.currentHeight ?? account.currentHeight,
+    currentWeight: currentUser.currentWeight ?? account.currentWeight,
+    medicalHistoryNotes: currentUser.medicalHistoryNotes || account.medicalHistoryNotes,
     role: normalizedRole,
     roleLabel: toRoleLabel(normalizedRole, currentUser.roleLabel || account.roleLabel),
     isActive,
@@ -187,8 +196,18 @@ const buildAccountSeedFromHealthProfile = (healthProfileEnvelopeData = {}) => {
     currentWeight: profile?.weightKg,
     bloodType: profile?.bloodType,
     eyeStatus: profile?.eyeStatus,
-    medicalHistoryNotes: profile?.generalHealthNote || profile?.chronicNote,
+    medicalHistoryNotes: healthProfileEnvelopeData?.medicalHistoryNotes
+      || profile?.generalHealthNote
+      || profile?.chronicNote,
   };
+};
+
+const toGenderLabel = (value) => {
+  const normalized = String(value || '').trim().toUpperCase();
+  if (normalized === 'MALE') return 'Nam';
+  if (normalized === 'FEMALE') return 'Nữ';
+  if (normalized === 'OTHER') return 'Khác';
+  return toText(value, '');
 };
 
 const toArrayData = (envelope) => (Array.isArray(envelope?.data) ? envelope.data : []);
@@ -765,18 +784,10 @@ export const studentPortalRepository = {
       };
     }
 
-    const { currentUser, studentUserId } = await requireStudentContext();
-
-    let healthProfileData = null;
-    try {
-      const healthProfileEnvelope = await getHealthProfileLive(studentUserId);
-      healthProfileData = healthProfileEnvelope.data;
-    } catch {
-      healthProfileData = null;
-    }
+    const { currentUser } = await requireStudentContext();
 
     return createLiveEnvelope(
-      withCapabilities(mergeAccountData(buildAccountSeedFromHealthProfile(healthProfileData), currentUser)),
+      withCapabilities(mergeAccountData({}, currentUser)),
       'Lấy thông tin tài khoản thành công.',
     );
   },

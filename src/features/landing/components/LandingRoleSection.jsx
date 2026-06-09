@@ -14,8 +14,8 @@ const roleItems = [
     imageSrc: nurseVisual,
   },
   {
-    tag: "Phụ huynh",
-    title: "Theo dõi sức khỏe của con",
+    tag: "Học sinh",
+    title: "Theo dõi sức khỏe của bản thân",
     description:
       "Xem thông tin sức khỏe, lịch sử khám bệnh, lịch sử dùng thuốc và trạng thái tiêm chủng.",
     imageAlt: "Minh họa màn hình phụ huynh theo dõi hồ sơ sức khỏe",

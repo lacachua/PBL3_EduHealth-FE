@@ -151,7 +151,7 @@ export const useNotificationInbox = ({
     } finally {
       setLoading(false);
     }
-  }, [capabilityState.inboxSource, currentUser, keyword, role, statusFilter, typeFilter]);
+  }, [currentUser, keyword, role, statusFilter, typeFilter]);
 
   const loadSentInbox = useCallback(async () => {
     if (role !== 'ADMIN' && role !== 'NURSE') {
@@ -249,9 +249,10 @@ export const useNotificationInbox = ({
     return () => window.clearTimeout(timeoutId);
   }, [capabilityState.lookupSource, composerOpen, currentUser, draft, role]);
 
-  const openDetail = useCallback(async (notificationId, mode = 'inbox') => {
+  const openDetail = useCallback(async (notificationId, mode = 'inbox', fallbackItem = null) => {
     setDetailOpen(true);
     setDetailLoading(true);
+    setSelectedNotification(fallbackItem);
 
     try {
       let nextItem = null;
@@ -262,7 +263,9 @@ export const useNotificationInbox = ({
         const isLive = capabilityState.inboxSource === 'LIVE';
 
         if (isLive) {
-          nextItem = items.find((item) => Number(item.notificationId) === Number(notificationId)) || null;
+          nextItem = fallbackItem
+            || items.find((item) => Number(item.notificationId) === Number(notificationId))
+            || null;
         } else {
           const detail = await notificationsRepository.getNotificationDetail(notificationId, {
             currentUser,
@@ -499,7 +502,7 @@ export const useNotificationInbox = ({
     setSubmitting(true);
 
     try {
-      const result = await notificationsRepository.createNotification(draft, role, {
+      await notificationsRepository.createNotification(draft, role, {
         currentUser,
         viewerRole: role,
       });
@@ -520,7 +523,7 @@ export const useNotificationInbox = ({
     } finally {
       setSubmitting(false);
     }
-  }, [currentUser, draft, imageUploadError, imageUploading, loadInbox, recipientOptions, role]);
+  }, [currentUser, draft, imageUploadError, imageUploading, loadInbox, loadSentInbox, recipientOptions, role]);
 
   const showRecipients = draft.visibility !== 'PUBLIC';
 

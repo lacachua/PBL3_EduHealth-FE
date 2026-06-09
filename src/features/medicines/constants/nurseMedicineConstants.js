@@ -83,5 +83,17 @@ export const DISPOSE_REASON_LABELS = {
   OTHER: 'Khác',
 };
 
-export const PAGE_SIZE = 10;
+export const MEDICINE_BATCH_STATUS_LABELS = {
+  ACTIVE: 'Đang sử dụng',
+  DEPLETED: 'Đã hết hàng',
+  DISPOSED: 'Đã hủy',
+};
+
+export const MEDICINE_BATCH_STATUS_TONES = {
+  ACTIVE: 'success',
+  DEPLETED: 'neutral',
+  DISPOSED: 'danger',
+};
+
+export const PAGE_SIZE = 20;
 export const MOVEMENT_PAGE_SIZE = 5;

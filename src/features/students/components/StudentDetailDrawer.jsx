@@ -36,8 +36,14 @@ const StudentDetailDrawer = ({
   syncMessage,
   onClose,
   onRetry,
+  onEdit,
+  onToggleStatus,
+  onResetPassword,
 }) => {
   const avatarSrc = student?.imageUrl || '';
+  const isLocked = student?.status === 'LOCKED' || student?.status === 'INACTIVE';
+  const hasAccountEndpointId = Boolean(student?.userId);
+  const actionButtonClass = 'app-focus-ring rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-55';
 
   const hasStudentInfoSection = [
     'fullName',
@@ -153,6 +159,32 @@ const StudentDetailDrawer = ({
               {hasField(student, 'updatedAt') ? <InfoRow label="Ngày cập nhật">{displayValue(student.updatedAtLabel)}</InfoRow> : null}
             </DetailSection>
           ) : null}
+
+          <div className="flex flex-wrap gap-2 border-t border-outline-variant pt-3">
+            <button
+              type="button"
+              className="app-focus-ring rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-hover)]"
+              onClick={() => onEdit?.(student)}
+            >
+              Chỉnh sửa
+            </button>
+            <button
+              type="button"
+              className={actionButtonClass}
+              disabled={!hasAccountEndpointId}
+              onClick={() => onToggleStatus?.(student)}
+            >
+              {isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}
+            </button>
+            <button
+              type="button"
+              className="app-focus-ring rounded-md border border-warning/30 bg-warning-soft px-3 py-1.5 text-sm font-semibold text-warning transition hover:bg-warning-soft/80 disabled:cursor-not-allowed disabled:opacity-55"
+              disabled={!hasAccountEndpointId}
+              onClick={() => onResetPassword?.(student)}
+            >
+              Đặt lại mật khẩu
+            </button>
+          </div>
         </div>
       ) : null}
     </RightDrawer>

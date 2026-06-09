@@ -1,11 +1,9 @@
 import React from 'react';
 
 const labelClassName = 'text-xs font-bold uppercase tracking-[0.12em] text-on-surface-muted';
-const editableInputClassName = 'app-focus-ring app-input mt-1 h-10 w-full rounded-lg px-3 text-sm';
 const readonlyInputClassName =
   'mt-1 h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low px-3 text-sm font-medium text-on-surface-variant opacity-90';
 const fieldCardClassName = 'rounded-xl border border-outline-variant bg-surface px-3 py-2.5';
-const fieldErrorClassName = 'mt-1 text-xs font-medium text-danger';
 
 const toReadableText = (value, fallback = 'Chưa cập nhật') => {
   const normalized = String(value || '').trim();
@@ -14,13 +12,6 @@ const toReadableText = (value, fallback = 'Chưa cập nhật') => {
 
 const StudentAccountInfoCard = ({
   profile,
-  formValues,
-  formErrors,
-  isSaving,
-  canEditProfile,
-  onFieldChange,
-  onCancel,
-  onSave,
 }) => {
   const renderReadonlyField = (id, label, value) => {
     return (
@@ -55,42 +46,17 @@ const StudentAccountInfoCard = ({
         <section className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-muted">Thông tin cá nhân</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className={fieldCardClassName}>
-              <label htmlFor="profileFullName" className={labelClassName}>Họ và tên</label>
-              <input
-                id="profileFullName"
-                type="text"
-                value={canEditProfile ? formValues.fullName : toReadableText(profile.fullName)}
-                onChange={(event) => onFieldChange('fullName', event.target.value)}
-                className={canEditProfile ? editableInputClassName : readonlyInputClassName}
-                readOnly={!canEditProfile}
-                disabled={!canEditProfile}
-              />
-              {formErrors.fullName ? <p className={fieldErrorClassName}>{formErrors.fullName}</p> : null}
-            </div>
+            {renderReadonlyField('profileFullName', 'Họ và tên', profile.fullName)}
 
             {renderReadonlyField('profileEmail', 'Email', profile.email)}
 
-            <div className={fieldCardClassName}>
-              <label htmlFor="profilePhone" className={labelClassName}>Số điện thoại tài khoản</label>
-              <input
-                id="profilePhone"
-                type="tel"
-                value={canEditProfile ? formValues.phone : toReadableText(profile.phone)}
-                onChange={(event) => onFieldChange('phone', event.target.value)}
-                className={canEditProfile ? editableInputClassName : readonlyInputClassName}
-                readOnly={!canEditProfile}
-                disabled={!canEditProfile}
-              />
-              {formErrors.phone ? <p className={fieldErrorClassName}>{formErrors.phone}</p> : null}
-            </div>
+            {renderReadonlyField('profilePhone', 'Số điện thoại tài khoản', profile.phone)}
           </div>
         </section>
 
         <section className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-muted">Thông tin học sinh</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            {renderReadonlyField('studentCode', 'Mã học sinh', profile.studentCode)}
             {renderReadonlyField('studentClass', 'Lớp', profile.className)}
             {renderReadonlyField('studentGender', 'Giới tính', profile.gender)}
             {renderReadonlyField('studentDob', 'Ngày sinh', profile.dateOfBirth)}
@@ -114,25 +80,6 @@ const StudentAccountInfoCard = ({
         </section>
       </div>
 
-      <div className="mt-6 flex flex-wrap justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSaving || !canEditProfile}
-          className="app-btn-secondary app-focus-ring rounded-lg px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          Hủy
-        </button>
-
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={isSaving || !canEditProfile}
-          className="app-btn-primary app-focus-ring rounded-lg px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
-        </button>
-      </div>
     </section>
   );
 };

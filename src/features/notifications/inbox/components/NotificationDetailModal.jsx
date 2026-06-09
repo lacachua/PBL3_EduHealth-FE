@@ -1,8 +1,5 @@
 import React from 'react';
 import {
-  canViewNotificationRecipients,
-} from '../constants/notificationComposeConfig';
-import {
   getNotificationTypeMeta,
   getRoleLabel,
   TYPE_TONE_CLASS_MAP,
@@ -39,7 +36,6 @@ const NotificationDetailModal = ({
   loading,
   item,
   role,
-  currentUser,
   onClose,
   onViewFullPage,
 }) => {
@@ -49,7 +45,6 @@ const NotificationDetailModal = ({
 
   const typeMeta = getNotificationTypeMeta(item?.type, role);
   const typeToneClassName = TYPE_TONE_CLASS_MAP[typeMeta.tone] || TYPE_TONE_CLASS_MAP.info;
-  const canViewRecipients = canViewNotificationRecipients({ role, notification: item, currentUser });
   const recipients = item?.recipients || [];
   const imageUrl = item?.imageUrl;
 

@@ -2,6 +2,7 @@ import Pagination from '../../../shared/components/core/Pagination';
 import RightDrawer from '../../../shared/components/core/RightDrawer';
 import StatusBadge from '../../../shared/components/core/StatusBadge';
 import MedicineMovementsTable from './MedicineMovementsTable';
+import MedicineBatchCard from './MedicineBatchCard';
 
 const DetailRow = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] gap-3 border-b border-outline-variant py-2.5 last:border-b-0">
@@ -60,6 +61,19 @@ const MedicineDetailDrawer = ({
         </div>
 
         <section>
+          <h3 className="mb-2 text-sm font-semibold text-on-surface">Lô nhập</h3>
+          <div className="space-y-3">
+            {medicine.batches?.length ? medicine.batches.map((batch) => (
+              <MedicineBatchCard key={batch.id} batch={batch} medicineUnit={medicine.unit} />
+            )) : (
+              <p className="rounded-xl border border-dashed border-outline-variant px-4 py-5 text-center text-sm text-on-surface-variant">
+                Thuốc chưa có lô nhập.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section>
           <h3 className="mb-2 text-sm font-semibold text-on-surface">Lịch sử biến động kho</h3>
           {movementsLoading ? <p className="text-sm text-on-surface-variant">Đang tải biến động kho...</p> : null}
           {movementsError ? <p className="rounded-lg border border-warning/25 bg-warning-soft px-3 py-2 text-sm text-warning">{movementsError}</p> : null}
@@ -69,6 +83,7 @@ const MedicineDetailDrawer = ({
               page={movementsData.page}
               pageSize={movementsData.pageSize}
               totalItems={movementsData.totalItems}
+              totalPages={movementsData.totalPages}
               onPageChange={onMovementPageChange}
             />
           ) : null}
