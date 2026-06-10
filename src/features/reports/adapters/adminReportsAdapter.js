@@ -105,22 +105,15 @@ const buildClassOptions = (classRows) => {
   return [{ id: 'all', label: 'Toàn bộ lớp' }, ...options];
 };
 
-const filterRowsByRiskThreshold = (rows, riskThreshold) => {
-  const normalized = String(riskThreshold || '').toLowerCase();
+const mapClassOptions = (options, fallbackRows) => {
+  const mapped = ensureArray(options)
+    .map((option) => ({
+      id: String(option.id ?? option.value ?? ''),
+      label: option.label || '',
+    }))
+    .filter((option) => option.id && option.label);
 
-  if (normalized.includes('cao') || normalized.includes('đỏ')) {
-    return rows.filter((row) => row.riskTone === 'danger');
-  }
-
-  if (normalized.includes('trung') || normalized.includes('theo')) {
-    return rows.filter((row) => row.riskTone === 'warning');
-  }
-
-  if (normalized.includes('ổn') || normalized.includes('on')) {
-    return rows.filter((row) => row.riskTone === 'success');
-  }
-
-  return rows;
+  return mapped.length ? mapped : buildClassOptions(fallbackRows);
 };
 
 const mapClassRowToChartData = (row) => {
@@ -157,7 +150,7 @@ const emptyDashboardModel = () => ({
   chartMeta: null,
 });
 
-export const adaptAdminReportsDashboardResponse = (payload, filters = {}) => {
+export const adaptAdminReportsDashboardResponse = (payload) => {
   const envelope = normalizeApiEnvelope(payload);
 
   if (!envelope || envelope.success === false) {
@@ -166,7 +159,7 @@ export const adaptAdminReportsDashboardResponse = (payload, filters = {}) => {
 
   const data = envelope.data || {};
   const allClassRows = ensureArray(data.classRows).map(mapClassRow).filter(Boolean);
-  const mappedClassRows = filterRowsByRiskThreshold(allClassRows, filters.riskThreshold);
+  const mappedClassRows = allClassRows;
   const visibleClassIds = new Set(mappedClassRows.map((row) => row.classId));
   const mappedChartData = ensureArray(data.chartData)
     .map(mapChartData)
@@ -180,7 +173,7 @@ export const adaptAdminReportsDashboardResponse = (payload, filters = {}) => {
     },
     filterOptions: {
       ...adminReportFilterOptions,
-      classOptions: buildClassOptions(allClassRows),
+      classOptions: mapClassOptions(data.filterOptions?.classOptions, allClassRows),
     },
     summaryCards: ensureArray(data.summaryCards).map(mapSummaryCard).filter(Boolean),
     chartData: mappedChartData.length ? mappedChartData : mappedClassRows.map(mapClassRowToChartData),

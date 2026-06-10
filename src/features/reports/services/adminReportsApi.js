@@ -4,8 +4,8 @@ export const getAdminReportsDashboardApi = async (params = {}) => (
   apiGetEnvelope('/api/v1/reports/admin/dashboard', { params })
 );
 
-export const getAdminClassDetailApi = async (classId) => (
-  apiGetEnvelope(`/api/v1/reports/admin/classes/${classId}`)
+export const getAdminClassDetailApi = async (classId, params = {}) => (
+  apiGetEnvelope(`/api/v1/reports/admin/classes/${classId}`, { params })
 );
 
 export const exportAdminReportsApi = async (params = {}) => (

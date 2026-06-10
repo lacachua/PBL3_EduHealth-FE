@@ -26,11 +26,13 @@ const toNullableInt = (value) => {
 
 const buildReportQuery = (filters = {}) => {
   const classId = toNullableInt(filters.classId);
+  const riskThreshold = String(filters.riskThreshold || '');
 
   return {
     ...(filters.fromDate && { fromDate: filters.fromDate }),
     ...(filters.toDate && { toDate: filters.toDate }),
     ...(classId && { classId }),
+    ...(riskThreshold && riskThreshold !== 'Tất cả mức độ' && { riskThreshold }),
   };
 };
 
@@ -39,8 +41,8 @@ export const adminReportsRepository = {
     return getAdminReportsDashboardApi(buildReportQuery(filters));
   },
 
-  getClassDetail: async ({ classId }) => {
-    return getAdminClassDetailApi(classId);
+  getClassDetail: async ({ classId, filters }) => {
+    return getAdminClassDetailApi(classId, buildReportQuery(filters));
   },
 
   export: async ({ filters, format }) => {

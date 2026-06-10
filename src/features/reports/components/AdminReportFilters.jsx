@@ -4,6 +4,14 @@ const FIELD_CLASS_NAME = 'w-full rounded-xl border border-outline-variant bg-sur
 
 const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
   const [draft, setDraft] = useState(filters);
+  const today = new Date().toLocaleDateString('en-CA');
+  const datesMissing = !draft.fromDate || !draft.toDate;
+  const dateRangeInvalid = !datesMissing && draft.fromDate > draft.toDate;
+  const dateError = datesMissing
+    ? 'Vui lòng chọn đầy đủ từ ngày và đến ngày.'
+    : dateRangeInvalid
+      ? 'Từ ngày không được sau đến ngày.'
+      : '';
 
   useEffect(() => {
     setDraft(filters);
@@ -15,6 +23,7 @@ const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
 
   const applyFilters = (event) => {
     event.preventDefault();
+    if (dateError) return;
     onApply(draft);
   };
 
@@ -30,25 +39,18 @@ const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
 
         <div className="space-y-1.5 xl:col-span-2">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Từ ngày</label>
-          <input className={FIELD_CLASS_NAME} type="date" value={draft.fromDate || ''} onChange={(event) => updateDraft('fromDate', event.target.value)} />
+          <input className={FIELD_CLASS_NAME} type="date" max={today} value={draft.fromDate || ''} onChange={(event) => updateDraft('fromDate', event.target.value)} required />
         </div>
 
         <div className="space-y-1.5 xl:col-span-2">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Đến ngày</label>
-          <input className={FIELD_CLASS_NAME} type="date" value={draft.toDate || ''} onChange={(event) => updateDraft('toDate', event.target.value)} />
+          <input className={FIELD_CLASS_NAME} type="date" max={today} value={draft.toDate || ''} onChange={(event) => updateDraft('toDate', event.target.value)} required />
         </div>
 
         <div className="space-y-1.5 xl:col-span-3">
           <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Ngưỡng rủi ro</label>
           <select className={FIELD_CLASS_NAME} value={draft.riskThreshold} onChange={(event) => updateDraft('riskThreshold', event.target.value)}>
             {(options.riskThresholds || []).map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-        </div>
-
-        <div className="space-y-1.5 xl:col-span-2">
-          <label className="ml-1 text-[11px] font-bold uppercase tracking-widest text-on-surface-muted">Loại báo cáo</label>
-          <select className={FIELD_CLASS_NAME} value={draft.reportType} onChange={(event) => updateDraft('reportType', event.target.value)}>
-            {(options.reportTypes || []).map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
 
@@ -61,15 +63,16 @@ const AdminReportFilters = ({ filters, options, onApply, onReset }) => {
           </div>
         ) : null}
 
-        <div className="flex items-end justify-end gap-2 md:col-span-2 xl:col-span-12">
+        <div className="flex items-end justify-end gap-2 md:col-span-2 xl:col-span-2">
           <button type="button" onClick={onReset} className="app-btn-secondary app-focus-ring rounded-xl px-4 py-2.5 text-sm font-semibold">
             Đặt lại
           </button>
-          <button type="submit" className="app-btn-primary app-focus-ring rounded-xl px-4 py-2.5 text-sm font-semibold">
+          <button type="submit" disabled={Boolean(dateError)} className="app-btn-primary app-focus-ring rounded-xl px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50">
             Lọc
           </button>
         </div>
       </div>
+      {dateError ? <p className="mt-3 text-sm font-medium text-error">{dateError}</p> : null}
     </form>
   );
 };

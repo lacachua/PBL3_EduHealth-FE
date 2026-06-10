@@ -15,15 +15,25 @@ import { adminReportFilterOptions } from '../constants/adminReportFilterOptions'
 import { ADMIN_REPORT_CAPABILITIES } from '../schemas/adminReportsSchema';
 import '../styles/reports.css';
 
-const createInitialFilters = () => ({
-  reportType: adminReportFilterOptions.reportTypes[0],
-  period: adminReportFilterOptions.periods[0],
-  classId: 'all',
-  fromDate: '',
-  toDate: '',
-  gradeScope: adminReportFilterOptions.gradeScopes[0],
-  riskThreshold: adminReportFilterOptions.riskThresholds[0],
-});
+const formatLocalDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const createInitialFilters = () => {
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  return {
+    classId: 'all',
+    fromDate: formatLocalDate(firstDayOfMonth),
+    toDate: formatLocalDate(today),
+    gradeScope: adminReportFilterOptions.gradeScopes[0],
+    riskThreshold: adminReportFilterOptions.riskThresholds[0],
+  };
+};
 
 const ReportsPage = () => {
   const disableServerExport = !ADMIN_REPORT_CAPABILITIES.supportsServerExport;
